@@ -5,7 +5,6 @@ import type { WeaveConfig } from '../shared/config.js';
 import { generateText } from '../shared/ollama.js';
 
 // ── types ────────────────────────────────────────────────────
-
 export interface ContinuityReport {
   date: string;          // yyyy-mm-dd
   generatedAt: string;   // iso 8601
@@ -26,7 +25,6 @@ interface Snapshot {
 }
 
 // ── continuity reporter ──────────────────────────────────────
-
 export class ContinuityReporter {
   private snapshotPath: string;
   private reportsDir: string;
@@ -40,8 +38,7 @@ export class ContinuityReporter {
     fs.mkdirSync(this.reportsDir, { recursive: true });
   }
 
-  /**
-   * generate a continuity report comparing the current index state
+  /**   * generate a continuity report comparing the current index state
    * against the last saved snapshot. saves the report and updates
    * the snapshot.
    */
@@ -49,18 +46,15 @@ export class ContinuityReporter {
     const now = date || new Date();
     const dateStr = formatDate(now);
 
-    // load previous snapshot
-    const prevSnapshot = await this.loadSnapshot();
+    // load previous snapshot    const prevSnapshot = await this.loadSnapshot();
 
-    // build current snapshot from vector store
-    const currentFiles: Record<string, number> = {};
+    // build current snapshot from vector store    const currentFiles: Record<string, number> = {};
     const docs = this.vectorStore.getAll();
     for (const doc of docs) {
       currentFiles[doc.id] = doc.mtime;
     }
 
-    // diff
-    const added: string[] = [];
+    // diff    const added: string[] = [];
     const modified: string[] = [];
     const deleted: string[] = [];
 
@@ -78,14 +72,12 @@ export class ContinuityReporter {
       }
     }
 
-    // compute stats
-    let totalWords = 0;
+    // compute stats    let totalWords = 0;
     for (const doc of docs) {
       totalWords += doc.wordCount;
     }
 
-    // generate llm summary
-    const summary = await this.generateSummary(added, modified, deleted, docs);
+    // generate llm summary    const summary = await this.generateSummary(added, modified, deleted, docs);
 
     const report: ContinuityReport = {
       date: dateStr,
@@ -101,19 +93,16 @@ export class ContinuityReporter {
       },
     };
 
-    // save report
-    const reportPath = path.join(this.reportsDir, `${dateStr}.json`);
+    // save report    const reportPath = path.join(this.reportsDir, `${dateStr}.json`);
     await fs.promises.writeFile(reportPath, JSON.stringify(report, null, 2), 'utf-8');
 
-    // update snapshot
-    await this.saveSnapshot({ date: dateStr, files: currentFiles });
+    // update snapshot    await this.saveSnapshot({ date: dateStr, files: currentFiles });
 
     console.log(`[continuity] report generated for ${dateStr}: +${added.length} ~${modified.length} -${deleted.length}`);
     return report;
   }
 
-  /**
-   * retrieve a previously generated report by date (yyyy-mm-dd).
+  /**   * retrieve a previously generated report by date (yyyy-mm-dd).
    */
   async getReport(dateStr: string): Promise<ContinuityReport | null> {
     const reportPath = path.join(this.reportsDir, `${dateStr}.json`);
@@ -122,8 +111,7 @@ export class ContinuityReporter {
     return JSON.parse(raw);
   }
 
-  /**
-   * list all available report dates.
+  /**   * list all available report dates.
    */
   async listReports(): Promise<string[]> {
     const files = await fs.promises.readdir(this.reportsDir).catch(() => [] as string[]);
@@ -135,7 +123,6 @@ export class ContinuityReporter {
   }
 
   // ── llm summary ────────────────────────────────────────────
-
   private async generateSummary(
     added: string[],
     modified: string[],
@@ -146,8 +133,7 @@ export class ContinuityReporter {
       return 'no changes detected since the last report.';
     }
 
-    // build context for the llm
-    const docMap = new Map(allDocs.map(d => [d.id, d]));
+    // build context for the llm    const docMap = new Map(allDocs.map(d => [d.id, d]));
 
     const addedSummary = added.slice(0, 10).map(id => {
       const doc = docMap.get(id);
@@ -182,7 +168,6 @@ all text must be lowercase. no markdown formatting.`;
   }
 
   // ── snapshot persistence ───────────────────────────────────
-
   private async loadSnapshot(): Promise<Snapshot> {
     if (!fs.existsSync(this.snapshotPath)) {
       return { date: '', files: {} };
@@ -199,7 +184,6 @@ all text must be lowercase. no markdown formatting.`;
 }
 
 // ── helpers ──────────────────────────────────────────────────
-
 function formatDate(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');

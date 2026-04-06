@@ -4,8 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { vi, describe, it, expect } from 'vitest';
 
-// mock the hook we just wrote
-vi.mock('@/hooks/use-collection-data', () => ({
+// mock the hook we just wrotevi.mock('@/hooks/use-collection-data', () => ({
   useCollectionData: () => ({
     collection: { name: 'foo', fields: [] },
     records: [],

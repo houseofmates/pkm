@@ -57,8 +57,7 @@ function DataEmbedContent({
     }
   }, [view]);
 
-  // fetch schema fields so we can show headers even when there are no records
-  const { data: schemaData } = useQuery({
+  // fetch schema fields so we can show headers even when there are no records  const { data: schemaData } = useQuery({
     queryKey: ['embed', 'schema', collection],
     queryFn: async () => {
       try {

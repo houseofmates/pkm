@@ -96,8 +96,7 @@ const GamifiedPets: React.FC = () => {
   
   const { earnXp, updateStreak } = useGamificationStore()
 
-  // load from localstorage
-  useEffect(() => {
+  // load from localstorage  useEffect(() => {
     const saved = localStorage.getItem('pkm:wilson:state')
     if (saved) {
       const parsed = JSON.parse(saved)
@@ -105,8 +104,7 @@ const GamifiedPets: React.FC = () => {
     }
   }, [])
 
-  // save to localstorage
-  useEffect(() => {
+  // save to localstorage  useEffect(() => {
     localStorage.setItem('pkm:wilson:state', JSON.stringify({
       name: wilson.name,
       level: wilson.level,
@@ -126,8 +124,7 @@ const GamifiedPets: React.FC = () => {
     }))
   }, [wilson])
 
-  // stat decay over time
-  useEffect(() => {
+  // stat decay over time  useEffect(() => {
     const decayInterval = setInterval(() => {
       setWilson(prev => ({
         ...prev,
@@ -161,8 +158,7 @@ const GamifiedPets: React.FC = () => {
     }
   }
 
-  // wilson abilities
-  const ABILITIES: WilsonAbility[] = [
+  // wilson abilities  const ABILITIES: WilsonAbility[] = [
     {
       id: 'motivation-boost',
       name: 'motivation boost',
@@ -215,16 +211,14 @@ const GamifiedPets: React.FC = () => {
     }
   ]
 
-  // care actions
-  const CARE_ACTIONS: CareAction[] = [
+  // care actions  const CARE_ACTIONS: CareAction[] = [
     { id: 'feed', name: 'feed', icon: <Cookie className="w-5 h-5" />, xpReward: 15, cooldown: 1800000, lastPerformed: null },
     { id: 'play', name: 'play', icon: <Play className="w-5 h-5" />, xpReward: 20, cooldown: 3600000, lastPerformed: null },
     { id: 'groom', name: 'groom', icon: <Scissors className="w-5 h-5" />, xpReward: 10, cooldown: 7200000, lastPerformed: null },
     { id: 'nap', name: 'nap together', icon: <Moon className="w-5 h-5" />, xpReward: 5, cooldown: 1800000, lastPerformed: null }
   ]
 
-  // loot box rewards pool
-  const LOOT_POOL: LootBoxReward[] = [
+  // loot box rewards pool  const LOOT_POOL: LootBoxReward[] = [
     { id: 'xp-small', type: 'xp', amount: 25, label: '25 bonus xp', rarity: 'common' },
     { id: 'xp-medium', type: 'xp', amount: 50, label: '50 bonus xp', rarity: 'rare' },
     { id: 'xp-large', type: 'xp', amount: 100, label: '100 bonus xp', rarity: 'epic' },
@@ -251,20 +245,17 @@ const GamifiedPets: React.FC = () => {
       const xpToNext = prev.xpToNext
       
       if (newXp >= xpToNext) {
-        // level up!
-        const newLevel = prev.level + 1
+        // level up!        const newLevel = prev.level + 1
         const newXpToNext = Math.floor(xpToNext * 1.5)
         
-        // check for new abilities
-        const newAbilities = [...prev.abilitiesUnlocked]
+        // check for new abilities        const newAbilities = [...prev.abilitiesUnlocked]
         ABILITIES.forEach(ability => {
           if (newLevel >= ability.levelRequired && !newAbilities.includes(ability.id)) {
             newAbilities.push(ability.id)
           }
         })
         
-        // trigger loot box
-        setTimeout(() => {
+        // trigger loot box        setTimeout(() => {
           openLootBox()
         }, 500)
         
@@ -286,8 +277,7 @@ const GamifiedPets: React.FC = () => {
   }, [addActivityLog])
 
   const openLootBox = () => {
-    // roll for rewards
-    const roll = () => {
+    // roll for rewards    const roll = () => {
       const rand = Math.random()
       if (rand < 0.5) return LOOT_POOL.filter(r => r.rarity === 'common')[0]
       if (rand < 0.8) return LOOT_POOL.filter(r => r.rarity === 'rare')[Math.floor(Math.random() * 2)]
@@ -372,8 +362,7 @@ const GamifiedPets: React.FC = () => {
     const now = Date.now()
     if (ability.lastUsed && now - ability.lastUsed < ability.cooldown) return
     
-    // track ability use
-    setWilson(prev => ({
+    // track ability use    setWilson(prev => ({
       ...prev,
       lastAbilityUse: { ...prev.lastAbilityUse, [ability.id]: now }
     }))
@@ -397,8 +386,7 @@ const GamifiedPets: React.FC = () => {
         break
     }
     
-    // mark ability as used (in real app, track lastused per ability)
-  }
+    // mark ability as used (in real app, track lastused per ability)  }
 
   const getWilsonEmoji = () => {
     if (wilson.level >= 15) return '🦄'

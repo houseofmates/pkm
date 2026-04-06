@@ -18,8 +18,7 @@ import { secureLogger } from '@/lib/secure-logger';
 
 export function TemplatePage() {
   const navigate = useNavigate();
-  // load saved template from persistent storage
-  const [savedTemplate, setSavedTemplate] = useAppSetting<string>('saved_template_json', '');
+  // load saved template from persistent storage  const [savedTemplate, setSavedTemplate] = useAppSetting<string>('saved_template_json', '');
 
   const [json, setJson] = useState(`{
   "meta": { "name": "universal dashboard", "icon": "Layout", "description": "Sample dashboard", "llm_guidance": {
@@ -50,23 +49,18 @@ export function TemplatePage() {
   const [isBuilding, setIsBuilding] = useState(false);
   const [previewState, setPreviewState] = useState<Record<string, any>>({});
   const [previewData, setPreviewData] = useState<Record<string, any[]>>({});
-  // livecolumns holds interactive layout state for preview and persists to json
-  const [liveColumns, setLiveColumns] = useState<any[][]>([]);
+  // livecolumns holds interactive layout state for preview and persists to json  const [liveColumns, setLiveColumns] = useState<any[][]>([]);
 
-  // fullscreen preview dialog state
-  const [fullscreenOpen, setFullscreenOpen] = useState(false);
+  // fullscreen preview dialog state  const [fullscreenOpen, setFullscreenOpen] = useState(false);
 
-  // onboarding panel state
-  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  // onboarding panel state  const [onboardingOpen, setOnboardingOpen] = useState(false);
 
-  // persist helper: write columns back into the json and push history for undo
-  const persistColumns = (cols: any[][]) => {
+  // persist helper: write columns back into the json and push history for undo  const persistColumns = (cols: any[][]) => {
     try {
       const parsed = JSON.parse(json);
       parsed.layout = parsed.layout || {};
       parsed.layout.columns = cols;
-      // push history
-      setPreviewState(s => ({ ...s, history: [...(s.history || []), json] }));
+      // push history      setPreviewState(s => ({ ...s, history: [...(s.history || []), json] }));
       setJson(JSON.stringify(parsed, null, 2));
     } catch { /* ignore */ }
   };
@@ -82,32 +76,26 @@ export function TemplatePage() {
   };
 
   const updateWidgetConfig = (targetWidget: any, patch: Record<string, any>) => {
-    // shallow-merge patch into the matching widget in livecolumns and persist
-    const cols = liveColumns.map(col => col.map((w: any) => w === targetWidget ? ({ ...w, ...patch }) : w));
+    // shallow-merge patch into the matching widget in livecolumns and persist    const cols = liveColumns.map(col => col.map((w: any) => w === targetWidget ? ({ ...w, ...patch }) : w));
     setLiveColumns(cols);
     persistColumns(cols);
   };
 
-  // load saved template on mount
-  useEffect(() => {
+  // load saved template on mount  useEffect(() => {
     if (savedTemplate && savedTemplate.trim()) {
       try {
-        // validate it's proper json before setting
-        JSON.parse(savedTemplate);
+        // validate it's proper json before setting        JSON.parse(savedTemplate);
         setJson(savedTemplate);
 
       } catch {
-        // invalid saved json, ignore and use default
-        secureLogger.warn('Saved template is invalid JSON, using default');
+        // invalid saved json, ignore and use default        secureLogger.warn('Saved template is invalid JSON, using default');
       }
     }
   }, []); // only run on mount
 
-  // save current json to persistent storage
-  const saveTemplate = async () => {
+  // save current json to persistent storage  const saveTemplate = async () => {
     try {
-      // validate json before saving
-      JSON.parse(json);
+      // validate json before saving      JSON.parse(json);
       await setSavedTemplate(json);
     } catch {
       toast.error('cannot save: invalid json');
@@ -117,8 +105,7 @@ export function TemplatePage() {
   useEffect(() => {
     try {
       const parsed = JSON.parse(json);
-      // seed previewdata from parsed.data if present, or from databases rows/sample/records
-      const seed: Record<string, any[]> = {};
+      // seed previewdata from parsed.data if present, or from databases rows/sample/records      const seed: Record<string, any[]> = {};
       if (parsed?.data && typeof parsed.data === 'object') {
         Object.keys(parsed.data).forEach(k => { seed[k] = Array.isArray(parsed.data[k]) ? parsed.data[k] : []; });
       }
@@ -130,25 +117,21 @@ export function TemplatePage() {
         }
       }
       setPreviewData(seed);
-      // initialize column widths if provided
-      try {
+      // initialize column widths if provided      try {
         const parsed = JSON.parse(json);
         if (parsed?.layout?.columnWidths && Array.isArray(parsed.layout.columnWidths)) {
           setPreviewState(s => ({ ...s, columnWidths: parsed.layout.columnWidths.slice(0, 4) }));
         } else {
-          // equal widths for up to 4 columns
-          const cols = (parsed?.layout?.columns?.length) || 1;
+          // equal widths for up to 4 columns          const cols = (parsed?.layout?.columns?.length) || 1;
           const w = Math.floor(100 / cols);
           setPreviewState(s => ({ ...s, columnWidths: Array(cols).fill(w) }));
         }
       } catch { /* ignore */ }
     } catch {
-      // ignore parse errors here
-    }
+      // ignore parse errors here    }
   }, [json]);
 
-  // sync livecolumns from json when preview is validated or json changes
-  useEffect(() => {
+  // sync livecolumns from json when preview is validated or json changes  useEffect(() => {
     if (!isValid) return;
     try {
       const parsed = JSON.parse(json);
@@ -157,8 +140,7 @@ export function TemplatePage() {
         : [parsed?.layout?.widgets || []];
       setLiveColumns(cols.map((c: any) => Array.isArray(c) ? c : []));
     } catch {
-      // ignore
-    }
+      // ignore    }
   }, [json, isValid]);
 
   const { client } = useAuth();
@@ -196,13 +178,11 @@ export function TemplatePage() {
     const t = toast.loading('initializing workspace engine...');
 
     try {
-      // 1. create databases
-      toast.loading('creating databases and fields...', { id: t });
+      // 1. create databases      toast.loading('creating databases and fields...', { id: t });
       for (const db of config.databases) {
         const collectionName = `db_${db.key.toLowerCase().replace(/\s+/g, '_')}`;
 
-        // check if exists
-        let collection;
+        // check if exists        let collection;
         try {
           const res = await api.getCollection(collectionName);
           collection = res.data || res;
@@ -215,25 +195,21 @@ export function TemplatePage() {
           });
         }
 
-        // create fields
-        for (const prop of db.properties) {
+        // create fields        for (const prop of db.properties) {
           try {
             await api.createField(collectionName, {
               name: prop.name,
               type: prop.type,
-              // handle select options if present
-              ...(prop.type === 'select' && {
+              // handle select options if present              ...(prop.type === 'select' && {
                 dataSource: prop.options?.map((o: string) => ({ label: o, value: o, color: 'default' }))
               })
             });
           } catch {
-            // ignore if exists
-          }
+            // ignore if exists          }
         }
       }
 
-      // 2. setup layout
-      toast.loading('configuring workspace layout...', { id: t });
+      // 2. setup layout      toast.loading('configuring workspace layout...', { id: t });
       const workspaceId = `workspace_${config.meta.name.toLowerCase().replace(/\s+/g, '_')}`;
 
       const columns = config.layout?.columns || [config.layout?.widgets || []];
@@ -269,15 +245,13 @@ export function TemplatePage() {
         currentX += w;
       });
 
-      // store layout in pkm_settings
-      await client.request('pkm_settings', 'create', {
+      // store layout in pkm_settings      await client.request('pkm_settings', 'create', {
         method: 'POST',
         key: `layout_${workspaceId}`,
         value: JSON.stringify(widgets)
       });
 
-      // 3. update sidebar
-      toast.loading('registering sidebar entry...', { id: t });
+      // 3. update sidebar      toast.loading('registering sidebar entry...', { id: t });
       const newNavItem: NavItem = {
         id: workspaceId,
         type: 'collection',
@@ -297,39 +271,32 @@ export function TemplatePage() {
     }
   };
 
-  // create a document from the json template
-  const createDocument = async () => {
+  // create a document from the json template  const createDocument = async () => {
     const config = validateJson();
     if (!config) return;
 
     const t = toast.loading('creating document...');
     try {
-      // find or create a 'documents' collection
-      const collectionName = 'documents';
+      // find or create a 'documents' collection      const collectionName = 'documents';
       let collection;
       try {
         const res = await api.getCollection(collectionName);
         collection = res.data || res;
       } catch {
-        // create collection if doesn't exist
-        try {
+        // create collection if doesn't exist        try {
           await api.createCollection({
             name: collectionName,
             title: 'Documents',
           });
-          // add basic fields
-          await api.createField(collectionName, { name: 'title', type: 'string', uiSchema: { title: 'title' } });
+          // add basic fields          await api.createField(collectionName, { name: 'title', type: 'string', uiSchema: { title: 'title' } });
           await api.createField(collectionName, { name: 'content', type: 'text', uiSchema: { title: 'content' } });
           await api.createField(collectionName, { name: 'layout', type: 'json', uiSchema: { title: 'layout' } });
-          // support slug so documents can be referenced by url if desired
-          try { await api.createField(collectionName, { name: 'slug', type: 'string', unique: true, uiSchema: { title: 'slug' } }); } catch { /* ok if not supported */ }
+          // support slug so documents can be referenced by url if desired          try { await api.createField(collectionName, { name: 'slug', type: 'string', unique: true, uiSchema: { title: 'slug' } }); } catch { /* ok if not supported */ }
         } catch {
-          // ignore field creation errors (may already exist)
-        }
+          // ignore field creation errors (may already exist)        }
       }
 
-      // create the document record
-      const slug = (config.meta && (config.meta.slug || config.meta.name)) ? generateSlug(config.meta.slug || config.meta.name) : undefined;
+      // create the document record      const slug = (config.meta && (config.meta.slug || config.meta.name)) ? generateSlug(config.meta.slug || config.meta.name) : undefined;
       const docData: any = {
         title: config.meta?.name || 'Untitled Document',
         content: JSON.stringify(config, null, 2),
@@ -346,8 +313,7 @@ export function TemplatePage() {
 
       toast.success('document created', { id: t });
 
-      // navigate to the document
-      if (docId) {
+      // navigate to the document      if (docId) {
         navigate(`/databases/${collectionName}/${docId}`);
       }
     } catch (e: any) {

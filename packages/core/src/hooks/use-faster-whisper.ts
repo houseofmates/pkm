@@ -24,8 +24,7 @@ export interface UseFasterWhisperState {
   serverAvailable: boolean | null;
 }
 
-/**
- * unified hook for faster-whisper transcription with detail enhancement
+/** * unified hook for faster-whisper transcription with detail enhancement
  * records audio -> sends to 192.168.4.250:5000/transcribe -> enhances with ollama
  */
 export function useFasterWhisper(options: UseFasterWhisperOptions = {}) {
@@ -54,15 +53,13 @@ export function useFasterWhisper(options: UseFasterWhisperOptions = {}) {
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // check server availability on mount
-  useEffect(() => {
+  // check server availability on mount  useEffect(() => {
     fasterWhisperClient.isAvailable().then(available => {
       setState(prev => ({ ...prev, serverAvailable: available }));
     });
   }, []);
 
-  // cleanup on unmount
-  useEffect(() => {
+  // cleanup on unmount  useEffect(() => {
     return () => {
       stopRecording();
     };
@@ -148,8 +145,7 @@ export function useFasterWhisper(options: UseFasterWhisperOptions = {}) {
     setState(prev => ({ ...prev, isRecording: false, isProcessing: true }));
 
     try {
-      // step 1: transcribe with faster-whisper
-      const result: FasterWhisperTranscriptionResult = await fasterWhisperClient.transcribe(
+      // step 1: transcribe with faster-whisper      const result: FasterWhisperTranscriptionResult = await fasterWhisperClient.transcribe(
         audioBlob,
         { language, vad_filter: true }
       );
@@ -158,8 +154,7 @@ export function useFasterWhisper(options: UseFasterWhisperOptions = {}) {
       setState(prev => ({ ...prev, transcript: rawTranscript }));
       onTranscript?.(rawTranscript);
 
-      // step 2: enhance with detail enhancer (if enabled)
-      if (enhanceWithContext) {
+      // step 2: enhance with detail enhancer (if enabled)      if (enhanceWithContext) {
         setState(prev => ({ ...prev, isEnhancing: true }));
 
         const enhancedResult = await detailEnhancer.enhance(rawTranscript, {

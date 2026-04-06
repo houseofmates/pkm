@@ -4,15 +4,13 @@ import { useElement, useViewport } from '../../store';
 export const ConnectorElement = React.memo(function ConnectorElement({ element }: { element: any }) {
   const { connectorData } = element;
 
-  // ── granular subscriptions: only re-render when this specific connected node changes ──
-  const startNode = useElement(connectorData?.startId || '');
+  // ── granular subscriptions: only re-render when this specific connected node changes ──  const startNode = useElement(connectorData?.startId || '');
   const endNode = useElement(connectorData?.endId || '');
   const viewPort = useViewport();
 
   if (!startNode || !endNode || !connectorData) return null;
 
-  // calculate positions in screen coordinates
-  const { zoom, x: panX, y: panY } = viewPort;
+  // calculate positions in screen coordinates  const { zoom, x: panX, y: panY } = viewPort;
 
   const sx = startNode.x * zoom + panX + (startNode.width * zoom) / 2;
   const sy = startNode.y * zoom + panY + (startNode.height * zoom) / 2;

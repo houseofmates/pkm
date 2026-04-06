@@ -4,8 +4,7 @@ import { Badge } from '../ui/badge'
 import { Progress } from '../ui/progress'
 import { Flame } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
-// import link from 'next/link'
-const Link: React.FC<{ href: string; className?: string; children: React.ReactNode }> = ({ href, className = '', children }) => {
+// import link from 'next/link'const Link: React.FC<{ href: string; className?: string; children: React.ReactNode }> = ({ href, className = '', children }) => {
   return (
     <div className={className} onClick={() => window.location.href = href} style={{ cursor: 'pointer' }}>
       {children}

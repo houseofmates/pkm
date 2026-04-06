@@ -46,8 +46,7 @@ export function BlogCanvas() {
   setSelectionBox
   } = useBlogBuilder();
 
-  // global key listener for delete
-  useEffect(() => {
+  // global key listener for delete  useEffect(() => {
   const handleGlobalKeyDown = (e: KeyboardEvent) => {
   if (e.key === 'Delete' || e.key === 'Backspace') {
  const target = e.target as HTMLElement;
@@ -65,15 +64,13 @@ export function BlogCanvas() {
   return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [selectedElementIds, isAdmin, deleteElements]);
 
-  // global 'click outside' for robust deselection
-  useEffect(() => {
+  // global 'click outside' for robust deselection  useEffect(() => {
   if (selectedElementIds.length === 0) return;
 
   const handleGlobalMousedown = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
 
-  // checks
-  const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
+  // checks  const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
   const isClickingElement = target.closest('[data-element-id]');
   const isClickingHandle = target.classList.contains('resize-handle') || !!target.dataset.handle;
   const isClickingBubbleMenu = target.closest('.BubbleMenu');
@@ -89,8 +86,7 @@ export function BlogCanvas() {
   return () => document.removeEventListener('mousedown', handleGlobalMousedown, true);
   }, [selectedElementIds, setSelectedElementIds]);
 
-  // marquee selection logic: move / end
-  useEffect(() => {
+  // marquee selection logic: move / end  useEffect(() => {
   if (!selectionBox || !isAdmin) return;
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -109,14 +105,12 @@ export function BlogCanvas() {
   };
 
   const handleMouseUp = (e: MouseEvent) => {
-  // calculate final intersection
-  const x1 = Math.min(selectionBox.startX, selectionBox.currentX);
+  // calculate final intersection  const x1 = Math.min(selectionBox.startX, selectionBox.currentX);
   const y1 = Math.min(selectionBox.startY, selectionBox.currentY);
   const x2 = Math.max(selectionBox.startX, selectionBox.currentX);
   const y2 = Math.max(selectionBox.startY, selectionBox.currentY);
 
-  // important: threshold for "accidental" marquee vs click
-  const dist = Math.hypot(selectionBox.currentX - selectionBox.startX, selectionBox.currentY - selectionBox.startY);
+  // important: threshold for "accidental" marquee vs click  const dist = Math.hypot(selectionBox.currentX - selectionBox.startX, selectionBox.currentY - selectionBox.startY);
 
   if (dist > 5) {
  const intersectIds: string[] = [];
@@ -133,8 +127,7 @@ export function BlogCanvas() {
  const ex2 = elLayout.x + (elLayout.width || 0);
  const ey2 = elLayout.y + (elLayout.height || 0);
 
- // standard intersection check
- const overlap = !(x1 > ex2 || x2 < ex1 || y1 > ey2 || y2 < ey1);
+ // standard intersection check const overlap = !(x1 > ex2 || x2 < ex1 || y1 > ey2 || y2 < ey1);
  if (overlap) intersectIds.push(el.id);
  });
 
@@ -159,16 +152,14 @@ export function BlogCanvas() {
 
   if (!page) return null;
 
-  // responsive canvas styling
-  const isDesktop = previewMode === 'desktop';
+  // responsive canvas styling  const isDesktop = previewMode === 'desktop';
   const canvasStyle: React.CSSProperties = {
   background: page.background || 'transparent', // blog posts might not cover full bg
   height: isDesktop ? (page.height ? `${page.height}px` : 'auto') : '100%',
   minHeight: isDesktop ? '100vh' : '100%',
   };
 
-  // ensure mobile/tablet matches the wrapper if no overflow
-  if (!isDesktop) {
+  // ensure mobile/tablet matches the wrapper if no overflow  if (!isDesktop) {
   const baseHeight = previewMode === 'mobile' ? 932 : 1112;
   canvasStyle.minHeight = `${Math.max(page.height || 0, baseHeight)}px`;
   }
@@ -183,23 +174,20 @@ export function BlogCanvas() {
   onMouseDown={(e) => {
  const target = e.target as HTMLElement;
 
- // 1. ignore clicks on known ui components
- if (target.closest('.builder-toolbox') ||
+ // 1. ignore clicks on known ui components if (target.closest('.builder-toolbox') ||
  target.closest('.builder-context-menu') ||
  target.closest('.widget-property-editor') ||
  target.closest('.global-context-menu')) {
  return;
  }
 
- // 2. ignore clicks on actual elements (they handle their own selection)
- if (target.closest('[data-element-id]')) {
+ // 2. ignore clicks on actual elements (they handle their own selection) if (target.closest('[data-element-id]')) {
  return;
  }
 
  const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
 
- // 3. background click -> handle marquee selection
- if (isAdmin) {
+ // 3. background click -> handle marquee selection if (isAdmin) {
  const canvas = document.getElementById('canvas-content');
  if (!canvas) return;
  const rect = canvas.getBoundingClientRect();
@@ -207,8 +195,7 @@ export function BlogCanvas() {
  const sX = e.clientX - rect.left;
  const sY = e.clientY - rect.top;
 
- // clear previous selection if no modifier
- if (!isModifier) setSelectedElementIds([]);
+ // clear previous selection if no modifier if (!isModifier) setSelectedElementIds([]);
 
  setSelectionBox({
  startX: sX,
@@ -302,15 +289,11 @@ interface ElementRendererProps {
 function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onUpdateBatch, onContextMenu }: ElementRendererProps) {
   const { page, previewMode, viewWidth } = useBlogBuilder();
 
-  // calculate scale factor for mobile/tablet responsive layout
-  const designWidth = previewMode === 'mobile' ? 430 : previewMode === 'tablet' ? 834 : viewWidth;
+  // calculate scale factor for mobile/tablet responsive layout  const designWidth = previewMode === 'mobile' ? 430 : previewMode === 'tablet' ? 834 : viewWidth;
 
-  // in admin mode (builder), we keep 1:1 scale for precise editing inside the frame.
-  // in public mode (preview), we scale to fit the actual device width.
-  const scaleFactor = isAdmin ? 1 : (viewWidth / designWidth);
+  // in admin mode (builder), we keep 1:1 scale for precise editing inside the frame.  // in public mode (preview), we scale to fit the actual device width.  const scaleFactor = isAdmin ? 1 : (viewWidth / designWidth);
 
-  // determine active layout with robust fallbacks per field
-  const deviceLayout = previewMode === 'mobile' ? element.mobile : previewMode === 'tablet' ? element.tablet : null;
+  // determine active layout with robust fallbacks per field  const deviceLayout = previewMode === 'mobile' ? element.mobile : previewMode === 'tablet' ? element.tablet : null;
 
   const posX = deviceLayout?.x ?? element.x ?? 0;
   const posY = deviceLayout?.y ?? element.y ?? 0;
@@ -318,21 +301,18 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   const posH = deviceLayout?.height ?? element.height ?? 100;
   const fontSize = deviceLayout?.fontSize ?? element.styles?.fontSize;
 
-  // scroll-triggered animation
-  const { ref: inviewRef } = useInView({
+  // scroll-triggered animation  const { ref: inviewRef } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
   const elementRef = useRef<HTMLDivElement | null>(null);
 
-  // merge refs
-  const setRefs = (node: HTMLDivElement | null) => {
+  // merge refs  const setRefs = (node: HTMLDivElement | null) => {
     elementRef.current = node;
     inviewRef(node);
   };
 
-  // drag state
-  const [isDragging, setIsDragging] = useState(false);
+  // drag state  const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSnapping, setIsSnapping] = useState(false);
@@ -344,14 +324,12 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   } | null>(null);
   const resizeStart = useRef<{ x: number; y: number; elW: number; elH: number; elX: number; elY: number; baseFontSize: number } | null>(null);
 
-  // handle drag
-  useEffect(() => {
+  // handle drag  useEffect(() => {
   if (!isDragging || !dragStart.current) return;
 
   const { x: startX, y: startY, targets } = dragStart.current;
 
-  // tracks for commit
-  let finalDelta = { x: 0, y: 0 };
+  // tracks for commit  let finalDelta = { x: 0, y: 0 };
   let snapMode: 'none' | 'grid' | 'cluster' = 'none';
   let lastMouseEvent: MouseEvent | null = null;
 
@@ -363,9 +341,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   let moveY = dy;
 
   if (snapMode !== 'none') {
- // simplified snapping logic for blog... or keeps full logic?
- // keeping logic for consistence
- const GRID_SIZE = 20;
+ // simplified snapping logic for blog... or keeps full logic? // keeping logic for consistence const GRID_SIZE = 20;
  const primary = targets[0];
 
  if (snapMode === 'grid') {
@@ -416,8 +392,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   setIsDragging(false);
   dragStart.current = null;
 
-  // commit all to react
-  const batch = targets.map(t => ({
+  // commit all to react  const batch = targets.map(t => ({
  id: t.id,
  updates: { x: t.initialX + finalDelta.x, y: t.initialY + finalDelta.y }
   }));
@@ -437,8 +412,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   };
   }, [isDragging, onUpdateBatch, page, isSnapping]);
 
-  // handle resize
-  useEffect(() => {
+  // handle resize  useEffect(() => {
   if (!isResizing || !resizeHandle) return;
 
   const startX = resizeStart.current?.x || 0;
@@ -449,8 +423,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   const elY = resizeStart.current?.elY || 0;
   const baseFontSize = resizeStart.current?.baseFontSize || 24;
 
-  // track final state for commit
-  const pendingUpdate: any = {};
+  // track final state for commit  const pendingUpdate: any = {};
 
   const handleMouseMove = (e: MouseEvent) => {
   if (!elementRef.current) return;
@@ -464,8 +437,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   let newY = elY;
   let newFontSize = baseFontSize;
 
-  // calculate new dimensions based on direction
-  if (resizeHandle.includes('e')) newWidth = Math.max(50, elW + dx);
+  // calculate new dimensions based on direction  if (resizeHandle.includes('e')) newWidth = Math.max(50, elW + dx);
   if (resizeHandle.includes('w')) {
  newWidth = Math.max(50, elW - dx);
  newX = elX + dx;
@@ -476,33 +448,28 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
  newY = elY + dy;
   }
 
-  // scaling logic (text, buttons, version badges)
-  const scalableTypes = ['text', 'button', 'version', 'versionbadge', 'serverip', 'serverstatus'];
+  // scaling logic (text, buttons, version badges)  const scalableTypes = ['text', 'button', 'version', 'versionbadge', 'serverip', 'serverstatus'];
   if (scalableTypes.includes(element.type)) {
  const isCorner = ['ne', 'nw', 'se', 'sw'].includes(resizeHandle);
  if (isCorner) {
- // corner = scale (uniform)
- const ratio = newHeight / elH;
+ // corner = scale (uniform) const ratio = newHeight / elH;
  newFontSize = Math.max(8, Math.round(baseFontSize * ratio));
  newWidth = Math.max(50, Math.round(elW * ratio));
 
  if (resizeHandle.includes('w')) newX = elX + (elW - newWidth);
  if (resizeHandle.includes('n')) newY = elY + (elH - newHeight);
 
- // update font size visually
- elementRef.current.style.fontSize = `${newFontSize}px`;
+ // update font size visually elementRef.current.style.fontSize = `${newFontSize}px`;
  pendingUpdate.styles = { ...element.styles, fontSize: newFontSize };
  }
   }
 
-  // dom updates
-  elementRef.current.style.width = `${newWidth}px`;
+  // dom updates  elementRef.current.style.width = `${newWidth}px`;
   elementRef.current.style.height = `${newHeight}px`;
   elementRef.current.style.left = `${newX}px`;
   elementRef.current.style.top = `${newY}px`;
 
-  // store for commit
-  pendingUpdate.width = newWidth;
+  // store for commit  pendingUpdate.width = newWidth;
   pendingUpdate.height = newHeight;
   if (newX !== elX) pendingUpdate.x = newX;
   if (newY !== elY) pendingUpdate.y = newY;
@@ -513,8 +480,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   setResizeHandle(null);
   resizeStart.current = null;
 
-  // commit final state
-  if (Object.keys(pendingUpdate).length > 0) {
+  // commit final state  if (Object.keys(pendingUpdate).length > 0) {
  onUpdate(pendingUpdate);
   }
   };
@@ -550,27 +516,23 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
  baseFontSize: fontSize || 24
   };
   } else if (!isEditing) {
-  // only drag if not editing text
-  setIsDragging(true);
+  // only drag if not editing text  setIsDragging(true);
 
   let currentSelection = globalSelectedIds;
 
   if (isShift) {
- // toggle selection
- if (isSelected) {
+ // toggle selection if (isSelected) {
  currentSelection = globalSelectedIds.filter((id: string) => id !== element.id);
  } else {
  currentSelection = [...globalSelectedIds, element.id];
  }
  onSelect(true); // multi mode
   } else {
- // single select mode
- if (!isSelected) {
+ // single select mode if (!isSelected) {
  currentSelection = [element.id];
  onSelect(false); // single mode
  }
- // if already selected, we keep currentselection to allow dragging group
-  }
+ // if already selected, we keep currentselection to allow dragging group  }
 
   const elements = page?.elements || [];
   const targets = (elements || [])
@@ -612,8 +574,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   return; // handlemousedown handles election
   }
 
-  // public mode interactions
-  const action = element.clickAction || (element.link ? 'link' : 'none');
+  // public mode interactions  const action = element.clickAction || (element.link ? 'link' : 'none');
 
   if (action === 'link' && element.link) {
   if (element.link.startsWith('http')) {
@@ -669,8 +630,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
   const hexToRgba = (hex: string, alpha: number) => {
   let r = 0, g = 0, b = 0;
-  // handle hex shorthand
-  if (hex.length === 4) {
+  // handle hex shorthand  if (hex.length === 4) {
   r = parseInt("0x" + hex[1] + hex[1]);
   g = parseInt("0x" + hex[2] + hex[2]);
   b = parseInt("0x" + hex[3] + hex[3]);
@@ -682,8 +642,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   return `rgba(${r},${g},${b},${alpha})`;
   };
 
-  // check if element is hidden in current view mode
-  const isHiddenInCurrentView = element.visibility && element.visibility[previewMode] === false;
+  // check if element is hidden in current view mode  const isHiddenInCurrentView = element.visibility && element.visibility[previewMode] === false;
 
   const baseStyles = {
   position: 'absolute' as const,

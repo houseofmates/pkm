@@ -6,13 +6,8 @@ const AUTH_TOKEN = process.env.ADMIN_SECRET || 'your-token';
 async function createCollection(name, title) {
   try {
     console.log(`Creating collection: ${name}...`);
-    // Assuming a standard NocoBase-like API or the proxy we built
-    // This is a mock script structure - real implementation depends on NocoBase API specificities
-    // Using the proxy endpoints from server.js if possible, or direct if we knew the port
-    // For now, logging the intent as the user asked for "frontend code" mostly but this is a helper.
-
-    // In a real scenario, we would use the NocoBaseClient.
-    console.log(`[TODO] Run this against the NocoBase API to create collection '${name}' with title '${title}'.`);
+    // assuming a standard nocobase-like api or the proxy we built    // this is a mock script structure - real implementation depends on nocobase api specificities    // using the proxy endpoints from server.js if possible, or direct if we knew the port    // for now, logging the intent as the user asked for "frontend code" mostly but this is a helper.
+    // in a real scenario, we would use the nocobaseclient.    console.log(`[TODO] Run this against the NocoBase API to create collection '${name}' with title '${title}'.`);
     console.log(`Fields required: json 'data', string 'type', date 'timestamp'`);
   } catch (e) {
     console.error(e);

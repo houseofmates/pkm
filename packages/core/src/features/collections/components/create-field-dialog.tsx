@@ -20,10 +20,8 @@ import { secureLogger } from '@/lib/secure-logger';
 interface CreateFieldDialogProps {
   collectionName: string;
   onFieldCreated: () => void;
-  /** controlled open state */
-  open?: boolean;
-  /** callback when open state changes */
-  onOpenChange?: (open: boolean) => void;
+  /** controlled open state */  open?: boolean;
+  /** callback when open state changes */  onOpenChange?: (open: boolean) => void;
 }
 
 const FIELD_TYPES = [
@@ -57,8 +55,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
   const { client } = useAuth();
   const [internalOpen, setInternalOpen] = useState(false);
 
-  // use controlled or internal state
-  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  // use controlled or internal state  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setIsOpen = (value: boolean) => {
     if (onOpenChange) onOpenChange(value);
     else setInternalOpen(value);

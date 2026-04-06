@@ -17,8 +17,7 @@ type EventModalProps = {
 };
 
 export default function EventModal({ open, onClose, event, onSave, onDelete }: EventModalProps) {
-  // use controlled inputs - state resets when modal opens with new event
-  const [title, setTitle] = useState(event?.title || '');
+  // use controlled inputs - state resets when modal opens with new event  const [title, setTitle] = useState(event?.title || '');
   const [date, setDate] = useState(event?.date || '');
 
   function handleSave() {

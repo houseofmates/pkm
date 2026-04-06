@@ -5,8 +5,7 @@ import { type JournalRecord, parseActivities } from '@/schema/journal-collection
 import { secureLogger } from '@/lib/secure-logger';
 import type { Activity } from '@/components/ActivitiesPanel';
 
-// simple helpers identical to journal.tsx; mirrors localstorage access used
-function getStoredData<T>(key: string, defaultValue: T): T {
+// simple helpers identical to journal.tsx; mirrors localstorage access usedfunction getStoredData<T>(key: string, defaultValue: T): T {
   const raw = localStorage.getItem(key);
   if (raw === null) return defaultValue;
   try {
@@ -20,12 +19,10 @@ function setStoredData(key: string, value: any) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // ignore
-  }
+    // ignore  }
 }
 
-// constants that were previously defined in journal.tsx
-export const XP_PER_ENTRY = 10;
+// constants that were previously defined in journal.tsxexport const XP_PER_ENTRY = 10;
 export const XP_STREAK_BONUS = 5;
 export const XP_WORD_GOAL = 5;
 export const AUTO_SAVE_INTERVAL = 30000;
@@ -40,10 +37,8 @@ export const MOODS = [
   { id: '6', label: 'amazing!', emoji: '/images/moods/amazing.png', color: '#8b5cf6', value: 6 },
 ];
 
-// hook handles all journal page state & business logic; the page component simply renders ui
-export function useJournalData() {
-  // general page state
-  const [entries, setEntries] = useState<JournalRecord[]>([]);
+// hook handles all journal page state & business logic; the page component simply renders uiexport function useJournalData() {
+  // general page state  const [entries, setEntries] = useState<JournalRecord[]>([]);
   const [editingEntry, setEditingEntry] = useState<JournalRecord | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<JournalRecord | null>(null);
   const [viewingEntry, setViewingEntry] = useState<JournalRecord | null>(null);
@@ -53,14 +48,12 @@ export function useJournalData() {
   );
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
 
-  // past entries filter (search/mood/tag) and nl search results
-  const [pastEntriesFilter, setPastEntriesFilter] = useState({ search: '', mood: '', tag: '' });
+  // past entries filter (search/mood/tag) and nl search results  const [pastEntriesFilter, setPastEntriesFilter] = useState({ search: '', mood: '', tag: '' });
   const [nlIds, setNlIds] = useState<string[] | null>(null);
   const [isNlSearching, setIsNlSearching] = useState(false);
   const nlSearchCounterRef = useRef(0);
 
-  // entry metadata
-  const [selectedTemplate, setSelectedTemplate] = useState<any | null>(null);
+  // entry metadata  const [selectedTemplate, setSelectedTemplate] = useState<any | null>(null);
   const [entryTime, setEntryTime] = useState<Date | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const [voiceMemos, setVoiceMemos] = useState<string[]>([]);
@@ -68,19 +61,16 @@ export function useJournalData() {
   const [recordingTime, setRecordingTime] = useState(0);
   const recognitionRef = useRef<any>(null);
 
-  // transcript/summarize state
-  const [isTranscribing, setIsTranscribing] = useState(false);
+  // transcript/summarize state  const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isSummarizingVoice, setIsSummarizingVoice] = useState(false);
   const [transcriptionSummary, setTranscriptionSummary] = useState('');
 
-  // toastable helpers
-  const addEntry = useCallback((entry: JournalRecord) => {
+  // toastable helpers  const addEntry = useCallback((entry: JournalRecord) => {
     setEntries(prev => [entry, ...prev]);
   }, []);
 
-  // activity tracking (habit screens)
-  type ActivityId = string;
+  // activity tracking (habit screens)  type ActivityId = string;
   type MedLogEntry = {
     id: string;
     name: string;
@@ -179,8 +169,7 @@ export function useJournalData() {
   );
 
   const markActivity = useCallback((id: ActivityId) => {
-    // if this is a medication group, log each individual med separately
-    if (MEDICATION_GROUPS[id]) {
+    // if this is a medication group, log each individual med separately    if (MEDICATION_GROUPS[id]) {
       logMedicationGroup(id);
     }
 
@@ -215,15 +204,13 @@ export function useJournalData() {
     });
   }, []);
 
-  // derived map of entries by date
-  const entriesByDate = useMemo(() => {
+  // derived map of entries by date  const entriesByDate = useMemo(() => {
     const map: Record<string, JournalRecord> = {};
     entries.forEach(e => { map[e.date] = e; });
     return map;
   }, [entries]);
 
-  // semantic search with race condition handling
-  useEffect(() => {
+  // semantic search with race condition handling  useEffect(() => {
     if (!pastEntriesFilter.search || pastEntriesFilter.search.length < 3) {
       setNlIds(null);
       return;
@@ -234,10 +221,7 @@ export function useJournalData() {
 
     const timer = setTimeout(async () => {
       try {
-        // assume api.semanticsearch exists or use a generic fetch
-        // const results = await api.resource('journal').list({ filter: { content: { _ilike: `%${pastentriesfilter.search}%` } } });
-        // if (searchid === nlsearchcounterref.current) setnlids(results.map(r => r.id));
-      } catch (e) {
+        // assume api.semanticsearch exists or use a generic fetch        // const results = await api.resource('journal').list({ filter: { content: { _ilike: `%${pastentriesfilter.search}%` } } });        // if (searchid === nlsearchcounterref.current) setnlids(results.map(r => r.id));      } catch (e) {
         secureLogger.error('semantic search failed', e);
       } finally {
         if (searchId === nlSearchCounterRef.current) setIsNlSearching(false);

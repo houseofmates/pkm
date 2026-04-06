@@ -3,8 +3,7 @@ import { render, fireEvent } from '@testing-library/react';
 import { TableView } from '../TableView';
 import { vi } from 'vitest';
 
-// minimal mocks for react-window and hooks
-vi.mock('@tanstack/react-table', () => {
+// minimal mocks for react-window and hooksvi.mock('@tanstack/react-table', () => {
   return {
     useReactTable: vi.fn().mockReturnValue({
       getHeaderGroups: () => [],
@@ -20,8 +19,7 @@ vi.mock('react-window', () => {
   return {
     ...original,
     List: ({ children, outerRef, onScroll, itemCount, itemSize, height, width, itemData, style, ...rest }: any) => {
-      // simple scrollable div
-      const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+      // simple scrollable div      const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
         if (onScroll) {
           onScroll({ scrollOffset: e.currentTarget.scrollLeft });
         }
@@ -46,8 +44,7 @@ vi.mock('react-virtualized-auto-sizer', () => ({
 
 vi.mock('@/lib/utils', () => ({ cn: (...args: any[]) => args.filter(Boolean).join(' ') }));
 
-// simple fixture data
-const makeData = () => [{ col1: 'a' }];
+// simple fixture dataconst makeData = () => [{ col1: 'a' }];
 
 describe('DataEmbed TableView', () => {
   it('synchronizes horizontal scrolling between header and body', () => {

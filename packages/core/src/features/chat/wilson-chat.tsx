@@ -45,20 +45,17 @@ function compactTimestamp(ts: number | undefined): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + `, ${timeStr}`;
 }
 
-// helper function to capture a screenshot of the current page
-async function capturePageScreenshot(): Promise<HTMLCanvasElement | null> {
+// helper function to capture a screenshot of the current pageasync function capturePageScreenshot(): Promise<HTMLCanvasElement | null> {
   return new Promise((resolve, reject) => {
     try {
-      // create a canvas element
-      const canvas = document.createElement('canvas');
+      // create a canvas element      const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       if (!ctx) {
         reject(new Error('Could not get canvas context'));
         return;
       }
 
-      // get the full page dimensions
-      const width = Math.max(
+      // get the full page dimensions      const width = Math.max(
         document.body.scrollWidth,
         document.documentElement.scrollWidth,
         document.body.offsetWidth,
@@ -73,15 +70,13 @@ async function capturePageScreenshot(): Promise<HTMLCanvasElement | null> {
         document.documentElement.clientHeight
       );
 
-      // limit dimensions for performance (max 4k resolution)
-      const maxDimension = 3840;
+      // limit dimensions for performance (max 4k resolution)      const maxDimension = 3840;
       const scale = Math.min(1, maxDimension / Math.max(width, height));
       
       canvas.width = width * scale;
       canvas.height = height * scale;
 
-      // use html2canvas-like approach with foreignobject svg
-      const svgData = `
+      // use html2canvas-like approach with foreignobject svg      const svgData = `
         <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
           <foreignObject width="100%" height="100%" x="0" y="0">
             <div xmlns="http://www.w3.org/1999/xhtml">
@@ -97,22 +92,19 @@ async function capturePageScreenshot(): Promise<HTMLCanvasElement | null> {
         resolve(canvas);
       };
       img.onerror = () => {
-        // fallback: capture viewport only using simpler approach
-        captureViewportScreenshot().then(resolve).catch(reject);
+        // fallback: capture viewport only using simpler approach        captureViewportScreenshot().then(resolve).catch(reject);
       };
       
       const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
       const url = URL.createObjectURL(svgBlob);
       img.src = url;
     } catch (err) {
-      // fallback to viewport capture
-      captureViewportScreenshot().then(resolve).catch(reject);
+      // fallback to viewport capture      captureViewportScreenshot().then(resolve).catch(reject);
     }
   });
 }
 
-// fallback: capture only the visible viewport
-async function captureViewportScreenshot(): Promise<HTMLCanvasElement | null> {
+// fallback: capture only the visible viewportasync function captureViewportScreenshot(): Promise<HTMLCanvasElement | null> {
   return new Promise((resolve, reject) => {
     try {
       const canvas = document.createElement('canvas');
@@ -127,11 +119,8 @@ async function captureViewportScreenshot(): Promise<HTMLCanvasElement | null> {
       canvas.width = width;
       canvas.height = height;
 
-      // use the mediadevices api if available (more modern approach)
-      if (navigator.mediaDevices && 'getDisplayMedia' in navigator.mediaDevices) {
-        // note: this would require user permission and shows a picker
-        // for now, use the svg approach for the viewport
-        const svgData = `
+      // use the mediadevices api if available (more modern approach)      if (navigator.mediaDevices && 'getDisplayMedia' in navigator.mediaDevices) {
+        // note: this would require user permission and shows a picker        // for now, use the svg approach for the viewport        const svgData = `
           <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
             <foreignObject width="100%" height="100%" x="0" y="0">
               <div xmlns="http://www.w3.org/1999/xhtml">
@@ -360,12 +349,10 @@ export function WilsonChat() {
 
   const handleScreenshotClick = useCallback(async () => {
     try {
-      // capture the current page using dom-to-image approach
-      const canvas = await capturePageScreenshot();
+      // capture the current page using dom-to-image approach      const canvas = await capturePageScreenshot();
       if (canvas) {
         const dataUrl = canvas.toDataURL('image/png');
-        // create a file from the data url
-        const response = await fetch(dataUrl);
+        // create a file from the data url        const response = await fetch(dataUrl);
         const blob = await response.blob();
         const file = new File([blob], `screenshot-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`, { type: 'image/png' });
         await addAttachment(file);
@@ -390,21 +377,17 @@ export function WilsonChat() {
     setShowHistory(false);
   };
 
-  // handle voice transcript
-  const handleVoiceTranscript = useCallback(async (text: string) => {
+  // handle voice transcript  const handleVoiceTranscript = useCallback(async (text: string) => {
     if (!text.trim() || isThinking) return;
     setUserInput('');
     await askWilson(text);
   }, [isThinking, askWilson]);
 
-  // use wilson voice for responses
-  const { speak } = useWilsonVoice();
+  // use wilson voice for responses  const { speak } = useWilsonVoice();
 
-  // speak wilson's responses
-  useEffect(() => {
+  // speak wilson's responses  useEffect(() => {
     if (streamingContent && !isThinking) {
-      // speak the completed response
-      speak(streamingContent);
+      // speak the completed response      speak(streamingContent);
     }
   }, [streamingContent, isThinking, speak]);
 

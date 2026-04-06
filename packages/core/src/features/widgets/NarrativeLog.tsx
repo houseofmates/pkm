@@ -25,8 +25,7 @@ export function NarrativeLog({ data, onUpdate }: { data: any; onUpdate?: (patch:
       setSaved(true);
       onUpdate?.({ content: log });
     } catch {
-      // ignore
-    }
+      // ignore    }
   };
 
   if (saved) {

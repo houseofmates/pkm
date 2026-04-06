@@ -1,6 +1,4 @@
-// safe canvas initialization hook
-// handles errors, loading states, and cleanup
-
+// safe canvas initialization hook// handles errors, loading states, and cleanup
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { productionGuard, perfMonitor } from '../lib/production-guards'
 import { secureLogger } from '@/lib/secure-logger'
@@ -28,14 +26,12 @@ export function useCanvasSafe(options: UseCanvasSafeOptions = {}): UseCanvasSafe
     perfMonitor.mark('canvas-init-start')
 
     try {
-      // check storage health first
-      const { healthy, issues } = await import('../lib/production-guards').then(m => m.checkStorageHealth())
+      // check storage health first      const { healthy, issues } = await import('../lib/production-guards').then(m => m.checkStorageHealth())
       if (!healthy) {
         secureLogger.warn('[UseCanvasSafe] storage issues:', issues)
       }
 
-      // start production monitoring
-      productionGuard.startMonitoring()
+      // start production monitoring      productionGuard.startMonitoring()
 
       perfMonitor.mark('canvas-init-end')
       perfMonitor.measure('canvas-init', 'canvas-init-start', 'canvas-init-end')
@@ -54,8 +50,7 @@ export function useCanvasSafe(options: UseCanvasSafeOptions = {}): UseCanvasSafe
       setError(err)
       options.onError?.(err)
 
-      // auto-retry on first failure
-      if (retryCount.current < maxRetries) {
+      // auto-retry on first failure      if (retryCount.current < maxRetries) {
         retryCount.current++
         setTimeout(() => {
           initialize()

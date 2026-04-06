@@ -125,8 +125,7 @@ export function WidgetSidebar({ isOpen, onClose, onDragStart }: WidgetSidebarPro
   );
 }
 
-// hook for drag-drop handling on canvas
-export function useWidgetDrop(onDrop: (widget: WidgetTemplate, x: number, y: number) => void) {
+// hook for drag-drop handling on canvasexport function useWidgetDrop(onDrop: (widget: WidgetTemplate, x: number, y: number) => void) {
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
@@ -145,8 +144,7 @@ export function useWidgetDrop(onDrop: (widget: WidgetTemplate, x: number, y: num
       const y = e.clientY - rect.top;
       onDrop(widget, x, y);
     } catch {
-      // not a widget drop, ignore
-    }
+      // not a widget drop, ignore    }
   }, [onDrop]);
 
   return { handleDragOver, handleDrop };

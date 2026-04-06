@@ -2,14 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 // ── types ────────────────────────────────────────────────────
-
 export interface BM25Hit {
   id: string;
   score: number;
 }
 
-// serialized format
-interface BM25Data {
+// serialized formatinterface BM25Data {
   invertedIndex: Record<string, Record<string, number>>; // term → { docid → tf }
   docLengths: Record<string, number>;                    // docid → word count
   totalDocs: number;
@@ -17,7 +15,6 @@ interface BM25Data {
 }
 
 // ── stop words ───────────────────────────────────────────────
-
 const STOP_WORDS = new Set([
   'a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for',
   'from', 'had', 'has', 'have', 'he', 'her', 'his', 'how', 'i',
@@ -29,10 +26,8 @@ const STOP_WORDS = new Set([
 ]);
 
 // ── bm25 index ───────────────────────────────────────────────
-
 export class BM25Index {
-  // term → map<docid, termfrequency>
-  private invertedIndex = new Map<string, Map<string, number>>();
+  // term → map<docid, termfrequency>  private invertedIndex = new Map<string, Map<string, number>>();
   private docLengths = new Map<string, number>();
   private totalDocs = 0;
   private totalLength = 0;
@@ -48,7 +43,6 @@ export class BM25Index {
   }
 
   // ── tokenizer ──────────────────────────────────────────────
-
   private tokenize(text: string): string[] {
     return text
       .toLowerCase()
@@ -58,24 +52,20 @@ export class BM25Index {
   }
 
   // ── index operations ──────────────────────────────────────
-
   addDocument(id: string, text: string): void {
-    // remove old version if it exists
-    this.removeDocument(id);
+    // remove old version if it exists    this.removeDocument(id);
 
     const tokens = this.tokenize(text);
     this.docLengths.set(id, tokens.length);
     this.totalDocs++;
     this.totalLength += tokens.length;
 
-    // count term frequencies
-    const tf = new Map<string, number>();
+    // count term frequencies    const tf = new Map<string, number>();
     for (const token of tokens) {
       tf.set(token, (tf.get(token) || 0) + 1);
     }
 
-    // update inverted index
-    for (const [term, freq] of tf) {
+    // update inverted index    for (const [term, freq] of tf) {
       let postings = this.invertedIndex.get(term);
       if (!postings) {
         postings = new Map();
@@ -95,8 +85,7 @@ export class BM25Index {
     this.totalDocs--;
     this.totalLength -= len;
 
-    // remove from all posting lists
-    for (const [term, postings] of this.invertedIndex) {
+    // remove from all posting lists    for (const [term, postings] of this.invertedIndex) {
       postings.delete(id);
       if (postings.size === 0) {
         this.invertedIndex.delete(term);
@@ -107,11 +96,9 @@ export class BM25Index {
   }
 
   // ── scoring ────────────────────────────────────────────────
-
   private idf(term: string): number {
     const df = this.invertedIndex.get(term)?.size || 0;
-    // bm25 idf: log((n - df + 0.5) / (df + 0.5) + 1)
-    return Math.log((this.totalDocs - df + 0.5) / (df + 0.5) + 1);
+    // bm25 idf: log((n - df + 0.5) / (df + 0.5) + 1)    return Math.log((this.totalDocs - df + 0.5) / (df + 0.5) + 1);
   }
 
   search(query: string, topK = 10): BM25Hit[] {
@@ -131,8 +118,7 @@ export class BM25Index {
 
       for (const [docId, tf] of postings) {
         const dl = this.docLengths.get(docId) || 0;
-        // bm25 score for this term-document pair
-        const numerator = tf * (this.k1 + 1);
+        // bm25 score for this term-document pair        const numerator = tf * (this.k1 + 1);
         const denominator = tf + this.k1 * (1 - this.b + this.b * (dl / avgDl));
         const termScore = idfScore * (numerator / denominator);
 
@@ -150,7 +136,6 @@ export class BM25Index {
   }
 
   // ── persistence ────────────────────────────────────────────
-
   async load(): Promise<void> {
     if (!fs.existsSync(this.storePath)) return;
 

@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 // ── types ────────────────────────────────────────────────────
-
 export interface IndexedDocument {
   id: string;            // relative file path from notes dir
   title: string;
@@ -23,8 +22,7 @@ export interface VectorSearchHit {
   snippet: string;
 }
 
-// compact on-disk representation (embeddings as base64)
-interface StoredDocument {
+// compact on-disk representation (embeddings as base64)interface StoredDocument {
   id: string;
   title: string;
   content: string;
@@ -38,7 +36,6 @@ interface StoredDocument {
 }
 
 // ── encoding helpers ─────────────────────────────────────────
-
 function encodeEmbedding(embedding: number[]): string {
   const buf = Buffer.from(new Float32Array(embedding).buffer);
   return buf.toString('base64');
@@ -50,7 +47,6 @@ function decodeEmbedding(b64: string): number[] {
 }
 
 // ── vector store ─────────────────────────────────────────────
-
 export class VectorStore {
   private docs = new Map<string, IndexedDocument>();
   private storePath: string;
@@ -61,7 +57,6 @@ export class VectorStore {
   }
 
   // ── persistence ────────────────────────────────────────────
-
   async load(): Promise<void> {
     if (!fs.existsSync(this.storePath)) return;
 
@@ -109,8 +104,7 @@ export class VectorStore {
     const dir = path.dirname(this.storePath);
     fs.mkdirSync(dir, { recursive: true });
 
-    // atomic write: write to tmp then rename
-    const tmpPath = this.storePath + '.tmp';
+    // atomic write: write to tmp then rename    const tmpPath = this.storePath + '.tmp';
     await fs.promises.writeFile(tmpPath, JSON.stringify(stored), 'utf-8');
     await fs.promises.rename(tmpPath, this.storePath);
 
@@ -118,7 +112,6 @@ export class VectorStore {
   }
 
   // ── crud ───────────────────────────────────────────────────
-
   async upsert(doc: IndexedDocument): Promise<void> {
     this.docs.set(doc.id, doc);
     this.dirty = true;
@@ -151,7 +144,6 @@ export class VectorStore {
   }
 
   // ── search ─────────────────────────────────────────────────
-
   search(queryEmbedding: number[], topK: number): VectorSearchHit[] {
     const scored: Array<{ id: string; title: string; score: number; plainText: string }> = [];
 
@@ -172,7 +164,6 @@ export class VectorStore {
   }
 
   // ── pairwise similarity (used by gardener) ─────────────────
-
   findSimilarPairs(threshold: number): Array<{ a: string; b: string; similarity: number }> {
     const results: Array<{ a: string; b: string; similarity: number }> = [];
     const ids = this.allIds();
@@ -198,7 +189,6 @@ export class VectorStore {
 }
 
 // ── math helpers ─────────────────────────────────────────────
-
 function cosineSimilarity(a: number[], b: number[]): number {
   const len = Math.min(a.length, b.length);
   let dot = 0;

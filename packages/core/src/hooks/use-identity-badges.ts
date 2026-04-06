@@ -71,8 +71,7 @@ const BADGE_CRITERIA: BadgeCriteria[] = [
     check: (entries) => {
       if (entries.length < 7) return false
       
-      // sliding window check
-      const dates = entries.map(e => new Date(e.date).getTime()).sort((a, b) => a - b)
+      // sliding window check      const dates = entries.map(e => new Date(e.date).getTime()).sort((a, b) => a - b)
       for (let i = 0; i <= dates.length - 7; i++) {
         const windowStart = dates[i]
         const windowEnd = windowStart + (10 * 24 * 60 * 60 * 1000) // 10 days
@@ -117,10 +116,8 @@ export function useIdentityBadges() {
     return new Set<string>()
   })
 
-  // load entries
-  useEffect(() => {
-    // try to get from localstorage first (sync with journal)
-    const savedEntries = localStorage.getItem('pkm:journal:entries_cache')
+  // load entries  useEffect(() => {
+    // try to get from localstorage first (sync with journal)    const savedEntries = localStorage.getItem('pkm:journal:entries_cache')
     if (savedEntries) {
       try {
         setEntries(JSON.parse(savedEntries))
@@ -128,8 +125,7 @@ export function useIdentityBadges() {
     }
   }, [])
 
-  // check for new badges
-  useEffect(() => {
+  // check for new badges  useEffect(() => {
     const newlyEarned: string[] = []
     
     BADGE_CRITERIA.forEach(criteria => {

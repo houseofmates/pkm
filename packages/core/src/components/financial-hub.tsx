@@ -98,8 +98,7 @@ export function FinancialHub() {
     return spending;
   }, [thisMonthTransactions]);
 
-  // sankey data: income -> categories -> expenses
-  const sankeyData = useMemo(() => {
+  // sankey data: income -> categories -> expenses  const sankeyData = useMemo(() => {
     const nodes: string[] = ['income'];
     const links: { source: string; target: string; value: number }[] = [];
 

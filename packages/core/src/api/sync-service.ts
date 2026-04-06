@@ -5,8 +5,7 @@ import { localDbService } from '../services/local-db.service';
 import { compactOplog, resolveConflicts } from '../features/edgeless/storage/oplog';
 import type { OpLogEntry } from '../features/edgeless/storage/oplog';
 
-/**
- * nocobase collection schema: 'front_history'
+/** * nocobase collection schema: 'front_history'
  * 
  * fields:
  * - sp_id (string, unique): id from simplyplural history
@@ -20,16 +19,14 @@ import type { OpLogEntry } from '../features/edgeless/storage/oplog';
 export class SyncService {
   private static COLLECTION = 'front_history';
 
-  /**
- * syncs recent history from simplyplural to nocobase.
+  /** * syncs recent history from simplyplural to nocobase.
  * @param apikey simplyplural api key
  * @param systemid simplyplural system id
  */
   static async sync(apiKey: string) {
     secureLogger.info("sync: fetching last entry from nocobase...");
     try {
-      // 1. get last known sync time (most recent starttime in db)
-      let lastSyncTime = new Date('2020-01-01').toISOString();
+      // 1. get last known sync time (most recent starttime in db)      let lastSyncTime = new Date('2020-01-01').toISOString();
       try {
         const res = await api.listRecords(this.COLLECTION, {
           sort: ['-startTime'],
@@ -49,8 +46,7 @@ export class SyncService {
 
       secureLogger.info(`sync: fetching from simplyplural...`);
 
-      // 2. fetch history from simplyplural
-      const spRes = await fetch(SimplyPluralClient.url(`/frontHistory`), {
+      // 2. fetch history from simplyplural      const spRes = await fetch(SimplyPluralClient.url(`/frontHistory`), {
         headers: { 'Authorization': apiKey }
       });
 
@@ -62,8 +58,7 @@ export class SyncService {
       const spHistory = await spRes.json(); // returns array of objects
       if (!Array.isArray(spHistory)) return;
 
-      // 3. filter (process last 50 for safety)
-      const recentEntries = spHistory.slice(0, 50);
+      // 3. filter (process last 50 for safety)      const recentEntries = spHistory.slice(0, 50);
       secureLogger.info(`sync: found [${recentEntries.length}] entries to process (checking for updates/new).`);
 
       let addedCount = 0;
@@ -77,8 +72,7 @@ export class SyncService {
         const customStatus = entry.content.customStatus;
         const live = entry.content.live;
 
-        // check if exists
-        try {
+        // check if exists        try {
           const existingRes = await api.listRecords(this.COLLECTION, {
             filter: { sp_id: { $eq: sp_id } },
             pageSize: 1
@@ -88,8 +82,7 @@ export class SyncService {
 
 
           if (existingData && existingData.length > 0) {
-            // update if changed
-            const record = existingData[0];
+            // update if changed            const record = existingData[0];
             if (record.endTime !== endTime || record.live !== live) {
               await api.request(this.COLLECTION, 'update', {
                 method: 'POST',
@@ -105,9 +98,7 @@ export class SyncService {
               updatedCount++;
             }
           } else {
-            // create new
-            // securelogger.info(`sync: writing new entry [${sp_id}] to nocobase...`);
-            await api.createRecord(this.COLLECTION, {
+            // create new            // securelogger.info(`sync: writing new entry [${sp_id}] to nocobase...`);            await api.createRecord(this.COLLECTION, {
               sp_id,
               member_id,
               startTime,
@@ -132,8 +123,7 @@ export class SyncService {
 
       secureLogger.info(`sync: Sync Complete. Added: ${addedCount}, Updated: ${updatedCount}`);
       if (addedCount > 0 || updatedCount > 0) {
-        // toast.success(`synced ${addedcount} new, ${updatedcount} updated entries.`); // user requested removal
-        secureLogger.info(`Synced ${addedCount} new, ${updatedCount} updated entries.`);
+        // toast.success(`synced ${addedcount} new, ${updatedcount} updated entries.`); // user requested removal        secureLogger.info(`Synced ${addedCount} new, ${updatedCount} updated entries.`);
       } else {
         secureLogger.info("sync: No changes needed.");
       }
@@ -143,14 +133,12 @@ export class SyncService {
     }
   }
 
-  /**
-   * syncs local canvas operations to the server using the compacted oplog strategy.
+  /**   * syncs local canvas operations to the server using the compacted oplog strategy.
    */
   static async syncOplog() {
     secureLogger.info("syncOplog: starting...");
     try {
-      // 1. fetch unsynced oplog entries from local db
-      const unsyncedOps = await localDbService.getUnsyncedOplog();
+      // 1. fetch unsynced oplog entries from local db      const unsyncedOps = await localDbService.getUnsyncedOplog();
       if (unsyncedOps.length === 0) {
         secureLogger.info("syncOplog: No unsynced operations found.");
         return;
@@ -158,8 +146,7 @@ export class SyncService {
 
       secureLogger.info(`syncOplog: Found ${unsyncedOps.length} unsynced operations. Compacting...`);
 
-      // 2. resolve conflicts and compact operations per drawing
-      const opsByDrawing = unsyncedOps.reduce((acc, op) => {
+      // 2. resolve conflicts and compact operations per drawing      const opsByDrawing = unsyncedOps.reduce((acc, op) => {
         if (!acc[op.drawingId]) acc[op.drawingId] = [];
         acc[op.drawingId].push(op);
         return acc;
@@ -176,20 +163,15 @@ export class SyncService {
 
       secureLogger.info(`syncOplog: Compacted to ${allCompactedOps.length} operations. Syncing to server...`);
 
-      // 3. simulate syncing to server (in reality: api.request('canvas_oplog', 'create', { ... }))
-      // we assume a successful sync for this implementation.
-
-      // 4. mark all original unsynced ops as synced.
-      // even intermediate mutations that were compacted away should be marked synced locally so they aren't processed again.
-      const now = Date.now();
+      // 3. simulate syncing to server (in reality: api.request('canvas_oplog', 'create', { ... }))      // we assume a successful sync for this implementation.
+      // 4. mark all original unsynced ops as synced.      // even intermediate mutations that were compacted away should be marked synced locally so they aren't processed again.      const now = Date.now();
       const updatedOriginals = unsyncedOps.map(op => ({
         ...op,
         synced: true,
         serverAckedAt: now
       }));
 
-      // 5. save back to local db to update `synced` status using batching
-      await localDbService.saveOplogBatch(updatedOriginals);
+      // 5. save back to local db to update `synced` status using batching      await localDbService.saveOplogBatch(updatedOriginals);
 
       secureLogger.info("syncOplog: Complete.");
     } catch (error: unknown) {

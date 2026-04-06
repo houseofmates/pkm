@@ -53,8 +53,7 @@ const FixationTrap: React.FC = () => {
   const { earnXp } = useGamificationStore()
 
   useEffect(() => {
-    // load from localstorage
-    const saved = localStorage.getItem('fixation-quests')
+    // load from localstorage    const saved = localStorage.getItem('fixation-quests')
     if (saved) {
       setFixations(JSON.parse(saved))
     } else {
@@ -74,8 +73,7 @@ const FixationTrap: React.FC = () => {
     ))
     earnXp(100, `fixation ${id}`)
     
-    // chain reward
-    if (Math.random() > 0.7) {
+    // chain reward    if (Math.random() > 0.7) {
       earnXp(50, 'bonus chain')
     }
   }

@@ -1,7 +1,5 @@
 // options.js - handles saving/loading extension settings
-
-// Saves options to browser.storage
-const saveOptions = async () => {
+// saves options to browser.storageconst saveOptions = async () => {
     const token = document.getElementById('token').value;
     const apiUrl = document.getElementById('apiUrl').value || 'https://db.houseofmates.space/api';
     const ollamaUrl = document.getElementById('ollamaUrl').value || 'http://localhost:11434';
@@ -20,8 +18,7 @@ const saveOptions = async () => {
     }, 1500);
 };
 
-// Restores state using the preferences stored in browser.storage
-const restoreOptions = async () => {
+// restores state using the preferences stored in browser.storageconst restoreOptions = async () => {
     const data = await browser.storage.sync.get(['apiToken', 'apiBaseUrl', 'ollamaUrl']);
     document.getElementById('token').value = data.apiToken || '';
     document.getElementById('apiUrl').value = data.apiBaseUrl || 'https://db.houseofmates.space/api';

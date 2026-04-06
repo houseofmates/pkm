@@ -13,8 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-// color palette
-const COLORS = [
+// color paletteconst COLORS = [
   'var(--primary)', '#EF4444', '#F97316', '#F59E0B', '#84CC16', '#10B981',
   '#06B6D4', '#3B82F6', '#6366F1', '#8B5CF6', '#D946EF', '#F43F5E',
   '#71717a', '#ffffff'
@@ -49,11 +48,9 @@ export function DatabaseSettingsForm({
   const [localName, setLocalName] = useState(title || info.title || collectionName);
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
 
-  // filter/sort state
-  const currentSort = viewConfig.sort?.[0] || '';
+  // filter/sort state  const currentSort = viewConfig.sort?.[0] || '';
 
-  // helpers
-  const updateMeta = (key: string, val: any) => {
+  // helpers  const updateMeta = (key: string, val: any) => {
     const next = { ...metadata, [collectionName]: { ...metadata[collectionName], [key]: val } };
     setMetadata(next);
     onUpdateMetadata?.({ [key]: val });

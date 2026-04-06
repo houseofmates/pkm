@@ -1,6 +1,4 @@
-// hook for ai field generation operations
-// provides a clean interface for components to generate ai content
-
+// hook for ai field generation operations// provides a clean interface for components to generate ai content
 import { useState, useCallback } from 'react';
 import {
   generateAndSaveAiField,
@@ -19,14 +17,12 @@ interface UseAiGenerationOptions {
 }
 
 interface UseAiGenerationReturn {
-  // state
-  isGenerating: boolean;
+  // state  isGenerating: boolean;
   isPreviewing: boolean;
   lastResult: AiGenerationResult | null;
   suggestedInstructions: string[];
 
-  // actions
-  generate: (instruction: string, options?: Partial<AiGenerationOptions>) => Promise<AiGenerationResult>;
+  // actions  generate: (instruction: string, options?: Partial<AiGenerationOptions>) => Promise<AiGenerationResult>;
   preview: (instruction: string, options?: Partial<AiGenerationOptions>) => Promise<AiGenerationResult>;
   ensureField: () => Promise<boolean>;
   refreshSuggestions: () => string[];
@@ -43,20 +39,17 @@ export function useAiGeneration(
   const [lastResult, setLastResult] = useState<AiGenerationResult | null>(null);
   const [suggestedInstructions, setSuggestedInstructions] = useState<string[]>([]);
 
-  // initialize suggestions
-  const refreshSuggestions = useCallback(() => {
+  // initialize suggestions  const refreshSuggestions = useCallback(() => {
     const suggestions = getSuggestedInstructions(collection);
     setSuggestedInstructions(suggestions);
     return suggestions;
   }, [collection]);
 
-  // ensure the ai field exists on the collection
-  const ensureField = useCallback(async (): Promise<boolean> => {
+  // ensure the ai field exists on the collection  const ensureField = useCallback(async (): Promise<boolean> => {
     return ensureAiField(collection, fieldName);
   }, [collection, fieldName]);
 
-  // generate and save content
-  const generate = useCallback(async (
+  // generate and save content  const generate = useCallback(async (
     instruction: string,
     options: Partial<AiGenerationOptions> = {}
   ): Promise<AiGenerationResult> => {
@@ -107,8 +100,7 @@ export function useAiGeneration(
     }
   }, [collection, recordId, fieldName, hookOptions]);
 
-  // preview without saving
-  const preview = useCallback(async (
+  // preview without saving  const preview = useCallback(async (
     instruction: string,
     options: Partial<AiGenerationOptions> = {}
   ): Promise<AiGenerationResult> => {
@@ -154,8 +146,7 @@ export function useAiGeneration(
     }
   }, [collection, recordId, hookOptions]);
 
-  // initialize suggestions on first use
-  if (suggestedInstructions.length === 0) {
+  // initialize suggestions on first use  if (suggestedInstructions.length === 0) {
     refreshSuggestions();
   }
 
@@ -171,8 +162,7 @@ export function useAiGeneration(
   };
 }
 
-// hook for batch operations
-interface UseBatchAiGenerationReturn {
+// hook for batch operationsinterface UseBatchAiGenerationReturn {
   isProcessing: boolean;
   progress: { completed: number; total: number; currentId: string | number | null };
   results: AiGenerationResult[];
@@ -201,8 +191,7 @@ export function useBatchAiGeneration(
       const recordId = recordIds[i];
       setProgress({ completed: i, total: recordIds.length, currentId: recordId });
 
-      // dynamic import to avoid circular dependencies
-      const { generateAndSaveAiField } = await import('@/services/ai-field-generator');
+      // dynamic import to avoid circular dependencies      const { generateAndSaveAiField } = await import('@/services/ai-field-generator');
       const result = await generateAndSaveAiField(collection, recordId, fieldName, {
         instruction,
         includeRelated: true,
@@ -211,8 +200,7 @@ export function useBatchAiGeneration(
 
       batchResults.push(result);
 
-      // small delay between requests
-      if (i < recordIds.length - 1) {
+      // small delay between requests      if (i < recordIds.length - 1) {
         await new Promise(r => setTimeout(r, 500));
       }
     }

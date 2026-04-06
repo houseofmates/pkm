@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { findOrCreateActivity, createActivityLog, syncAllLocalLogs } from '../activity-sync'
 
-// mock fetch
-global.fetch = vi.fn()
+// mock fetchglobal.fetch = vi.fn()
 
 beforeEach(() => {
   ;(global as any).localStorage.clear()
@@ -11,8 +10,7 @@ beforeEach(() => {
 
 describe('activity-sync', () => {
   it('creates and caches activity', async () => {
-    // mock list response empty then create response
-    (global.fetch as any)
+    // mock list response empty then create response    (global.fetch as any)
       .mockResolvedValueOnce({ text: async () => JSON.stringify({ data: [] }), ok: true })
       .mockResolvedValueOnce({ text: async () => JSON.stringify({ data: { id: 'srv-1' } }), ok: true })
 
@@ -23,20 +21,16 @@ describe('activity-sync', () => {
   })
 
   it('syncs logs to server', async () => {
-    // ensure test payloads are returned by localstorage.getitem
-    // stub localstorage.getitem to return our test payloads
-    ;(global as any).localStorage.getItem = (k: string) => {
+    // ensure test payloads are returned by localstorage.getitem    // stub localstorage.getitem to return our test payloads    ;(global as any).localStorage.getItem = (k: string) => {
       if (k === 'pkm_activities') return JSON.stringify([{ id: '1', name: 'walk' }])
       if (k === 'pkm_activity_logs') return JSON.stringify([{ id: 'l1', activityId: '1', note: 'ok', rating: 4, createdAt: new Date().toISOString() }])
       return null
     }
 
-    // findorcreateactivity -> returns server id
-    (global.fetch as any)
+    // findorcreateactivity -> returns server id    (global.fetch as any)
       .mockResolvedValueOnce({ text: async () => JSON.stringify({ data: [] }), ok: true })
       .mockResolvedValueOnce({ text: async () => JSON.stringify({ data: { id: 'srv-1' } }), ok: true })
-      // createactivitylog
-      .mockResolvedValueOnce({ text: async () => JSON.stringify({ data: { id: 'log-1' } }), ok: true })
+      // createactivitylog      .mockResolvedValueOnce({ text: async () => JSON.stringify({ data: { id: 'log-1' } }), ok: true })
 
     const res = await syncAllLocalLogs()
     expect(res.pushed).toBeGreaterThanOrEqual(0)

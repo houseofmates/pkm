@@ -21,8 +21,7 @@ const ReflectionTimer: React.FC<ReflectionTimerProps> = ({ onComplete }) => {
   const [prompt, setPrompt] = useState('what stood out today?')
   const { earnXp } = useGamificationStore()
 
-  // prompts rotation
-  const PROMPTS = [
+  // prompts rotation  const PROMPTS = [
     'what felt good today?',
     'what was challenging?',
     'one win, one lesson',

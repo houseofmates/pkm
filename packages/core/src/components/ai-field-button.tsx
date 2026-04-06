@@ -1,6 +1,4 @@
-// ai field button component
-// reusable button for generating ai field content
-
+// ai field button component// reusable button for generating ai field content
 import { useState } from 'react';
 import { Sparkles, Loader2, Wand2, BrainCircuit } from 'lucide-react';
 import { generateAndSaveAiField, previewAiFieldContent, getSuggestedInstructions } from '@/services/ai-field-generator';
@@ -79,8 +77,7 @@ export function AiFieldButton({
       });
 
       if (result.success) {
-        // show preview in modal or alert for now
-        const preview = result.content.slice(0, 500) + (result.content.length > 500 ? '...' : '');
+        // show preview in modal or alert for now        const preview = result.content.slice(0, 500) + (result.content.length > 500 ? '...' : '');
         const confirmed = window.confirm(`preview:\n\n${preview}\n\nclick ok to save, cancel to discard.`);
         if (confirmed) {
           await handleGenerate(instruction);
@@ -184,8 +181,7 @@ export function AiFieldButton({
   );
 }
 
-// inline version for table rows
-export function AiFieldInlineButton({
+// inline version for table rowsexport function AiFieldInlineButton({
   collection,
   recordId,
   onGenerated,
@@ -233,8 +229,7 @@ export function AiFieldInlineButton({
   );
 }
 
-// display ai field content with source citations
-export function AiFieldContent({
+// display ai field content with source citationsexport function AiFieldContent({
   content,
   sources,
   className,
@@ -271,25 +266,16 @@ export function AiFieldContent({
   );
 }
 
-// simple markdown renderer (basic)
-function renderMarkdown(markdown: string): string {
+// simple markdown renderer (basic)function renderMarkdown(markdown: string): string {
   return markdown
-    // headers
-    .replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>')
+    // headers    .replace(/^### (.*$)/gim, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>')
     .replace(/^## (.*$)/gim, '<h2 class="text-xl font-bold mt-4 mb-2">$1</h2>')
     .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>')
-    // bold
-    .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
-    // italic
-    .replace(/\*(.*)\*/gim, '<em>$1</em>')
-    // code
-    .replace(/`([^`]+)`/gim, '<code class="bg-primary/10 px-1 rounded">$1</code>')
-    // links
-    .replace(/\[\[([^:\]]+):([^:\]]+)\]\]/gim, '<a href="#/$1/$2" class="text-primary hover:underline">$1:$2</a>')
-    // bullet lists
-    .replace(/^- (.*$)/gim, '<li class="ml-4">$1</li>')
-    // numbered lists
-    .replace(/^\d+\. (.*$)/gim, '<li class="ml-4 list-decimal">$1</li>')
-    // line breaks
-    .replace(/\n/gim, '<br />');
+    // bold    .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+    // italic    .replace(/\*(.*)\*/gim, '<em>$1</em>')
+    // code    .replace(/`([^`]+)`/gim, '<code class="bg-primary/10 px-1 rounded">$1</code>')
+    // links    .replace(/\[\[([^:\]]+):([^:\]]+)\]\]/gim, '<a href="#/$1/$2" class="text-primary hover:underline">$1:$2</a>')
+    // bullet lists    .replace(/^- (.*$)/gim, '<li class="ml-4">$1</li>')
+    // numbered lists    .replace(/^\d+\. (.*$)/gim, '<li class="ml-4 list-decimal">$1</li>')
+    // line breaks    .replace(/\n/gim, '<br />');
 }

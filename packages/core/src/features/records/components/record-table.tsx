@@ -21,14 +21,11 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 import { PropertyContextMenu } from './property-context-menu';
 import { toast } from 'sonner';
 
-// helper to grab lucide icons dynamically (used in headers for property icons)
-function getLucideIcon(name: string): LucideIcon | undefined {
+// helper to grab lucide icons dynamically (used in headers for property icons)function getLucideIcon(name: string): LucideIcon | undefined {
   return (Icons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
 }
 
-// helper to parse i18n template strings like {{t('id')}} or {{t("created at")}}
-// returns the inner string if it matches the pattern, otherwise returns the original
-function parseI18nTemplate(str: string | undefined): string {
+// helper to parse i18n template strings like {{t('id')}} or {{t("created at")}}// returns the inner string if it matches the pattern, otherwise returns the originalfunction parseI18nTemplate(str: string | undefined): string {
   if (!str) return '';
   const match = str.match(/^\{\{\s*t\(['"](.+)['"]\)\s*\}\}$/);
   if (match) {
@@ -87,8 +84,7 @@ import type {
 import { cn } from '@/lib/utils';
 import { secureLogger } from '@/lib/secure-logger';
 
-// sortable header component
-function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, fieldIcons, valueColorRules, setMetadata, onHide }: any) {
+// sortable header componentfunction SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, fieldIcons, valueColorRules, setMetadata, onHide }: any) {
   const { client } = useAuth();
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftTitle, setDraftTitle] = React.useState<string>('');
@@ -97,16 +93,14 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   const iconInfo = field && fieldIcons ? fieldIcons[field.name] || {} : {};
   const isSystemColumn = !field;
 
-  // helper to compute the current title from the column definition itself
-  const computeTitle = () => {
+  // helper to compute the current title from the column definition itself  const computeTitle = () => {
     const h = header.column.columnDef.header;
     if (typeof h === 'string') return h;
     if (h == null) return '';
     return String(h);
   };
 
-  // whenever editing is enabled, refresh drafttitle from header metadata
-  const startEditing = () => {
+  // whenever editing is enabled, refresh drafttitle from header metadata  const startEditing = () => {
     if (isSystemColumn) return;
     setDraftTitle(computeTitle());
     setIsEditing(true);
@@ -128,10 +122,8 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   const saveTitle = async (newTitle: string | undefined) => {
     if (!field) return;
     const trimmed = (newTitle || '').trim();
-    // prevent empty names
-    if (!trimmed) {
-      // restore previous title and exit
-      setDraftTitle(computeTitle());
+    // prevent empty names    if (!trimmed) {
+      // restore previous title and exit      setDraftTitle(computeTitle());
       setIsEditing(false);
       toast.error('title cannot be empty');
       return;
@@ -143,8 +135,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           title: trimmed,
         },
       });
-      // update in-memory metadata so header updates immediately
-      field.uiSchema = { ...(field.uiSchema || {}), title: trimmed };
+      // update in-memory metadata so header updates immediately      field.uiSchema = { ...(field.uiSchema || {}), title: trimmed };
       header.column.columnDef.header = trimmed; // keep case
       setDraftTitle(trimmed);
       setIsEditing(false);
@@ -184,8 +175,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           onOpenFieldSettings?.(field);
         }}
         onHide={() => {
-          // call provided handler (from recordtable) to toggle hidden columns
-          try {
+          // call provided handler (from recordtable) to toggle hidden columns          try {
             onHide?.(field);
           } catch (e: unknown) {
             secureLogger.error('onHide handler failed', e);
@@ -199,8 +189,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           try {
             await client.deleteField(collectionName, field.name);
             toast.success('property deleted');
-            // clear sizing/order cache so removed column doesn't linger
-            onFieldUpdated?.();
+            // clear sizing/order cache so removed column doesn't linger            onFieldUpdated?.();
           } catch (err: any) {
             toast.error(err?.message || 'failed to delete property');
           }
@@ -320,8 +309,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   );
 };
 
-// simple drag handle for row reordering using dnd-kit sortable
-function RowDragHandle({
+// simple drag handle for row reordering using dnd-kit sortablefunction RowDragHandle({
   rowId,
   index,
   onReorder,
@@ -571,8 +559,7 @@ const getValueColor = (
 };
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onCreateRecord, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
-  // leftmost column width state
-  const DEFAULT_LEFT_COL_WIDTH = 40;
+  // leftmost column width state  const DEFAULT_LEFT_COL_WIDTH = 40;
   const [leftColWidth, setLeftColWidth] = React.useState<number>(DEFAULT_LEFT_COL_WIDTH);
   const leftColResizeRef = React.useRef<boolean>(false);
   const handleLeftColResizeStart = (e: React.MouseEvent) => {
@@ -598,11 +585,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     []
   );
 
-  // sort state
-  const [sortField, setSortField] = React.useState<string>('');
+  // sort state  const [sortField, setSortField] = React.useState<string>('');
 
-  // keyboard shortcut: ctrl/cmd+n to create new record
-  React.useEffect(() => {
+  // keyboard shortcut: ctrl/cmd+n to create new record  React.useEffect(() => {
     if (!onCreateRecord) return;
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
@@ -614,8 +599,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     return () => window.removeEventListener('keydown', handler);
   }, [onCreateRecord]);
 
-  // keyboard shortcut: ctrl/cmd+n to create new record
-  React.useEffect(() => {
+  // keyboard shortcut: ctrl/cmd+n to create new record  React.useEffect(() => {
     if (!onCreateRecord) return;
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
@@ -628,8 +612,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   }, [onCreateRecord]);
   const [sortDirection, setSortDirection] = React.useState<'up' | 'down'>('up');
 
-  // manual row order state
-  const [manualOrder, setManualOrder] = React.useState<string[]>([]);
+  // manual row order state  const [manualOrder, setManualOrder] = React.useState<string[]>([]);
   const isManualOrderActive = manualOrder.length > 0;
 
   const [settingsField, setSettingsField] = React.useState<any>(null);
@@ -641,15 +624,13 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const fieldIcons = metadata[collection?.name]?.fieldIcons || {};
   const valueColorRules = metadata[collection?.name]?.valueColorRules || {} as Record<string, Record<string, string>>;
 
-  // selection state for bulk actions
-  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  // selection state for bulk actions  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [lastSelectedIndex, setLastSelectedIndex] = React.useState<number | null>(null);
   const [isBulkEditOpen, setIsBulkEditOpen] = React.useState(false);
   const [bulkFieldName, setBulkFieldName] = React.useState<string | null>(null);
   const [bulkValue, setBulkValue] = React.useState<any>(null);
 
-  // record detail drawer state
-  const [detailDrawerOpen, setDetailDrawerOpen] = React.useState(false);
+  // record detail drawer state  const [detailDrawerOpen, setDetailDrawerOpen] = React.useState(false);
   const [selectedRecord, setSelectedRecord] = React.useState<any>(null);
 
   const handleOpenDetail = (record: any) => {
@@ -689,8 +670,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     });
   }, [collection?.name, setMetadata]);
 
-  // stable refs for callbacks used inside column definitions
-  const onEditRef = React.useRef(onEdit);
+  // stable refs for callbacks used inside column definitions  const onEditRef = React.useRef(onEdit);
   const onDeleteRef = React.useRef(onDelete);
   const onUpdateRecordRef = React.useRef(onUpdateRecord);
   React.useEffect(() => { onEditRef.current = onEdit; }, [onEdit]);
@@ -699,12 +679,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   const columnHelper = React.useMemo(() => createColumnHelper<any>(), []);
 
-  // stable key for data-inferred columns (fallback when collection has no fields)
-  const dataColumnsKey = data.length > 0 ? Object.keys(data[0]).sort().join('\0') : '';
+  // stable key for data-inferred columns (fallback when collection has no fields)  const dataColumnsKey = data.length > 0 ? Object.keys(data[0]).sort().join('\0') : '';
   const hasActions = !!(onEdit || onDelete);
 
-  // deterministic column sort: title/name first, temporal fields grouped, id last, rest alphabetical
-  const EVENT_COLUMN_ORDER = ['title', 'start_time', 'end_time', 'location', 'notes', 'fronter', 'url', 'uid', 'id'];
+  // deterministic column sort: title/name first, temporal fields grouped, id last, rest alphabetical  const EVENT_COLUMN_ORDER = ['title', 'start_time', 'end_time', 'location', 'notes', 'fronter', 'url', 'uid', 'id'];
 
   const sortColumns = (cols: any[]) => {
     return [...cols].sort((a, b) => {
@@ -713,14 +691,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       const aIdx = EVENT_COLUMN_ORDER.indexOf(aName);
       const bIdx = EVENT_COLUMN_ORDER.indexOf(bName);
 
-      // both in priority list: sort by priority
-      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-      // only a in list: a first
-      if (aIdx !== -1) return -1;
-      // only b in list: b first
-      if (bIdx !== -1) return 1;
-      // neither in list: alphabetical
-      return aName.localeCompare(bName);
+      // both in priority list: sort by priority      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      // only a in list: a first      if (aIdx !== -1) return -1;
+      // only b in list: b first      if (bIdx !== -1) return 1;
+      // neither in list: alphabetical      return aName.localeCompare(bName);
     });
   };
 
@@ -736,8 +710,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         header: (() => {
           const parsed = parseI18nTemplate(field.uiSchema?.title);
           if (parsed) return parsed;
-          // always humanize the field name - handles single-word, multi-word, snake_case, camelcase
-          return humanizeFieldName(field.name);
+          // always humanize the field name - handles single-word, multi-word, snake_case, camelcase          return humanizeFieldName(field.name);
         })(),
         meta: { field },
         cell: info => {
@@ -760,12 +733,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         }
       }));
 
-      // apply deterministic column sorting
-      cols = sortColumns(cols);
+      // apply deterministic column sorting      cols = sortColumns(cols);
     }
 
-    // fallback: if no collection fields are defined but we have data, infer columns from the first row
-    if (cols.length === 0 && dataColumnsKey) {
+    // fallback: if no collection fields are defined but we have data, infer columns from the first row    if (cols.length === 0 && dataColumnsKey) {
       const keys = dataColumnsKey.split('\0');
       cols = keys
         .filter(key => !hiddenColumns.includes(key))
@@ -796,13 +767,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       cols = sortColumns(cols);
     }
 
-    // if there are no defined columns (collection has no fields and there
-    // is no data to infer from) we still want to render something so the
-    // header area doesn't collapse to zero width, which makes the add-field
-    // button and settings gear inaccessible.  create a dummy placeholder
-    // column with a message.
-    // removed placeholder cell for empty table
-
+    // if there are no defined columns (collection has no fields and there    // is no data to infer from) we still want to render something so the    // header area doesn't collapse to zero width, which makes the add-field    // button and settings gear inaccessible.  create a dummy placeholder    // column with a message.    // removed placeholder cell for empty table
     if (hasActions) {
       cols.push(columnHelper.display({
         id: 'actions',
@@ -918,11 +883,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     <div className="text-xs text-muted-foreground mb-2">Check to unhide properties</div>
                     <div className="max-h-60 overflow-y-auto space-y-1">
                       {(() => {
-                        // figure out which fields to show in the settings menu.  if we
-                        // have collection definitions use them, otherwise fall back to
-                        // the first row of data.  when both are empty we render a
-                        // helpful message below instead of mapping over an empty list.
-                        const availableFields: any[] =
+                        // figure out which fields to show in the settings menu.  if we                        // have collection definitions use them, otherwise fall back to                        // the first row of data.  when both are empty we render a                        // helpful message below instead of mapping over an empty list.                        const availableFields: any[] =
                           collection.fields && collection.fields.length > 0
                             ? collection.fields
                             : dataColumnsKey
@@ -1008,8 +969,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     const activeId = String(active.id);
     const overId = String(over.id);
 
-    // handle row reordering
-    if (activeId.startsWith('row-')) {
+    // handle row reordering    if (activeId.startsWith('row-')) {
       const fromIndex = rows.findIndex((r: any) => `row-${r.original.id}` === activeId);
       const toIndex = rows.findIndex((r: any) => `row-${r.original.id}` === overId);
       
@@ -1019,8 +979,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       return;
     }
 
-    // handle column reordering (existing logic)
-    const headerGroups = table.getHeaderGroups();
+    // handle column reordering (existing logic)    const headerGroups = table.getHeaderGroups();
     const headers = headerGroups[0].headers;
     const oldIndex = headers.findIndex((h) => h.id === active.id);
     const newIndex = headers.findIndex((h) => h.id === over?.id);
@@ -1030,10 +989,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     setColumnOrder(newOrder);
   };
 
-  // sort data based on sortfield and sortdirection, or use manualorder
-  const sortedData = React.useMemo(() => {
-    // if manual order is active and no sort is applied, use manual order
-    if (manualOrder.length > 0 && !sortField) {
+  // sort data based on sortfield and sortdirection, or use manualorder  const sortedData = React.useMemo(() => {
+    // if manual order is active and no sort is applied, use manual order    if (manualOrder.length > 0 && !sortField) {
       const orderMap = new Map(manualOrder.map((id, index) => [id, index]));
       return [...data].sort((a, b) => {
         const aIndex = orderMap.get(a.id) ?? Infinity;
@@ -1048,13 +1005,11 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       const aVal = a[sortField];
       const bVal = b[sortField];
 
-      // handle null/undefined values
-      if (aVal == null && bVal == null) return 0;
+      // handle null/undefined values      if (aVal == null && bVal == null) return 0;
       if (aVal == null) return sortDirection === 'up' ? -1 : 1;
       if (bVal == null) return sortDirection === 'up' ? 1 : -1;
 
-      // try to parse as date
-      const aDate = new Date(aVal);
+      // try to parse as date      const aDate = new Date(aVal);
       const bDate = new Date(bVal);
       const isADate = !isNaN(aDate.getTime());
       const isBDate = !isNaN(bDate.getTime());
@@ -1065,8 +1020,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           : bDate.getTime() - aDate.getTime();
       }
 
-      // try to parse as number
-      const aNum = parseFloat(aVal);
+      // try to parse as number      const aNum = parseFloat(aVal);
       const bNum = parseFloat(bVal);
       const isANum = !isNaN(aNum) && !isNaN(parseFloat(aVal));
       const isBNum = !isNaN(bNum) && !isNaN(parseFloat(bVal));
@@ -1075,8 +1029,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         return sortDirection === 'up' ? aNum - bNum : bNum - aNum;
       }
 
-      // default string comparison
-      const aStr = String(aVal).toLowerCase();
+      // default string comparison      const aStr = String(aVal).toLowerCase();
       const bStr = String(bVal).toLowerCase();
       if (aStr < bStr) return sortDirection === 'up' ? -1 : 1;
       if (aStr > bStr) return sortDirection === 'up' ? 1 : -1;
@@ -1084,8 +1037,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     });
   }, [data, sortField, sortDirection, manualOrder]);
 
-  // handle manual row reordering - clears sort when user drags rows
-  const handleRowReorder = React.useCallback((fromIndex: number, toIndex: number) => {
+  // handle manual row reordering - clears sort when user drags rows  const handleRowReorder = React.useCallback((fromIndex: number, toIndex: number) => {
     const currentOrder = manualOrder.length > 0 ? manualOrder : sortedData.map(r => r.id);
     const clampedToIndex = Math.max(0, Math.min(toIndex, currentOrder.length - 1));
     if (fromIndex !== clampedToIndex) {
@@ -1110,21 +1062,18 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   const rows = table.getRowModel().rows;
 
-  // bump version when table's internal sizing state changes (runs during drag)
-  const columnSizingState = table.getState().columnSizing;
+  // bump version when table's internal sizing state changes (runs during drag)  const columnSizingState = table.getState().columnSizing;
   const [columnVersion, setColumnVersion] = React.useState(0);
   const columnSizingRef = React.useRef(columnSizingState);
 
   React.useEffect(() => {
-    // only update if sizing actually changed to avoid unnecessary re-renders
-    if (JSON.stringify(columnSizingRef.current) !== JSON.stringify(columnSizingState)) {
+    // only update if sizing actually changed to avoid unnecessary re-renders    if (JSON.stringify(columnSizingRef.current) !== JSON.stringify(columnSizingState)) {
       columnSizingRef.current = columnSizingState;
       setColumnVersion(v => v + 1);
     }
   }, [columnSizingState]);
 
-  // also bump when our persisted sizing updates
-  React.useEffect(() => {
+  // also bump when our persisted sizing updates  React.useEffect(() => {
     setColumnVersion(v => v + 1);
   }, [columnSizing]);
 
@@ -1207,8 +1156,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             data-testid="table-header-container"
             className="overflow-x-auto no-scrollbar overflow-y-hidden flex-shrink-0"
             onScroll={(e) => {
-              // sync body when header moves (e.g. via trackpad)
-              if (bodyRef.current) {
+              // sync body when header moves (e.g. via trackpad)              if (bodyRef.current) {
                 bodyRef.current.scrollLeft = e.currentTarget.scrollLeft;
               }
             }}
@@ -1291,14 +1239,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             className="flex-1 w-full relative overflow-x-auto no-scrollbar bg-[#0b0b0b] min-h-0 pb-10"
             style={{ minHeight: 200 }}
             onScroll={(e) => {
-              // sync header position
-              if (headerRef.current) {
+              // sync header position              if (headerRef.current) {
                 headerRef.current.scrollLeft = e.currentTarget.scrollLeft;
               }
             }}
             onClick={(e) => {
-              // clicking empty space clears selection
-              const target = e.target as HTMLElement;
+              // clicking empty space clears selection              const target = e.target as HTMLElement;
               if (target === e.currentTarget && selectedIds.length > 0) {
                 clearSelection();
               }

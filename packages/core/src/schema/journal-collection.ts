@@ -1,5 +1,4 @@
-/**
- * nocobase collection: journal
+/** * nocobase collection: journal
  *
  * create this collection via the nocobase admin ui or api.
  * collection name (api identifier): journal
@@ -60,15 +59,13 @@ export interface JournalRecord {
   activities: string;  // json string – parse before use
   body: string;
   tags?: string;       // json string – parse before use
-  // optional metadata added by frontend
-  weather?: string;
+  // optional metadata added by frontend  weather?: string;
   location?: string;
   transcript?: string; // raw spoken text before summary
   createdAt?: string;
   updatedAt?: string;
 }
 
-/** parse activities json string → string array */
-export function parseActivities(raw: string | null | undefined): string[] {
+/** parse activities json string → string array */export function parseActivities(raw: string | null | undefined): string[] {
   try { return JSON.parse(raw ?? '[]'); } catch { return []; }
 }

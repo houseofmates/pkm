@@ -9,8 +9,7 @@ export interface HybridHit {
   sources: Array<'semantic' | 'bm25'>;
 }
 
-/**
- * reciprocal rank fusion (rrf) combines ranked lists from different retrieval
+/** * reciprocal rank fusion (rrf) combines ranked lists from different retrieval
  * methods into a single ranking. for each document, the fused score is:
  *
  *   rrf(d) = σ 1 / (k + rank_i(d))
@@ -31,8 +30,7 @@ export function hybridSearch(
 ): HybridHit[] {
   const rrfScores = new Map<string, { score: number; sources: Set<'semantic' | 'bm25'> }>();
 
-  // accumulate rrf scores from semantic results
-  for (let rank = 0; rank < semanticHits.length; rank++) {
+  // accumulate rrf scores from semantic results  for (let rank = 0; rank < semanticHits.length; rank++) {
     const hit = semanticHits[rank];
     const entry = rrfScores.get(hit.id) || { score: 0, sources: new Set<'semantic' | 'bm25'>() };
     entry.score += semanticWeight * (1 / (k + rank + 1));
@@ -40,8 +38,7 @@ export function hybridSearch(
     rrfScores.set(hit.id, entry);
   }
 
-  // accumulate rrf scores from bm25 results
-  const bm25Weight = 1 - semanticWeight;
+  // accumulate rrf scores from bm25 results  const bm25Weight = 1 - semanticWeight;
   for (let rank = 0; rank < bm25Hits.length; rank++) {
     const hit = bm25Hits[rank];
     const entry = rrfScores.get(hit.id) || { score: 0, sources: new Set<'semantic' | 'bm25'>() };
@@ -50,8 +47,7 @@ export function hybridSearch(
     rrfScores.set(hit.id, entry);
   }
 
-  // build final ranked list
-  const results: HybridHit[] = [];
+  // build final ranked list  const results: HybridHit[] = [];
   for (const [id, entry] of rrfScores) {
     results.push({
       id,

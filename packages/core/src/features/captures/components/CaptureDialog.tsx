@@ -28,8 +28,7 @@ export function CaptureDialog({ open, onOpenChange, onSaved }: CaptureDialogProp
   ) || [];
 
   const handleSave = async () => {
-    // basic validation: ensure we have at least one field filled
-    const hasData = Object.keys(values).some(k => values[k] !== undefined && values[k] !== '' && values[k] !== null);
+    // basic validation: ensure we have at least one field filled    const hasData = Object.keys(values).some(k => values[k] !== undefined && values[k] !== '' && values[k] !== null);
     if (!hasData) {
       toast.error("please fill at least one field");
       return;

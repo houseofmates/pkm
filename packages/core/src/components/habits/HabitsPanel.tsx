@@ -16,8 +16,7 @@ export interface HabitsPanelProps {
   selectedHabitId?: string;
 }
 
-// detail view for a specific habit
-function HabitDetailView({ 
+// detail view for a specific habitfunction HabitDetailView({ 
   habit, 
   onBack,
   onLog
@@ -148,8 +147,7 @@ function HabitDetailView({
   );
 }
 
-// main panel component
-export function HabitsPanel({
+// main panel componentexport function HabitsPanel({
   className,
   onClose,
   initialView = 'dashboard',
@@ -247,8 +245,7 @@ export function HabitsPanel({
   );
 }
 
-// inline widget for embedding in other pages
-export function HabitsInlineWidget({ className }: { className?: string }) {
+// inline widget for embedding in other pagesexport function HabitsInlineWidget({ className }: { className?: string }) {
   const [showLogger, setShowLogger] = useState(false);
   
   if (showLogger) {

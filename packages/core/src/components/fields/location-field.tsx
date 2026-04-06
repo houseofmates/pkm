@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import L from 'leaflet';
 import { secureLogger } from '@/lib/secure-logger';
 
-// fix for default marker icon in react leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+// fix for default marker icon in react leafletdelete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -39,8 +38,7 @@ function LocationMarker({ position, onChange, readOnly }: { position: L.LatLng |
 }
 
 export function LocationField({ value, onChange, readOnly }: LocationFieldProps) {
-  // parse value
-  const parsePos = (str: string): L.LatLng | null => {
+  // parse value  const parsePos = (str: string): L.LatLng | null => {
   if (!str) return null;
   try {
   const [lat, lng] = str.split(',').map(Number);

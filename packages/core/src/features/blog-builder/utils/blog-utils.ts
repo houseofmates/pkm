@@ -1,8 +1,6 @@
 // blog utility functions
-
 export function generateSlug(title: string, existingSlugs: string[] = []): string {
-  // convert to lowercase and replace non-alphanumeric with hyphens
-  const baseSlug = title
+  // convert to lowercase and replace non-alphanumeric with hyphens  const baseSlug = title
   .toLowerCase()
   .replace(/[^a-z0-9]+/g, '-')
   .replace(/^-+|-+$/g, '');
@@ -10,8 +8,7 @@ export function generateSlug(title: string, existingSlugs: string[] = []): strin
   let slug = baseSlug;
   let counter = 2;
 
-  // handle duplicates
-  while (existingSlugs.includes(slug)) {
+  // handle duplicates  while (existingSlugs.includes(slug)) {
   slug = `${baseSlug}-${counter}`;
   counter++;
   }
@@ -20,8 +17,7 @@ export function generateSlug(title: string, existingSlugs: string[] = []): strin
 }
 
 export function generateExcerpt(content: any, maxLength: number = 150): string {
-  // extract text from page elements
-  let text = '';
+  // extract text from page elements  let text = '';
 
   if (Array.isArray(content)) {
   for (const element of content) {
@@ -31,12 +27,10 @@ export function generateExcerpt(content: any, maxLength: number = 150): string {
   }
   }
 
-  // trim and cut at sentence boundary
-  text = text.trim();
+  // trim and cut at sentence boundary  text = text.trim();
   if (text.length <= maxLength) return text;
 
-  // try to cut at last sentence within limit
-  const cutText = text.substring(0, maxLength);
+  // try to cut at last sentence within limit  const cutText = text.substring(0, maxLength);
   const lastPeriod = cutText.lastIndexOf('.');
   const lastQuestion = cutText.lastIndexOf('?');
   const lastExclamation = cutText.lastIndexOf('!');
@@ -47,14 +41,12 @@ export function generateExcerpt(content: any, maxLength: number = 150): string {
   return text.substring(0, lastSentence + 1);
   }
 
-  // otherwise cut at last space
-  const lastSpace = cutText.lastIndexOf(' ');
+  // otherwise cut at last space  const lastSpace = cutText.lastIndexOf(' ');
   return text.substring(0, lastSpace) + '...';
 }
 
 export function calculateReadingTime(content: any): number {
-  // count words in content
-  let wordCount = 0;
+  // count words in content  let wordCount = 0;
 
   if (Array.isArray(content)) {
   for (const element of content) {
@@ -64,8 +56,7 @@ export function calculateReadingTime(content: any): number {
   }
   }
 
-  // average reading speed: 200 words per minute
-  const minutes = Math.ceil(wordCount / 200);
+  // average reading speed: 200 words per minute  const minutes = Math.ceil(wordCount / 200);
   return Math.max(1, minutes); // minimum 1 minute
 }
 

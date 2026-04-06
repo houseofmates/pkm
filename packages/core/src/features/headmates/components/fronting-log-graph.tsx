@@ -7,14 +7,8 @@ export function FrontingLogGraph() {
   const { history, members } = useFronter();
 
   const data = useMemo(() => {
-  // transform history into graph data
-  // we want a timeline.
-  // for simple bar chart: show duration per day?
-  // or gantt? recharts is hard for gantt.
-  // let's do a stacked bar chart by day for "time fronted".
-
-  // 1. group by day
-  const days: Record<string, Record<string, number>> = {};
+  // transform history into graph data  // we want a timeline.  // for simple bar chart: show duration per day?  // or gantt? recharts is hard for gantt.  // let's do a stacked bar chart by day for "time fronted".
+  // 1. group by day  const days: Record<string, Record<string, number>> = {};
 
   history.forEach(entry => {
   if (!entry.endTime) return; // skip active or calculate partial? skip for now.
@@ -30,15 +24,13 @@ export function FrontingLogGraph() {
   });
   });
 
-  // convert to array and sort
-  return Object.entries(days)
+  // convert to array and sort  return Object.entries(days)
   .map(([k, v]) => ({ date: k, ...v }))
   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   .slice(-14); // last 14 days
   }, [history]);
 
-  // get unique members in this period
-  const activeMemberIds = useMemo(() => {
+  // get unique members in this period  const activeMemberIds = useMemo(() => {
   const ids = new Set<string>();
   data.forEach(d => {
   Object.keys(d).forEach(k => {

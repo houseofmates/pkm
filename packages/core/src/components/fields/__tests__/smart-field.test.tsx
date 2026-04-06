@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -7,8 +6,7 @@ import { SmartField } from '../smart-field';
 import { AuthContext } from '@/contexts/auth-context';
 import { describe, it, expect, vi } from 'vitest';
 
-// minimal auth stub
-const fakeClient = { listRecords: vi.fn(), upload: vi.fn() };
+// minimal auth stubconst fakeClient = { listRecords: vi.fn(), upload: vi.fn() };
 const authValue = { token: 'x', isAuthenticated: true, login: vi.fn(), logout: vi.fn(), client: fakeClient };
 function withAuth(ui: React.ReactElement) {
   return render(

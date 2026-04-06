@@ -26,8 +26,7 @@ export function CanvasPage() {
         setMetadata(next);
     }
 
-    // pdf handling
-    const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // pdf handling    const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
@@ -42,8 +41,7 @@ export function CanvasPage() {
     const pdfInputRef = useRef<HTMLInputElement>(null);
 
 
-    // --- header structure aligned with sidebar / page ---
-    return (
+    // --- header structure aligned with sidebar / page ---    return (
         <div className="w-full h-[100dvh] relative overflow-hidden bg-background flex flex-col">
             {/* pdf layer (background / full screen) */}
             {pdfUrl && (
@@ -87,8 +85,7 @@ export function CanvasPage() {
                                     title={title}
                                     isPage={true}
                                     onDelete={() => {
-                                        // handle delete?
-                                        secureLogger.info("Delete page", id)
+                                        // handle delete?                                        secureLogger.info("Delete page", id)
                                     }}
                                 />
                                 {/* pdf upload section injected here or inside form? injected here is easier for now without huge refactor */}

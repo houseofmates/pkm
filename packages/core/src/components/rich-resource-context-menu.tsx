@@ -2,19 +2,9 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { HexColorPicker } from 'react-colorful';
 import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check, Image as ImageIcon, type LucideIcon } from 'lucide-react';
-// note: static import of lucide-react gets tree-shaken by bundlers. a number of
-// other modules rely on some of the helper icons above, so we keep those
-// exports around, but the full namespace may still be pruned.
-//
-// to avoid a completely empty picker when the module is tree‑shaken (which was
-// the original user complaint), we dynamically load the library at runtime and
-// cache the result.  additionally we trigger a background import as soon as
-// this file loads so that the first time the context menu is opened the icons
-// are already available.
-import { ContextMenuContent } from "@/components/ui/context-menu";
+// note: static import of lucide-react gets tree-shaken by bundlers. a number of// other modules rely on some of the helper icons above, so we keep those// exports around, but the full namespace may still be pruned.//// to avoid a completely empty picker when the module is tree‑shaken (which was// the original user complaint), we dynamically load the library at runtime and// cache the result.  additionally we trigger a background import as soon as// this file loads so that the first time the context menu is opened the icons// are already available.import { ContextMenuContent } from "@/components/ui/context-menu";
 
 // --- lazy loader helpers ----------------------------------------------------
-
 let lucideModuleCache: Record<string, unknown> | null = null;
 let lucideModulePromise: Promise<Record<string, unknown>> | null = null;
 
@@ -32,9 +22,7 @@ function loadLucideModule(): Promise<Record<string, unknown>> {
   return lucideModulePromise;
 }
 
-// immediately kick off the import so that the network/chunk load happens
-// long before the user actually opens a context menu.
-loadLucideModule();
+// immediately kick off the import so that the network/chunk load happens// long before the user actually opens a context menu.loadLucideModule();
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
@@ -58,36 +46,9 @@ interface CustomIconEntry {
   createdAt?: string;
 }
 
-// instead of computing the complete icon list at module load time we
-// populate it dynamically when the menu is rendered.  bundlers like vite
-// aggressively tree‑shake unused exports from `lucide-react` which means the
-// namespace object may only contain the handful of icons that were imported
-// statically elsewhere in the bundle.  as a result, a static all_icons array
-// could end up empty or missing most of the icons, which is exactly what
-// manifested when right‑clicking a sidebar item – the "icons" tab would be
-// completely blank.
-//
-// loading the module with a dynamic `import()` ensures we receive the full
-// export list at runtime (the library cannot be pruned) and allows us to
-// rebuild the list when the context menu opens.  we also keep the filtering
-// logic the same so we still exclude internal helpers and duplicates.
-
-// helper used in `useeffect` below; not exported because it's only relevant in
-// this file.
-//
-// lucide's module shape has changed a few times – during development the
-// namespace might expose every icon as a top‑level export, and in production
-// builds a single `icons` object may be provided instead.  the previous
-// implementation blindly filtered out the `icons` property which meant that
-// when *only* that container was present we ended up with an empty list and the
-// picker appeared blank.  that exactly matched the bug described by users:
-// "i right click a sidebar item, i cant see any lucide icons to scroll through
-// or search for".  to be robust we now merge both locations and dedupe the
-// results.
-function computeIconNames(obj: Record<string, unknown>): string[] {
-  // some module mocks (vitest) or bundler outputs may put the real exports under
-  // a `default` property.  make sure we examine both locations.
-  const source: Record<string, unknown> = { ...(obj as any) };
+// instead of computing the complete icon list at module load time we// populate it dynamically when the menu is rendered.  bundlers like vite// aggressively tree‑shake unused exports from `lucide-react` which means the// namespace object may only contain the handful of icons that were imported// statically elsewhere in the bundle.  as a result, a static all_icons array// could end up empty or missing most of the icons, which is exactly what// manifested when right‑clicking a sidebar item – the "icons" tab would be// completely blank.//// loading the module with a dynamic `import()` ensures we receive the full// export list at runtime (the library cannot be pruned) and allows us to// rebuild the list when the context menu opens.  we also keep the filtering// logic the same so we still exclude internal helpers and duplicates.
+// helper used in `useeffect` below; not exported because it's only relevant in// this file.//// lucide's module shape has changed a few times – during development the// namespace might expose every icon as a top‑level export, and in production// builds a single `icons` object may be provided instead.  the previous// implementation blindly filtered out the `icons` property which meant that// when *only* that container was present we ended up with an empty list and the// picker appeared blank.  that exactly matched the bug described by users:// "i right click a sidebar item, i cant see any lucide icons to scroll through// or search for".  to be robust we now merge both locations and dedupe the// results.function computeIconNames(obj: Record<string, unknown>): string[] {
+  // some module mocks (vitest) or bundler outputs may put the real exports under  // a `default` property.  make sure we examine both locations.  const source: Record<string, unknown> = { ...(obj as any) };
   if (obj.default && typeof obj.default === 'object') {
     Object.assign(source, obj.default as Record<string, unknown>);
   }
@@ -95,15 +56,12 @@ function computeIconNames(obj: Record<string, unknown>): string[] {
   const names = new Set<string>();
 
   function addKey(key: string) {
-    // ignore helpers and lowercase exports
-    if (
+    // ignore helpers and lowercase exports    if (
       key === 'icons' ||
       key === 'createlucideicon' ||
       key === 'default' ||
       key.startsWith('lucide') ||
-      // the original code filtered out lowercase "icon" suffix; keep the
-      // upper‑case variant since many library exports include both
-      key.endsWith('icon') ||
+      // the original code filtered out lowercase "icon" suffix; keep the      // upper‑case variant since many library exports include both      key.endsWith('icon') ||
       !/^[A-Z]/.test(key)
     ) {
       return;
@@ -113,9 +71,7 @@ function computeIconNames(obj: Record<string, unknown>): string[] {
 
   Object.keys(obj).forEach(addKey);
 
-  // also inspect nested `icons` object if present (bundlers sometimes put all
-  // of the icons there to avoid polluting the top-level namespace).
-  if (obj.icons && typeof obj.icons === 'object') {
+  // also inspect nested `icons` object if present (bundlers sometimes put all  // of the icons there to avoid polluting the top-level namespace).  if (obj.icons && typeof obj.icons === 'object') {
     Object.keys(obj.icons as Record<string, unknown>).forEach((k) => {
       if (/^[A-Z]/.test(k)) {
         names.add(k);
@@ -126,48 +82,38 @@ function computeIconNames(obj: Record<string, unknown>): string[] {
   return Array.from(names);
 }
 
-// semantic keywords for "smart search"
-const iconKeywords: Record<string, string[]> = {
-  // food & drink
-  'food': ['Apple', 'Banana', 'Cherry', 'Citrus', 'Coffee', 'Cookie', 'Croissant', 'CupSoda', 'Donut', 'Egg', 'Fish', 'Grape', 'IceCream', 'Lollipop', 'Martini', 'Milk', 'Nut', 'Pizza', 'Popcorn', 'Potato', 'Sandwich', 'Soup', 'Utensils', 'Wheat', 'Wine', 'Beef', 'Beer', 'Candy', 'Carrot', 'Vegan', 'Cake', 'IceCream2'],
+// semantic keywords for "smart search"const iconKeywords: Record<string, string[]> = {
+  // food & drink  'food': ['Apple', 'Banana', 'Cherry', 'Citrus', 'Coffee', 'Cookie', 'Croissant', 'CupSoda', 'Donut', 'Egg', 'Fish', 'Grape', 'IceCream', 'Lollipop', 'Martini', 'Milk', 'Nut', 'Pizza', 'Popcorn', 'Potato', 'Sandwich', 'Soup', 'Utensils', 'Wheat', 'Wine', 'Beef', 'Beer', 'Candy', 'Carrot', 'Vegan', 'Cake', 'IceCream2'],
   'drink': ['Beer', 'Coffee', 'CupSoda', 'Martini', 'Milk', 'Wine', 'GlassWater'],
 
-  // nature & environment
-  'nature': ['Cloud', 'Sun', 'Moon', 'Tree', 'Flower', 'Leaf', 'Mountain', 'Snowflake', 'Flame', 'Zap', 'Droplets', 'Waves', 'Wind', 'Cat', 'Dog', 'Bird', 'Fish', 'Rabbit', 'Squirrel', 'Bug', 'Palmtree', 'Tent', 'Flower2'],
+  // nature & environment  'nature': ['Cloud', 'Sun', 'Moon', 'Tree', 'Flower', 'Leaf', 'Mountain', 'Snowflake', 'Flame', 'Zap', 'Droplets', 'Waves', 'Wind', 'Cat', 'Dog', 'Bird', 'Fish', 'Rabbit', 'Squirrel', 'Bug', 'Palmtree', 'Tent', 'Flower2'],
   'weather': ['Cloud', 'CloudRain', 'CloudSnow', 'CloudLightning', 'Sun', 'Moon', 'Thermometer', 'Umbrella', 'Wind', 'Rainbow', 'Sunset', 'Sunrise'],
   'beach': ['Palmtree', 'Umbrella', 'Sun', 'Waves', 'Shell', 'Fish'],
   'garden': ['Flower', 'Shovel', 'Sprout', 'Tree', 'Fence'],
 
-  // tech & electronics
-  'tech': ['Cpu', 'Database', 'HardDrive', 'Keyboard', 'Laptop', 'Monitor', 'Mouse', 'Phone', 'Server', 'Smartphone', 'Tablet', 'Tv', 'Watch', 'Wifi', 'Battery', 'Bluetooth', 'Camera', 'Headphones', 'Speaker', 'Radio', 'Gamepad', 'Printer', 'Scanner'],
+  // tech & electronics  'tech': ['Cpu', 'Database', 'HardDrive', 'Keyboard', 'Laptop', 'Monitor', 'Mouse', 'Phone', 'Server', 'Smartphone', 'Tablet', 'Tv', 'Watch', 'Wifi', 'Battery', 'Bluetooth', 'Camera', 'Headphones', 'Speaker', 'Radio', 'Gamepad', 'Printer', 'Scanner'],
   'computer': ['Monitor', 'Laptop', 'Cpu', 'Keyboard', 'Mouse', 'HardDrive', 'Server', 'Code', 'Terminal'],
   'gaming': ['Gamepad', 'Gamepad2', 'Joystick', 'Dice', 'Sword', 'Ghost', 'Skull', 'Trophy', 'Crown'],
   'xbox': ['Gamepad', 'Gamepad2'], // specific request
   'boombox': ['BoomBox', 'Speaker', 'Radio'], // specific request
 
-  // money & finance
-  'money': ['Banknote', 'CircleDollarSign', 'Coins', 'CreditCard', 'DollarSign', 'Gem', 'Landmark', 'PiggyBank', 'Receipt', 'Wallet', 'BadgeDollarSign', 'HandCoins', 'CircleDollarSign'],
+  // money & finance  'money': ['Banknote', 'CircleDollarSign', 'Coins', 'CreditCard', 'DollarSign', 'Gem', 'Landmark', 'PiggyBank', 'Receipt', 'Wallet', 'BadgeDollarSign', 'HandCoins', 'CircleDollarSign'],
   'finance': ['TrendingUp', 'TrendingDown', 'BarChart', 'PieChart', 'LineChart', 'Activity', 'BadgePercent', 'Calculator'],
 
-  // objects & life
-  'life': ['Home', 'Bed', 'Bath', 'Briefcase', 'ShoppingBag', 'ShoppingCart', 'Ticket', 'Key', 'Lock', 'Map', 'Compass', 'Gift', 'Tag', 'Bookmark'],
+  // objects & life  'life': ['Home', 'Bed', 'Bath', 'Briefcase', 'ShoppingBag', 'ShoppingCart', 'Ticket', 'Key', 'Lock', 'Map', 'Compass', 'Gift', 'Tag', 'Bookmark'],
   'home': ['Home', 'Bed', 'AppWindow', 'Armchair', 'Bath', 'ConciergeBell', 'DoorOpen', 'Fan', 'Lamp', 'Refrigerator', 'Sofa', 'Tv', 'WashingMachine'],
   'minecraft': ['Box', 'Cuboid', 'Ghost', 'Pickaxe', 'Axe', 'Shovel', 'Sword'], // specific request
 
-  // office & work
-  'office': ['Folder', 'File', 'Archive', 'Briefcase', 'Calculator', 'Clipboard', 'Paperclip', 'Printer', 'Scissors', 'Stapler', 'Trash', 'Briefcase', 'Calendar'],
+  // office & work  'office': ['Folder', 'File', 'Archive', 'Briefcase', 'Calculator', 'Clipboard', 'Paperclip', 'Printer', 'Scissors', 'Stapler', 'Trash', 'Briefcase', 'Calendar'],
 
-  // transport
-  'transport': ['Bike', 'Bus', 'Car', 'Plane', 'Rocket', 'Ship', 'Train', 'Truck', 'Anchor', 'Sailboat', 'TramFront'],
+  // transport  'transport': ['Bike', 'Bus', 'Car', 'Plane', 'Rocket', 'Ship', 'Train', 'Truck', 'Anchor', 'Sailboat', 'TramFront'],
 
-  // misc specific requests
-  'cane': ['CandyCane', 'Accessibility', 'Crutch'], // "cane"
+  // misc specific requests  'cane': ['CandyCane', 'Accessibility', 'Crutch'], // "cane"
   'umbrella': ['Umbrella'],
   'cart': ['ShoppingCart', 'ShoppingBag'],
 };
 
-// fallback emoji list (common)
-const DEFAULT_EMOJIS = [
+// fallback emoji list (common)const DEFAULT_EMOJIS = [
   { unified: '1f600', short_name: 'grinning face' },
   { unified: '1f603', short_name: 'grinning face with big eyes' },
   { unified: '1f604', short_name: 'grinning face with smiling eyes' },
@@ -420,8 +366,7 @@ function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: R
   const [pendingApiKey, setPendingApiKey] = useState('');
   const renameDebounce = useRef<NodeJS.Timeout | null>(null);
 
-  // sync local name if prop changes
-  useEffect(() => {
+  // sync local name if prop changes  useEffect(() => {
     const raf = requestAnimationFrame(() => {
       if (currentName) setLocalName(currentName);
     });
@@ -434,38 +379,24 @@ function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: R
     }
   }, [showPromptInput]);
 
-  // emoji state
-  const [emojis, setEmojis] = useState<any[]>(DEFAULT_EMOJIS);
+  // emoji state  const [emojis, setEmojis] = useState<any[]>(DEFAULT_EMOJIS);
   const [loadingEmojis, setLoadingEmojis] = useState(false);
 
-  // store dynamically imported lucide-react module to avoid tree-shaking
-  const [lucideModule, setLucideModule] = useState<Record<string, unknown> | null>(null);
+  // store dynamically imported lucide-react module to avoid tree-shaking  const [lucideModule, setLucideModule] = useState<Record<string, unknown> | null>(null);
 
-  // when the current resource changes we treat that as a fresh open and
-  // reset the search query so icons are immediately visible; if we keep the
-  // previous value the user can accidentally end up with a filter that
-  // matches nothing (e.g. they previously searched "journal" then opened the
-  // menu on the "journal" sidebar item and wondered why the grid was empty).
-  useEffect(() => {
+  // when the current resource changes we treat that as a fresh open and  // reset the search query so icons are immediately visible; if we keep the  // previous value the user can accidentally end up with a filter that  // matches nothing (e.g. they previously searched "journal" then opened the  // menu on the "journal" sidebar item and wondered why the grid was empty).  useEffect(() => {
     setSearch('');
     setActiveTab('icons');
   }, [currentName]);
 
-  // dynamically import the lucide-react namespace when the menu mounts. this
-  // avoids tree‑shaking issues where only the icons that are statically
-  // imported elsewhere remain in the bundle.  we also cache the promise so
-  // subsequent openings are instantaneous, and kick off a background prefetch
-  // at module load time so the first right‑click doesn't feel empty.
-  useEffect(() => {
+  // dynamically import the lucide-react namespace when the menu mounts. this  // avoids tree‑shaking issues where only the icons that are statically  // imported elsewhere remain in the bundle.  we also cache the promise so  // subsequent openings are instantaneous, and kick off a background prefetch  // at module load time so the first right‑click doesn't feel empty.  useEffect(() => {
     let cancelled = false;
     loadLucideModule().then((mod) => {
       if (cancelled) return;
       setLucideModule(mod);
       const names = computeIconNames(mod);
       if (names.length === 0) {
-        // if the imported module looked empty for whatever reason, fall back to
-        // the small static set so the user at least has something to click on.
-        setAllIcons(FALLBACK_ICONS);
+        // if the imported module looked empty for whatever reason, fall back to        // the small static set so the user at least has something to click on.        setAllIcons(FALLBACK_ICONS);
       } else {
         setAllIcons(names);
       }
@@ -475,28 +406,23 @@ function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: R
     return () => { cancelled = true; };
   }, []);
 
-  // get icon component from dynamically loaded module
-  const getLucideIcon = useCallback((name: string): LucideIcon | undefined => {
+  // get icon component from dynamically loaded module  const getLucideIcon = useCallback((name: string): LucideIcon | undefined => {
     if (!lucideModule) return undefined;
     return lucideModule[name] as LucideIcon | undefined;
   }, [lucideModule]);
 
-  // load emojis (twemoji based source or standard list)
-  useEffect(() => {
+  // load emojis (twemoji based source or standard list)  useEffect(() => {
     if (activeTab === 'emojis' && emojis.length === DEFAULT_EMOJIS.length) {
       const raf = requestAnimationFrame(() => setLoadingEmojis(true));
-      // fetch a comprehensive emoji list
-      fetch('https://unpkg.com/emoji-datasource-twitter@15.0.0/emoji.json')
+      // fetch a comprehensive emoji list      fetch('https://unpkg.com/emoji-datasource-twitter@15.0.0/emoji.json')
         .then(res => res.json())
         .then((data: any[]) => {
-          // sort by sort_order to ensure smileys are first (fixing the "flags only" issue)
-          const sorted = data.sort((a, b) => a.sort_order - b.sort_order);
+          // sort by sort_order to ensure smileys are first (fixing the "flags only" issue)          const sorted = data.sort((a, b) => a.sort_order - b.sort_order);
           setEmojis(sorted);
           setLoadingEmojis(false);
         })
         .catch(() => {
-          // fail silently, we have defaults
-          setLoadingEmojis(false);
+          // fail silently, we have defaults          setLoadingEmojis(false);
         });
       return () => cancelAnimationFrame(raf);
     }
@@ -508,34 +434,26 @@ function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: R
   }, [emojis, search]);
 
   const filteredIcons = useMemo(() => {
-    // use the dynamic list we populated above; this will be empty while the
-    // import is in-flight, which is why the component needs to handle the
-    // "no icons found" message gracefully.
-    if (!search) return allIcons.slice(0, 200);
+    // use the dynamic list we populated above; this will be empty while the    // import is in-flight, which is why the component needs to handle the    // "no icons found" message gracefully.    if (!search) return allIcons.slice(0, 200);
 
     const lowerSearch = search.toLowerCase();
 
-    // 1. direct search
-    const directMatches = allIcons.filter(name => name.toLowerCase().includes(lowerSearch));
+    // 1. direct search    const directMatches = allIcons.filter(name => name.toLowerCase().includes(lowerSearch));
 
-    // 2. keyword search
-    const keywordMatches = Object.entries(iconKeywords)
+    // 2. keyword search    const keywordMatches = Object.entries(iconKeywords)
       .filter(([key]) => key.includes(lowerSearch))
       .flatMap(([, icons]) => icons);
 
-    // combine and dedup
-    const unique = Array.from(new Set([...directMatches, ...keywordMatches]));
+    // combine and dedup    const unique = Array.from(new Set([...directMatches, ...keywordMatches]));
     return unique.slice(0, 100);
   }, [search, allIcons]);
 
-  // twemoji url helper
-  const getTwemojiUrl = (unified: string) => {
+  // twemoji url helper  const getTwemojiUrl = (unified: string) => {
     const code = unified.toLowerCase().replace(/-fe0f/g, '');
     return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${code}.png`;
   };
 
-  // file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // file upload  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -644,15 +562,12 @@ function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: R
             onChange={(e) => {
               const val = e.target.value;
               setLocalName(val);
-              // debounce rename to avoid multiple updates per spacebar tap
-              if (renameDebounce.current) clearTimeout(renameDebounce.current);
+              // debounce rename to avoid multiple updates per spacebar tap              if (renameDebounce.current) clearTimeout(renameDebounce.current);
               renameDebounce.current = setTimeout(() => {
                 if (val !== currentName && val.trim()) {
                   onUpdate({ name: val });
-                  // close context menu after rename
-                  setTimeout(() => {
-                    // try to close the menu (works for radix ui context menu)
-                    if (contextMenuRef.current) {
+                  // close context menu after rename                  setTimeout(() => {
+                    // try to close the menu (works for radix ui context menu)                    if (contextMenuRef.current) {
                       const evt = new Event('pointerdown', { bubbles: true });
                       contextMenuRef.current.dispatchEvent(evt);
                     }

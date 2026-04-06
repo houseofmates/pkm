@@ -1,10 +1,8 @@
 import React from 'react'
 import { Card, CardContent, CardHeader } from '../ui/card'
 import { Badge } from '../ui/badge'
-// import { heart, zap } from 'lucide-react'
-import { useGamificationStore } from '../../stores/gamification-store'
-// import link from 'next/link'
-const Link: React.FC<{ className?: string; children: React.ReactNode }> = ({ className = '', children }) => {
+// import { heart, zap } from 'lucide-react'import { useGamificationStore } from '../../stores/gamification-store'
+// import link from 'next/link'const Link: React.FC<{ className?: string; children: React.ReactNode }> = ({ className = '', children }) => {
   return (
     <div className={className} onClick={() => window.location.href = '/journal'} style={{ cursor: 'pointer' }}>
       {children}

@@ -1,12 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
 
-/* ── force varela round everywhere ── */
-:root {
+/* ── force varela round everywhere ── */:root {
   --vp-font-family-base: 'Varela Round', sans-serif;
   --vp-font-family-mono: 'Fira Code', monospace;
 
-  /* ── brand colors ── */
-  --vp-c-brand-1: #f6b012;
+  /* ── brand colors ── */  --vp-c-brand-1: #f6b012;
   --vp-c-brand-2: #f6b012;
   --vp-c-brand-3: #f6b012;
   --vp-c-brand-soft: rgba(246, 176, 18, 0.14);
@@ -17,12 +15,10 @@
   --vp-c-bg-mute: #141414;
   --vp-c-bg-alt: #0a0a0a;
 
-  /* ── sidebar ── */
-  --vp-sidebar-bg-color: #050505;
+  /* ── sidebar ── */  --vp-sidebar-bg-color: #050505;
   --vp-sidebar-width: 240px;
 
-  /* ── headings ── */
-  --vp-c-yellow: #f6b012;
+  /* ── headings ── */  --vp-c-yellow: #f6b012;
 }
 
 html.dark {
@@ -34,10 +30,7 @@ html.dark {
   --vp-c-text-2: #a0aec0;
 }
 
-*,
-*::before,
-*::after {
-  font-family: 'Varela Round', sans-serif !important;
+*,*::before,*::after {  font-family: 'Varela Round', sans-serif !important;
   text-transform: lowercase;
 }
 
@@ -48,8 +41,7 @@ code, code *,
   text-transform: none !important;
 }
 
-/* ── remove body constraints that break VitePress layout ── */
-body {
+/* ── remove body constraints that break vitepress layout ── */body {
   background: var(--vp-c-bg);
   color: var(--vp-c-text-1);
   max-width: none;
@@ -58,8 +50,7 @@ body {
   line-height: 1.7;
 }
 
-/* ── headings: #f6b012 ── */
-.vp-doc h1,
+/* ── headings: #f6b012 ── */.vp-doc h1,
 .vp-doc h2,
 .vp-doc h3,
 .vp-doc h4,
@@ -68,8 +59,7 @@ body {
   color: #f6b012 !important;
 }
 
-/* ── links ── */
-a,
+/* ── links ── */a,
 .vp-doc a {
   color: #f6b012;
   text-decoration: none;
@@ -83,8 +73,7 @@ a:hover,
   color: #f6b012;
 }
 
-/* ── sidebar: tighten padding, active/hover = #f6b012 ── */
-.VPSidebar {
+/* ── sidebar: tighten padding, active/hover = #f6b012 ── */.VPSidebar {
   padding-left: 16px !important;
   padding-right: 16px !important;
   background: var(--vp-c-bg) !important;
@@ -103,14 +92,12 @@ a:hover,
   background-color: #f6b012 !important;
 }
 
-/* sidebar group titles */
-.VPSidebarItem.level-0 > .item > .text {
+/* sidebar group titles */.VPSidebarItem.level-0 > .item > .text {
   color: #f6b012 !important;
   font-weight: 600;
 }
 
-/* ── nav bar ── */
-.VPNav,
+/* ── nav bar ── */.VPNav,
 .VPNavBar {
   background: rgba(5, 5, 5, 0.85) !important;
   backdrop-filter: blur(20px);
@@ -125,8 +112,7 @@ a:hover,
   color: #f6b012 !important;
 }
 
-/* ── "on this page" outline ── */
-.VPDocAsideOutline .outline-link:hover,
+/* ── "on this page" outline ── */.VPDocAsideOutline .outline-link:hover,
 .VPDocAsideOutline .outline-link.active {
   color: #f6b012 !important;
 }
@@ -135,8 +121,7 @@ a:hover,
   color: #f6b012 !important;
 }
 
-/* ── content area: reduce excessive padding ── */
-.VPContent.has-sidebar {
+/* ── content area: reduce excessive padding ── */.VPContent.has-sidebar {
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
@@ -145,8 +130,7 @@ a:hover,
   max-width: 100% !important;
 }
 
-/* ── wiki links ── */
-.wiki-link {
+/* ── wiki links ── */.wiki-link {
   color: #f6b012;
   background: rgba(246, 176, 18, 0.08);
   padding: 0.1rem 0.35rem;
@@ -163,18 +147,15 @@ a:hover,
   border-bottom: none !important;
 }
 
-/* ── search ── */
-.VPLocalSearchBox input {
+/* ── search ── */.VPLocalSearchBox input {
   font-family: 'Varela Round', sans-serif !important;
 }
 
-/* ── content dividers lighter ── */
-.vp-doc hr {
+/* ── content dividers lighter ── */.vp-doc hr {
   border-color: rgba(255, 255, 255, 0.06);
 }
 
-/* ── header anchor on hover ── */
-.vp-doc .header-anchor {
+/* ── header anchor on hover ── */.vp-doc .header-anchor {
   float: left;
   margin-left: -0.8em;
   opacity: 0;

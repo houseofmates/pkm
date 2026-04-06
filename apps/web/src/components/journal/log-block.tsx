@@ -39,21 +39,18 @@ const LogBlock: React.FC<LogBlockProps> = ({ onSave }) => {
         const arr = raw ? JSON.parse(raw) : []
         arr.push(payload)
         localStorage.setItem('pkm_activity_logs', JSON.stringify(arr))
-        // notify other components
-        window.dispatchEvent(new CustomEvent('pkm:activity-log-saved', { detail: payload }))
+        // notify other components        window.dispatchEvent(new CustomEvent('pkm:activity-log-saved', { detail: payload }))
       } catch (e) {
         console.error('failed saving log', e)
       }
       if (onSave) onSave(payload)
 
-      // attempt immediate sync to server if configured (non-blocking)
-      (async () => {
+      // attempt immediate sync to server if configured (non-blocking)      (async () => {
         try {
           const base = import.meta.env.VITE_NOCOBASE_URL || ''
           const token = import.meta.env.VITE_NOCOBASE_API_TOKEN || import.meta.env.NOCOBASE_API_KEY || ''
           if (!base || !token) return
-          // find or create activity on server
-          const activityName = (() => {
+          // find or create activity on server          const activityName = (() => {
             const raw = localStorage.getItem('pkm_activities')
             if (!raw) return activity || ''
             try { const arr = JSON.parse(raw); const found = arr.find((a: any) => a.id === activity); return found?.name || activity }
@@ -63,12 +60,10 @@ const LogBlock: React.FC<LogBlockProps> = ({ onSave }) => {
           if (!serverActivityId) return
           const created = await createActivityLog({ activityId: serverActivityId, note: note, rating, createdAt: payload.createdAt, localLogId: payload.id })
           if (created) {
-            // small success toast
-            try { const { toast } = await import('sonner'); toast?.success('log synced') } catch {}
+            // small success toast            try { const { toast } = await import('sonner'); toast?.success('log synced') } catch {}
           }
         } catch (e) {
-          // ignore failures; logs remain in localstorage
-          console.warn('immediate server sync failed', e)
+          // ignore failures; logs remain in localstorage          console.warn('immediate server sync failed', e)
         }
       })()
     }

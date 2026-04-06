@@ -1,23 +1,8 @@
-// ==UserScript==
-// @name         PKM Capture
-// @namespace    http://tampermonkey.net/
-// @version      0.3
-// @description  Capture page context for PKM dashboard (Journal App)
-// @author       Antigravity
-// @match        *://*/*
-// @grant        GM_xmlhttpRequest
-// @grant        GM_addStyle
-// @grant        GM_registerMenuCommand
-// @run-at       document-end
-// ==/UserScript==
-
+// ==userscript==// @name         pkm capture// @namespace    http://tampermonkey.net/// @version      0.3// @description  capture page context for pkm dashboard (journal app)// @author       antigravity// @match        *://*/*// @grant        gm_xmlhttprequest// @grant        gm_addstyle// @grant        gm_registermenucommand// @run-at       document-end// ==/userscript==
 (function () {
     'use strict';
 
-    // --- Configuration ---
-    // IMPORTANT: Generate an API Token in NocoBase (Users > Authentication > API Tokens)
-    // and paste it below.
-    const CONFIG = {
+    // --- configuration ---    // important: generate an api token in nocobase (users > authentication > api tokens)    // and paste it below.    const CONFIG = {
         apiBase: 'https://db.houseofmates.space/api',
         collectionName: 'captures',
         apiToken: process.env.NOCOBASE_API_KEY || '', // from .env
@@ -25,16 +10,13 @@
         fontFamily: '"Varela Round", sans-serif'
     };
 
-    // --- Asset Injection ---
-
-    // 1. Font
-    const fontLink = document.createElement('link');
+    // --- asset injection ---
+    // 1. font    const fontLink = document.createElement('link');
     fontLink.href = 'https://fonts.googleapis.com/css2?family=Varela+Round&display=swap';
     fontLink.rel = 'stylesheet';
     document.head.appendChild(fontLink);
 
-    // 2. Styles
-    const styles = `
+    // 2. styles    const styles = `
         #pkm-capture-btn {
             position: fixed;
             bottom: 24px;
@@ -92,10 +74,8 @@
     `;
     GM_addStyle(styles);
 
-    // --- UI Elements ---
-
-    // Button
-    const btn = document.createElement('div');
+    // --- ui elements ---
+    // button    const btn = document.createElement('div');
     btn.id = 'pkm-capture-btn';
     btn.title = 'Capture to Brain (Alt+S)';
     btn.innerHTML = `
@@ -106,13 +86,11 @@
 
     document.body.appendChild(btn);
 
-    // Toast
-    const toast = document.createElement('div');
+    // toast    const toast = document.createElement('div');
     toast.id = 'pkm-toast';
     document.body.appendChild(toast);
 
-    // --- Logic ---
-
+    // --- logic ---
     function showToast(msg, isError = false) {
         toast.textContent = msg;
         toast.style.borderLeftColor = isError ? '#ef4444' : CONFIG.themeColor;
@@ -139,8 +117,7 @@
             source: 'violentmonkey'
         };
 
-        // Visual feedback
-        btn.style.transform = 'scale(0.9)';
+        // visual feedback        btn.style.transform = 'scale(0.9)';
         setTimeout(() => btn.style.transform = '', 150);
 
         GM_xmlhttpRequest({
@@ -166,30 +143,22 @@
         });
     }
 
-    // --- Event Listeners ---
+    // --- event listeners ---
+    // click    btn.addEventListener('click', () => capturePage());
 
-    // Click
-    btn.addEventListener('click', () => capturePage());
-
-    // Shortcut (Alt + S)
-    document.addEventListener('keydown', (e) => {
+    // shortcut (alt + s)    document.addEventListener('keydown', (e) => {
         if (e.altKey && e.code === 'KeyS') {
             e.preventDefault();
             capturePage();
         }
     });
 
-    // --- Context Menu Integration ---
-    // 1. Extension Menu Command
-    GM_registerMenuCommand("Save Selection to PKM", () => {
+    // --- context menu integration ---    // 1. extension menu command    GM_registerMenuCommand("Save Selection to PKM", () => {
         const selection = window.getSelection().toString().trim();
         capturePage(selection);
     });
 
-    // 2. Custom Right-Click Modifier (Ctrl + Right Click)
-    // Because we cannot easily inject into the native browser context menu without a full extension,
-    // we provide a shortcut override.
-    document.addEventListener('contextmenu', (e) => {
+    // 2. custom right-click modifier (ctrl + right click)    // because we cannot easily inject into the native browser context menu without a full extension,    // we provide a shortcut override.    document.addEventListener('contextmenu', (e) => {
         if (e.ctrlKey) {
             e.preventDefault();
             const selection = window.getSelection().toString().trim();

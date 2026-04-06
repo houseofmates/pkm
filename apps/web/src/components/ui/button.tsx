@@ -3,7 +3,6 @@ import { Slot } from "@radix-ui/react-slot"
 
 import { cn } from '@pkm/core'
 // removed unused variantprops import
-
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean
@@ -14,8 +13,7 @@ export interface ButtonProps
 const Button = React.memo(React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, asChild = false, variant = 'default', size = 'md', ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
-    // basic variant/size class logic
-    const variantClass =
+    // basic variant/size class logic    const variantClass =
       variant === 'outline' ? 'border border-muted bg-transparent text-muted-foreground' :
       variant === 'destructive' ? 'bg-red-600 text-white' :
       variant === 'secondary' ? 'bg-muted text-muted-foreground' :

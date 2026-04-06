@@ -3,8 +3,7 @@ import React from 'react';
 export const TierListElement = React.memo(function TierListElement({ element: _element }: { element: any }) {
   const rows = ['S', 'A', 'B', 'C', 'D'];
 
-  // color mapping
-  const colors: Record<string, string> = {
+  // color mapping  const colors: Record<string, string> = {
     's': '#ff7f7f',
     'a': '#ffbf7f',
     'b': '#ffff7f',
@@ -31,8 +30,7 @@ export const TierListElement = React.memo(function TierListElement({ element: _e
    that accepts other node elements and snaps them.
    for now, it's a visual container that elements float over.
    the snapping logic would be in `handledrop` or `ondragend`.
- */}
-          </div>
+ */}          </div>
         </div>
       ))}
     </div>

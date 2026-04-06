@@ -50,8 +50,7 @@ export function PetStatusDisplay({ className, onInteract }: PetStatusDisplayProp
   
   if (!pet) return null;
   
-  // determine visual state
-  const getPetMood = () => {
+  // determine visual state  const getPetMood = () => {
     const avgStat = (pet.hunger + pet.happiness + pet.energy + pet.cleanliness) / 4;
     if (avgStat >= 70) return { emoji: '😊', color: '#22c55e', state: 'active' };
     if (avgStat >= 40) return { emoji: '😐', color: '#eab308', state: 'neutral' };
@@ -95,8 +94,7 @@ export function PetStatusDisplay({ className, onInteract }: PetStatusDisplayProp
     await saveToServer();
     onInteract?.(type);
     
-    // return to idle after interaction
-    setTimeout(() => {
+    // return to idle after interaction    setTimeout(() => {
       updatePet(pet.id, { visualState: isSleeping ? 'sleeping' : 'idle-happy' });
     }, 3000);
   };

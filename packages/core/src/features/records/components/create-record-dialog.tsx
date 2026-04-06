@@ -60,21 +60,15 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
 
     const dataToSubmit = { ...formData };
 
-    // auto-inject fronter if applicable
-    if (activeFronterId) {
-      // check if collection has a 'fronter' field
-      // note: nocobase fields sometimes use 'name' key.
-      const hasFronterField = fields.some(f => f.name === 'fronter');
+    // auto-inject fronter if applicable    if (activeFronterId) {
+      // check if collection has a 'fronter' field      // note: nocobase fields sometimes use 'name' key.      const hasFronterField = fields.some(f => f.name === 'fronter');
       if (hasFronterField) {
-        // if it's a text field, just save id (or name if we had it, but id is safer for ref)
-        // ideally this would be a relationship, but text is simpler for now as requested "metadata"
-        dataToSubmit['fronter'] = activeFronterId;
+        // if it's a text field, just save id (or name if we had it, but id is safer for ref)        // ideally this would be a relationship, but text is simpler for now as requested "metadata"        dataToSubmit['fronter'] = activeFronterId;
       }
     }
 
     try {
-      // enforce entity_type for notes
-      if (collectionName.toLowerCase().includes('note')) {
+      // enforce entity_type for notes      if (collectionName.toLowerCase().includes('note')) {
         dataToSubmit.entity_type = dataToSubmit.entity_type || 'note'
       }
       await client.createRecord(collectionName, dataToSubmit);
@@ -94,9 +88,7 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
     setFormData(prev => ({ ...prev, [fieldName]: value }));
   };
 
-  // filter editable fields
-  // exclude system fields and the 'fronter' field (auto-filled)
-  const editableFields = (fields || []).filter(f =>
+  // filter editable fields  // exclude system fields and the 'fronter' field (auto-filled)  const editableFields = (fields || []).filter(f =>
     !['id', 'createdat', 'updatedat', 'fronter', 'sort'].includes(f.name) &&
     !f.hidden &&
     f.interface !== 'subtable' && // skip complex relations

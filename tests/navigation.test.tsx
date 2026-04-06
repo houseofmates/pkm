@@ -5,15 +5,13 @@ import { Navigation } from '@/components/navigation';
 import { BrowserRouter, MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/auth-context';
 
-// mock useCollections to avoid API calls
-const collectionsMock: { collections: any[]; refresh: () => void } = { collections: [], refresh: () => {} };
+// mock usecollections to avoid api callsconst collectionsMock: { collections: any[]; refresh: () => void } = { collections: [], refresh: () => {} };
 vi.mock('@/hooks/use-collections', () => ({
   useCollections: () => collectionsMock,
 }));
 
 describe('Navigation', () => {
-    // reuse props for both tests
-    const props = {
+    // reuse props for both tests    const props = {
         activeTab: 'home' as const,
         onTabChange: vi.fn(),
         onSelectCollection: vi.fn(),
@@ -25,8 +23,7 @@ describe('Navigation', () => {
     it('dispatches pkm:open-search event when search button is clicked', () => {
         const dispatchEventSpy = vi.spyOn(window, 'dispatchEvent');
 
-        // make sure body text exists so navigation's search code can slice it
-        document.body.innerText = 'dummy';
+        // make sure body text exists so navigation's search code can slice it        document.body.innerText = 'dummy';
 
         render(
             <BrowserRouter>
@@ -37,22 +34,19 @@ describe('Navigation', () => {
         const searchButton = screen.getByText('search / ask ai...');
         fireEvent.click(searchButton);
 
-        // locate any dispatched event of the expected type
-        const event = dispatchEventSpy.mock.calls
+        // locate any dispatched event of the expected type        const event = dispatchEventSpy.mock.calls
           .map(call => call[0])
           .find((ev: any) => ev && ev.type === 'pkm:open-search');
         expect(event).toBeDefined();
     });
 
     it('navigates to /settings when settings icon is clicked', () => {
-        // render with memory router to inspect location
-        function LocationDisplay() {
+        // render with memory router to inspect location        function LocationDisplay() {
             const loc = useLocation();
             return <div data-testid="loc">{loc.pathname}</div>;
         }
 
-        // reuse props from earlier test
-        const props2 = { ...props };
+        // reuse props from earlier test        const props2 = { ...props };
         render(
             <MemoryRouter initialEntries={['/']}>
                 <Navigation {...props2} />
@@ -80,13 +74,11 @@ describe('Navigation', () => {
                 />
             </BrowserRouter>
         );
-        // verify something from the UI is present
-        expect(screen.getByTitle('search / ask ai...')).toBeTruthy();
+        // verify something from the ui is present        expect(screen.getByTitle('search / ask ai...')).toBeTruthy();
     });
 
     it('cleans up stale collections when server list changes', async () => {
-        // initial server has a collection named foo
-        collectionsMock.collections = [{ name: 'foo', title: 'Foo' }];
+        // initial server has a collection named foo        collectionsMock.collections = [{ name: 'foo', title: 'Foo' }];
         const setItemsSpy = vi.fn();
         render(
             <BrowserRouter>
@@ -100,12 +92,9 @@ describe('Navigation', () => {
                 />
             </BrowserRouter>
         );
-        // allow effect to run
-        await screen.findByText('search / ask ai...');
-        // now simulate deletion on server
-        collectionsMock.collections = [];
-        // re-render with same props to trigger effect
-        render(
+        // allow effect to run        await screen.findByText('search / ask ai...');
+        // now simulate deletion on server        collectionsMock.collections = [];
+        // re-render with same props to trigger effect        render(
             <BrowserRouter>
                 <Navigation
                     activeTab="home"
@@ -117,16 +106,14 @@ describe('Navigation', () => {
                 />
             </BrowserRouter>
         );
-        // wait for syncAll to call setItems with filtered array
-        await new Promise((r) => setTimeout(r, 50));
+        // wait for syncall to call setitems with filtered array        await new Promise((r) => setTimeout(r, 50));
         expect(setItemsSpy).toHaveBeenCalled();
         const lastCall = setItemsSpy.mock.calls[setItemsSpy.mock.calls.length - 1][0];
         expect(lastCall).not.toEqual(expect.arrayContaining([{ id: 'foo', type: 'collection', name: 'Foo' }]));
     });
 
     it('hides a collection if it exists server-side but was locally deleted', async () => {
-        // simulate persisted deletion
-        localStorage.setItem('sidebar_deleted_collections', JSON.stringify(['foo']));
+        // simulate persisted deletion        localStorage.setItem('sidebar_deleted_collections', JSON.stringify(['foo']));
         collectionsMock.collections = [{ name: 'foo', title: 'Foo' }];
         const setItemsSpy = vi.fn();
         render(
@@ -142,11 +129,9 @@ describe('Navigation', () => {
             </BrowserRouter>
         );
         await screen.findByText('search / ask ai...');
-        // item should be filtered out immediately
-        expect(setItemsSpy).toHaveBeenCalled();
+        // item should be filtered out immediately        expect(setItemsSpy).toHaveBeenCalled();
         const call = setItemsSpy.mock.calls[setItemsSpy.mock.calls.length - 1][0];
         expect(call).not.toEqual(expect.arrayContaining([{ id: 'foo', type: 'collection', name: 'Foo' }]));
-        // storage entry remains until server stops returning it
-        expect(JSON.parse(localStorage.getItem('sidebar_deleted_collections') || '[]')).toContain('foo');
+        // storage entry remains until server stops returning it        expect(JSON.parse(localStorage.getItem('sidebar_deleted_collections') || '[]')).toContain('foo');
     });
 });

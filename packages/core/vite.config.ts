@@ -3,9 +3,7 @@ import fs from "fs"
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// serve /pkm/* from public/pkm/ as static files (VitePress docs)
-// instead of letting the SPA fallback catch them
-function pkmWikiPlugin() {
+// serve /pkm/* from public/pkm/ as static files (vitepress docs)// instead of letting the spa fallback catch themfunction pkmWikiPlugin() {
   const mimeTypes: Record<string, string> = {
     '.html': 'text/html',
     '.css': 'text/css',
@@ -23,9 +21,7 @@ function pkmWikiPlugin() {
   return {
     name: 'pkm-wiki-static',
     configureServer(server: any) {
-      // must return a function to run AFTER vite's internal middleware
-      // but we actually want to run BEFORE, so we use server.middlewares.use directly
-      server.middlewares.use((req: any, res: any, next: any) => {
+      // must return a function to run after vite's internal middleware      // but we actually want to run before, so we use server.middlewares.use directly      server.middlewares.use((req: any, res: any, next: any) => {
         const url = (req.url || '').split('?')[0].split('#')[0]
         if (!url.startsWith('/pkm')) return next()
 
@@ -36,8 +32,7 @@ function pkmWikiPlugin() {
           filePath = path.join(__dirname, 'public', url)
         }
 
-        // if exact file exists, serve it
-        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        // if exact file exists, serve it        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
           const ext = path.extname(filePath)
           const mime = mimeTypes[ext] || 'application/octet-stream'
           res.setHeader('Content-Type', mime)
@@ -46,8 +41,7 @@ function pkmWikiPlugin() {
           return
         }
 
-        // try .html extension for clean URLs
-        if (!path.extname(filePath)) {
+        // try .html extension for clean urls        if (!path.extname(filePath)) {
           const htmlPath = filePath + '.html'
           const indexPath = path.join(filePath, 'index.html')
           if (fs.existsSync(htmlPath)) {
@@ -64,8 +58,7 @@ function pkmWikiPlugin() {
           }
         }
 
-        // fallback: serve VitePress 404.html so the SPA doesn't catch /pkm/* routes
-        const fallback404 = path.join(__dirname, 'public', 'pkm', '404.html')
+        // fallback: serve vitepress 404.html so the spa doesn't catch /pkm/* routes        const fallback404 = path.join(__dirname, 'public', 'pkm', '404.html')
         if (fs.existsSync(fallback404)) {
           res.statusCode = 404
           res.setHeader('Content-Type', 'text/html')
@@ -80,18 +73,12 @@ function pkmWikiPlugin() {
   }
 }
 
-// https://vite.dev/config/
-export default defineConfig({
+// https://vite.dev/config/export default defineConfig({
   base: '/',
   plugins: [
     pkmWikiPlugin(),
     react(),
-    // legacy plugin disabled - re-enable for production APK builds with older Android support
-    // legacy({
-    //   targets: ['Android >= 10', 'Chrome >= 80'],
-    //   modernPolyfills: true,
-    // }),
-  ],
+    // legacy plugin disabled - re-enable for production apk builds with older android support    // legacy({    //   targets: ['android >= 10', 'chrome >= 80'],    //   modernpolyfills: true,    // }),  ],
   server: {
     host: '0.0.0.0',
     port: 3010,
@@ -255,10 +242,7 @@ export default defineConfig({
   css: {
     devSourcemap: false,
     preprocessorOptions: {
-      //   scss: {
-      //     charset: false
-      //   }
-    }
+      //   scss: {      //     charset: false      //   }    }
   },
   resolve: {
     alias: {

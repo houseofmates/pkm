@@ -7,8 +7,7 @@ import { Link } from 'react-router-dom';
 import api from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 
-// achievement definitions from journal.tsx
-const ACHIEVEMENTS = [
+// achievement definitions from journal.tsxconst ACHIEVEMENTS = [
   { id: 'first_entry', name: 'first step', description: 'wrote your first journal entry', icon: '🌱', category: 'milestone' },
   { id: 'week_streak', name: 'week warrior', description: '7 day journaling streak', icon: '🔥', category: 'consistency' },
   { id: 'month_streak', name: 'month master', description: '30 day journaling streak', icon: '👑', category: 'consistency' },
@@ -107,8 +106,7 @@ export function AchievementsPage() {
   const [showLevels, setShowLevels] = useState(true);
   const [showStats, setShowStats] = useState(true);
 
-  // load entries and unlocked achievements
-  useEffect(() => {
+  // load entries and unlocked achievements  useEffect(() => {
     const loadData = async () => {
       try {
         const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
@@ -127,8 +125,7 @@ export function AchievementsPage() {
     loadData();
   }, []);
 
-  // calculate level info
-  const levelInfo = useMemo(() => {
+  // calculate level info  const levelInfo = useMemo(() => {
     const currentLevelDef = LEVELS.find(l => l.level === level) || LEVELS[0];
     const nextLevelDef = LEVELS.find(l => l.level === level + 1) || currentLevelDef;
     const progress = nextLevelDef.minXp > currentLevelDef.minXp
@@ -144,8 +141,7 @@ export function AchievementsPage() {
     };
   }, [totalXp, level, levelName]);
 
-  // filter achievements by category
-  const filteredAchievements = useMemo(() => {
+  // filter achievements by category  const filteredAchievements = useMemo(() => {
     if (!activeCategory) return ACHIEVEMENTS;
     return ACHIEVEMENTS.filter(a => a.category === activeCategory);
   }, [activeCategory]);
@@ -154,8 +150,7 @@ export function AchievementsPage() {
   const totalCount = ACHIEVEMENTS.length;
   const completionRate = Math.round((unlockedCount / totalCount) * 100);
 
-  // get unique categories
-  const categories = useMemo(() => {
+  // get unique categories  const categories = useMemo(() => {
     const cats = new Set(ACHIEVEMENTS.map(a => a.category));
     return Array.from(cats);
   }, []);

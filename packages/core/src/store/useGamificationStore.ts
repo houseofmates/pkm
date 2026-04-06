@@ -25,8 +25,7 @@ export interface PetStatus {
   happiness: number // 0-100
   energy: number // 0-100
   cleanliness: number // 0-100, new stat for bathing
-  // visual state determines which asset to show
-  visualState: 'idle-happy' | 'idle-sad' | 'idle-dirty' | 'reading' | 'eating' | 'being-pet' | 'bathing' | 'sleeping'
+  // visual state determines which asset to show  visualState: 'idle-happy' | 'idle-sad' | 'idle-dirty' | 'reading' | 'eating' | 'being-pet' | 'bathing' | 'sleeping'
   lastInteraction: string | null // iso date
   emoji: string // fallback if no asset
 }
@@ -40,24 +39,20 @@ export interface CategorySaturation {
 }
 
 export interface GamificationState {
-  // quest rows
-  questRows: QuestRow[]
+  // quest rows  questRows: QuestRow[]
   setQuestRows: (rows: QuestRow[]) => void
   updateQuestCell: (rowId: string, cellId: string, completed: boolean) => void
   checkRowCompletion: () => void
   
-  // pet status
-  pets: PetStatus[]
+  // pet status  pets: PetStatus[]
   setPets: (pets: PetStatus[]) => void
   updatePet: (petId: string, updates: Partial<PetStatus>) => void
   
-  // category saturation
-  saturation: CategorySaturation
+  // category saturation  saturation: CategorySaturation
   setSaturation: (saturation: CategorySaturation) => void
   updateCategory: (category: keyof CategorySaturation, value: number) => void
   
-  // xp and progression
-  totalXp: number
+  // xp and progression  totalXp: number
   level: number
   levelName: string
   streakDays: number
@@ -68,16 +63,13 @@ export interface GamificationState {
   setXpState: (xp: number, lvl: number, name: string) => void
   recordEntry: () => void
   
-  // system aliveness
-  sevenDayCoverage: number // 0-100
+  // system aliveness  sevenDayCoverage: number // 0-100
   setSevenDayCoverage: (coverage: number) => void
   
-  // loading states
-  loading: boolean
+  // loading states  loading: boolean
   setLoading: (loading: boolean) => void
   
-  // persistence
-  saveToServer: () => Promise<void>
+  // persistence  saveToServer: () => Promise<void>
   loadFromServer: () => Promise<void>
 }
 
@@ -145,11 +137,8 @@ const DEFAULT_PETS: PetStatus[] = [
   }
 ]
 
-// habit-to-quest bridge mapping
-// when a habit is logged, it can complete corresponding journal quest cells
-export const HABIT_TO_QUEST_MAPPING: Record<string, { rowId: string; cellId: string }[]> = {
-  // movement habits
-  'exercise': [{ rowId: 'exercise', cellId: 'cardio' }],
+// habit-to-quest bridge mapping// when a habit is logged, it can complete corresponding journal quest cellsexport const HABIT_TO_QUEST_MAPPING: Record<string, { rowId: string; cellId: string }[]> = {
+  // movement habits  'exercise': [{ rowId: 'exercise', cellId: 'cardio' }],
   'upper body': [{ rowId: 'exercise', cellId: 'upper' }],
   'core': [{ rowId: 'exercise', cellId: 'core' }],
   'legs': [{ rowId: 'exercise', cellId: 'legs' }],
@@ -157,21 +146,18 @@ export const HABIT_TO_QUEST_MAPPING: Record<string, { rowId: string; cellId: str
   'stretch': [{ rowId: 'exercise', cellId: 'stretch' }],
   'yoga': [{ rowId: 'exercise', cellId: 'stretch' }],
   
-  // finance habits
-  'track income': [{ rowId: 'finance', cellId: 'income' }],
+  // finance habits  'track income': [{ rowId: 'finance', cellId: 'income' }],
   'track expenses': [{ rowId: 'finance', cellId: 'expenses' }],
   'check savings': [{ rowId: 'finance', cellId: 'savings' }],
   'review investments': [{ rowId: 'finance', cellId: 'invest' }],
   'budget review': [{ rowId: 'finance', cellId: 'budget' }],
   
-  // wilson (pet) habits
-  'feed wilson': [{ rowId: 'wilson', cellId: 'feed' }],
+  // wilson (pet) habits  'feed wilson': [{ rowId: 'wilson', cellId: 'feed' }],
   'play with wilson': [{ rowId: 'wilson', cellId: 'play' }],
   'pet wilson': [{ rowId: 'wilson', cellId: 'pet' }],
   'bathe wilson': [{ rowId: 'wilson', cellId: 'bathe' }],
   
-  // journal habits (these trigger journal quest cells)
-  'journal': [{ rowId: 'journal', cellId: 'entry' }],
+  // journal habits (these trigger journal quest cells)  'journal': [{ rowId: 'journal', cellId: 'entry' }],
   'write': [{ rowId: 'journal', cellId: 'entry' }],
   'meditate': [{ rowId: 'journal', cellId: 'reflect' }],
   'mood check': [{ rowId: 'journal', cellId: 'mood' }],
@@ -231,14 +217,12 @@ function getToday(): string {
   return new Date().toISOString().split('T')[0]
 }
 
-// xp calculation constants
-export const XP_PER_ENTRY = 10
+// xp calculation constantsexport const XP_PER_ENTRY = 10
 export const XP_STREAK_BONUS = 5
 export const XP_WORD_BONUS = 5
 
 export const useGamificationStore = create<GamificationState>((set, get) => ({
-  // xp and progression state
-  totalXp: 0,
+  // xp and progression state  totalXp: 0,
   level: 1,
   levelName: 'beginner',
   streakDays: 0,
@@ -251,8 +235,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
     const newXp = totalXp + amount
     const newLevelInfo = getLevelFromXp(newXp)
     
-    // check for level up
-    if (newLevelInfo.level > level) {
+    // check for level up    if (newLevelInfo.level > level) {
       window.dispatchEvent(new CustomEvent('level-up', { 
         detail: { oldLevel: level, newLevel: newLevelInfo.level, name: newLevelInfo.name } 
       }))
@@ -264,8 +247,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       levelName: newLevelInfo.name 
     })
     
-    // persist to localstorage immediately
-    localStorage.setItem('pkm:gamification:xp', JSON.stringify({
+    // persist to localstorage immediately    localStorage.setItem('pkm:gamification:xp', JSON.stringify({
       totalXp: newXp,
       level: newLevelInfo.level,
       levelName: newLevelInfo.name
@@ -326,19 +308,15 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
     })
     set({ questRows: newRows })
     
-    // check for row completion bonus
-    const completedRow = newRows.find(r => r.id === rowId && r.completed && !questRows.find(qr => qr.id === rowId)?.completed)
+    // check for row completion bonus    const completedRow = newRows.find(r => r.id === rowId && r.completed && !questRows.find(qr => qr.id === rowId)?.completed)
     if (completedRow) {
-      // trigger celebration - will be handled by component
-      window.dispatchEvent(new CustomEvent('quest-row-complete', { detail: { rowId } }))
+      // trigger celebration - will be handled by component      window.dispatchEvent(new CustomEvent('quest-row-complete', { detail: { rowId } }))
       
-      // add xp bonus for completing a quest row
-      const { addXp } = get()
+      // add xp bonus for completing a quest row      const { addXp } = get()
       const XP_PER_QUEST_ROW = 25
       addXp(XP_PER_QUEST_ROW)
       
-      // show toast
-      toast.success(`🎉 quest row "${completedRow.label}" complete! +${XP_PER_QUEST_ROW} xp`)
+      // show toast      toast.success(`🎉 quest row "${completedRow.label}" complete! +${XP_PER_QUEST_ROW} xp`)
     }
   },
   
@@ -375,14 +353,12 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
   loading: false,
   setLoading: (loading) => set({ loading }),
   
-  // persistence - save to both gamification_state (profile) and gamification_daily (daily snapshot)
-  saveToServer: async () => {
+  // persistence - save to both gamification_state (profile) and gamification_daily (daily snapshot)  saveToServer: async () => {
     const { questRows, pets, saturation, sevenDayCoverage, totalXp, level, levelName, streakDays, longestStreak, totalEntries, lastEntryDate } = get()
     const today = getToday()
     
     try {
-      // save daily snapshot
-      await api.createRecord('gamification_daily', {
+      // save daily snapshot      await api.createRecord('gamification_daily', {
         date: today,
         quest_rows: JSON.stringify(questRows),
         pets: JSON.stringify(pets),
@@ -391,8 +367,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
         timestamp: new Date().toISOString()
       })
       
-      // save persistent profile state
-      const stateRes: any = await api.listRecords('gamification_state', {
+      // save persistent profile state      const stateRes: any = await api.listRecords('gamification_state', {
         filter: { user_key: 'default' },
         pageSize: 1
       })
@@ -416,8 +391,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       }
     } catch (e) {
       secureLogger.error('failed to save gamification state', e)
-      // save to localstorage as fallback
-      localStorage.setItem('pkm:gamification:today', JSON.stringify({
+      // save to localstorage as fallback      localStorage.setItem('pkm:gamification:today', JSON.stringify({
         date: today,
         questRows,
         pets,
@@ -440,14 +414,12 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
     const today = getToday()
     
     try {
-      // load daily snapshot
-      const dailyRes: any = await api.listRecords('gamification_daily', {
+      // load daily snapshot      const dailyRes: any = await api.listRecords('gamification_daily', {
         filter: { date: today },
         pageSize: 1
       })
       
-      // load persistent profile
-      const stateRes: any = await api.listRecords('gamification_state', {
+      // load persistent profile      const stateRes: any = await api.listRecords('gamification_state', {
         filter: { user_key: 'default' },
         pageSize: 1
       })
@@ -461,8 +433,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
         updates.saturation = JSON.parse(data.saturation || '{}')
         updates.sevenDayCoverage = data.coverage || 0
       } else {
-        // check localstorage fallback for daily
-        const local = localStorage.getItem('pkm:gamification:today')
+        // check localstorage fallback for daily        const local = localStorage.getItem('pkm:gamification:today')
         if (local) {
           const parsed = JSON.parse(local)
           if (parsed.date === today) {
@@ -484,8 +455,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
         updates.totalEntries = data.total_entries || 0
         updates.lastEntryDate = data.last_entry_date || null
       } else {
-        // check localstorage fallback for profile
-        const localProfile = localStorage.getItem('pkm:gamification:profile')
+        // check localstorage fallback for profile        const localProfile = localStorage.getItem('pkm:gamification:profile')
         if (localProfile) {
           const parsed = JSON.parse(localProfile)
           updates.totalXp = parsed.totalXp || 0
@@ -497,8 +467,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
           updates.lastEntryDate = parsed.lastEntryDate || null
         }
         
-        // also check old xp storage for migration
-        const oldXp = localStorage.getItem('pkm:journal:xp_data')
+        // also check old xp storage for migration        const oldXp = localStorage.getItem('pkm:journal:xp_data')
         if (oldXp && !updates.totalXp) {
           updates.totalXp = parseInt(oldXp) || 0
           const levelInfo = getLevelFromXp(updates.totalXp)
@@ -510,8 +479,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       set(updates)
     } catch (e) {
       secureLogger.error('failed to load gamification state', e)
-      // try localstorage fallback
-      const localProfile = localStorage.getItem('pkm:gamification:profile')
+      // try localstorage fallback      const localProfile = localStorage.getItem('pkm:gamification:profile')
       if (localProfile) {
         const parsed = JSON.parse(localProfile)
         set({
@@ -528,17 +496,14 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
   }
 }))
 
-// habit-to-journal bridge hook
-// use this in components to connect habit logging to quest completion
-export function useHabitJournalBridge() {
+// habit-to-journal bridge hook// use this in components to connect habit logging to quest completionexport function useHabitJournalBridge() {
   const { updateQuestCell, saveToServer, updateCategory, updatePet } = useGamificationStore()
   
   const handleHabitLogged = useCallback((log: { habit_name: string; habit_id: string; duration_seconds?: number; volume?: number }) => {
     const habitNameLower = log.habit_name.toLowerCase()
     const habitIdLower = log.habit_id.toLowerCase()
     
-    // find matching quest mappings
-    const mappings = HABIT_TO_QUEST_MAPPING[habitIdLower] || 
+    // find matching quest mappings    const mappings = HABIT_TO_QUEST_MAPPING[habitIdLower] || 
                     HABIT_TO_QUEST_MAPPING[habitNameLower] ||
                     Object.entries(HABIT_TO_QUEST_MAPPING).find(([key]) => 
                       habitNameLower.includes(key) || habitIdLower.includes(key)
@@ -550,8 +515,7 @@ export function useHabitJournalBridge() {
       })
     }
     
-    // update category saturation based on habit type
-    if (habitNameLower.includes('exercise') || habitNameLower.includes('workout') || habitNameLower.includes('cardio')) {
+    // update category saturation based on habit type    if (habitNameLower.includes('exercise') || habitNameLower.includes('workout') || habitNameLower.includes('cardio')) {
       updateCategory('body', Math.min(100, 20 + (log.duration_seconds || 0) / 60))
     }
     if (habitNameLower.includes('meditate') || habitNameLower.includes('journal') || habitNameLower.includes('read')) {
@@ -567,8 +531,7 @@ export function useHabitJournalBridge() {
       updateCategory('social', Math.min(100, 30))
     }
     
-    // wilson interactions from habits
-    if (habitNameLower.includes('wilson') || habitIdLower.includes('wilson')) {
+    // wilson interactions from habits    if (habitNameLower.includes('wilson') || habitIdLower.includes('wilson')) {
       if (habitNameLower.includes('feed')) {
         updatePet('wilson', { hunger: Math.min(100, 70 + 20), visualState: 'eating', lastInteraction: new Date().toISOString() })
       } else if (habitNameLower.includes('play')) {
@@ -579,17 +542,14 @@ export function useHabitJournalBridge() {
         updatePet('wilson', { cleanliness: 100, visualState: 'bathing', lastInteraction: new Date().toISOString() })
       }
       
-      // return to idle after 3 seconds
-      setTimeout(() => {
+      // return to idle after 3 seconds      setTimeout(() => {
         updatePet('wilson', { visualState: 'idle-happy' })
       }, 3000)
     }
     
-    // save changes
-    saveToServer()
+    // save changes    saveToServer()
     
-    // show toast
-    const questCount = mappings?.length || 0
+    // show toast    const questCount = mappings?.length || 0
     if (questCount > 0) {
       toast.success(`completed ${questCount} quest${questCount > 1 ? 's' : ''} from habit!`)
     }

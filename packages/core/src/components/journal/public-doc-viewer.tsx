@@ -11,8 +11,7 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // fetch public document
-  useEffect(() => {
+  // fetch public document  useEffect(() => {
   fetch(`/api/public/doc/${slug}`)
   .then(res => {
  if (!res.ok) throw new Error('Document not found or not public');

@@ -30,8 +30,7 @@ for(const root of roots){
     try{
       let c = fs.readFileSync(f,'utf8');
       let changed = false;
-      // replace any quoted string (single/double/backtick) that contains a-z with its lowercase
-      c = c.replace(/(["'`])([\s\S]*?)[\1]/g, (m, q, inner) => {
+      // replace any quoted string (single/double/backtick) that contains a-z with its lowercase      c = c.replace(/(["'`])([\s\S]*?)[\1]/g, (m, q, inner) => {
         if(/[A-Z]/.test(inner)){
           changed = true;
           return q + inner.toLowerCase() + q;

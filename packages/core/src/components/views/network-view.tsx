@@ -8,8 +8,7 @@ import { RecordEditContent } from '@/features/records/components/record-context-
 
 export function NetworkView(props: ViewProps) {
   const { data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete } = props;
-  // hooks must be called before any early return
-  const graphRef = useRef<any>(null);
+  // hooks must be called before any early return  const graphRef = useRef<any>(null);
   const [dimensions, setDimensions] = useState({ w: 800, h: 600 });
   const containerRef = useRef<HTMLDivElement>(null);
   const [virtualMenu, setVirtualMenu] = useState<{ x: number, y: number, record: any } | null>(null);
@@ -25,8 +24,7 @@ export function NetworkView(props: ViewProps) {
   );
   }
 
-  // resize observer
-  useEffect(() => {
+  // resize observer  useEffect(() => {
   if (!containerRef.current) return;
   const obs = new ResizeObserver(entries => {
   const { width, height } = entries[0].contentRect;
@@ -36,18 +34,8 @@ export function NetworkView(props: ViewProps) {
   return () => obs.disconnect();
   }, []);
 
-  // data transformation
-  // we need to find "relation" fields to build links.
-  // nodes = records
-  // links = record[relationfield] -> otherrecord
-
-  // for v1 (robust but simple):
-  // 1. all records in 'data' are nodes.
-  // 2. scan relation fields. if a record points to another id that exists in 'data', create a link.
-  // note: this only works for self-referencing or if we fetch related data.
-  // pivot 4.0: "interconnectivity".
-  // if this is the "headmates" collection, and they have "friends" relations (to headmates), it works beautifully.
-
+  // data transformation  // we need to find "relation" fields to build links.  // nodes = records  // links = record[relationfield] -> otherrecord
+  // for v1 (robust but simple):  // 1. all records in 'data' are nodes.  // 2. scan relation fields. if a record points to another id that exists in 'data', create a link.  // note: this only works for self-referencing or if we fetch related data.  // pivot 4.0: "interconnectivity".  // if this is the "headmates" collection, and they have "friends" relations (to headmates), it works beautifully.
   const { nodes, links } = useMemo(() => {
   const titleField = config.titleField
   ? collection.fields?.find((f: any) => f.name === config.titleField)
@@ -76,16 +64,12 @@ export function NetworkView(props: ViewProps) {
  const target = src[field.name];
  if (!target) return;
 
- // handle array (linktomany) or single (linktoone)
- const targets = Array.isArray(target) ? target : [target];
+ // handle array (linktomany) or single (linktoone) const targets = Array.isArray(target) ? target : [target];
 
  targets.forEach((t: any) => {
- // target t might be an object { id: ... } or just id
- const tId = typeof t === 'object' ? t.id : t;
+ // target t might be an object { id: ... } or just id const tId = typeof t === 'object' ? t.id : t;
 
- // check if target node exists in our dataset
- // if not, maybe create a "ghost" node? for now, only internal links.
- if (nodes.find(n => n.id === tId)) {
+ // check if target node exists in our dataset // if not, maybe create a "ghost" node? for now, only internal links. if (nodes.find(n => n.id === tId)) {
  links.push({
    source: src.id,
    target: tId,

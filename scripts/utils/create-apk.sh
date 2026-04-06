@@ -1,42 +1,33 @@
 #!/bin/bash
 
-# Build signed APK for PKM with database icon on black background
-# This script ensures:
-# 1. Icons are generated from the database icon with black background
-# 2. The app auto-updates from the remote server (like a live dev server)
-
+# build signed apk for pkm with database icon on black background# this script ensures:# 1. icons are generated from the database icon with black background# 2. the app auto-updates from the remote server (like a live dev server)
 set -e
 
 echo "🚀 Building PKM Signed APK..."
 echo ""
 
-# Step 1: Generate icons with database icon on black background
-echo "📱 Step 1: Generating app icons..."
+# step 1: generate icons with database icon on black backgroundecho "📱 Step 1: Generating app icons..."
 node generate_icons.cjs
 echo "✅ Icons generated successfully"
 echo ""
 
-# Step 2: Build the web app
-echo "🌐 Step 2: Building web app..."
+# step 2: build the web appecho "🌐 Step 2: Building web app..."
 npm run build
 echo "✅ Web app built successfully"
 echo ""
 
-# Step 3: Sync capacitor with Android
-echo "🤖 Step 3: Syncing with Android..."
+# step 3: sync capacitor with androidecho "🤖 Step 3: Syncing with Android..."
 npx cap sync android
 echo "✅ Android sync complete"
 echo ""
 
-# Step 4: Build signed APK
-echo "📦 Step 4: Building signed APK..."
+# step 4: build signed apkecho "📦 Step 4: Building signed APK..."
 cd android
 ./gradlew assembleRelease
 echo "✅ Signed APK built successfully"
 echo ""
 
-# Step 5: Show output location
-APK_PATH="app/build/outputs/apk/release/app-release.apk"
+# step 5: show output locationAPK_PATH="app/build/outputs/apk/release/app-release.apk"
 if [ -f "$APK_PATH" ]; then
     echo "🎉 Success! Signed APK location:"
     echo "   $APK_PATH"

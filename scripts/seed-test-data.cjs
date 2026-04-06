@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 // seed initial data for testing comprehensive features
-
 const axios = require('axios');
 
 const NOCOBASE_URL = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
@@ -23,8 +22,7 @@ async function seed() {
   console.log('seeding test data...\n');
 
   try {
-    // seed activities
-    console.log('[activities]');
+    // seed activities    console.log('[activities]');
     const activities = [
       { name: 'exercise', category: 'health', icon: '💪', color: '#22c55e', loggable: true },
       { name: 'meditation', category: 'wellness', icon: '🧘', color: '#8b5cf6', loggable: true },
@@ -44,8 +42,7 @@ async function seed() {
       }
     }
 
-    // seed financial accounts
-    console.log('\n[accounts]');
+    // seed financial accounts    console.log('\n[accounts]');
     const accounts = [
       { name: 'checking', type: 'checking', current_balance: 1250.00, currency: 'USD', color: '#22c55e', icon: '💳' },
       { name: 'savings', type: 'savings', current_balance: 5000.00, currency: 'USD', color: '#3c9fdd', icon: '🏦' },
@@ -63,8 +60,7 @@ async function seed() {
       }
     }
 
-    // seed budgets
-    console.log('\n[budgets]');
+    // seed budgets    console.log('\n[budgets]');
     const now = new Date();
     const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -87,8 +83,7 @@ async function seed() {
       }
     }
 
-    // seed routine templates
-    console.log('\n[routines]');
+    // seed routine templates    console.log('\n[routines]');
     const routines = [
       {
         name: 'morning routine',
@@ -127,8 +122,7 @@ async function seed() {
       }
     }
 
-    // seed sample activity logs (last 7 days)
-    console.log('\n[sample logs]');
+    // seed sample activity logs (last 7 days)    console.log('\n[sample logs]');
     const today = new Date();
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
@@ -146,8 +140,7 @@ async function seed() {
         });
         console.log(`✓ logged exercise for ${dateStr}`);
       } catch (err) {
-        // ignore duplicates
-      }
+        // ignore duplicates      }
     }
 
     console.log('\n✓ seed data complete');

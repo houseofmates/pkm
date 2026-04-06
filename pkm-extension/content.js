@@ -1,28 +1,22 @@
 // content.js
-
 (function () {
-    // Prevent multiple injections
-    if (window.hasPKMToast) return;
+    // prevent multiple injections    if (window.hasPKMToast) return;
     window.hasPKMToast = true;
 
-    // --- Config & Styles ---
-    const themeColor = '#f6b012';
+    // --- config & styles ---    const themeColor = '#f6b012';
     const fontFamily = '"Varela Round", sans-serif';
 
-    // Inject Font
-    if (!document.querySelector('link[href*="Varela+Round"]')) {
+    // inject font    if (!document.querySelector('link[href*="Varela+Round"]')) {
         const fontLink = document.createElement('link');
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Varela+Round&display=swap';
         fontLink.rel = 'stylesheet';
         document.head.appendChild(fontLink);
     }
 
-    // Create Toast Element
-    const toast = document.createElement('div');
+    // create toast element    const toast = document.createElement('div');
     toast.id = 'pkm-extension-toast';
 
-    // Inline Styles to avoid external CSS processing requirement
-    toast.style.cssText = `
+    // inline styles to avoid external css processing requirement    toast.style.cssText = `
         position: fixed;
         bottom: 96px; 
         right: 24px;
@@ -46,8 +40,7 @@
 
     document.body.appendChild(toast);
 
-    // --- Message Listener ---
-    browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    // --- message listener ---    browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.action === 'show_toast') {
             showToast(request.message, request.isError);
         }
@@ -66,8 +59,7 @@
         toast.style.opacity = '1';
         toast.style.transform = 'translateY(0)';
 
-        // Hide after 3s
-        setTimeout(() => {
+        // hide after 3s        setTimeout(() => {
             toast.style.opacity = '0';
             toast.style.transform = 'translateY(10px)';
         }, 3000);

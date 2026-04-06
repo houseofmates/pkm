@@ -9,10 +9,8 @@ export interface ActivityTip {
   emoji: string;
 }
 
-// category-specific tips database
-export const ACTIVITY_TIPS: ActivityTip[] = [
-  // dental hygiene
-  { id: 'floss-1', category: 'dental', emoji: '🦷', text: 'water flossing removes 99.9% of plaque from treated areas' },
+// category-specific tips databaseexport const ACTIVITY_TIPS: ActivityTip[] = [
+  // dental hygiene  { id: 'floss-1', category: 'dental', emoji: '🦷', text: 'water flossing removes 99.9% of plaque from treated areas' },
   { id: 'floss-2', category: 'dental', emoji: '🚿', text: 'flossing before brushing increases fluoride effectiveness' },
   { id: 'floss-3', category: 'dental', emoji: '✨', text: 'consistent flossing reduces gum disease risk by 40%' },
   { id: 'floss-4', category: 'dental', emoji: '🔬', text: 'oral bacteria can enter bloodstream - flossing protects your heart' },
@@ -20,78 +18,66 @@ export const ACTIVITY_TIPS: ActivityTip[] = [
   { id: 'brush-2', category: 'dental', emoji: '⏱️', text: 'most people only brush for 45 seconds - aim for the full two' },
   { id: 'brush-3', category: 'dental', emoji: '🌙', text: 'brushing before bed is the most important session of the day' },
   
-  // meditation / mindfulness
-  { id: 'meditate-1', category: 'mindfulness', emoji: '🧠', text: '8 weeks of meditation changes brain structure measurably' },
+  // meditation / mindfulness  { id: 'meditate-1', category: 'mindfulness', emoji: '🧠', text: '8 weeks of meditation changes brain structure measurably' },
   { id: 'meditate-2', category: 'mindfulness', emoji: '💆', text: 'meditation reduces cortisol levels by up to 23%' },
   { id: 'meditate-3', category: 'mindfulness', emoji: '🌊', text: 'focused breathing activates the parasympathetic nervous system' },
   { id: 'meditate-4', category: 'mindfulness', emoji: '🎯', text: 'even 5 minutes improves sustained attention for 24 hours' },
   { id: 'meditate-5', category: 'mindfulness', emoji: '😴', text: 'meditation practitioners report 50% better sleep quality' },
   { id: 'meditate-6', category: 'mindfulness', emoji: '💪', text: 'mindfulness strengthens emotional regulation like a muscle' },
   
-  // exercise / movement
-  { id: 'exercise-1', category: 'movement', emoji: '❤️', text: 'one workout session boosts immune function for 24 hours' },
+  // exercise / movement  { id: 'exercise-1', category: 'movement', emoji: '❤️', text: 'one workout session boosts immune function for 24 hours' },
   { id: 'exercise-2', category: 'movement', emoji: '🧠', text: 'exercise increases bdnf - fertilizer for brain cell growth' },
   { id: 'exercise-3', category: 'movement', emoji: '🏃', text: 'just 20 minutes of movement improves cognitive performance' },
   { id: 'exercise-4', category: 'movement', emoji: '💪', text: 'strength training reduces all-cause mortality by 21%' },
   { id: 'exercise-5', category: 'movement', emoji: '⚡', text: 'your body produces endocannabinoids - natural mood boosters' },
   { id: 'exercise-6', category: 'movement', emoji: '🦴', text: 'weight-bearing exercises increase bone density at any age' },
   
-  // hydration
-  { id: 'hydrate-1', category: 'hydration', emoji: '💧', text: 'the brain is 75% water - even mild dehydration impairs cognition' },
+  // hydration  { id: 'hydrate-1', category: 'hydration', emoji: '💧', text: 'the brain is 75% water - even mild dehydration impairs cognition' },
   { id: 'hydrate-2', category: 'hydration', emoji: '🧪', text: 'water carries nutrients and oxygen to every cell' },
   { id: 'hydrate-3', category: 'hydration', emoji: '🔥', text: 'proper hydration increases metabolic rate by up to 30%' },
   { id: 'hydrate-4', category: 'hydration', emoji: '💆', text: 'joints are 80% water - hydration keeps them lubricated' },
   
-  // reading / learning
-  { id: 'learn-1', category: 'learning', emoji: '📚', text: 'reading fiction increases empathy and theory of mind' },
+  // reading / learning  { id: 'learn-1', category: 'learning', emoji: '📚', text: 'reading fiction increases empathy and theory of mind' },
   { id: 'learn-2', category: 'learning', emoji: '🧠', text: 'learning new skills creates new neural pathways at any age' },
   { id: 'learn-3', category: 'learning', emoji: '🎯', text: 'spaced repetition beats cramming by 200% for retention' },
   { id: 'learn-4', category: 'learning', emoji: '💡', text: 'teaching what you learn improves your own understanding' },
   
-  // sleep
-  { id: 'sleep-1', category: 'sleep', emoji: '🧹', text: 'sleep is when your brain clears toxic metabolic waste' },
+  // sleep  { id: 'sleep-1', category: 'sleep', emoji: '🧹', text: 'sleep is when your brain clears toxic metabolic waste' },
   { id: 'sleep-2', category: 'sleep', emoji: '📊', text: 'sleep deprivation affects cognition like 0.08% blood alcohol' },
   { id: 'sleep-3', category: 'sleep', emoji: '💪', text: 'muscle repair happens during deep sleep stages' },
   { id: 'sleep-4', category: 'sleep', emoji: '🧬', text: 'sleep regulates genes involved in stress and immunity' },
   
-  // nutrition
-  { id: 'nutrition-1', category: 'nutrition', emoji: '🥬', text: 'fiber feeds your gut microbiome - your second brain' },
+  // nutrition  { id: 'nutrition-1', category: 'nutrition', emoji: '🥬', text: 'fiber feeds your gut microbiome - your second brain' },
   { id: 'nutrition-2', category: 'nutrition', emoji: '⚡', text: 'protein at every meal maintains steady energy levels' },
   { id: 'nutrition-3', category: 'nutrition', emoji: '🧠', text: 'omega-3s make up 30% of brain cell membranes' },
   { id: 'nutrition-4', category: 'nutrition', emoji: '🌈', text: 'colorful plants contain unique antioxidant compounds' },
   
-  // social
-  { id: 'social-1', category: 'social', emoji: '💬', text: 'social connection is as vital as food and water' },
+  // social  { id: 'social-1', category: 'social', emoji: '💬', text: 'social connection is as vital as food and water' },
   { id: 'social-2', category: 'social', emoji: '🤝', text: 'quality time reduces inflammation markers in the body' },
   { id: 'social-3', category: 'social', emoji: '🧠', text: 'social interaction stimulates multiple brain regions' },
   { id: 'social-4', category: 'social', emoji: '💪', text: 'strong relationships increase lifespan by 50%' },
   
-  // medication
-  { id: 'meds-1', category: 'medication', emoji: '💊', text: 'consistent timing improves medication effectiveness' },
+  // medication  { id: 'meds-1', category: 'medication', emoji: '💊', text: 'consistent timing improves medication effectiveness' },
   { id: 'meds-2', category: 'medication', emoji: '📊', text: 'tracking helps identify patterns and side effects' },
   { id: 'meds-3', category: 'medication', emoji: '✅', text: 'medication adherence improves outcomes by 70%' },
   { id: 'meds-4', category: 'medication', emoji: '🌞', text: 'morning meds often work better with circadian rhythms' },
   
-  // creative
-  { id: 'creative-1', category: 'creative', emoji: '🎨', text: 'creative flow states reduce anxiety and depression' },
+  // creative  { id: 'creative-1', category: 'creative', emoji: '🎨', text: 'creative flow states reduce anxiety and depression' },
   { id: 'creative-2', category: 'creative', emoji: '🧠', text: 'making art activates the brain\'s reward pathway' },
   { id: 'creative-3', category: 'creative', emoji: '✨', text: 'creative practice builds problem-solving neural networks' },
   { id: 'creative-4', category: 'creative', emoji: '🎯', text: 'completion of creative work releases dopamine' },
   
-  // hygiene
-  { id: 'hygiene-1', category: 'hygiene', emoji: '🚿', text: 'warm showers increase oxytocin - the bonding hormone' },
+  // hygiene  { id: 'hygiene-1', category: 'hygiene', emoji: '🚿', text: 'warm showers increase oxytocin - the bonding hormone' },
   { id: 'hygiene-2', category: 'hygiene', emoji: '🧴', text: 'skin is your largest organ - care matters' },
   { id: 'hygiene-3', category: 'hygiene', emoji: '🦶', text: 'foot care prevents issues that cascade systemically' },
   { id: 'hygiene-4', category: 'hygiene', emoji: '✨', text: 'grooming rituals signal self-respect to your brain' },
 ];
 
-// get tips by category
-export function getTipsByCategory(category: string): ActivityTip[] {
+// get tips by categoryexport function getTipsByCategory(category: string): ActivityTip[] {
   return ACTIVITY_TIPS.filter(tip => tip.category === category);
 }
 
-// map activity types to tip categories
-export function mapActivityToCategory(activityId: string): string {
+// map activity types to tip categoriesexport function mapActivityToCategory(activityId: string): string {
   const mapping: Record<string, string> = {
     'water_floss': 'dental',
     'brush_teeth': 'dental',
@@ -161,8 +147,7 @@ export function FactBuffer({
   const tips = getTipsByCategory(category);
   const currentTip = tips[currentTipIndex % tips.length];
   
-  // cycle through tips every 8 seconds
-  useEffect(() => {
+  // cycle through tips every 8 seconds  useEffect(() => {
     if (!isRunning || isPaused) return;
     
     const tipInterval = setInterval(() => {
@@ -172,14 +157,12 @@ export function FactBuffer({
     return () => clearInterval(tipInterval);
   }, [isRunning, isPaused, tips.length]);
   
-  // timer
-  useEffect(() => {
+  // timer  useEffect(() => {
     if (isRunning && !isPaused) {
       intervalRef.current = setInterval(() => {
         setElapsed(prev => {
           const next = prev + 1;
-          // auto-stop if target reached
-          if (targetDuration && next >= targetDuration) {
+          // auto-stop if target reached          if (targetDuration && next >= targetDuration) {
             setIsRunning(false);
             onComplete?.(next, notes, { intensity, duration: next });
           }
@@ -233,8 +216,7 @@ export function FactBuffer({
     ? Math.min((elapsed / targetDuration) * 100, 100) 
     : 0;
   
-  // idle state - show start button
-  if (!isRunning && elapsed === 0) {
+  // idle state - show start button  if (!isRunning && elapsed === 0) {
     return (
       <div className={cn(
         "p-6 rounded-2xl border border-[#f5af12]/30 bg-[#050505] relative overflow-hidden",
@@ -268,8 +250,7 @@ export function FactBuffer({
     );
   }
   
-  // running state - show timer and fact buffer
-  return (
+  // running state - show timer and fact buffer  return (
     <div className={cn(
       "p-6 rounded-2xl border-2 border-[#f5af12]/50 bg-[#050505] relative overflow-hidden",
       className

@@ -3,7 +3,6 @@ import { describe, it, expect } from 'vitest';
 import { useJournalData, XP_PER_ENTRY } from '../use-journal-data';
 
 // simple smoke tests verifying initial behaviour
-
 describe('useJournalData', () => {
   it('starts with empty entries and can add/update/delete', () => {
     const { result } = renderHook(() => useJournalData());

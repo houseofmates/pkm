@@ -2,8 +2,7 @@ import path from "path"
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
-export default defineConfig({
+// https://vite.dev/config/export default defineConfig({
   base: '/',
   plugins: [
     react(),
@@ -175,10 +174,7 @@ export default defineConfig({
   css: {
     devSourcemap: false,
     preprocessorOptions: {
-      //   scss: {
-      //     charset: false
-      //   }
-    }
+      //   scss: {      //     charset: false      //   }    }
   },
   optimizeDeps: {
     include: ['react', 'react-dom', '@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover', 'clsx', 'date-fns', 'leaflet', '@dnd-kit/core', '@dnd-kit/utilities', 'rehype-raw'],

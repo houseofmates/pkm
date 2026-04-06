@@ -25,11 +25,9 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
   const [remoteTyping, setRemoteTyping] = useState(false);
   const { socket, isConnected } = useSocket();
 
-  // ref to track source of change to avoid loops
-  const isLocalChange = useRef(false);
+  // ref to track source of change to avoid loops  const isLocalChange = useRef(false);
 
-  // fetch initial content
-  const fetchContent = useCallback(async () => {
+  // fetch initial content  const fetchContent = useCallback(async () => {
     if (!recordId || !collectionName) {
       setContent("Missing record ID or collection name.");
       return;
@@ -39,8 +37,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
       const res = await api.getRecord(collectionName, recordId);
       const recordData = (res as any)?.data || res;
 
-      // only update if we're not actively typing
-      if (recordData && (recordData as any).content !== content && !isLocalChange.current) {
+      // only update if we're not actively typing      if (recordData && (recordData as any).content !== content && !isLocalChange.current) {
         setContent((recordData as any).content || '');
       }
     } catch (err) {
@@ -49,22 +46,18 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
     }
   }, [recordId, collectionName, content]);
 
-  // initial load
-  useEffect(() => {
+  // initial load  useEffect(() => {
     setTimeout(() => fetchContent(), 0);
   }, [fetchContent]);
 
-  // socket integration
-  useEffect(() => {
+  // socket integration  useEffect(() => {
     if (!socket || !recordId) return;
 
-    // join room
-    socket.emit('join_room', recordId);
+    // join room    socket.emit('join_room', recordId);
 
     const onReceiveUpdate = (data: { content: string, senderId: string }) => {
       if (data.senderId !== socket.id) {
-        // apply remote update
-        setContent(data.content);
+        // apply remote update        setContent(data.content);
         setRemoteTyping(true);
         setTimeout(() => setRemoteTyping(false), 2000);
       }
@@ -87,15 +80,13 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
   }, [socket, recordId]);
 
 
-  // handle local changes
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  // handle local changes  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newVal = e.target.value;
     setContent(newVal);
     isLocalChange.current = true;
     setIsSyncing(true);
 
-    // broadcast instant update via socket
-    if (socket && isConnected) {
+    // broadcast instant update via socket    if (socket && isConnected) {
       socket.emit('update_record', {
         recordId,
         content: newVal,
@@ -111,8 +102,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
     }
   };
 
-  // debounce save for persistence (nocobase)
-  useDebounce(
+  // debounce save for persistence (nocobase)  useDebounce(
     async () => {
       if (!isLocalChange.current) return;
 
@@ -123,8 +113,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
         setIsSyncing(false);
         isLocalChange.current = false;
 
-        // stop typing indicator on save success
-        if (socket) socket.emit('typing', { recordId, isTyping: false });
+        // stop typing indicator on save success        if (socket) socket.emit('typing', { recordId, isTyping: false });
 
       } catch (err) {
         secureLogger.error("failed to save echo block:", err);

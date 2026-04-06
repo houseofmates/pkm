@@ -42,16 +42,13 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
   const [colorOpen, setColorOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
 
-  // metadata for cosmetics (legacy localstorage fallback)
-  const [metadata, setMetadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+  // metadata for cosmetics (legacy localstorage fallback)  const [metadata, setMetadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
   
-  // synced colors from nocobase (cross-device persistence)
-  const { updateMetadata: syncColorToServer, getMetadata: getSyncedMetadata } = useSidebarColors();
+  // synced colors from nocobase (cross-device persistence)  const { updateMetadata: syncColorToServer, getMetadata: getSyncedMetadata } = useSidebarColors();
   const syncedMeta = getSyncedMetadata(collection.name);
 
   const updateMeta = async (key: 'image' | 'color', value: string | undefined) => {
-    // update local state immediately
-    setMetadata({
+    // update local state immediately    setMetadata({
       ...metadata,
       [collection.name]: {
         ...metadata[collection.name],
@@ -59,8 +56,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
       }
     });
     
-    // sync to nocobase for cross-device persistence
-    if (key === 'color') {
+    // sync to nocobase for cross-device persistence    if (key === 'color') {
       await syncColorToServer(collection.name, {
         color: value,
         icon: syncedMeta?.icon,
@@ -98,14 +94,12 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
             if (updates.iconType) newMeta.iconType = updates.iconType;
 
             try {
-              // handle name change directly
-              if (updates.name && updates.name !== (collection.title || collection.name)) {
+              // handle name change directly              if (updates.name && updates.name !== (collection.title || collection.name)) {
                 await client.updateCollection(collection.name, { title: updates.name });
                 toast.success(`renamed to ${updates.name}`);
               }
 
-              // update local metadata (legacy)
-              if (Object.keys(newMeta).length > 0) {
+              // update local metadata (legacy)              if (Object.keys(newMeta).length > 0) {
                 setMetadata({
                   ...metadata,
                   [collection.name]: {
@@ -115,8 +109,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
                 });
               }
 
-              // sync to nocobase for cross-device persistence
-              if (newMeta.color || newMeta.icon || newMeta.iconType) {
+              // sync to nocobase for cross-device persistence              if (newMeta.color || newMeta.icon || newMeta.iconType) {
                 await syncColorToServer(collection.name, {
                   color: newMeta.color || syncedMeta?.color,
                   icon: newMeta.icon || syncedMeta?.icon,
@@ -191,9 +184,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
               }}
             />
             <Button onClick={() => {
-              // this relies on the input value being set, simpler to just use onkeydown or controlled state
-              // but for brevity in this replace block:
-              const input = document.querySelector('input[placeholder="https://..."]') as htmlinputelement;
+              // this relies on the input value being set, simpler to just use onkeydown or controlled state              // but for brevity in this replace block:              const input = document.querySelector('input[placeholder="https://..."]') as htmlinputelement;
               if (input) {
                 updateMeta('image', input.value);
                 setImageOpen(false);

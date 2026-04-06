@@ -1,8 +1,4 @@
-// use-semantic-search.ts
-// offline-capable semantic search hook
-// uses backend lancedb when available, falls back to
-// client-side cosine similarity against cached embeddings
-
+// use-semantic-search.ts// offline-capable semantic search hook// uses backend lancedb when available, falls back to// client-side cosine similarity against cached embeddings
 import { useState, useCallback } from 'react'
 import { useSearchStore } from '@/store/useSearchStore';
 import { secureLogger } from '@/lib/secure-logger'
@@ -10,8 +6,7 @@ import { secureLogger } from '@/lib/secure-logger'
 const api_base = (import.meta.env.VITE_PKM_API_URL as string) || 'http://localhost:4100'
 const ollama_base = 'http://localhost:11434'
 
-// in-memory embedding cache (survives for session)
-const embeddingcache = new Map<string, number[]>()
+// in-memory embedding cache (survives for session)const embeddingcache = new Map<string, number[]>()
 
 async function getlocalembedding(text: string): Promise<number[]> {
     const key = text.toLowerCase().trim()
@@ -60,8 +55,7 @@ export function useSemanticSearch() {
             setSource(null)
 
             try {
-                // try backend first (lancedb + ollama)
-                const res = await fetch(`${api_base}/search`, {
+                // try backend first (lancedb + ollama)                const res = await fetch(`${api_base}/search`, {
                     method: 'POST',
                     headers: { 'content-type': 'application/json' },
                     body: JSON.stringify({ q: query, topK: topk }),
@@ -79,8 +73,7 @@ export function useSemanticSearch() {
                 secureLogger.warn('Backend search unreachable, falling back to local')
             }
 
-            // fallback: local cosine similarity against cached embeddings
-            try {
+            // fallback: local cosine similarity against cached embeddings            try {
                 const queryvec = await getlocalembedding(query)
                 const scored: { key: string; score: number }[] = []
 

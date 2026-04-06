@@ -62,8 +62,7 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
     const [title, setTitle] = useState('');
     const [interfaceType, setInterfaceType] = useState('');
 
-    // local metadata for property colors/icons
-    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+    // local metadata for property colors/icons    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
     const collMeta = metadata[collectionName] || {};
     const fieldColor = collMeta.fieldColors?.[field?.name] || '#64748b';
     const fieldIconInfo: { icon?: string; iconType?: 'lucide'|'emoji'|'image'; iconColor?: string } =
@@ -85,8 +84,7 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
         setLoading(true);
 
         try {
-            // 1. update nocobase schema
-            await client.updateField(collectionName, field.name, {
+            // 1. update nocobase schema            await client.updateField(collectionName, field.name, {
                 uiSchema: {
                     ...field.uiSchema,
                     title: title,

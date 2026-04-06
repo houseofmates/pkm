@@ -1,5 +1,4 @@
-/**
- * enhanced security dashboard widget
+/** * enhanced security dashboard widget
  * 
  * a robust, interactive security monitoring system that:
  * - scans codebase for security vulnerabilities

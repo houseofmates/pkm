@@ -1,6 +1,4 @@
-// link-migration.ts
-// one-time migration to scan all existing documents and populate the link registry
-
+// link-migration.ts// one-time migration to scan all existing documents and populate the link registry
 import { registry } from './link-registry'
 import { api } from '@/api/nocobase-client'
 import { storageManager } from './storage-manager'
@@ -19,8 +17,7 @@ export async function backfillLinkRegistry(): Promise<{ documents: number, links
     let totalLinks = 0
 
     try {
-        // 1. discover all user collections
-        const colRes = await api.listCollections()
+        // 1. discover all user collections        const colRes = await api.listCollections()
         const allCols = Array.isArray(colRes?.data) ? colRes.data : []
         const userCols = allCols
             .filter((c: { name?: string; hidden?: boolean }) =>
@@ -30,12 +27,9 @@ export async function backfillLinkRegistry(): Promise<{ documents: number, links
 
         if (userCols.length === 0) return { documents: 0, links: 0 }
 
-        // 2. iterate each collection and scan records
-        for (const col of userCols) {
+        // 2. iterate each collection and scan records        for (const col of userCols) {
             try {
-                // get all records for this collection
-                // we'll fetch in batches if possible, but simplest is to just list
-                const res = await api.listRecords(col, { pageSize: 1000 })
+                // get all records for this collection                // we'll fetch in batches if possible, but simplest is to just list                const res = await api.listRecords(col, { pageSize: 1000 })
                 const records = Array.isArray(res) ? res : ((res as any)?.data?.data || [])
 
                 for (const record of records) {
@@ -53,8 +47,7 @@ export async function backfillLinkRegistry(): Promise<{ documents: number, links
             }
         }
 
-        // 3. mark as migrated
-        storageManager.setItem(MIGRATION_KEY, 'true')
+        // 3. mark as migrated        storageManager.setItem(MIGRATION_KEY, 'true')
         registry.persist() // ensure it's saved to storage immediately
 
         return { documents: totalDocs, links: totalLinks }

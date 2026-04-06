@@ -61,8 +61,7 @@ const edgelessStoreMock = vi.hoisted(() => {
 
 vi.mock('@/features/edgeless/store', () => edgelessStoreMock.exports);
 
-// stub canvassync api
-vi.mock('@/features/edgeless/sync/canvas-sync', () => ({
+// stub canvassync apivi.mock('@/features/edgeless/sync/canvas-sync', () => ({
   canvasSync: {
     start: vi.fn(),
     getSyncState: vi.fn(() => ({ pendingCount: 0 })),

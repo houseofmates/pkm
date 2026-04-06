@@ -1,6 +1,4 @@
-// rag implementation test script
-// run this to verify the rag system is working correctly
-
+// rag implementation test script// run this to verify the rag system is working correctly
 import { buildRagContext, generateWilsonRagPrompt, generateAiFieldContent } from '@/services/rag-service';
 import { searchKnowledgeBase } from '@/lib/vector-store';
 import { getAutoSuggestions, getStarterSuggestions } from '@/services/auto-suggest-service';
@@ -16,41 +14,31 @@ export interface TestResult {
   details?: any;
 }
 
-// run all tests
-export async function runRagTests(): Promise<TestResult[]> {
+// run all testsexport async function runRagTests(): Promise<TestResult[]> {
   const results: TestResult[] = [];
 
   console.log('🧪 starting rag implementation tests...\n');
 
-  // test 1: knowledge base search
-  results.push(await testKnowledgeBaseSearch());
+  // test 1: knowledge base search  results.push(await testKnowledgeBaseSearch());
 
-  // test 2: rag context building
-  results.push(await testRagContextBuilding());
+  // test 2: rag context building  results.push(await testRagContextBuilding());
 
-  // test 3: wilson prompt generation
-  results.push(await testWilsonPromptGeneration());
+  // test 3: wilson prompt generation  results.push(await testWilsonPromptGeneration());
 
-  // test 4: ai field content generation
-  results.push(await testAiFieldGeneration());
+  // test 4: ai field content generation  results.push(await testAiFieldGeneration());
 
-  // test 5: auto-suggestions
-  results.push(await testAutoSuggestions());
+  // test 5: auto-suggestions  results.push(await testAutoSuggestions());
 
-  // test 6: scheduled generation preview
-  results.push(await testScheduledGeneration());
+  // test 6: scheduled generation preview  results.push(await testScheduledGeneration());
 
-  // test 7: dupemates integration
-  results.push(await testDupematesIntegration());
+  // test 7: dupemates integration  results.push(await testDupematesIntegration());
 
-  // print summary
-  printTestSummary(results);
+  // print summary  printTestSummary(results);
 
   return results;
 }
 
-// test 1: knowledge base search
-async function testKnowledgeBaseSearch(): Promise<TestResult> {
+// test 1: knowledge base searchasync function testKnowledgeBaseSearch(): Promise<TestResult> {
   const start = Date.now();
   const name = 'knowledge base search';
 
@@ -80,8 +68,7 @@ async function testKnowledgeBaseSearch(): Promise<TestResult> {
   }
 }
 
-// test 2: rag context building
-async function testRagContextBuilding(): Promise<TestResult> {
+// test 2: rag context buildingasync function testRagContextBuilding(): Promise<TestResult> {
   const start = Date.now();
   const name = 'rag context building';
 
@@ -109,8 +96,7 @@ async function testRagContextBuilding(): Promise<TestResult> {
   }
 }
 
-// test 3: wilson prompt generation
-async function testWilsonPromptGeneration(): Promise<TestResult> {
+// test 3: wilson prompt generationasync function testWilsonPromptGeneration(): Promise<TestResult> {
   const start = Date.now();
   const name = 'wilson rag prompt generation';
 
@@ -138,14 +124,12 @@ async function testWilsonPromptGeneration(): Promise<TestResult> {
   }
 }
 
-// test 4: ai field generation
-async function testAiFieldGeneration(): Promise<TestResult> {
+// test 4: ai field generationasync function testAiFieldGeneration(): Promise<TestResult> {
   const start = Date.now();
   const name = 'ai field content generation';
 
   try {
-    // first, try to get a real record to test with
-    const collectionsRes: any = await api.listCollections();
+    // first, try to get a real record to test with    const collectionsRes: any = await api.listCollections();
     const collections = Array.isArray(collectionsRes.data)
       ? collectionsRes.data
       : collectionsRes.data?.data || [];
@@ -161,8 +145,7 @@ async function testAiFieldGeneration(): Promise<TestResult> {
       };
     }
 
-    // get a record from the collection
-    const recordsRes: any = await api.listRecords(testCollection, { pageSize: 1 });
+    // get a record from the collection    const recordsRes: any = await api.listRecords(testCollection, { pageSize: 1 });
     const records = Array.isArray(recordsRes.data)
       ? recordsRes.data
       : recordsRes.data?.data || [];
@@ -178,8 +161,7 @@ async function testAiFieldGeneration(): Promise<TestResult> {
 
     const recordId = records[0].id;
 
-    // generate prompt (don't actually call ollama in test)
-    const prompt = await generateAiFieldContent(
+    // generate prompt (don't actually call ollama in test)    const prompt = await generateAiFieldContent(
       testCollection,
       recordId,
       'synthesize key insights',
@@ -208,8 +190,7 @@ async function testAiFieldGeneration(): Promise<TestResult> {
   }
 }
 
-// test 5: auto-suggestions
-async function testAutoSuggestions(): Promise<TestResult> {
+// test 5: auto-suggestionsasync function testAutoSuggestions(): Promise<TestResult> {
   const start = Date.now();
   const name = 'auto-suggest service';
 
@@ -242,14 +223,12 @@ async function testAutoSuggestions(): Promise<TestResult> {
   }
 }
 
-// test 6: scheduled generation
-async function testScheduledGeneration(): Promise<TestResult> {
+// test 6: scheduled generationasync function testScheduledGeneration(): Promise<TestResult> {
   const start = Date.now();
   const name = 'scheduled generation';
 
   try {
-    // just test the preview function
-    const preview = await previewScheduledRecords('notes', 'ai', 7);
+    // just test the preview function    const preview = await previewScheduledRecords('notes', 'ai', 7);
 
     return {
       name,
@@ -270,14 +249,12 @@ async function testScheduledGeneration(): Promise<TestResult> {
   }
 }
 
-// test 7: dupemates integration
-async function testDupematesIntegration(): Promise<TestResult> {
+// test 7: dupemates integrationasync function testDupematesIntegration(): Promise<TestResult> {
   const start = Date.now();
   const name = 'dupemates integration';
 
   try {
-    // test finding related dupemates
-    const related = await findRelatedDupemates('friend support', 3);
+    // test finding related dupemates    const related = await findRelatedDupemates('friend support', 3);
 
     return {
       name,
@@ -298,8 +275,7 @@ async function testDupematesIntegration(): Promise<TestResult> {
   }
 }
 
-// print test summary
-function printTestSummary(results: TestResult[]) {
+// print test summaryfunction printTestSummary(results: TestResult[]) {
   console.log('\n📊 test summary:\n');
 
   const passed = results.filter(r => r.passed).length;
@@ -325,21 +301,17 @@ function printTestSummary(results: TestResult[]) {
   console.log(failed === 0 ? '\n🎉 all tests passed!' : '\n⚠️ some tests failed. check the errors above.');
 }
 
-// quick smoke test for critical paths
-export async function runSmokeTest(): Promise<boolean> {
+// quick smoke test for critical pathsexport async function runSmokeTest(): Promise<boolean> {
   console.log('🔥 running smoke test...\n');
 
   try {
-    // test 1: can we search?
-    await searchKnowledgeBase('test', 1);
+    // test 1: can we search?    await searchKnowledgeBase('test', 1);
     console.log('✅ knowledge base search working');
 
-    // test 2: can we build context?
-    await buildRagContext('test', 1);
+    // test 2: can we build context?    await buildRagContext('test', 1);
     console.log('✅ rag context building working');
 
-    // test 3: can we generate a prompt?
-    await generateWilsonRagPrompt('test', 'user');
+    // test 3: can we generate a prompt?    await generateWilsonRagPrompt('test', 'user');
     console.log('✅ wilson prompt generation working');
 
     console.log('\n🎉 smoke test passed! core rag functionality is working.');
@@ -350,5 +322,4 @@ export async function runSmokeTest(): Promise<boolean> {
   }
 }
 
-// export for use in other tests
-export { testKnowledgeBaseSearch, testRagContextBuilding, testWilsonPromptGeneration };
+// export for use in other testsexport { testKnowledgeBaseSearch, testRagContextBuilding, testWilsonPromptGeneration };

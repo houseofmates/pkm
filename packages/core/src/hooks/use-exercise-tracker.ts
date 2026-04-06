@@ -34,8 +34,7 @@ export function useExerciseTracker() {
 
   const today = new Date().toISOString().split('T')[0]
 
-  // load today's exercise data
-  useEffect(() => {
+  // load today's exercise data  useEffect(() => {
     const loadExercise = async () => {
       try {
         const res: any = await api.listRecords('exercise_sessions', {
@@ -48,15 +47,13 @@ export function useExerciseTracker() {
           const session = res.data[0]
           setTodaySession(session)
           
-          // update muscle groups from session
-          const sessionGroups = JSON.parse(session.muscle_groups || '[]') as string[]
+          // update muscle groups from session          const sessionGroups = JSON.parse(session.muscle_groups || '[]') as string[]
           setMuscleGroups(prev => prev.map(mg => ({
             ...mg,
             completed: sessionGroups.includes(mg.id)
           })))
         } else {
-          // check localstorage fallback
-          const local = localStorage.getItem(`pkm:exercise:${today}`)
+          // check localstorage fallback          const local = localStorage.getItem(`pkm:exercise:${today}`)
           if (local) {
             const parsed = JSON.parse(local)
             setMuscleGroups(prev => prev.map(mg => ({
@@ -79,15 +76,13 @@ export function useExerciseTracker() {
     )
     setMuscleGroups(newGroups)
     
-    // save to localstorage immediately
-    const completedIds = newGroups.filter(mg => mg.completed).map(mg => mg.id)
+    // save to localstorage immediately    const completedIds = newGroups.filter(mg => mg.completed).map(mg => mg.id)
     localStorage.setItem(`pkm:exercise:${today}`, JSON.stringify({
       completed: completedIds,
       timestamp: new Date().toISOString()
     }))
     
-    // try to save to server
-    try {
+    // try to save to server    try {
       const existing: any = await api.listRecords('exercise_sessions', {
         filter: { date: today },
         pageSize: 1
@@ -106,8 +101,7 @@ export function useExerciseTracker() {
         await api.createRecord('exercise_sessions', payload)
       }
     } catch (e) {
-      // localstorage fallback already done
-      secureLogger.warn('failed to save exercise to server', e)
+      // localstorage fallback already done      secureLogger.warn('failed to save exercise to server', e)
     }
     
     return newGroups.filter(mg => mg.completed).length

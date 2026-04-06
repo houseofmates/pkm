@@ -13,8 +13,7 @@ import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-// custom sensor that ignores clicks on editable elements (inputs, textareas, contenteditable)
-class SmartPointerSensor extends PointerSensor {
+// custom sensor that ignores clicks on editable elements (inputs, textareas, contenteditable)class SmartPointerSensor extends PointerSensor {
   static activators = [
     {
       eventName: 'onPointerDown' as const,

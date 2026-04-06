@@ -12,24 +12,18 @@ interface TableViewProps {
 }
 
 export function TableView({ records, isLoading, onSelect, fields }: TableViewProps) {
-  // generate columns dynamically from the first record or schema.  we
-  // also keep a ref to the last known column set so that headers remain
-  // visible when the record list becomes empty; this mirrors the behaviour
-  // in the main record table.
-  const prevColsRef = React.useRef<ColumnDef<any>[]>([]);
+  // generate columns dynamically from the first record or schema.  we  // also keep a ref to the last known column set so that headers remain  // visible when the record list becomes empty; this mirrors the behaviour  // in the main record table.  const prevColsRef = React.useRef<ColumnDef<any>[]>([]);
 
   const renderCellValue = (value: unknown) => {
     if (value === null || value === undefined) return <span className="text-center w-full block">empty</span>;
 
     if (typeof value === 'object') {
-      // keep it brief and avoid rendering huge json blobs
-      return <span className="break-words">{JSON.stringify(value)}</span>;
+      // keep it brief and avoid rendering huge json blobs      return <span className="break-words">{JSON.stringify(value)}</span>;
     }
 
     const text = String(value);
 
-    // render http(s) urls as clickable links (show as much of the url as fits)
-    let url: URL | null = null;
+    // render http(s) urls as clickable links (show as much of the url as fits)    let url: URL | null = null;
     try {
       url = new URL(text);
     } catch {
@@ -58,8 +52,7 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
 
   const columns = useMemo<ColumnDef<any>[]>(() => {
     const makeColsFromKeys = (keys: string[]) => {
-      // filter out common metadata columns
-      const filtered = keys.filter(k =>
+      // filter out common metadata columns      const filtered = keys.filter(k =>
         !['id', 'created_at', 'updated_at', 'created_by', 'updated_by'].includes(k)
       );
       if (filtered.length === 0) return [];
@@ -73,8 +66,7 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
           header: titleKey,
           cell: (info: any) => {
             const value = info.getValue();
-            // center ids, times, datetimes
-            if (
+            // center ids, times, datetimes            if (
               typeof value === 'string' && (
                 value.match(/^\d+$/) || // id
                 value.match(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?$/) // iso datetime
@@ -91,8 +83,7 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
           header: k,
           cell: (info: any) => {
             const value = info.getValue();
-            // center ids, times, datetimes, and empty
-            if (
+            // center ids, times, datetimes, and empty            if (
               value === null || value === undefined ||
               (typeof value === 'string' && (
                 value.match(/^\d+$/) || // id
@@ -108,14 +99,11 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
       ];
     };
 
-    // if we have explicit field definitions with actual field names, use those first
-    if (fields && fields.length > 0) {
+    // if we have explicit field definitions with actual field names, use those first    if (fields && fields.length > 0) {
       const fieldNames = fields.map(f => f.name).filter(Boolean);
       if (fieldNames.length > 0) {
         const cols = makeColsFromKeys(fieldNames as string[]);
-        // if makecolsfromkeys filtered out everything (unlikely with field schema),
-        // create columns directly from field definitions to ensure they show up
-        if (cols.length === 0) {
+        // if makecolsfromkeys filtered out everything (unlikely with field schema),        // create columns directly from field definitions to ensure they show up        if (cols.length === 0) {
           const directCols = fieldNames.map((name, idx) => ({
             accessorKey: name,
             header: name,
@@ -139,8 +127,7 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
       }
     }
 
-    // if we have records, infer columns from data
-    if (records.length > 0) {
+    // if we have records, infer columns from data    if (records.length > 0) {
       const keys = Object.keys(records[0]);
       const cols = makeColsFromKeys(keys);
       if (cols.length > 0) {
@@ -149,13 +136,11 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
       }
     }
 
-    // if we previously computed columns keep them
-    if (prevColsRef.current.length > 0) {
+    // if we previously computed columns keep them    if (prevColsRef.current.length > 0) {
       return prevColsRef.current;
     }
 
-    // otherwise show a generic placeholder
-    return [
+    // otherwise show a generic placeholder    return [
       {
         accessorKey: '__placeholder',
         header: () => <span className="text-muted-foreground lowercase">no properties</span>,
@@ -183,11 +168,7 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
     return <div className="p-4 text-muted-foreground animate-pulse">Loading table...</div>;
   }
 
-  // when there are no records we still want to render the header bar, and
-  // provide a helpful placeholder row in the body rather than removing the
-  // entire table from the dom. the `isloading` case above handles the
-  // spinner.
-
+  // when there are no records we still want to render the header bar, and  // provide a helpful placeholder row in the body rather than removing the  // entire table from the dom. the `isloading` case above handles the  // spinner.
   return (
     <div className="w-full h-full bg-card/50 backdrop-blur-xl border border-white/10 rounded-xl flex flex-col text-sm overflow-hidden">
       {/* header */}
@@ -224,8 +205,7 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
             <List
               key={columnVersion}
               outerRef={bodyRef}
-              // @ts-expect-error types mismatch
-              onScroll={({ scrollOffset }: { scrollOffset: number }) => {
+              // @ts-expect-error types mismatch              onScroll={({ scrollOffset }: { scrollOffset: number }) => {
                 if (headerRef.current) {
                   headerRef.current.scrollLeft = scrollOffset;
                 }

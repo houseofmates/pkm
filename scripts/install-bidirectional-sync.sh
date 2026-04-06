@@ -1,9 +1,5 @@
 #!/bin/bash
-# install-bidirectional-sync.sh
-# one-command installation for 24/7 bidirectional git sync
-# this enables automatic sync between local filesystem and github
-# including support for jules/pr workflows
-
+# install-bidirectional-sync.sh# one-command installation for 24/7 bidirectional git sync# this enables automatic sync between local filesystem and github# including support for jules/pr workflows
 set -e
 
 RED='\033[0;31m'
@@ -33,8 +29,7 @@ error() {
     echo -e "${RED}[error]${NC} $1"
 }
 
-# check if running as root for systemctl operations
-check_root() {
+# check if running as root for systemctl operationscheck_root() {
     if [ "$EUID" -ne 0 ]; then 
         error "this script needs sudo for systemctl operations"
         echo "run: sudo $0"
@@ -42,8 +37,7 @@ check_root() {
     fi
 }
 
-# validate git repo
-validate_repo() {
+# validate git repovalidate_repo() {
     log "validating git repository..."
     if [ ! -d "$REPO_DIR/.git" ]; then
         error "no git repository found at $REPO_DIR"
@@ -52,8 +46,7 @@ validate_repo() {
     
     cd "$REPO_DIR"
     
-    # check remote exists
-    if ! git remote -v > /dev/null 2>&1; then
+    # check remote exists    if ! git remote -v > /dev/null 2>&1; then
         error "no git remote configured"
         exit 1
     fi
@@ -61,19 +54,16 @@ validate_repo() {
     success "git repository validated"
 }
 
-# setup git identity for auto-commits
-setup_git_identity() {
+# setup git identity for auto-commitssetup_git_identity() {
     log "configuring git identity for auto-sync..."
     
-    # set global git identity (if not already set)
-    sudo -u house git config --global user.email "sync@houseofmates.space" 2>/dev/null || true
+    # set global git identity (if not already set)    sudo -u house git config --global user.email "sync@houseofmates.space" 2>/dev/null || true
     sudo -u house git config --global user.name "pkm-sync" 2>/dev/null || true
     
     success "git identity configured"
 }
 
-# check for github token
-check_auth() {
+# check for github tokencheck_auth() {
     log "checking authentication..."
     
     if [ -f "$REPO_DIR/.github_token" ]; then
@@ -83,8 +73,7 @@ check_auth() {
         echo "      if you need authenticated pushes, create this file with your token"
     fi
     
-    # test git fetch (should work with ssh or credential helper)
-    cd "$REPO_DIR"
+    # test git fetch (should work with ssh or credential helper)    cd "$REPO_DIR"
     if sudo -u house timeout 10 git fetch origin --dry-run 2>/dev/null; then
         success "git fetch works (authenticated)"
     else
@@ -96,8 +85,7 @@ check_auth() {
     fi
 }
 
-# install systemd service
-install_service() {
+# install systemd serviceinstall_service() {
     log "installing systemd service..."
     
     if [ ! -f "$SERVICE_SRC" ]; then
@@ -105,17 +93,14 @@ install_service() {
         exit 1
     fi
     
-    # copy service file
-    cp "$SERVICE_SRC" "$SERVICE_DEST"
+    # copy service file    cp "$SERVICE_SRC" "$SERVICE_DEST"
     
-    # reload systemd
-    systemctl daemon-reload
+    # reload systemd    systemctl daemon-reload
     
     success "service installed to $SERVICE_DEST"
 }
 
-# enable and start service
-start_service() {
+# enable and start servicestart_service() {
     log "enabling service (auto-start on boot)..."
     systemctl enable "$SERVICE_NAME"
     
@@ -124,8 +109,7 @@ start_service() {
     
     sleep 2
     
-    # check status
-    if systemctl is-active --quiet "$SERVICE_NAME"; then
+    # check status    if systemctl is-active --quiet "$SERVICE_NAME"; then
         success "service is running!"
     else
         error "service failed to start"
@@ -134,8 +118,7 @@ start_service() {
     fi
 }
 
-# print usage instructions
-print_instructions() {
+# print usage instructionsprint_instructions() {
     echo ""
     echo -e "${GREEN}=== bidirectional git sync installed ===${NC}"
     echo ""
@@ -164,8 +147,7 @@ print_instructions() {
     echo ""
 }
 
-# main
-main() {
+# mainmain() {
     echo -e "${BLUE}=== bidirectional git sync installer ===${NC}"
     echo ""
     

@@ -3,8 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { IconPicker } from '../icon-picker-dialog';
 
-// mock lucide-react icons our component references while preserving other exports
-vi.mock('lucide-react', async (importOriginal) => {
+// mock lucide-react icons our component references while preserving other exportsvi.mock('lucide-react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('lucide-react')>();
   const mockIcon = (name: string) => () => <svg data-testid={`icon-${name}`} />;
 

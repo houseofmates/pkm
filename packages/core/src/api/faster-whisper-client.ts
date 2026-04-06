@@ -1,7 +1,6 @@
 import { secureLogger } from '@/lib/secure-logger';
 
-// hardcoded faster-whisper server endpoint
-const FASTER_WHISPER_URL = 'http://192.168.4.250:5000/transcribe';
+// hardcoded faster-whisper server endpointconst FASTER_WHISPER_URL = 'http://192.168.4.250:5000/transcribe';
 
 export interface FasterWhisperTranscriptionOptions {
   language?: string;
@@ -33,8 +32,7 @@ export interface FasterWhisperTranscriptionResult {
   }>;
 }
 
-/**
- * dedicated client for faster-whisper server running on 192.168.4.250:5000
+/** * dedicated client for faster-whisper server running on 192.168.4.250:5000
  * optimized for local network transcription with wav/pcm streams
  */
 export class FasterWhisperClient {
@@ -44,8 +42,7 @@ export class FasterWhisperClient {
     this.baseUrl = baseUrl;
   }
 
-  /**
-   * convert audio blob to wav format for faster-whisper
+  /**   * convert audio blob to wav format for faster-whisper
    * uses web audio api for proper format conversion
    */
   async convertToWav(audioBlob: Blob): Promise<Blob> {
@@ -55,8 +52,7 @@ export class FasterWhisperClient {
       const arrayBuffer = await audioBlob.arrayBuffer();
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
       
-      // convert to mono, 16khz for optimal whisper performance
-      const sampleRate = 16000;
+      // convert to mono, 16khz for optimal whisper performance      const sampleRate = 16000;
       const numberOfChannels = 1;
       const offlineContext = new OfflineAudioContext(
         numberOfChannels,
@@ -75,15 +71,13 @@ export class FasterWhisperClient {
       return new Blob([wavBuffer], { type: 'audio/wav' });
     } catch (error) {
       secureLogger.error('WAV conversion failed:', error);
-      // fallback: return original blob if conversion fails
-      return audioBlob;
+      // fallback: return original blob if conversion fails      return audioBlob;
     } finally {
       await audioContext.close();
     }
   }
 
-  /**
-   * convert audiobuffer to wav format
+  /**   * convert audiobuffer to wav format
    */
   private audioBufferToWav(buffer: AudioBuffer): ArrayBuffer {
     const length = buffer.length * 2 + 44;
@@ -92,8 +86,7 @@ export class FasterWhisperClient {
     const channels = buffer.numberOfChannels;
     const sampleRate = buffer.sampleRate;
     
-    // write wav header
-    this.writeString(view, 0, 'RIFF');
+    // write wav header    this.writeString(view, 0, 'RIFF');
     view.setUint32(4, 36 + buffer.length * 2, true);
     this.writeString(view, 8, 'WAVE');
     this.writeString(view, 12, 'fmt ');
@@ -107,8 +100,7 @@ export class FasterWhisperClient {
     this.writeString(view, 36, 'data');
     view.setUint32(40, buffer.length * 2, true);
     
-    // write interleaved data
-    const channelData = buffer.getChannelData(0);
+    // write interleaved data    const channelData = buffer.getChannelData(0);
     let offset = 44;
     for (let i = 0; i < buffer.length; i++) {
       const sample = Math.max(-1, Math.min(1, channelData[i]));
@@ -125,8 +117,7 @@ export class FasterWhisperClient {
     }
   }
 
-  /**
-   * transcribe audio using faster-whisper server
+  /**   * transcribe audio using faster-whisper server
    * sends wav/pcm data to 192.168.4.250:5000/transcribe
    */
   async transcribe(
@@ -135,8 +126,7 @@ export class FasterWhisperClient {
   ): Promise<FasterWhisperTranscriptionResult> {
     const formData = new FormData();
     
-    // convert to wav for optimal compatibility
-    const wavBlob = await this.convertToWav(audioBlob);
+    // convert to wav for optimal compatibility    const wavBlob = await this.convertToWav(audioBlob);
     formData.append('file', wavBlob, 'recording.wav');
     formData.append('language', options.language || 'en');
     formData.append('task', options.task || 'transcribe');
@@ -175,14 +165,12 @@ export class FasterWhisperClient {
         throw new Error('Transcription timeout - server did not respond within 30s');
       }
       
-      // provide specific error messages for common failure scenarios
-      if (error instanceof TypeError && error.message.includes('fetch')) {
+      // provide specific error messages for common failure scenarios      if (error instanceof TypeError && error.message.includes('fetch')) {
         throw new Error('local server unreachable at 192.168.4.250:5000 - check if desktop is online');
       }
       
       if (error instanceof Error) {
-        // check for http error status codes that indicate gpu/vram issues
-        if (error.message.includes('500') || error.message.includes('503')) {
+        // check for http error status codes that indicate gpu/vram issues        if (error.message.includes('500') || error.message.includes('503')) {
           throw new Error('GPU out of VRAM on whisper server - try again in a moment');
         }
         if (error.message.includes('502') || error.message.includes('504')) {
@@ -197,8 +185,7 @@ export class FasterWhisperClient {
     }
   }
 
-  /**
-   * check if faster-whisper server is reachable
+  /**   * check if faster-whisper server is reachable
    */
   async isAvailable(): Promise<boolean> {
     try {
@@ -213,5 +200,4 @@ export class FasterWhisperClient {
   }
 }
 
-// export singleton instance with hardcoded endpoint
-export const fasterWhisperClient = new FasterWhisperClient(FASTER_WHISPER_URL);
+// export singleton instance with hardcoded endpointexport const fasterWhisperClient = new FasterWhisperClient(FASTER_WHISPER_URL);

@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom/vitest';
-// same virtualization stubs used by list view tests
-import { vi, describe, it, expect } from 'vitest';
+// same virtualization stubs used by list view testsimport { vi, describe, it, expect } from 'vitest';
 vi.mock('react-window', () => ({
   List: ({ itemCount, itemData, style, children }: any) => (
     <div style={style}>
@@ -14,8 +13,7 @@ vi.mock('react-virtualized-auto-sizer', () => ({
   AutoSizer: ({ children }: any) => <div>{children({ width: 100, height: 100 })}</div>,
 }));
 
-// stub icon library so components can render without errors
-vi.mock('lucide-react', () => {
+// stub icon library so components can render without errorsvi.mock('lucide-react', () => {
   const React = require('react');
   return new Proxy({}, {
     get: (_target, prop: string) => {
@@ -26,8 +24,7 @@ vi.mock('lucide-react', () => {
 
 import { render, screen } from '@testing-library/react';
 
-// replace actual views with lightweight mocks for smoke tests
-vi.mock('../calendar-view', () => ({
+// replace actual views with lightweight mocks for smoke testsvi.mock('../calendar-view', () => ({
   CalendarView: ({ onCreate }: any) => (
     <button aria-label="add record" onClick={() => onCreate && onCreate({})} />
   ),
@@ -57,8 +54,7 @@ import { ListView } from '../list-view';
 import { AuthContext } from '@/contexts/auth-context';
 
 const emptyCollection = { name: 'test', fields: [] };
-// collection with a date field for calendar
-const dateCollection = { name: 'test', fields: [{ name: 'when', interface: 'date' }] };
+// collection with a date field for calendarconst dateCollection = { name: 'test', fields: [{ name: 'when', interface: 'date' }] };
 const dummyData: any[] = [{ id: '1', when: new Date().toISOString(), status: null }];
 
 describe('View smoke tests', () => {

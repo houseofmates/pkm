@@ -1,8 +1,5 @@
-// activity logger api endpoints
-// add to packages/backend/server.js
-
-// log activity endpoint
-app.post('/api/activities/log', requireAuth, async (req, res) => {
+// activity logger api endpoints// add to packages/backend/server.js
+// log activity endpointapp.post('/api/activities/log', requireAuth, async (req, res) => {
   const { activity_id, activity_name, values, notes } = req.body;
   
   if (!activity_id || !activity_name) {
@@ -14,8 +11,7 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
   const date = now.toISOString().split('T')[0]; // yyyy-mm-dd
 
   try {
-    // create log entry
-    const logPayload = {
+    // create log entry    const logPayload = {
       activity_id,
       activity_name,
       timestamp,
@@ -28,8 +24,7 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
       headers: { 'Authorization': req.headers.authorization }
     });
 
-    // update streak
-    const streakRes = await axios.get(
+    // update streak    const streakRes = await axios.get(
       `${process.env.NOCOBASE_URL}/streaks:list?filter[activity_id]=${activity_id}`,
       { headers: { 'Authorization': req.headers.authorization } }
     );
@@ -40,8 +35,7 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
     const yesterdayStr = yesterday.toISOString().split('T')[0];
 
     if (!streak) {
-      // create new streak
-      await axios.post(`${process.env.NOCOBASE_URL}/streaks:create`, {
+      // create new streak      await axios.post(`${process.env.NOCOBASE_URL}/streaks:create`, {
         activity_id,
         activity_name,
         current_streak: 1,
@@ -51,19 +45,15 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
       
       res.json({ logged: true, streak: 1, new_record: true });
     } else {
-      // update existing streak
-      let newStreak = streak.current_streak;
+      // update existing streak      let newStreak = streak.current_streak;
       
       if (streak.last_log_date === date) {
-        // already logged today, no streak change
-        res.json({ logged: true, streak: newStreak, already_logged_today: true });
+        // already logged today, no streak change        res.json({ logged: true, streak: newStreak, already_logged_today: true });
         return;
       } else if (streak.last_log_date === yesterdayStr) {
-        // consecutive day
-        newStreak += 1;
+        // consecutive day        newStreak += 1;
       } else {
-        // streak broken
-        newStreak = 1;
+        // streak broken        newStreak = 1;
       }
 
       const longestStreak = Math.max(newStreak, streak.longest_streak);
@@ -91,8 +81,7 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
   }
 });
 
-// get streaks for all activities
-app.get('/api/activities/streaks', requireAuth, async (req, res) => {
+// get streaks for all activitiesapp.get('/api/activities/streaks', requireAuth, async (req, res) => {
   try {
     const streakRes = await axios.get(`${process.env.NOCOBASE_URL}/streaks:list?pageSize=100`, {
       headers: { 'Authorization': req.headers.authorization }
@@ -104,8 +93,7 @@ app.get('/api/activities/streaks', requireAuth, async (req, res) => {
   }
 });
 
-// get activity history
-app.get('/api/activities/history', requireAuth, async (req, res) => {
+// get activity historyapp.get('/api/activities/history', requireAuth, async (req, res) => {
   const { activity_id, days = 30 } = req.query;
   
   try {

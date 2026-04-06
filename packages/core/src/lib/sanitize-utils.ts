@@ -1,5 +1,4 @@
-/**
- * data sanitization utilities
+/** * data sanitization utilities
  * 
  * functions to safely handle sensitive data without exposing it
  * to browser console, network logs, or localstorage.
@@ -7,11 +6,9 @@
 
 import { secureLogger } from './secure-logger';
 
-// characters to use for masking
-const MASK_CHAR = '•';
+// characters to use for maskingconst MASK_CHAR = '•';
 
-/**
- * mask a string, showing only first and last n characters
+/** * mask a string, showing only first and last n characters
  */
 export function maskString(str: string, visibleFirst = 4, visibleLast = 4): string {
   if (!str || str.length <= visibleFirst + visibleLast) {
@@ -25,16 +22,14 @@ export function maskString(str: string, visibleFirst = 4, visibleLast = 4): stri
   return `${first}${MASK_CHAR.repeat(middleLength)}${last}`;
 }
 
-/**
- * completely redact a sensitive value
+/** * completely redact a sensitive value
  */
 export function redact(value: string | null | undefined): string {
   if (!value) return '[EMPTY]';
   return `[REDACTED:${value.length}chars]`;
 }
 
-/**
- * sanitize an object by redacting sensitive fields
+/** * sanitize an object by redacting sensitive fields
  */
 export function sanitizeObject(
   obj: Record<string, any>,
@@ -58,21 +53,18 @@ export function sanitizeObject(
   return sanitized;
 }
 
-/**
- * safe json stringify that redacts sensitive data
+/** * safe json stringify that redacts sensitive data
  */
 export function safeStringify(obj: any, space?: number): string {
   const sanitized = sanitizeObject(obj);
   return JSON.stringify(sanitized, null, space);
 }
 
-/**
- * extract public-safe error message (no internal details)
+/** * extract public-safe error message (no internal details)
  */
 export function safeErrorMessage(error: unknown): string {
   if (error instanceof Error) {
-    // remove file paths, stack traces, internal details
-    return error.message
+    // remove file paths, stack traces, internal details    return error.message
       .replace(/\/[\w/.-]+/g, '[PATH]') // file paths
       .replace(/at\s+[\w\s.]+/g, '[STACK]') // stack traces
       .replace(/localhost:\d+/g, '[LOCAL]') // local addresses
@@ -86,8 +78,7 @@ export function safeErrorMessage(error: unknown): string {
   return 'an error occurred';
 }
 
-/**
- * create a safe version of headers for logging
+/** * create a safe version of headers for logging
  */
 export function sanitizeHeaders(headers: Record<string, string>): Record<string, string> {
   const sensitive = ['authorization', 'x-api-key', 'x-token', 'cookie', 'x-hom-api-key'];
@@ -105,8 +96,7 @@ export function sanitizeHeaders(headers: Record<string, string>): Record<string,
   return sanitized;
 }
 
-/**
- * check if a value looks like an api key/token
+/** * check if a value looks like an api key/token
  */
 export function looksLikeSecret(value: string): boolean {
   if (!value || value.length < 8) return false;
@@ -121,12 +111,9 @@ export function looksLikeSecret(value: string): boolean {
   return patterns.some(p => p.test(value));
 }
 
-/**
- * safe localstorage wrapper that warns about sensitive data
+/** * safe localstorage wrapper that warns about sensitive data
  */
-// safestorage no longer depends on storagemanager; it wraps localstorage
-// directly and applies some heuristic warnings for sensitive values.
-
+// safestorage no longer depends on storagemanager; it wraps localstorage// directly and applies some heuristic warnings for sensitive values.
 export const safeStorage = {
   getItem(key: string): string | null {
     try {
@@ -137,27 +124,23 @@ export const safeStorage = {
   },
 
   setItem(key: string, value: string): void {
-    // warn if trying to store sensitive data
-    if (looksLikeSecret(value) && !key.toLowerCase().includes('token') && !key.toLowerCase().includes('key')) {
+    // warn if trying to store sensitive data    if (looksLikeSecret(value) && !key.toLowerCase().includes('token') && !key.toLowerCase().includes('key')) {
       secureLogger.warn(`[SECURITY] Potentially sensitive data being stored in localStorage key: ${key}`);
     }
     try {
       window.localStorage.setItem(key, value);
     } catch (_) {
-      // ignore quota errors
-    }
+      // ignore quota errors    }
   },
   
   removeItem(key: string): void {
     try {
       window.localStorage.removeItem(key);
     } catch (e) {
-      // ignore
-    }
+      // ignore    }
   },
   
-  // clear all auth-related items
-  clearAuth(): void {
+  // clear all auth-related items  clearAuth(): void {
     const authKeys = [
       'nocobase_token',
       'hom_api_key',
@@ -172,15 +155,13 @@ export const safeStorage = {
   },
 };
 
-/**
- * create a safe url for logging (remove query params that might contain secrets)
+/** * create a safe url for logging (remove query params that might contain secrets)
  */
 export function safeUrl(url: string): string {
   try {
     const urlObj = new URL(url);
     
-    // remove potentially sensitive query params
-    const sensitiveParams = ['token', 'api_key', 'key', 'secret', 'password', 'auth'];
+    // remove potentially sensitive query params    const sensitiveParams = ['token', 'api_key', 'key', 'secret', 'password', 'auth'];
     for (const param of sensitiveParams) {
       if (urlObj.searchParams.has(param)) {
         urlObj.searchParams.set(param, '[REDACTED]');

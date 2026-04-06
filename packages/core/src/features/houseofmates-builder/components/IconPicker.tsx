@@ -11,8 +11,7 @@ import {
   FileText, Clipboard, Paperclip, X
 } from 'lucide-react';
 
-// icon registry for o(1) lookup instead of dynamic property access
-const ICON_REGISTRY: Record<string, ComponentType<{ size?: number }>> = {
+// icon registry for o(1) lookup instead of dynamic property accessconst ICON_REGISTRY: Record<string, ComponentType<{ size?: number }>> = {
   Shield, Zap, Crown, MessageCircle, Gamepad2, Wifi, Server, Monitor,
   Users, User, Heart, Star, Trophy, Target, Activity,
   Bell, Settings, Info, HelpCircle, Mail, ExternalLink, Link, Download,
@@ -30,9 +29,7 @@ interface IconPickerProps {
   onClose: () => void;
 }
 
-// curated, deduplicated list of useful icons for feature widgets.
-// includes drawing/editing icons (pencil, palette, paintbrush, paintbucket, filetext, clipboard)
-const CURATED_ICONS = [
+// curated, deduplicated list of useful icons for feature widgets.// includes drawing/editing icons (pencil, palette, paintbrush, paintbucket, filetext, clipboard)const CURATED_ICONS = [
   'Shield', 'Zap', 'Crown', 'MessageCircle', 'Gamepad2', 'Wifi', 'Server', 'Monitor',
   'Users', 'User', 'Heart', 'Star', 'Trophy', 'Target', 'Activity',
   'Bell', 'Settings', 'Info', 'HelpCircle', 'Mail', 'ExternalLink', 'Link', 'Download',
@@ -40,8 +37,7 @@ const CURATED_ICONS = [
   'Layout', 'Search', 'Home', 'Compass', 'Map', 'Navigation', 'Globe', 'Lock',
   'Unlock', 'Eye', 'EyeOff', 'Camera', 'Image', 'Video', 'Music', 'Volume2',
   'Github', 'Twitter', 'Youtube', 'Twitch', 'Facebook', 'Instagram', 'Dribbble',
-  // editing / design icons
-  'Pencil', 'Edit', 'Edit2', 'Pen', 'Palette', 'Paintbrush', 'PaintBucket',
+  // editing / design icons  'Pencil', 'Edit', 'Edit2', 'Pen', 'Palette', 'Paintbrush', 'PaintBucket',
   'FileText', 'Clipboard', 'Paperclip'
 ];
 

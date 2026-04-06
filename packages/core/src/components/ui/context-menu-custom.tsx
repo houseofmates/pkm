@@ -14,14 +14,12 @@ export function ContextMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const { client } = useAuth();
 
-  // local state for edit workflows
-  const [isRenaming, setIsRenaming] = useState(false);
+  // local state for edit workflows  const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [brushDarkness, setBrushDarkness] = useState(0);
 
-  // sync rename value when menu opens
-  useEffect(() => {
+  // sync rename value when menu opens  useEffect(() => {
   if (isOpen && data?.title) {
   setRenameValue(data.title);
   }
@@ -29,8 +27,7 @@ export function ContextMenu() {
   setShowColorPicker(false);
   }, [isOpen, data]);
 
-  // calculate initial darkness from pen color when tool menu opens
-  useEffect(() => {
+  // calculate initial darkness from pen color when tool menu opens  useEffect(() => {
     if (!isOpen || targetType !== 'tool' || data?.tool !== 'pen') {
       setBrushDarkness(0);
       return;
@@ -39,29 +36,23 @@ export function ContextMenu() {
     const store = useEdgelessStore.getState();
     const currentColor = store.penColor;
     
-    // reverse-calculate darkness from the current pen color
-    // we estimate by comparing luminance - darker colors have lower luminance
-    const getLuminance = (hex: string) => {
+    // reverse-calculate darkness from the current pen color    // we estimate by comparing luminance - darker colors have lower luminance    const getLuminance = (hex: string) => {
       const m = hex.replace(/^#/, '');
       if (m.length === 6) {
         const r = parseInt(m.slice(0, 2), 16) / 255;
         const g = parseInt(m.slice(2, 4), 16) / 255;
         const b = parseInt(m.slice(4, 6), 16) / 255;
-        // perceptual luminance formula
-        return 0.299 * r + 0.587 * g + 0.114 * b;
+        // perceptual luminance formula        return 0.299 * r + 0.587 * g + 0.114 * b;
       }
       return 1;
     };
 
     const luminance = getLuminance(currentColor);
-    // estimate darkness: pure white (luminance 1) = 0% darkness, black (luminance 0) = 100% darkness
-    // we use a nonlinear curve to match the applydark function's behavior
-    const estimatedDarkness = Math.round((1 - Math.pow(luminance, 0.5)) * 100);
+    // estimate darkness: pure white (luminance 1) = 0% darkness, black (luminance 0) = 100% darkness    // we use a nonlinear curve to match the applydark function's behavior    const estimatedDarkness = Math.round((1 - Math.pow(luminance, 0.5)) * 100);
     setBrushDarkness(Math.max(0, Math.min(100, estimatedDarkness)));
   }, [isOpen, targetType, data?.tool]);
 
-  // close on click/tap outside
-  useEffect(() => {
+  // close on click/tap outside  useEffect(() => {
     const handlePointerDown = (e: MouseEvent | PointerEvent | TouchEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         closeMenu();
@@ -69,8 +60,7 @@ export function ContextMenu() {
     };
 
     if (isOpen) {
-      // use capture phase to ensure canvas drawing/gesture handlers cannot block closing.
-      window.addEventListener('pointerdown', handlePointerDown, { capture: true });
+      // use capture phase to ensure canvas drawing/gesture handlers cannot block closing.      window.addEventListener('pointerdown', handlePointerDown, { capture: true });
       window.addEventListener('mousedown', handlePointerDown, { capture: true });
       window.addEventListener('touchstart', handlePointerDown, { capture: true });
     }
@@ -85,7 +75,6 @@ export function ContextMenu() {
   if (!isOpen) return null;
 
   // --- actions ---
-
   const handleColorChange = (color: string) => {
   if (targetType === 'canvas-object') {
   useEdgelessStore.getState().updateElement(targetId!, {
@@ -96,8 +85,7 @@ export function ContextMenu() {
  client.updateRecord(data.collection, targetId!, { color });
   }
   } else if (targetType === 'tool') {
-    // adjust brush color when pen tool
-    if (data?.tool === 'pen') {
+    // adjust brush color when pen tool    if (data?.tool === 'pen') {
       useEdgelessStore.getState().setPenColor(color);
     }
   }
@@ -107,10 +95,7 @@ export function ContextMenu() {
   if (!renameValue.trim()) return;
 
   if (targetType === 'canvas-object') {
-  // does canvas object have a title?
-  // maybe 'text' tool objects do.
-  // or we add a title property to data.
-  useEdgelessStore.getState().updateElement(targetId!, {
+  // does canvas object have a title?  // maybe 'text' tool objects do.  // or we add a title property to data.  useEdgelessStore.getState().updateElement(targetId!, {
  data: { ...data, title: renameValue }
   });
   } else if (targetType === 'dashboard-card' && data?.collection) {
@@ -128,16 +113,10 @@ export function ContextMenu() {
   };
 
   const handlePromote = () => {
-  // "promote to record" logic
-  // this likely needs a full dialog flow.
-  // for now, let's just create a basic note with the content.
-
+  // "promote to record" logic  // this likely needs a full dialog flow.  // for now, let's just create a basic note with the content.
   const content = data?.text || data?.title || "New Record from Canvas";
 
-  // we'll dispatch an event or use a dialog store
-  // simplicity: prompt user for collection? or just dump to 'notes'?
-  // the plan mentioned "prompt for collection".
-
+  // we'll dispatch an event or use a dialog store  // simplicity: prompt user for collection? or just dump to 'notes'?  // the plan mentioned "prompt for collection".
   const collection = window.prompt("Target Collection (e.g. notes):", "notes");
   if (collection) {
   const payload: any = { title: 'From Canvas', content: content };
@@ -159,9 +138,7 @@ export function ContextMenu() {
  try {
  await client.deleteRecord(data.collection, targetId);
  toast.success("deleted");
- // trigger refresh? dashboardcard relies on parent list update.
- // we might need to dispatch an event.
- window.dispatchEvent(new CustomEvent('pkm:record-deleted', { detail: { id: targetId, collection: data.collection } }));
+ // trigger refresh? dashboardcard relies on parent list update. // we might need to dispatch an event. window.dispatchEvent(new CustomEvent('pkm:record-deleted', { detail: { id: targetId, collection: data.collection } }));
  } catch (e) {
    toast.error("delete failed");
  }
@@ -172,14 +149,8 @@ export function ContextMenu() {
 
   const handleEditMetadata = () => {
   if (targetType === 'dashboard-card' && data?.collection) {
-  // navigate to record view
-  // using window.location for simplicity or need router hook (not available in portal easily without wrapper)
-  // but we are inside react component tree if creating portal properly.
-  // let's assume we can navigate.
-  window.location.hash = `/databases/${data.collection}/${targetId}`; // hash router? no, we use browser router.
-  // we need `usenavigate` but we might not be inside router context if rendered at root?
-  // actually, if we put <contextmenu /> in rootlayout (inside router), we are good.
-  }
+  // navigate to record view  // using window.location for simplicity or need router hook (not available in portal easily without wrapper)  // but we are inside react component tree if creating portal properly.  // let's assume we can navigate.  window.location.hash = `/databases/${data.collection}/${targetId}`; // hash router? no, we use browser router.
+  // we need `usenavigate` but we might not be inside router context if rendered at root?  // actually, if we put <contextmenu /> in rootlayout (inside router), we are good.  }
   closeMenu();
   }
 
@@ -333,8 +304,7 @@ export function ContextMenu() {
 
   {/* ask ai (canvas/object) */}
   {targetType === 'tool' && (() => {
-    // moved hook call outside of callback - use getstate() for store access
-    const store = useEdgelessStore.getState();
+    // moved hook call outside of callback - use getstate() for store access    const store = useEdgelessStore.getState();
     const isBrush = data?.tool === 'pen';
     const widthVal = isBrush ? store.penWidth : store.eraserWidth;
     const opacityVal = isBrush ? store.penOpacity : store.eraserOpacity;
@@ -342,10 +312,8 @@ export function ContextMenu() {
 const setOpacity = isBrush ? store.setPenOpacity : store.setEraserOpacity;
 
     const applyDark = (hex: string, d: number) => {
-      // convert hex to hsl, reduce lightness by d%
-      let h = 0, s = 0, l = 0;
-      // simple parse
-      const m = hex.replace(/^#/, '');
+      // convert hex to hsl, reduce lightness by d%      let h = 0, s = 0, l = 0;
+      // simple parse      const m = hex.replace(/^#/, '');
       if (m.length === 6) {
         const r = parseInt(m.slice(0,2),16)/255;
         const g = parseInt(m.slice(2,4),16)/255;

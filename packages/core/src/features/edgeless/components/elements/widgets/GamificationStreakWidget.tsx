@@ -30,8 +30,7 @@ export function GamificationStreakWidget({ className }: GamificationStreakWidget
         setXp(parseInt(savedXp) || 0)
       }
       
-      // load quest row progress from gamification store
-      const savedGamification = localStorage.getItem('pkm:gamification:today')
+      // load quest row progress from gamification store      const savedGamification = localStorage.getItem('pkm:gamification:today')
       if (savedGamification) {
         const data = JSON.parse(savedGamification)
         if (data.questRows) {

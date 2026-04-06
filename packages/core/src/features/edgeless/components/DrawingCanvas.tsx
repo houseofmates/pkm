@@ -18,8 +18,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     height: height || (typeof window !== 'undefined' ? window.innerHeight : 600)
   });
   
-  // update canvas size when props change
-  useEffect(() => {
+  // update canvas size when props change  useEffect(() => {
     if (width || height) {
       setCanvasSize({
         width: width || (typeof window !== 'undefined' ? window.innerWidth : 800),
@@ -42,23 +41,20 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
   const setViewport = useEdgelessStore((s) => s.setViewport);
   const mode = useEdgelessStore((s) => s.mode);
   
-  // tool instances
-  const lassoRef = useRef(new LassoTool());
+  // tool instances  const lassoRef = useRef(new LassoTool());
   const brushRef = useRef(new BrushTool());
   const eraserRef = useRef(new EraserTool());
   const selectionRef = useRef(new SelectionTool());
   const transformBoxRef = useRef<TransformBox | null>(null);
   
-  // state refs
-  const isDrawingRef = useRef(false);
+  // state refs  const isDrawingRef = useRef(false);
   const isPanningRef = useRef(false);
   const panStartRef = useRef({ x: 0, y: 0 });
   const lastPosRef = useRef({ x: 0, y: 0 });
   const rafIdRef = useRef<number | null>(null);
   const timeRef = useRef(0);
   
-  // track container size changes
-  useEffect(() => {
+  // track container size changes  useEffect(() => {
     if (!containerRef.current) return;
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
@@ -73,8 +69,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     return () => observer.disconnect();
   }, [width, height]);
 
-  // initialize canvas
-  useEffect(() => {
+  // initialize canvas  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -96,8 +91,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
   }, [canvasSize.width, canvasSize.height]);
   
-  // get pointer position in canvas coordinates
-  const getPointerPos = useCallback((e: PointerEvent | React.PointerEvent) => {
+  // get pointer position in canvas coordinates  const getPointerPos = useCallback((e: PointerEvent | React.PointerEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0, pressure: 1 };
     
@@ -105,8 +99,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const x = (e.clientX - rect.left - viewPort.x) / viewPort.zoom;
     const y = (e.clientY - rect.top - viewPort.y) / viewPort.zoom;
     
-    // if pressure is disabled, always return full pressure
-    if (!pressureEnabled) {
+    // if pressure is disabled, always return full pressure    if (!pressureEnabled) {
       return { x, y, pressure: 1 };
     }
     
@@ -118,37 +111,31 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     return { x, y, pressure };
   }, [viewPort, pressureEnabled]);
   
-  // animation loop for overlays (lasso, transform box)
-  const animate = useCallback(() => {
+  // animation loop for overlays (lasso, transform box)  const animate = useCallback(() => {
     const ctx = ctxRef.current;
     const canvas = canvasRef.current;
     if (!ctx || !canvas) return;
     
     timeRef.current += 16;
     
-    // clear and redraw base
-    ctx.save();
+    // clear and redraw base    ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.restore();
     
-    // apply viewport transform
-    ctx.save();
+    // apply viewport transform    ctx.save();
     ctx.translate(viewPort.x, viewPort.y);
     ctx.scale(viewPort.zoom, viewPort.zoom);
     
-    // draw lasso overlay
-    if (activeTool === 'lasso') {
+    // draw lasso overlay    if (activeTool === 'lasso') {
       lassoRef.current.drawOverlay(ctx, timeRef.current);
     }
     
-    // draw selection tool overlay (marquee + transform box preview)
-    if (activeTool === 'selection') {
+    // draw selection tool overlay (marquee + transform box preview)    if (activeTool === 'selection') {
       selectionRef.current.drawOverlay(ctx, timeRef.current);
     }
     
-    // draw transform box
-    if (transformBoxRef.current && activeTool === 'transform') {
+    // draw transform box    if (transformBoxRef.current && activeTool === 'transform') {
       transformBoxRef.current.draw(ctx, timeRef.current);
     }
     
@@ -159,8 +146,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     }
   }, [activeTool, viewPort]);
   
-  // start/stop animation based on tool
-  useEffect(() => {
+  // start/stop animation based on tool  useEffect(() => {
     if (activeTool === 'lasso' || activeTool === 'transform' || activeTool === 'selection') {
       rafIdRef.current = requestAnimationFrame(animate);
     }
@@ -172,8 +158,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     };
   }, [activeTool, animate]);
   
-  // handle pointer down
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+  // handle pointer down  const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -182,8 +167,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const pos = getPointerPos(e);
     lastPosRef.current = { x: pos.x, y: pos.y };
     
-    // spacebar pan or hand tool
-    if (e.button === 1 || activeTool === 'hand' || (e.shiftKey && activeTool !== 'text')) {
+    // spacebar pan or hand tool    if (e.button === 1 || activeTool === 'hand' || (e.shiftKey && activeTool !== 'text')) {
       isPanningRef.current = true;
       panStartRef.current = { x: e.clientX - viewPort.x, y: e.clientY - viewPort.y };
       return;
@@ -203,8 +187,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         break;
         
       case 'pen': {
-        // use brushtool for proper dab-spacing, pressure curve, and smoothing
-        const brush = brushRef.current;
+        // use brushtool for proper dab-spacing, pressure curve, and smoothing        const brush = brushRef.current;
         brush.size = penWidth;
         ctxRef.current!.globalAlpha = penOpacity / 100;
         ctxRef.current!.fillStyle = penColor;
@@ -222,8 +205,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         break;
         
       case 'transform':
-        // check if clicking on an existing selection
-        if (!transformBoxRef.current) {
+        // check if clicking on an existing selection        if (!transformBoxRef.current) {
           transformBoxRef.current = new TransformBox(pos.x - 50, pos.y - 50, 100, 100);
         }
         const hit = transformBoxRef.current.startDrag(pos.x, pos.y);
@@ -235,13 +217,11 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     }
   }, [activeTool, getPointerPos, viewPort, penWidth, penColor, penOpacity, eraserWidth, eraserOpacity, pressureEnabled]);
   
-  // handle pointer move
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+  // handle pointer move  const handlePointerMove = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     const pos = getPointerPos(e);
     
-    // pan handling
-    if (isPanningRef.current) {
+    // pan handling    if (isPanningRef.current) {
       setViewport({
         x: e.clientX - panStartRef.current.x,
         y: e.clientY - panStartRef.current.y,
@@ -285,8 +265,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     lastPosRef.current = { x: pos.x, y: pos.y };
   }, [activeTool, getPointerPos, viewPort, setViewport]);
   
-  // handle pointer up
-  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+  // handle pointer up  const handlePointerUp = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     const canvas = canvasRef.current;
     if (canvas) {
@@ -305,13 +284,11 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     switch (activeTool) {
       case 'lasso':
         lassoRef.current.onEnd(toolCtx);
-        // if lasso just closed, capture the selection for freeform transform
-        if (lassoRef.current.getIsClosed()) {
+        // if lasso just closed, capture the selection for freeform transform        if (lassoRef.current.getIsClosed()) {
           const points = lassoRef.current.getPoints();
           if (points.length >= 3) {
             selectionRef.current.captureSelection(toolCtx, points);
-            // switch to selection tool so the user can drag / scale / stretch
-            useEdgelessStore.getState().setTool('selection');
+            // switch to selection tool so the user can drag / scale / stretch            useEdgelessStore.getState().setTool('selection');
           }
           lassoRef.current.reset();
         }
@@ -319,8 +296,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         
       case 'pen':
         brushRef.current.onEnd();
-        // reset composite operation and alpha after each stroke
-        ctxRef.current!.globalAlpha = 1;
+        // reset composite operation and alpha after each stroke        ctxRef.current!.globalAlpha = 1;
         ctxRef.current!.globalCompositeOperation = 'source-over';
         break;
         
@@ -340,8 +316,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     }
   }, [activeTool]);
   
-  // handle double click to close lasso or confirm selection
-  const handleDoubleClick = useCallback(() => {
+  // handle double click to close lasso or confirm selection  const handleDoubleClick = useCallback(() => {
     if (activeTool === 'lasso' && !lassoRef.current.getIsClosed()) {
       lassoRef.current.confirm();
     }
@@ -357,8 +332,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     }
   }, [activeTool]);
   
-  // handle wheel zoom
-  const handleWheel = useCallback((e: React.WheelEvent) => {
+  // handle wheel zoom  const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -370,24 +344,20 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
     const newZoom = Math.max(0.1, Math.min(5, viewPort.zoom * zoomFactor));
     
-    // zoom towards mouse position
-    const zoomRatio = newZoom / viewPort.zoom;
+    // zoom towards mouse position    const zoomRatio = newZoom / viewPort.zoom;
     const newX = mouseX - (mouseX - viewPort.x) * zoomRatio;
     const newY = mouseY - (mouseY - viewPort.y) * zoomRatio;
     
     setViewport({ x: newX, y: newY, zoom: newZoom });
   }, [viewPort, setViewport]);
   
-  // keyboard shortcuts
-  useEffect(() => {
+  // keyboard shortcuts  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // enter to confirm lasso
-      if (e.key === 'Enter' && activeTool === 'lasso') {
+      // enter to confirm lasso      if (e.key === 'Enter' && activeTool === 'lasso') {
         lassoRef.current.confirm();
       }
       
-      // enter to confirm selection transform (stamp pixels)
-      if (e.key === 'Enter' && activeTool === 'selection' && selectionRef.current.hasActiveTransform()) {
+      // enter to confirm selection transform (stamp pixels)      if (e.key === 'Enter' && activeTool === 'selection' && selectionRef.current.hasActiveTransform()) {
         const canvas = canvasRef.current;
         if (canvas && ctxRef.current) {
           selectionRef.current.confirmTransform({
@@ -398,21 +368,18 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         }
       }
       
-      // escape to cancel selection
-      if (e.key === 'Escape' && activeTool === 'selection') {
+      // escape to cancel selection      if (e.key === 'Escape' && activeTool === 'selection') {
         selectionRef.current.cancel();
       }
       
-      // backspace to remove last lasso point
-      if (e.key === 'Backspace' && activeTool === 'lasso') {
+      // backspace to remove last lasso point      if (e.key === 'Backspace' && activeTool === 'lasso') {
         const points = lassoRef.current.getPoints();
         if (points.length > 1) {
           points.pop();
         }
       }
       
-      // delete to clear transform box
-      if (e.key === 'Delete' && activeTool === 'transform') {
+      // delete to clear transform box      if (e.key === 'Delete' && activeTool === 'transform') {
         transformBoxRef.current = null;
       }
     };

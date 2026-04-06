@@ -3,8 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, vi, expect } from 'vitest';
 import { FieldSettingsDialog } from '../field-settings-dialog';
 
-// stub auth client
-vi.mock('@/contexts/auth-context', () => ({
+// stub auth clientvi.mock('@/contexts/auth-context', () => ({
   useAuth: () => ({ client: { updateField: vi.fn().mockResolvedValue({}) } })
 }));
 
@@ -51,7 +50,6 @@ beforeAll(() => {
 });
 
 // ensure dialog works within normal app environment (no routers required)
-
 describe('FieldSettingsDialog', () => {
   const field = { name: 'avatar_url', interface: 'textarea', uiSchema: {} };
   const collectionName = 'headmates';

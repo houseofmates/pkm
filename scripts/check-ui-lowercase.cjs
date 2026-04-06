@@ -1,8 +1,5 @@
 #!/usr/bin/env node
-// script: check-ui-lowercase
-// purpose: scan jsx/tsx/html files for ui text (jsx text nodes and common attributes)
-//          and optionally fix (lowercase) offending visible UI strings.
-
+// script: check-ui-lowercase// purpose: scan jsx/tsx/html files for ui text (jsx text nodes and common attributes)//          and optionally fix (lowercase) offending visible ui strings.
 const fs = require('fs')
 const path = require('path')
 
@@ -41,8 +38,7 @@ function walkDirs(dirs) {
 }
 
 function containsUppercaseVisibleText(str) {
-  // ignore backticks and urls
-  if (/`[^`]*`/.test(str)) return false
+  // ignore backticks and urls  if (/`[^`]*`/.test(str)) return false
   if (/https?:\/\//i.test(str)) return false
   return /[A-Z]/.test(str)
 }
@@ -51,8 +47,7 @@ function scanFile(file) {
   const text = fs.readFileSync(file, 'utf8')
   const violations = []
 
-  // 1) jsx text nodes: >...< (simple heuristic)
-  const jsxTextRe = />\s*([^<>\{\}][^<>]*)\s*</g
+  // 1) jsx text nodes: >...< (simple heuristic)  const jsxTextRe = />\s*([^<>\{\}][^<>]*)\s*</g
   let m
   while ((m = jsxTextRe.exec(text))) {
     const content = m[1].trim()
@@ -60,8 +55,7 @@ function scanFile(file) {
     if (containsUppercaseVisibleText(content)) violations.push({ type: 'jsx-text', snippet: content, index: m.index })
   }
 
-  // 2) attribute string values (common ui attributes)
-  const attrNames = ['title', 'placeholder', 'aria-label', 'alt', 'label', 'aria-placeholder', 'aria-labelledby']
+  // 2) attribute string values (common ui attributes)  const attrNames = ['title', 'placeholder', 'aria-label', 'alt', 'label', 'aria-placeholder', 'aria-labelledby']
   const attrRe = new RegExp(`\\b(${attrNames.join('|')})\\s*=\\s*(?:"([^"]*)"|'([^']*)'|\\{\\s*'([^']*)'\\s*\\})`, 'gi')
   while ((m = attrRe.exec(text))) {
     const val = (m[2] || m[3] || m[4] || '').trim()
@@ -69,8 +63,7 @@ function scanFile(file) {
     if (containsUppercaseVisibleText(val)) violations.push({ type: 'attr', name: m[1], snippet: val, index: m.index })
   }
 
-  // 3) html files: any text nodes between tags
-  if (file.endsWith('.html')) {
+  // 3) html files: any text nodes between tags  if (file.endsWith('.html')) {
     const tagTextRe = />([^<>]+)</g
     while ((m = tagTextRe.exec(text))) {
       const content = m[1].trim()
@@ -86,8 +79,7 @@ function applyFix(file) {
   let text = fs.readFileSync(file, 'utf8')
   let changed = false
 
-  // fix jsx text nodes
-  const jsxTextRe = />\s*([^<>\{\}][^<>]*)\s*</g
+  // fix jsx text nodes  const jsxTextRe = />\s*([^<>\{\}][^<>]*)\s*</g
   text = text.replace(jsxTextRe, (match, inner) => {
     if (!containsUppercaseVisibleText(inner)) return match
     const lower = inner.toLowerCase()
@@ -96,8 +88,7 @@ function applyFix(file) {
     return match.replace(inner, lower)
   })
 
-  // fix attribute values
-  const attrNames = ['title', 'placeholder', 'aria-label', 'alt', 'label', 'aria-placeholder', 'aria-labelledby']
+  // fix attribute values  const attrNames = ['title', 'placeholder', 'aria-label', 'alt', 'label', 'aria-placeholder', 'aria-labelledby']
   const attrRe = new RegExp(`\\b(${attrNames.join('|')})\\s*=\\s*(?:"([^"]*)"|'([^']*)'|\\{\\s*'([^']*)'\\s*\\})`, 'gi')
   text = text.replace(attrRe, (full, name, g2, g3, g4) => {
     const orig = (g2 || g3 || g4 || '')
@@ -110,8 +101,7 @@ function applyFix(file) {
     return full
   })
 
-  // fix html text nodes
-  if (file.endsWith('.html')) {
+  // fix html text nodes  if (file.endsWith('.html')) {
     const tagTextRe = />([^<>]+)</g
     text = text.replace(tagTextRe, (match, inner) => {
       if (!containsUppercaseVisibleText(inner)) return match
@@ -164,16 +154,14 @@ function main() {
     process.exit(0)
   }
 
-  // apply mode
-  const changedFiles = []
+  // apply mode  const changedFiles = []
   for (const item of allViolations) {
     const file = item.file
     const fixed = applyFix(file)
     if (fixed) changedFiles.push(path.relative(ROOT, file))
   }
 
-  // re-scan remaining violations
-  const remaining = []
+  // re-scan remaining violations  const remaining = []
   for (const f of files) {
     const vs = scanFile(f)
     if (vs.length > 0) remaining.push({ file: f, violations: vs })
@@ -192,8 +180,7 @@ function main() {
   if (changedFiles.length > 0) {
     console.log('ui-lowercase autofix: files updated:')
     for (const f of changedFiles) console.log(`  - ${f}`)
-    // stage fixes if running in staged mode
-    if (STAGED && changedFiles.length) {
+    // stage fixes if running in staged mode    if (STAGED && changedFiles.length) {
       try {
         execSync('git add ' + changedFiles.map(f => `"${f}"`).join(' '))
       } catch (_) {}

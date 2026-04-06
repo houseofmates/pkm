@@ -65,8 +65,7 @@ export function MedicationWidget({ data, onUpdate }: MedicationWidgetProps) {
         }));
       setLogs(todayLogs);
 
-      // update medication taken status based on logs
-      setMedications(prev => prev.map(med => ({
+      // update medication taken status based on logs      setMedications(prev => prev.map(med => ({
         ...med,
         taken: todayLogs.some((l: MedicationLog) => l.medication_id === med.id && l.taken)
       })));
@@ -87,8 +86,7 @@ export function MedicationWidget({ data, onUpdate }: MedicationWidgetProps) {
 
       await createRecord(payload);
 
-      // emit sync event
-      dataService.emitDataUpdate('medication_taken', {
+      // emit sync event      dataService.emitDataUpdate('medication_taken', {
         medication_id: medication.id,
         medication_name: medication.name
       });

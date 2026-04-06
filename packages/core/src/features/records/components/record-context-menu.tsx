@@ -18,8 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-// Types for collection fields
-interface CollectionField {
+// types for collection fieldsinterface CollectionField {
   name: string;
   interface?: string;
   uiSchema?: {
@@ -27,20 +26,17 @@ interface CollectionField {
   };
 }
 
-// Type for collection
-interface Collection {
+// type for collectioninterface Collection {
   name: string;
   fields?: CollectionField[];
 }
 
-// Type for record data
-interface RecordData {
+// type for record datainterface RecordData {
   id: string | number;
   [key: string]: unknown;
 }
 
-// Type for view config
-interface ViewConfig {
+// type for view configinterface ViewConfig {
   visibleFields?: string[];
 }
 
@@ -61,16 +57,13 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
   const navigate = useNavigate();
   const [metadata, setMetadata] = useAppSetting<Record<string, { color?: string }>>(`record_meta_${collection?.name || 'unknown'}`, {});
 
-  // identify title field once
-  const titleField = customTitleField || collection.fields?.find((f: CollectionField) => f.name === 'title' || f.name === 'name') || collection.fields?.find((f: CollectionField) => f.interface === 'input');
+  // identify title field once  const titleField = customTitleField || collection.fields?.find((f: CollectionField) => f.name === 'title' || f.name === 'name') || collection.fields?.find((f: CollectionField) => f.interface === 'input');
 
   const [title, setTitle] = useState<string>(String((titleField?.name ? record[titleField.name] : record['title']) || ''));
 
-  // color state
-  const [color, setColor] = useState(metadata[record.id]?.color || '');
+  // color state  const [color, setColor] = useState(metadata[record.id]?.color || '');
 
-  // update metadata (color)
-  const handleColorChange = (newColor: string) => {
+  // update metadata (color)  const handleColorChange = (newColor: string) => {
     setColor(newColor);
     setMetadata({
       ...metadata,
@@ -78,16 +71,14 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
     });
   };
 
-  // update record title
-  const handleTitleChange = async (newTitle: string) => {
+  // update record title  const handleTitleChange = async (newTitle: string) => {
     setTitle(newTitle);
     if (titleField && onUpdate) {
       onUpdate(record.id, { [titleField.name]: newTitle });
     }
   };
 
-  // fields to show in quick edit - allow all text-capable fields including ids
-  const visibleFields = useMemo(() => {
+  // fields to show in quick edit - allow all text-capable fields including ids  const visibleFields = useMemo(() => {
     if (!collection?.fields) return [];
     return collection.fields.filter((f: CollectionField) =>
       f.name !== 'created_at' &&
@@ -314,9 +305,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
               onClick={async () => {
                 try {
                   toast.info("duplicating...");
-                  // full duplication logic will be implemented as a separate feature.
-                  // for now, it notifies the user of the intent.
-                } catch (e) {
+                  // full duplication logic will be implemented as a separate feature.                  // for now, it notifies the user of the intent.                } catch (e) {
                   toast.error("duplication failed");
                 }
               }}
@@ -336,8 +325,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
 export function RecordContextMenu({ record, collection, children, onUpdate, onDelete, config, onConfigChange, className, style, titleField }: RecordContextMenuProps) {
   useAuth(); // kept for hook consistency if needed
 
-  // ... touch logic ...
-  const touchTimer = useRef<NodeJS.Timeout | null>(null);
+  // ... touch logic ...  const touchTimer = useRef<NodeJS.Timeout | null>(null);
   const touchStartPos = useRef<{ x: number, y: number } | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {

@@ -4,7 +4,6 @@ import { parseMarkdownFile, type MarkdownLink } from '../shared/markdown-parser.
 import type { VectorStore } from '../semantic-weave/vector-store.js';
 
 // ── types ────────────────────────────────────────────────────
-
 export interface BrokenLink {
   source: string;       // file containing the broken link
   target: string;       // the unresolvable link target
@@ -14,15 +13,13 @@ export interface BrokenLink {
 }
 
 // ── link checker ─────────────────────────────────────────────
-
 export class LinkChecker {
   constructor(
     private notesDir: string,
     private vectorStore: VectorStore,
   ) {}
 
-  /**
-   * scan all indexed documents for internal links that don't resolve
+  /**   * scan all indexed documents for internal links that don't resolve
    * to any known file in the notes directory. returns broken links
    * with up to 3 suggested fixes ranked by edit distance.
    */
@@ -39,8 +36,7 @@ export class LinkChecker {
     const broken: BrokenLink[] = [];
 
     for (const doc of allDocs) {
-      // re-parse to get link positions (links in indexed doc only have targets)
-      const filePath = path.join(this.notesDir, doc.id);
+      // re-parse to get link positions (links in indexed doc only have targets)      const filePath = path.join(this.notesDir, doc.id);
       let raw: string;
       try {
         raw = await fs.promises.readFile(filePath, 'utf-8');
@@ -71,7 +67,6 @@ export class LinkChecker {
   }
 
   // ── link resolution ────────────────────────────────────────
-
   private resolveLink(
     link: MarkdownLink,
     sourceId: string,
@@ -80,38 +75,31 @@ export class LinkChecker {
   ): string | null {
     const target = link.target;
 
-    // strip anchors (#section)
-    const withoutAnchor = target.split('#')[0];
+    // strip anchors (#section)    const withoutAnchor = target.split('#')[0];
     if (!withoutAnchor) return sourceId; // self-reference anchor
 
-    // try exact match (relative path)
-    const sourceDir = path.dirname(sourceId);
+    // try exact match (relative path)    const sourceDir = path.dirname(sourceId);
     const relative = path.normalize(path.join(sourceDir, withoutAnchor));
     if (knownIds.has(relative)) return relative;
 
-    // try with .md extension
-    const withMd = relative.endsWith('.md') ? relative : relative + '.md';
+    // try with .md extension    const withMd = relative.endsWith('.md') ? relative : relative + '.md';
     if (knownIds.has(withMd)) return withMd;
 
-    // wiki-link style: match by basename
-    const baseLower = withoutAnchor.toLowerCase().replace(/\.md$/i, '');
+    // wiki-link style: match by basename    const baseLower = withoutAnchor.toLowerCase().replace(/\.md$/i, '');
     const byBasename = knownBasenames.get(baseLower);
     if (byBasename) return byBasename;
 
-    // try as absolute path from notes root
-    if (knownIds.has(withoutAnchor)) return withoutAnchor;
+    // try as absolute path from notes root    if (knownIds.has(withoutAnchor)) return withoutAnchor;
     const absWithMd = withoutAnchor.endsWith('.md') ? withoutAnchor : withoutAnchor + '.md';
     if (knownIds.has(absWithMd)) return absWithMd;
 
-    // also check if the file exists on disk but isn't indexed yet
-    const diskPath = path.join(this.notesDir, withMd);
+    // also check if the file exists on disk but isn't indexed yet    const diskPath = path.join(this.notesDir, withMd);
     if (fs.existsSync(diskPath)) return withMd;
 
     return null;
   }
 
   // ── suggestion engine ──────────────────────────────────────
-
   private suggestFixes(brokenTarget: string, allIds: string[]): string[] {
     const targetLower = brokenTarget.toLowerCase().replace(/\.md$/i, '');
     const scored: Array<{ id: string; distance: number }> = [];
@@ -120,13 +108,11 @@ export class LinkChecker {
       const idLower = id.toLowerCase().replace(/\.md$/i, '');
       const baseLower = path.basename(idLower);
 
-      // compute distance against both full path and basename
-      const distFull = levenshtein(targetLower, idLower);
+      // compute distance against both full path and basename      const distFull = levenshtein(targetLower, idLower);
       const distBase = levenshtein(targetLower, baseLower);
       const dist = Math.min(distFull, distBase);
 
-      // only suggest if reasonably close (within 40% of target length)
-      if (dist <= Math.max(targetLower.length * 0.4, 3)) {
+      // only suggest if reasonably close (within 40% of target length)      if (dist <= Math.max(targetLower.length * 0.4, 3)) {
         scored.push({ id, distance: dist });
       }
     }
@@ -137,13 +123,11 @@ export class LinkChecker {
 }
 
 // ── levenshtein distance ─────────────────────────────────────
-
 function levenshtein(a: string, b: string): number {
   const m = a.length;
   const n = b.length;
 
-  // use single-row optimization
-  const row = new Array<number>(n + 1);
+  // use single-row optimization  const row = new Array<number>(n + 1);
   for (let j = 0; j <= n; j++) row[j] = j;
 
   for (let i = 1; i <= m; i++) {

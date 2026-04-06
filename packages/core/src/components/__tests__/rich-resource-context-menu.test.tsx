@@ -2,9 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
-// contextmenucontent (radix ui) requires being inside a contextmenu portal tree;
-// mock it as a plain div so we can render richresourcecontextmenucontent directly.
-vi.mock('@/components/ui/context-menu', async (importOriginal) => {
+// contextmenucontent (radix ui) requires being inside a contextmenu portal tree;// mock it as a plain div so we can render richresourcecontextmenucontent directly.vi.mock('@/components/ui/context-menu', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/components/ui/context-menu')>();
   return {
     ...actual,
@@ -20,15 +18,13 @@ vi.mock('@/components/ui/context-menu', async (importOriginal) => {
   };
 });
 
-// stub the component itself for test simplicity
-vi.mock('../rich-resource-context-menu', () => ({
+// stub the component itself for test simplicityvi.mock('../rich-resource-context-menu', () => ({
   RichResourceContextMenuContent: ({ currentName, currentColor }: any) => (
     <div title={currentName} style={{ color: currentColor }} data-testid="rich-menu" />
   ),
 }));
 
-// minimal onupdate handler stub
-const noop = vi.fn();
+// minimal onupdate handler stubconst noop = vi.fn();
 
 describe('RichResourceContextMenuContent', () => {
   beforeEach(() => {

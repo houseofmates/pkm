@@ -19,8 +19,7 @@ env:
   JAVA_VERSION: '17'
 
 jobs:
-  # build linux appimage and deb
-  build-linux:
+  # build linux appimage and deb  build-linux:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -61,8 +60,7 @@ jobs:
             apps/desktop-electron/release/*.deb
           retention-days: 30
 
-  # build windows exe
-  build-windows:
+  # build windows exe  build-windows:
     runs-on: windows-latest
     steps:
       - name: checkout
@@ -104,8 +102,7 @@ jobs:
             apps/desktop-electron/release/*.exe
           retention-days: 30
 
-  # build android apk
-  build-android:
+  # build android apk  build-android:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -167,8 +164,7 @@ jobs:
           path: apps/mobile/pkm-release.apk
           retention-days: 30
 
-  # combine all builds and commit to releases folder
-  combine-and-release:
+  # combine all builds and commit to releases folder  combine-and-release:
     needs: [build-linux, build-windows, build-android]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
@@ -209,14 +205,12 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           
-          # copy appimage
-          if ls artifacts/linux-builds/*.AppImage 1> /dev/null 2>&1; then
+          # copy appimage          if ls artifacts/linux-builds/*.AppImage 1> /dev/null 2>&1; then
             cp artifacts/linux-builds/*.AppImage "releases/pkm-${VERSION}-linux.AppImage"
             echo "✓ copied appimage"
           fi
           
-          # copy deb
-          if ls artifacts/linux-builds/*.deb 1> /dev/null 2>&1; then
+          # copy deb          if ls artifacts/linux-builds/*.deb 1> /dev/null 2>&1; then
             cp artifacts/linux-builds/*.deb "releases/pkm-${VERSION}.deb"
             echo "✓ copied deb"
           fi
@@ -298,14 +292,12 @@ jobs:
           body: |
             automated build for ${{ steps.version.outputs.version }}
             
-            ## downloads
-            - **linux appimage**: `pkm-${{ steps.version.outputs.version }}-linux.AppImage`
+            ## downloads            - **linux appimage**: `pkm-${{ steps.version.outputs.version }}-linux.AppImage`
             - **linux deb**: `pkm-${{ steps.version.outputs.version }}.deb`
             - **windows exe**: `pkm-${{ steps.version.outputs.version }}.exe`
             - **android apk**: `pkm-${{ steps.version.outputs.version }}.apk`
             
-            ## install
-            - **appimage**: download, `chmod +x`, run
+            ## install            - **appimage**: download, `chmod +x`, run
             - **deb**: `sudo dpkg -i pkm-*.deb`
             - **exe**: run installer
             - **apk**: install on android device
@@ -319,8 +311,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # cleanup old artifacts
-  cleanup:
+  # cleanup old artifacts  cleanup:
     needs: combine-and-release
     runs-on: ubuntu-latest
     if: always()

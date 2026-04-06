@@ -1,6 +1,4 @@
-// simple sql parser with basic subquery support
-// intended for lightweight client-side completion and testing
-
+// simple sql parser with basic subquery support// intended for lightweight client-side completion and testing
 export interface SQLParsed {
   fields: string[];
   from: TableRef;
@@ -26,8 +24,7 @@ function splitWhitespace(str: string): string[] {
   return str.trim().split(/\s+/);
 }
 
-// utility to extract a balanced parenthesized segment
-function takeBalanced(str: string): [string, string] {
+// utility to extract a balanced parenthesized segmentfunction takeBalanced(str: string): [string, string] {
   if (!str.startsWith('(')) return ['', str];
   let level = 0;
   let idx = 0;
@@ -46,8 +43,7 @@ function takeBalanced(str: string): [string, string] {
 }
 
 export function parseSQL(sql: string): SQLParsed {
-  // handle simple union by parsing each segment recursively and preserving them
-  const uText = sql.toUpperCase();
+  // handle simple union by parsing each segment recursively and preserving them  const uText = sql.toUpperCase();
   if (uText.includes(' UNION ')) {
     const parts = sql.split(/\sUNION\s/i).map(p => p.trim());
     const parsedFirst = parseSQL(parts[0]);
@@ -65,14 +61,12 @@ export function parseSQL(sql: string): SQLParsed {
 
   const parsed: SQLParsed = { fields: fieldsStr.split(',').map(f => f.trim()), from: { name: '' } };
 
-  // parse from clause (table or subquery)
-  if (after.startsWith('(')) {
+  // parse from clause (table or subquery)  if (after.startsWith('(')) {
     const [sub, rest] = takeBalanced(after);
     const inner = sub.slice(1, -1);
     const subParsed = parseSQL(inner);
     after = rest.trim();
-    // optional alias
-    const tokens = splitWhitespace(after);
+    // optional alias    const tokens = splitWhitespace(after);
     let alias: string | undefined;
     if (tokens.length && !['WHERE', 'JOIN', 'GROUP', 'ORDER', 'LIMIT'].includes(tokens[0].toUpperCase())) {
       alias = tokens[0];
@@ -92,8 +86,7 @@ export function parseSQL(sql: string): SQLParsed {
     parsed.from = { name, alias };
   }
 
-  // joins
-  const joins: JoinClause[] = [];
+  // joins  const joins: JoinClause[] = [];
   while (true) {
     const m = after.match(/^JOIN\s+/i);
     if (!m) break;
@@ -122,8 +115,7 @@ export function parseSQL(sql: string): SQLParsed {
       }
       tableRef = { name, alias };
     }
-    // extract on clause
-    let on: string | undefined;
+    // extract on clause    let on: string | undefined;
     const onMatch = after.match(/^ON\s+([^]+?)(?=\sJOIN\s|\sWHERE\s|\sGROUP\s|\sORDER\s|\sLIMIT|$)/i);
     if (onMatch) {
       on = onMatch[1].trim();
@@ -133,8 +125,7 @@ export function parseSQL(sql: string): SQLParsed {
   }
   if (joins.length) parsed.joins = joins;
 
-  // where, groupby, having, orderby, limit as in earlier implementation
-  const whereMatch = after.match(/^WHERE\s([^]+?)(?:\sGROUP BY|\sORDER BY|\sLIMIT|$)/i);
+  // where, groupby, having, orderby, limit as in earlier implementation  const whereMatch = after.match(/^WHERE\s([^]+?)(?:\sGROUP BY|\sORDER BY|\sLIMIT|$)/i);
   if (whereMatch) {
     parsed.where = whereMatch[1].trim();
     after = after.slice(whereMatch[0].length).trim();

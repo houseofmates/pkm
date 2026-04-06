@@ -1,7 +1,4 @@
-// encryption.ts
-// simple aes-gcm encryption helper for client-side payload protection.
-// this is intentionally minimal and avoids dependencies.
-
+// encryption.ts// simple aes-gcm encryption helper for client-side payload protection.// this is intentionally minimal and avoids dependencies.
 const STORAGE_KEY = 'pkm_aesgcm_key_v1'
 
 function base64Encode(bytes: ArrayBuffer): string {
@@ -22,8 +19,7 @@ async function getCrypto(): Promise<Crypto> {
   if (typeof crypto !== 'undefined' && (crypto as any).subtle) {
     return crypto as Crypto
   }
-  // node.js support for test environments
-  const nodeCrypto = (await import('crypto')).webcrypto
+  // node.js support for test environments  const nodeCrypto = (await import('crypto')).webcrypto
   return nodeCrypto as unknown as Crypto
 }
 
@@ -41,8 +37,7 @@ async function getOrCreateKey(): Promise<CryptoKey> {
         ['encrypt', 'decrypt'],
       )
     } catch {
-      // fall through and regenerate
-    }
+      // fall through and regenerate    }
   }
 
   const key = await cryptoApi.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt'])

@@ -41,13 +41,10 @@ export function ChartView(props: ViewProps) {
   const stacked = !!config?.chartStacked;
   const seriesType = config?.chartSeriesType || null; // global series display override (bar/line/area)
 
-  // data transformation for charts
-  const chartData = useMemo(() => {
+  // data transformation for charts  const chartData = useMemo(() => {
     if (type === 'network' || type === 'mindmap') return []; // handled by their own views
 
-    // multi-series: build nested map: x -> seriesval -> { value, records }
-    // simple single-series aggregation by x
-    if (!seriesField) {
+    // multi-series: build nested map: x -> seriesval -> { value, records }    // simple single-series aggregation by x    if (!seriesField) {
       const map = new Map<string, { value: number, records: any[] }>();
       data.forEach(rec => {
         const xVal = String(rec[xKey] || 'untagged');
@@ -72,8 +69,7 @@ export function ChartView(props: ViewProps) {
       }));
     }
 
-    // multi-series aggregation
-    const xMap = new Map<string, Map<string, { value: number, records: any[] }>>();
+    // multi-series aggregation    const xMap = new Map<string, Map<string, { value: number, records: any[] }>>();
     const seriesSet = new Set<string>();
 
     data.forEach(rec => {
@@ -97,8 +93,7 @@ export function ChartView(props: ViewProps) {
       }
     });
 
-    // limit to top series
-    const seriesList = Array.from(seriesSet).slice(0, 8);
+    // limit to top series    const seriesList = Array.from(seriesSet).slice(0, 8);
 
     const rows: any[] = [];
     xMap.forEach((inner, xVal) => {
@@ -242,8 +237,7 @@ export function ChartView(props: ViewProps) {
                     <div className="grid grid-cols-5 gap-2">
                       {/* main color / series colors */}
                       {(seriesField || type === 'pie' || type === 'radar') && chartData.length > 0 ? (
-                        // dynamic series colors (limited to top 5-8 for ui sanity)
-                        chartData[0] && Object.keys(chartData[0])
+                        // dynamic series colors (limited to top 5-8 for ui sanity)                        chartData[0] && Object.keys(chartData[0])
                           .filter(k => k !== 'name' && k !== 'value') // assuming transformed keys
                           .slice(0, 10)
                           .map((bgKey) => {
@@ -313,22 +307,7 @@ export function ChartView(props: ViewProps) {
               onConfig={handleConfig}
               columns={collection.fields?.map((f: any) => ({ label: (f.uiSchema?.title || f.name).toLowerCase(), value: f.name }))}
               onDataClick={(data, _, seriesKey) => {
-                // data is payload. for bar/line it might be the full row object
-                // or specific point data.
-                // we rely on xkey/serieskey to locate it in our chartdata to be safe/reactive
-                // recharts payload usually has the 'name' (x value).
-                // but data argument from our chartwidget onclick aggregator might vary.
-                // let's use the arguments passed: xkey (the group name), serieskey.
-                // if serieskey is present (multi-series), we use that.
-                // actually, in chartwidget we passed: ondataclick(data, xkey, key) where key is serieskey.
-                // but 'xkey' arg in chartwidget is the property name of x (e.g. 'status').
-                // we need the value of x (e.g. 'done').
-                // data payload usually contains it.
-                // if type=bar single series, data is { name: 'done', value: 10, records: ... }
-                // so data.name is the x value.
-                // if type=bar multi series, data is { name: 'done', 'low': 5, 'high': 2, ... }
-                // so data.name is x value.
-                const xVal = data?.name;
+                // data is payload. for bar/line it might be the full row object                // or specific point data.                // we rely on xkey/serieskey to locate it in our chartdata to be safe/reactive                // recharts payload usually has the 'name' (x value).                // but data argument from our chartwidget onclick aggregator might vary.                // let's use the arguments passed: xkey (the group name), serieskey.                // if serieskey is present (multi-series), we use that.                // actually, in chartwidget we passed: ondataclick(data, xkey, key) where key is serieskey.                // but 'xkey' arg in chartwidget is the property name of x (e.g. 'status').                // we need the value of x (e.g. 'done').                // data payload usually contains it.                // if type=bar single series, data is { name: 'done', value: 10, records: ... }                // so data.name is the x value.                // if type=bar multi series, data is { name: 'done', 'low': 5, 'high': 2, ... }                // so data.name is x value.                const xVal = data?.name;
                 if (xVal) {
                   setDrillDown({ xKey: xVal, seriesKey });
                 }
@@ -338,9 +317,7 @@ export function ChartView(props: ViewProps) {
                 const xVal = data?.name;
                 if (!xVal) return;
 
-                // find records for this point
-                // logic similar to drilldown derivation
-                const row = chartData.find(r => r.name === xVal);
+                // find records for this point                // logic similar to drilldown derivation                const row = chartData.find(r => r.name === xVal);
                 let records = [];
                 if (row) {
                   if (seriesKey && row._records) records = row._records[seriesKey] || [];
@@ -348,20 +325,13 @@ export function ChartView(props: ViewProps) {
                 }
 
                 if (records.length === 1) {
-                  // single record -> show virtual context menu (popover at cursor)
-                  // we'll use a portal-like approach relative to view or just fixed
-                  // but popover needs a trigger or anchor.
-                  // helper: set virtual menu state
-                  // adjust coordinates to be relative to viewport if using fixed overlay
-                  // e.clientx/y are viewport coordinates
-                  setVirtualMenu({
+                  // single record -> show virtual context menu (popover at cursor)                  // we'll use a portal-like approach relative to view or just fixed                  // but popover needs a trigger or anchor.                  // helper: set virtual menu state                  // adjust coordinates to be relative to viewport if using fixed overlay                  // e.clientx/y are viewport coordinates                  setVirtualMenu({
                     x: e.clientX,
                     y: e.clientY,
                     records: records
                   });
                 } else if (records.length > 1) {
-                  // multiple records -> drill down table
-                  setDrillDown({ xKey: xVal, seriesKey });
+                  // multiple records -> drill down table                  setDrillDown({ xKey: xVal, seriesKey });
                 }
               }}
             />
@@ -384,16 +354,11 @@ export function ChartView(props: ViewProps) {
             {drillDown && (
               <RecordTable
                 data={(() => {
-                  // derive records from current chartdata
-                  const row = chartData.find(r => r.name === drillDown.xKey);
+                  // derive records from current chartdata                  const row = chartData.find(r => r.name === drillDown.xKey);
                   if (!row) return [];
                   if (drillDown.seriesKey && row._records) return row._records[drillDown.seriesKey] || [];
                   if (row.records) return row.records;
-                  // fallback for aggregations that might not strictly follow structure (e.g. single series)
-                  // if we are in single series mode, records are attached to the row object mapping iteration found in 'name'
-                  // wait, in single series, map values are {value, records}.
-                  // and we mapped to {name, value, records}.
-                  return row.records || [];
+                  // fallback for aggregations that might not strictly follow structure (e.g. single series)                  // if we are in single series mode, records are attached to the row object mapping iteration found in 'name'                  // wait, in single series, map values are {value, records}.                  // and we mapped to {name, value, records}.                  return row.records || [];
                 })()}
                 collection={collection}
                 onUpdateRecord={onUpdateRecord}

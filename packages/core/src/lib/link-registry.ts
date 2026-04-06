@@ -1,8 +1,4 @@
-// link-registry.ts
-// bidirectional adjacency list for document cross-references
-// eliminates dangling pointers on rename, move, and delete
-// persisted to localstorage with lazy hydration
-
+// link-registry.ts// bidirectional adjacency list for document cross-references// eliminates dangling pointers on rename, move, and delete// persisted to localstorage with lazy hydration
 import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from './secure-logger';
 
@@ -49,8 +45,7 @@ class LinkRegistry {
         this.schedulePersist()
     }
 
-    // remove all outbound links from a source (used when re-scanning document content)
-    clearOutbound(sourceId: string): void {
+    // remove all outbound links from a source (used when re-scanning document content)    clearOutbound(sourceId: string): void {
         const targets = this.outbound.get(sourceId)
         if (!targets) return
         for (const tid of targets) {
@@ -63,8 +58,7 @@ class LinkRegistry {
         this.schedulePersist()
     }
 
-    // all documents that link to this target
-    getBacklinks(targetId: string): LinkEntry[] {
+    // all documents that link to this target    getBacklinks(targetId: string): LinkEntry[] {
         const sources = this.inbound.get(targetId)
         if (!sources) return []
         return [...sources]
@@ -72,8 +66,7 @@ class LinkRegistry {
             .filter(Boolean) as LinkEntry[]
     }
 
-    // all documents that this source links to
-    getOutlinks(sourceId: string): LinkEntry[] {
+    // all documents that this source links to    getOutlinks(sourceId: string): LinkEntry[] {
         const targets = this.outbound.get(sourceId)
         if (!targets) return []
         return [...targets]
@@ -81,9 +74,7 @@ class LinkRegistry {
             .filter(Boolean) as LinkEntry[]
     }
 
-    // when a note is renamed, update all link labels pointing at it
-    // returns ids of source documents that need their content updated
-    propagateRename(targetId: string, newLabel: string): string[] {
+    // when a note is renamed, update all link labels pointing at it    // returns ids of source documents that need their content updated    propagateRename(targetId: string, newLabel: string): string[] {
         const sources = this.inbound.get(targetId)
         if (!sources) return []
 
@@ -101,9 +92,7 @@ class LinkRegistry {
         return affected
     }
 
-    // when a note is moved to a different collection
-    // returns ids of source documents that need their hrefs updated
-    propagateMove(targetId: string, newCollection: string): string[] {
+    // when a note is moved to a different collection    // returns ids of source documents that need their hrefs updated    propagateMove(targetId: string, newCollection: string): string[] {
         const sources = this.inbound.get(targetId)
         if (!sources) return []
 
@@ -121,13 +110,11 @@ class LinkRegistry {
         return affected
     }
 
-    // when a note is deleted, return all documents that reference it
-    getOrphanedLinks(targetId: string): LinkEntry[] {
+    // when a note is deleted, return all documents that reference it    getOrphanedLinks(targetId: string): LinkEntry[] {
         return this.getBacklinks(targetId)
     }
 
-    // remove all references to a deleted target
-    purgeReferences(targetId: string): string[] {
+    // remove all references to a deleted target    purgeReferences(targetId: string): string[] {
         const sources = this.inbound.get(targetId)
         if (!sources) return []
 
@@ -139,13 +126,11 @@ class LinkRegistry {
         return affected
     }
 
-    // total link count
-    size(): number {
+    // total link count    size(): number {
         return this.entries.size
     }
 
-    // clear the entire registry
-    clear(): void {
+    // clear the entire registry    clear(): void {
         this.outbound.clear()
         this.inbound.clear()
         this.entries.clear()
@@ -154,8 +139,7 @@ class LinkRegistry {
     }
 
 
-    // persistence
-    private persistTimer: ReturnType<typeof setTimeout> | null = null
+    // persistence    private persistTimer: ReturnType<typeof setTimeout> | null = null
 
     private schedulePersist(): void {
         if (this.persistTimer) return
@@ -191,9 +175,7 @@ class LinkRegistry {
         }
     }
 
-    // extract links from tiptap html content
-    // scans for <a href="/databases/collection/id"> patterns
-    scanLinks(
+    // extract links from tiptap html content    // scans for <a href="/databases/collection/id"> patterns    scanLinks(
         sourceId: string,
         sourceCollection: string,
         htmlContent: string
@@ -206,8 +188,7 @@ class LinkRegistry {
             const targetCollection = match[1]
             const targetId = match[2]
 
-            // try to extract label from surrounding <a> tag
-            const afterHref = htmlContent.slice(match.index)
+            // try to extract label from surrounding <a> tag            const afterHref = htmlContent.slice(match.index)
             const labelRegex = />([^<]*)</
             const labelMatch = labelRegex.exec(afterHref)
             const label = labelMatch?.[1] || 'untitled'
@@ -224,8 +205,7 @@ class LinkRegistry {
         return found
     }
 
-    // re-scan a document's content and update the registry
-    rescan(sourceId: string, sourceCollection: string, htmlContent: string): void {
+    // re-scan a document's content and update the registry    rescan(sourceId: string, sourceCollection: string, htmlContent: string): void {
         this.clearOutbound(sourceId)
         const links = this.scanLinks(sourceId, sourceCollection, htmlContent)
         for (const link of links) {
@@ -236,5 +216,4 @@ class LinkRegistry {
 
 export const registry = new LinkRegistry()
 
-// hydrate on module load
-registry.hydrate()
+// hydrate on module loadregistry.hydrate()

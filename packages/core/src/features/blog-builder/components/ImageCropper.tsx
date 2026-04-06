@@ -34,9 +34,7 @@ export function ImageCropper({
   }, [imageFile]);
 
   const handleCrop = useCallback(() => {
-    // simple implementation - just return the original file as blob
-    // a full implementation would use a canvas cropping library
-    if (imageFile) {
+    // simple implementation - just return the original file as blob    // a full implementation would use a canvas cropping library    if (imageFile) {
       onCropComplete(imageFile);
     }
   }, [imageFile, onCropComplete]);

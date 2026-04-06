@@ -15,35 +15,30 @@ export interface SemanticWeaveContext {
   config: WeaveConfig;
 }
 
-/**
- * initialize all semantic weave components, load persisted state,
+/** * initialize all semantic weave components, load persisted state,
  * and start the directory watcher.
  */
 export async function initSemanticWeave(config: WeaveConfig): Promise<SemanticWeaveContext> {
   const vectorStore = new VectorStore(config.dataDir);
   const bm25Index = new BM25Index(config.dataDir, config.bm25K1, config.bm25B);
 
-  // load persisted indexes
-  await vectorStore.load();
+  // load persisted indexes  await vectorStore.load();
   await bm25Index.load();
 
   const pipeline = new EmbeddingPipeline(vectorStore, bm25Index, config);
   const watcher = new DirectoryWatcher(config.notesDir, pipeline, config.watchDebounceMs);
 
-  // start watching (also triggers initial scan via ignoreinitial: false)
-  await watcher.start();
+  // start watching (also triggers initial scan via ignoreinitial: false)  await watcher.start();
 
   return { vectorStore, bm25Index, pipeline, watcher, config };
 }
 
-/**
- * build an express router exposing the semantic weave api.
+/** * build an express router exposing the semantic weave api.
  */
 export function createWeaveRouter(ctx: SemanticWeaveContext): Router {
   const router = Router();
 
-  // post /weave/search — hybrid search
-  router.post('/search', async (req: Request, res: Response) => {
+  // post /weave/search — hybrid search  router.post('/search', async (req: Request, res: Response) => {
     try {
       const { q, topK = 20, mode = 'hybrid' } = req.body as {
         q?: string;
@@ -72,8 +67,7 @@ export function createWeaveRouter(ctx: SemanticWeaveContext): Router {
         return res.json({ query: q.toLowerCase(), mode, results });
       }
 
-      // generate query embedding for semantic search
-      const queryEmbedding = await getEmbedding(q, ctx.config);
+      // generate query embedding for semantic search      const queryEmbedding = await getEmbedding(q, ctx.config);
 
       if (mode === 'semantic') {
         const hits = ctx.vectorStore.search(queryEmbedding, safeTopK);
@@ -84,12 +78,10 @@ export function createWeaveRouter(ctx: SemanticWeaveContext): Router {
         });
       }
 
-      // hybrid (default)
-      const semanticHits = ctx.vectorStore.search(queryEmbedding, safeTopK * 2);
+      // hybrid (default)      const semanticHits = ctx.vectorStore.search(queryEmbedding, safeTopK * 2);
       const bm25Hits = ctx.bm25Index.search(q, safeTopK * 2);
 
-      // build lookup maps for hybrid merger
-      const titleMap = new Map<string, string>();
+      // build lookup maps for hybrid merger      const titleMap = new Map<string, string>();
       const snippetMap = new Map<string, string>();
       for (const h of semanticHits) {
         titleMap.set(h.id, h.title);
@@ -119,8 +111,7 @@ export function createWeaveRouter(ctx: SemanticWeaveContext): Router {
     }
   });
 
-  // get /weave/status — index statistics
-  router.get('/status', (_req: Request, res: Response) => {
+  // get /weave/status — index statistics  router.get('/status', (_req: Request, res: Response) => {
     res.json({
       documents: ctx.vectorStore.size(),
       bm25Documents: ctx.bm25Index.size(),
@@ -130,8 +121,7 @@ export function createWeaveRouter(ctx: SemanticWeaveContext): Router {
     });
   });
 
-  // post /weave/reindex — force full reindex
-  router.post('/reindex', async (_req: Request, res: Response) => {
+  // post /weave/reindex — force full reindex  router.post('/reindex', async (_req: Request, res: Response) => {
     try {
       const stats = await ctx.pipeline.fullReindex();
       res.json({ ok: true, ...stats });
@@ -141,15 +131,13 @@ export function createWeaveRouter(ctx: SemanticWeaveContext): Router {
     }
   });
 
-  // get /weave/document/:id — retrieve a specific indexed document
-  router.get('/document/{*id}', (req: Request, res: Response) => {
+  // get /weave/document/:id — retrieve a specific indexed document  router.get('/document/{*id}', (req: Request, res: Response) => {
     const id = Array.isArray(req.params.id) ? req.params.id.join('/') : String(req.params.id);
     const doc = ctx.vectorStore.get(id);
     if (!doc) {
       return res.status(404).json({ error: 'document not found' });
     }
-    // do not expose the raw embedding in the api response (large + unnecessary)
-    const { embedding: _emb, ...rest } = doc;
+    // do not expose the raw embedding in the api response (large + unnecessary)    const { embedding: _emb, ...rest } = doc;
     return res.json(rest);
   });
 

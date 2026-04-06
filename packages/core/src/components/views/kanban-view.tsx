@@ -34,8 +34,7 @@ import { SmartField } from '@/components/fields/smart-field';
 
 type KanbanViewProps = ViewProps;
 
-// helper for sortable item (card)
-function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { id: string | number, record: Record<string, unknown>, collection: { name: string; fields?: Array<{ name: string; uiSchema?: { title?: string } }> }, onUpdateRecord?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (record: Record<string, unknown>) => void, titleField: { name: string }, visibleFields: Array<{ name: string; uiSchema?: { title?: string } }>, config?: Record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
+// helper for sortable item (card)function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { id: string | number, record: Record<string, unknown>, collection: { name: string; fields?: Array<{ name: string; uiSchema?: { title?: string } }> }, onUpdateRecord?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (record: Record<string, unknown>) => void, titleField: { name: string }, visibleFields: Array<{ name: string; uiSchema?: { title?: string } }>, config?: Record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
   const {
     attributes,
     listeners,
@@ -111,8 +110,7 @@ function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleF
   );
 }
 
-// helper for droppable/sortable column
-function KanbanColumn({ id, title, items, children, onCreate, groupByField, color }: { id: string; title: string; items: any[]; children: React.ReactNode; onCreate?: (data: any) => void; groupByField?: string; color?: string }) {
+// helper for droppable/sortable columnfunction KanbanColumn({ id, title, items, children, onCreate, groupByField, color }: { id: string; title: string; items: any[]; children: React.ReactNode; onCreate?: (data: any) => void; groupByField?: string; color?: string }) {
   const { setNodeRef } = useSortable({
     id: id,
     data: {
@@ -168,27 +166,23 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
   const [activeId, setActiveId] = useState<string | number | null>(null);
   const [draggedRecord, setDraggedRecord] = useState<any>(null);
 
-  // identify title and visible fields
-  const titleField = config?.titleField
+  // identify title and visible fields  const titleField = config?.titleField
     ? collection.fields?.find((f: { name: string; primary?: boolean }) => f.name === config.titleField)
     : collection.fields?.find((f: { name: string; primary?: boolean }) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
 
   const visibleFieldNames = config?.visibleFields || [];
   const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
 
-  // default to first select field if not configured
-  const groupByField = config?.groupByField;
+  // default to first select field if not configured  const groupByField = config?.groupByField;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  // grouping logic
-  useEffect(() => {
+  // grouping logic  useEffect(() => {
     if (!groupByField) {
-      // fallback: if no group field, maybe just one "all" column or suggest configuring?
-      setColumns({ 'uncategorized': data });
+      // fallback: if no group field, maybe just one "all" column or suggest configuring?      setColumns({ 'uncategorized': data });
       setColumnOrder(['uncategorized']);
       return;
     }
@@ -197,8 +191,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
     const newColumns: Record<string, any[]> = {};
     const newOrder: string[] = [];
 
-    // pre-fill columns from schema options if available (select/radio)
-    const colorsMap: Record<string,string> = {};
+    // pre-fill columns from schema options if available (select/radio)    const colorsMap: Record<string,string> = {};
     if (fieldSchema?.uiSchema?.enum) {
       const colorsArr: string[] = (fieldSchema as any).optionColors || [];
       fieldSchema.uiSchema.enum.forEach((opt: { value: string }, idx: number) => {
@@ -210,25 +203,18 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
     }
     setColColors(colorsMap);
 
-    // always add uncategorized if not present or for safety
-    if (!newColumns['uncategorized']) {
+    // always add uncategorized if not present or for safety    if (!newColumns['uncategorized']) {
       newColumns['uncategorized'] = [];
       newOrder.push('uncategorized');
     }
 
-    // distribute data
-    data.forEach(record => {
+    // distribute data    data.forEach(record => {
       const val = record[groupByField];
-      // normalize value: check if it matches an enum value, else uncat
-      // handle array values (multiple select) -> just pick first for kanban? or duplicate?
-      // simple string matching for now
-      let colKey = 'uncategorized';
+      // normalize value: check if it matches an enum value, else uncat      // handle array values (multiple select) -> just pick first for kanban? or duplicate?      // simple string matching for now      let colKey = 'uncategorized';
       if (val && newColumns[val]) {
         colKey = val;
       } else if (val) {
-        // value exists but column doesnt (e.g. not in enum or open text)
-        // dynamically add column?
-        if (!newColumns[val]) {
+        // value exists but column doesnt (e.g. not in enum or open text)        // dynamically add column?        if (!newColumns[val]) {
           newColumns[val] = [];
           newOrder.push(val);
         }
@@ -254,19 +240,14 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
     const { active, over } = event;
     if (!over) return;
 
-    // find containers
-    const activeContainer = findContainer(active.id);
+    // find containers    const activeContainer = findContainer(active.id);
     const overContainer = findContainer(over.id) || (columns[over.id] ? over.id : null);
 
     if (!activeContainer || !overContainer || activeContainer === overContainer) {
       return;
     }
 
-    // optimistic update for ui fluidity during drag is complex,
-    // usually strictly needed for reordering *within* lists.
-    // for moving between lists, relying on dragend might be enough for v1 if simple.
-    // but dnd-kit recommends updating items state during dragover for smooth visual transfer.
-
+    // optimistic update for ui fluidity during drag is complex,    // usually strictly needed for reordering *within* lists.    // for moving between lists, relying on dragend might be enough for v1 if simple.    // but dnd-kit recommends updating items state during dragover for smooth visual transfer.
     setColumns((prev) => {
       const activeItems = prev[activeContainer];
       const overItems = prev[overContainer];
@@ -280,8 +261,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
         const isBelowLastItem =
           over &&
           overIndex === overItems.length - 1 &&
-          // checking rect intersection logic omitted for brevity, assuming append
-          true;
+          // checking rect intersection logic omitted for brevity, assuming append          true;
         const modifier = isBelowLastItem ? 1 : 0;
         newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length + 1;
       }
@@ -306,8 +286,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
     const overContainer = over ? (findContainer(over.id) || (columns[over.id] ? over.id : null)) : null;
 
     if (activeContainer && overContainer && activeContainer !== overContainer) {
-      // moved to new column -> update api
-      const recordId = active.id;
+      // moved to new column -> update api      const recordId = active.id;
       const newValue = overContainer === 'uncategorized' ? null : overContainer; // assuming undefined/null for uncat
 
       try {
@@ -318,13 +297,10 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
       } catch (e) {
         secureLogger.error("Failed to update kanban status", e);
         toast.error("failed to update status");
-        // revert? (requires tracking original state)
-      }
+        // revert? (requires tracking original state)      }
     }
 
-    // handle reorder within same column if we supported sort field
-    // if (activecontainer === overcontainer) { ... }
-
+    // handle reorder within same column if we supported sort field    // if (activecontainer === overcontainer) { ... }
     setActiveId(null);
     setDraggedRecord(null);
   };

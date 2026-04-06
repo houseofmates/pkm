@@ -1,5 +1,4 @@
-// @vitest-environment jsdom
-import React from 'react';
+// @vitest-environment jsdomimport React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, fireEvent, waitFor, within, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -9,7 +8,6 @@ import api from '@/api/nocobase-client';
 import { AuthProvider } from '@/contexts/auth-context';
 
 // basic smoke test for mood buttons reflecting moods constant and behavior
-
 describe('JournalPage', () => {
   it.skip('renders mood emoji buttons and can toggle selection; emotions are searchable', () => {
     const { getByText, getByPlaceholderText, queryByText } = render(
@@ -20,39 +18,32 @@ describe('JournalPage', () => {
       </MemoryRouter>
     );
 
-    // moods unchanged - there should be a button showing the "amazing" emoji
-    const moodBtn = getByText('😁');
+    // moods unchanged - there should be a button showing the "amazing" emoji    const moodBtn = getByText('😁');
     expect(moodBtn).toBeTruthy();
-    // clicking toggles the border/background style
-    expect(moodBtn).toHaveStyle('border: 2px solid rgba(255,255,255,0.08)');
+    // clicking toggles the border/background style    expect(moodBtn).toHaveStyle('border: 2px solid rgba(255,255,255,0.08)');
     fireEvent.click(moodBtn);
     expect(moodBtn).toHaveStyle('border: 2px solid #8b5cf6');
     fireEvent.click(moodBtn);
     expect(moodBtn).toHaveStyle('border: 2px solid rgba(255,255,255,0.08)');
 
-    // emotions section: default list includes 'sad' and new ones like 'infuriated'
-    const searchInput = getByPlaceholderText(/search emotions/i);
+    // emotions section: default list includes 'sad' and new ones like 'infuriated'    const searchInput = getByPlaceholderText(/search emotions/i);
     fireEvent.change(searchInput, { target: { value: 'sad' } });
     expect(queryByText('sad')).toBeTruthy();
     expect(queryByText('happy')).toBeNull();
-    // and ensure the newly added emotion appears in the searchable list
-    fireEvent.change(searchInput, { target: { value: 'infuriated' } });
+    // and ensure the newly added emotion appears in the searchable list    fireEvent.change(searchInput, { target: { value: 'infuriated' } });
     expect(queryByText('infuriated')).toBeTruthy();
 
-    // select 'sad'
-    const sadBtn = queryByText('sad');
+    // select 'sad'    const sadBtn = queryByText('sad');
     expect(sadBtn).toBeTruthy();
     if (sadBtn) fireEvent.click(sadBtn);
     fireEvent.click(sadBtn!);
 
-    // now try typing a new emotion and hitting enter
-    fireEvent.change(searchInput, { target: { value: 'curious' } });
+    // now try typing a new emotion and hitting enter    fireEvent.change(searchInput, { target: { value: 'curious' } });
     fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
     const curiousBtn = queryByText('curious');
     expect(curiousBtn).toBeTruthy();
     if (curiousBtn) fireEvent.click(curiousBtn);
-    // style should reflect selection (we only check existence here)
-  });
+    // style should reflect selection (we only check existence here)  });
 
   it.skip('exports entries within selected date range', async () => {
     const record1: any = { date: '2026-03-01', mood: '2', activities: '[]', body: '', timestamp: '2026-03-01T00:00:00Z', tags: '[]' };

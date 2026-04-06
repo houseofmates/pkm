@@ -7,24 +7,13 @@ import { api } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 
 export const getWikilinkItems = async ({ query }: { query: string }) => {
-  // we only trigger if the query starts with [ which implies [[ (since char is [)
-  // wait, the 'char' option strips the char from the query?
-  // if char is [, and user types [, query is empty.
-  // if user types [[, query is [.
-
-  // actually, handling [[ is tricky with standard suggestion.
-  // let's assume we trigger on `[` and filtering happens in the ui or we use a custom matcher.
-  // for now, let's just search for records matching the query.
-  // if query is empty, show recent.
-
-  // we search standard collections: 'notes', 'tasks', 'research'
-  // this is a "universal" search.
-
+  // we only trigger if the query starts with [ which implies [[ (since char is [)  // wait, the 'char' option strips the char from the query?  // if char is [, and user types [, query is empty.  // if user types [[, query is [.
+  // actually, handling [[ is tricky with standard suggestion.  // let's assume we trigger on `[` and filtering happens in the ui or we use a custom matcher.  // for now, let's just search for records matching the query.  // if query is empty, show recent.
+  // we search standard collections: 'notes', 'tasks', 'research'  // this is a "universal" search.
   try {
   const results = [];
 
-  // 1. search notes
-  const notes = await api.listRecords('notes', {
+  // 1. search notes  const notes = await api.listRecords('notes', {
   filter: { title: { $includes: query } } as any,
   pageSize: 5
   });
@@ -38,8 +27,7 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
   })));
   }
 
-  // 2. search tasks
-  const tasks = await api.listRecords('tasks', {
+  // 2. search tasks  const tasks = await api.listRecords('tasks', {
   filter: { title: { $includes: query } } as any,
   pageSize: 3
   });
@@ -53,13 +41,9 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
   })));
   }
 
-  // map to slashmenu-compatible structure if reusing, or custom.
-  // slashmenu expects: { title, description, command }
-  // we will adapt the command in the render or extensions.
-
+  // map to slashmenu-compatible structure if reusing, or custom.  // slashmenu expects: { title, description, command }  // we will adapt the command in the render or extensions.
   return results.map(item => ({
-  // command is handled by the extension's 'command' handler using these props
-  ...item
+  // command is handled by the extension's 'command' handler using these props  ...item
   }));
 
   } catch (e) {

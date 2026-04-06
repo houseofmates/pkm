@@ -1,14 +1,4 @@
-// use-ai-worker.ts — react hook that provides typed async ai methods.
-//
-// strategy:
-//   1. try to spin up a web worker + comlink proxy (fast, off main thread)
-//   2. if the worker fails (mobile webview, csp, etc) fall back to
-//      importing ai-worker-core.ts directly and running on the main thread
-//
-// the hook is a singleton — every consumer gets the same instance.
-// comlink proxy callbacks are properly released after each streaming call
-// to prevent messagechannel / messageport memory leaks.
-
+// use-ai-worker.ts — react hook that provides typed async ai methods.//// strategy://   1. try to spin up a web worker + comlink proxy (fast, off main thread)//   2. if the worker fails (mobile webview, csp, etc) fall back to//      importing ai-worker-core.ts directly and running on the main thread//// the hook is a singleton — every consumer gets the same instance.// comlink proxy callbacks are properly released after each streaming call// to prevent messagechannel / messageport memory leaks.
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as Comlink from 'comlink';
 import type { AIWorkerAPI, ChatMessage, Attachment } from '@/workers/ai-worker-types';
@@ -19,10 +9,7 @@ import { getOllamaBase } from '@/lib/llm-config';
 import { secureLogger } from '@/lib/secure-logger';
 import type { WorkerAPIWithInit } from '@/workers/ai-worker-core';
 
-// ---------------------------------------------------------------------------
-// singleton state
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// singleton state// ---------------------------------------------------------------------------
 let _workerInstance: Worker | null = null;
 let _proxy: Comlink.Remote<WorkerAPIWithInit> | null = null;
 let _mainThreadAPI: WorkerAPIWithInit | null = null;
@@ -30,10 +17,7 @@ let _initialized = false;
 let _refCount = 0;
 let _isMainThread = false;
 
-// ---------------------------------------------------------------------------
-// resolve auth + api base (shared by both paths)
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// resolve auth + api base (shared by both paths)// ---------------------------------------------------------------------------
 function resolveAuth() {
     const ht = storageManager.getItem('hom_api_key');
     const nt = storageManager.getItem('nocobase_token');
@@ -44,26 +28,20 @@ function resolveAuth() {
 
 function resolveApiBase(): string {
     if (isCapacitorNative()) {
-        // on mobile the app loads from the remote server, so origin is already correct
-        return `${window.location.origin}/api`;
+        // on mobile the app loads from the remote server, so origin is already correct        return `${window.location.origin}/api`;
     }
     return `${window.location.origin}/api`;
 }
 
-// ---------------------------------------------------------------------------
-// build vector config overrides for mobile
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// build vector config overrides for mobile// ---------------------------------------------------------------------------
 function buildVectorConfig(): Record<string, unknown> | undefined {
     if (!isMobileWebView()) return undefined;
-    // rewrite the hardcoded localhost embedding endpoint to go through the server proxy
-    return {
+    // rewrite the hardcoded localhost embedding endpoint to go through the server proxy    return {
         embeddingEndpoint: `${MOBILE_SERVER_ORIGIN}/api/ollama/api/embeddings`,
     };
 }
 
-// use the shared mobile detection from platform.ts
-function isMobileWebView(): boolean {
+// use the shared mobile detection from platform.tsfunction isMobileWebView(): boolean {
     return isMobileContext();
 }
 
@@ -74,10 +52,7 @@ function resolveWorkerOllamaBase(): string {
     return getOllamaBase();
 }
 
-// ---------------------------------------------------------------------------
-// worker path — comlink proxy
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// worker path — comlink proxy// ---------------------------------------------------------------------------
 function tryCreateWorker(ollamaBaseUrl: string): { worker: Worker; proxy: Comlink.Remote<WorkerAPIWithInit> } | null {
     try {
         const workerUrl = new URL('../workers/ai.worker.ts', import.meta.url);
@@ -91,23 +66,16 @@ function tryCreateWorker(ollamaBaseUrl: string): { worker: Worker; proxy: Comlin
     }
 }
 
-// ---------------------------------------------------------------------------
-// main-thread fallback path
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// main-thread fallback path// ---------------------------------------------------------------------------
 async function getMainThreadAPI(ollamaBaseUrl: string): Promise<WorkerAPIWithInit> {
     if (_mainThreadAPI) return _mainThreadAPI;
-    // dynamic import so the bundle only loads this when the worker path fails
-    const { createWorkerAPI } = await import('../workers/ai-worker-core');
+    // dynamic import so the bundle only loads this when the worker path fails    const { createWorkerAPI } = await import('../workers/ai-worker-core');
     _mainThreadAPI = createWorkerAPI(globalThis.fetch.bind(globalThis), { ollamaBaseUrl });
     secureLogger.info('[ai-worker] falling back to main thread execution');
     return _mainThreadAPI;
 }
 
-// ---------------------------------------------------------------------------
-// unified init
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// unified init// ---------------------------------------------------------------------------
 type AnyAPI = Comlink.Remote<WorkerAPIWithInit> | WorkerAPIWithInit;
 
 async function initAPI(api: AnyAPI, ollamaBaseUrl: string): Promise<void> {
@@ -120,28 +88,21 @@ async function initAPI(api: AnyAPI, ollamaBaseUrl: string): Promise<void> {
 }
 
 function getOrCreate(ollamaBaseUrl: string): { api: AnyAPI; isMainThread: boolean } {
-    // fast path — already created
-    if (_proxy) return { api: _proxy, isMainThread: false };
+    // fast path — already created    if (_proxy) return { api: _proxy, isMainThread: false };
     if (_mainThreadAPI) return { api: _mainThreadAPI, isMainThread: true };
 
-    // try worker first
-    const result = tryCreateWorker(ollamaBaseUrl);
+    // try worker first    const result = tryCreateWorker(ollamaBaseUrl);
     if (result) {
         _workerInstance = result.worker;
         _proxy = result.proxy;
         return { api: _proxy, isMainThread: false };
     }
 
-    // worker failed — we'll lazily init main-thread in the async path
-    // for now return a marker
-    _isMainThread = true;
+    // worker failed — we'll lazily init main-thread in the async path    // for now return a marker    _isMainThread = true;
     return { api: null as any, isMainThread: true };
 }
 
-// ---------------------------------------------------------------------------
-// teardown
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// teardown// ---------------------------------------------------------------------------
 function teardown() {
     if (_workerInstance) {
         _workerInstance.terminate();
@@ -153,10 +114,7 @@ function teardown() {
     _isMainThread = false;
 }
 
-// ---------------------------------------------------------------------------
-// hook
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// hook// ---------------------------------------------------------------------------
 export function useAIWorker() {
     const [isReady, setIsReady] = useState(_initialized);
     const [isMainThread, setIsMainThread] = useState(_isMainThread);
@@ -172,8 +130,7 @@ export function useAIWorker() {
 
             let resolvedAPI: AnyAPI;
             if (mt && !api) {
-                // need to async-load the main-thread fallback
-                resolvedAPI = await getMainThreadAPI(ollamaBaseUrl);
+                // need to async-load the main-thread fallback                resolvedAPI = await getMainThreadAPI(ollamaBaseUrl);
             } else {
                 resolvedAPI = api;
             }
@@ -198,7 +155,6 @@ export function useAIWorker() {
     }, []);
 
     // --- stable callback wrappers ---
-
     const search = useCallback(
         async (query: string, topK?: number) => {
             if (!apiRef.current) throw new Error('ai worker not ready');
@@ -224,18 +180,15 @@ export function useAIWorker() {
         ) => {
             if (!apiRef.current) throw new Error('ai worker not ready');
 
-            // on mobile, rewrite localhost endpoints to the server proxy
-            const resolvedEndpoint = isCapacitorNative()
+            // on mobile, rewrite localhost endpoints to the server proxy            const resolvedEndpoint = isCapacitorNative()
                 ? resolveOllamaEndpoint(endpoint, MOBILE_SERVER_ORIGIN)
                 : endpoint;
 
             if (_isMainThread) {
-                // main-thread path — call directly, no comlink proxy needed
-                return apiRef.current.chatStream(prompt, model, resolvedEndpoint, onToken);
+                // main-thread path — call directly, no comlink proxy needed                return apiRef.current.chatStream(prompt, model, resolvedEndpoint, onToken);
             }
 
-            // worker path — wrap callback with comlink proxy and release after
-            const proxiedOnToken = Comlink.proxy(onToken);
+            // worker path — wrap callback with comlink proxy and release after            const proxiedOnToken = Comlink.proxy(onToken);
             try {
                 return await apiRef.current.chatStream(prompt, model, resolvedEndpoint, proxiedOnToken);
             } finally {
@@ -333,9 +286,7 @@ export function useAIWorker() {
             }
 
             const proxiedOnToken = Comlink.proxy(onToken);
-            // we need to transfer the attachments without the file object (not clonable)
-            // the attachments should already have dataurl set
-            const serializableAttachments = attachments?.map(att => ({
+            // we need to transfer the attachments without the file object (not clonable)            // the attachments should already have dataurl set            const serializableAttachments = attachments?.map(att => ({
                 id: att.id,
                 type: att.type,
                 dataUrl: att.dataUrl,
@@ -393,10 +344,7 @@ export function useAIWorker() {
     };
 }
 
-// ---------------------------------------------------------------------------
-// standalone (non-hook) accessor for zustand stores
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// standalone (non-hook) accessor for zustand stores// ---------------------------------------------------------------------------
 export async function getAIWorkerProxy(): Promise<AnyAPI> {
     const ollamaBaseUrl = resolveWorkerOllamaBase();
     const { api, isMainThread: mt } = getOrCreate(ollamaBaseUrl);

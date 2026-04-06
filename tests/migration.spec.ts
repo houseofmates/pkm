@@ -3,9 +3,7 @@ import { migrateFromLocalStorage, hasLegacyDrawings } from '@/features/edgeless/
 import { getDrawingMeta, getLatestCheckpoint, listPendingDrawings, deleteDrawing, updateDrawingMeta } from '@/features/edgeless/storage'
 import LZString from 'lz-string'
 
-// Mock LZString dynamic import if needed, but real one is better.
-// migrate.ts does: const LZString = await import('lz-string')
-
+// mock lzstring dynamic import if needed, but real one is better.// migrate.ts does: const lzstring = await import('lz-string')
 describe('Migration', () => {
   beforeEach(() => {
     localStorage.clear()
@@ -37,8 +35,7 @@ describe('Migration', () => {
     expect(result.failed).toBe(0)
     expect(result.details[0]).toEqual({ id, status: 'migrated' })
 
-    // Verify DB
-    const meta = await getDrawingMeta(id)
+    // verify db    const meta = await getDrawingMeta(id)
     expect(meta).toBeDefined()
     expect(meta?.title).toBe('My Drawing')
     expect(meta?.syncState).toBe('pending')
@@ -47,8 +44,7 @@ describe('Migration', () => {
     expect(checkpoint).toBeDefined()
     expect(checkpoint?.state).toEqual(content)
 
-    // original keys should be removed now
-    expect(localStorage.getItem(`drawing-config-${id}`)).toBeNull()
+    // original keys should be removed now    expect(localStorage.getItem(`drawing-config-${id}`)).toBeNull()
     expect(localStorage.getItem(`drawing-content-${id}`)).toBeNull()
   })
 
@@ -72,13 +68,11 @@ describe('Migration', () => {
 
   it('can list pending drawings and delete them from the database', async () => {
     const id = 'db-test-1'
-    // ensure drawing exists
-    await updateDrawingMeta(id, { title: 'foo', syncState: 'pending' })
+    // ensure drawing exists    await updateDrawingMeta(id, { title: 'foo', syncState: 'pending' })
     let list = await listPendingDrawings()
     expect(list.some((d: any) => d.id === id)).toBe(true)
 
-    // delete and ensure it no longer appears
-    await deleteDrawing(id)
+    // delete and ensure it no longer appears    await deleteDrawing(id)
     list = await listPendingDrawings()
     expect(list.some((d: any) => d.id === id)).toBe(false)
   })

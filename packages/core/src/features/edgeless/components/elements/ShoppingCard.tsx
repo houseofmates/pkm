@@ -11,14 +11,11 @@ export const ShoppingCard = React.memo(function ShoppingCard({ element }: { elem
     const newStatus = localStatus === 'desire' ? 'bought' : 'desire';
     setLocalStatus(newStatus);
 
-    // update store
-    updateElement(element.id, {
+    // update store    updateElement(element.id, {
       data: { ...element.data, status: newStatus }
     });
 
-    // loop logic: if bought, drop to "inventory" (visual interaction)
-    // for now, we just change visual style
-  };
+    // loop logic: if bought, drop to "inventory" (visual interaction)    // for now, we just change visual style  };
 
   const isAmazon = service === 'amazon';
   const isSteam = service === 'steam';

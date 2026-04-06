@@ -1,23 +1,18 @@
 import { z } from 'zod';
 import { secureLogger } from '@/lib/secure-logger';
 
-/**
- * defines the structure for a field type definition.
+/** * defines the structure for a field type definition.
  * each field type provides a zod schema for validation.
  */
 export const FieldTypeSchema = z.object({
-  // the programmatic name of the field type, e.g., "text", "number", "date"
-  typeName: z.string(),
-  // a zod schema that validates the data for this field type
-  schema: z.instanceof(z.ZodType),
-  // optional: a default value for this field type
-  defaultValue: z.unknown().optional(),
+  // the programmatic name of the field type, e.g., "text", "number", "date"  typeName: z.string(),
+  // a zod schema that validates the data for this field type  schema: z.instanceof(z.ZodType),
+  // optional: a default value for this field type  defaultValue: z.unknown().optional(),
 });
 
 export type FieldType = z.infer<typeof FieldTypeSchema>;
 
-/**
- * defines the structure for a field's instance within a table schema.
+/** * defines the structure for a field's instance within a table schema.
  * this connects a column name to a registered field type.
  */
 export const FieldInstanceSchema = z.object({
@@ -27,15 +22,13 @@ export const FieldInstanceSchema = z.object({
 
 export type FieldInstance = z.infer<typeof FieldInstanceSchema>;
 
-/**
- * a service for managing dynamic schemas.
+/** * a service for managing dynamic schemas.
  * it allows registering custom field types and generating zod schemas for entire records.
  */
 class SchemaService {
   private fieldTypes: Map<string, FieldType> = new Map();
 
-  /**
-   * registers a new field type that can be used in table schemas.
+  /**   * registers a new field type that can be used in table schemas.
    * @param fieldtype the definition of the field type.
    */
   public registerFieldType(fieldType: FieldType) {
@@ -46,16 +39,14 @@ class SchemaService {
     this.fieldTypes.set(fieldType.typeName, fieldType);
   }
 
-  /**
-   * retrieves a registered field type by its name.
+  /**   * retrieves a registered field type by its name.
    * @param typename the name of the field type.
    */
   public getFieldType(typeName: string): FieldType | undefined {
     return this.fieldTypes.get(typeName);
   }
 
-  /**
-   * generates a zod object schema for a record based on an array of field instances.
+  /**   * generates a zod object schema for a record based on an array of field instances.
    * @param fields an array of field instances defining the table's structure.
    * @returns a zod schema that can be used to validate records.
    */

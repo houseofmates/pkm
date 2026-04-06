@@ -36,8 +36,7 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
 
   useEffect(() => {
     if (!editor) return;
-    // ensure the editor reflects the latest editable state
-    editor.setEditable(editable);
+    // ensure the editor reflects the latest editable state    editor.setEditable(editable);
     if (editable) {
       editor.chain().focus().run();
     }
@@ -67,8 +66,7 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
     return () => document.removeEventListener('selectionchange', handleSelectionChange);
   }, [editor, editable]);
 
-  // position bubble menu
-  const getBubblePosition = () => {
+  // position bubble menu  const getBubblePosition = () => {
     try {
       const selection = window.getSelection();
       if (!selection || selection.rangeCount === 0) return { top: 0, left: 0 };

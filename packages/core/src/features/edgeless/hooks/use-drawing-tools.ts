@@ -3,8 +3,7 @@ import * as fabric from 'fabric';
 import { useEdgelessStore } from '../store';
 import { LassoTool } from '../tools';
 
-/**
- * usedrawingtools – manages lasso drawing and marquee selection.
+/** * usedrawingtools – manages lasso drawing and marquee selection.
  *
  * - lasso: custom overlay drawing. on close, selects fabric objects inside
  *   the lasso polygon, then switches to transform tool for native fabric
@@ -26,14 +25,12 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
   const overlayCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const timeRef = useRef(0);
 
-  // marquee state for selection tool
-  const marqueeRef = useRef<{
+  // marquee state for selection tool  const marqueeRef = useRef<{
     startX: number; startY: number;
     x: number; y: number; w: number; h: number;
   } | null>(null);
 
-  // ── overlay canvas for lasso / marquee visualization ──────────────────────
-  useEffect(() => {
+  // ── overlay canvas for lasso / marquee visualization ──────────────────────  useEffect(() => {
     if (!canvas) return;
     if (overlayCanvasRef.current) overlayCanvasRef.current.remove();
 
@@ -55,8 +52,7 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
     return () => { overlay.remove(); };
   }, [canvas]);
 
-  // ── animation loop for lasso / marquee overlay ────────────────────────────
-  const animate = useCallback(() => {
+  // ── animation loop for lasso / marquee overlay ────────────────────────────  const animate = useCallback(() => {
     const overlay = overlayCanvasRef.current;
     if (!overlay) return;
     const ctx = overlay.getContext('2d');
@@ -93,8 +89,7 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
     }
     return () => {
       if (rafIdRef.current) { cancelAnimationFrame(rafIdRef.current); rafIdRef.current = null; }
-      // clear overlay when switching away
-      const overlay = overlayCanvasRef.current;
+      // clear overlay when switching away      const overlay = overlayCanvasRef.current;
       if (overlay) {
         const ctx = overlay.getContext('2d');
         if (ctx) ctx.clearRect(0, 0, overlay.width, overlay.height);
@@ -102,22 +97,17 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
     };
   }, [activeTool, animate]);
 
-  // ── helper: select fabric objects inside a polygon → switch to transform ──
-  const selectObjectsInPolygon = useCallback((points: { x: number; y: number }[]) => {
+  // ── helper: select fabric objects inside a polygon → switch to transform ──  const selectObjectsInPolygon = useCallback((points: { x: number; y: number }[]) => {
     if (!canvas || points.length < 3) return;
     const toSelect: fabric.FabricObject[] = [];
-    // the lasso points are in world-space (de-panned, de-zoomed).
-    // getboundingrect() returns canvas-pixel coords with viewport transform.
-    // convert bounding rect points to world-space for the containment check.
-    const vpt = canvas.viewportTransform;
+    // the lasso points are in world-space (de-panned, de-zoomed).    // getboundingrect() returns canvas-pixel coords with viewport transform.    // convert bounding rect points to world-space for the containment check.    const vpt = canvas.viewportTransform;
     const zoom = vpt ? vpt[0] : 1;
     const panX = vpt ? vpt[4] : 0;
     const panY = vpt ? vpt[5] : 0;
     for (const obj of canvas.getObjects()) {
       if ((obj as any).globalCompositeOperation === 'destination-out') continue;
       const b = obj.getBoundingRect();
-      // convert all corners + center to world-space
-      const testPoints = [
+      // convert all corners + center to world-space      const testPoints = [
         { x: (b.left - panX) / zoom, y: (b.top - panY) / zoom },
         { x: (b.left + b.width - panX) / zoom, y: (b.top - panY) / zoom },
         { x: (b.left + b.width - panX) / zoom, y: (b.top + b.height - panY) / zoom },
@@ -138,12 +128,10 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
     }
   }, [canvas]);
 
-  // ── helper: select fabric objects inside a rect → switch to transform ─────
-  const selectObjectsInRect = useCallback((rx: number, ry: number, rw: number, rh: number) => {
+  // ── helper: select fabric objects inside a rect → switch to transform ─────  const selectObjectsInRect = useCallback((rx: number, ry: number, rw: number, rh: number) => {
     if (!canvas || rw < 5 || rh < 5) return;
     const toSelect: fabric.FabricObject[] = [];
-    // the marquee rect is in world-space. convert bounding rects to match.
-    const vpt = canvas.viewportTransform;
+    // the marquee rect is in world-space. convert bounding rects to match.    const vpt = canvas.viewportTransform;
     const zoom = vpt ? vpt[0] : 1;
     const panX = vpt ? vpt[4] : 0;
     const panY = vpt ? vpt[5] : 0;
@@ -166,12 +154,10 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
     }
   }, [canvas]);
 
-  // eraser state refs (persist across effect re-runs)
-  const eraserPointsRef = useRef<{x: number, y: number}[]>([]);
+  // eraser state refs (persist across effect re-runs)  const eraserPointsRef = useRef<{x: number, y: number}[]>([]);
   const lastEraserPosRef = useRef<{x: number, y: number} | null>(null);
 
-  // ── pointer events – intercept for lasso, selection, and eraser tools ─────
-  useEffect(() => {
+  // ── pointer events – intercept for lasso, selection, and eraser tools ─────  useEffect(() => {
     if (!canvas) return;
     if (activeTool !== 'lasso' && activeTool !== 'selection' && activeTool !== 'eraser') return;
 
@@ -186,8 +172,7 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
       };
     };
 
-    // ── eraser helpers ──
-    const drawEraserSegment = (from: {x: number, y: number}, to: {x: number, y: number}) => {
+    // ── eraser helpers ──    const drawEraserSegment = (from: {x: number, y: number}, to: {x: number, y: number}) => {
       const lowerCtx = (canvas as any).getContext() as CanvasRenderingContext2D;
       if (!lowerCtx) return;
       const dpr = (canvas as any).getRetinaScaling?.() || window.devicePixelRatio || 1;
@@ -214,8 +199,7 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
       if (points.length === 0) return;
       const ew = useEdgelessStore.getState().eraserWidth;
 
-      // build path string from world-space points
-      let pathStr = `M ${points[0].x} ${points[0].y}`;
+      // build path string from world-space points      let pathStr = `M ${points[0].x} ${points[0].y}`;
       for (let i = 1; i < points.length; i++) {
         pathStr += ` L ${points[i].x} ${points[i].y}`;
       }
@@ -236,8 +220,7 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
         decimate: 1.5,
       } as any);
 
-      // add to canvas (suppress render) and fire path:created for rasterization
-      const saved = canvas.renderOnAddRemove;
+      // add to canvas (suppress render) and fire path:created for rasterization      const saved = canvas.renderOnAddRemove;
       canvas.renderOnAddRemove = false;
       canvas.add(eraserPath);
       canvas.renderOnAddRemove = saved;
@@ -339,8 +322,7 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
     };
   }, [activeTool, canvas, viewPort, setViewport, selectObjectsInPolygon, selectObjectsInRect]);
 
-  // ── keyboard shortcuts ────────────────────────────────────────────────────
-  useEffect(() => {
+  // ── keyboard shortcuts ────────────────────────────────────────────────────  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (activeTool === 'lasso') {
         if (e.key === 'Enter') {
@@ -354,8 +336,7 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
           lassoRef.current.reset();
         }
       }
-      // delete selected objects in transform mode
-      if (activeTool === 'transform' && canvas) {
+      // delete selected objects in transform mode      if (activeTool === 'transform' && canvas) {
         if (e.key === 'Delete' || e.key === 'Backspace') {
           const active = canvas.getActiveObject();
           if (active) {
@@ -389,8 +370,7 @@ export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?
   return { lasso: lassoRef.current };
 }
 
-// ── geometry helper ─────────────────────────────────────────────────────────
-function isPointInPolygon(x: number, y: number, polygon: { x: number; y: number }[]) {
+// ── geometry helper ─────────────────────────────────────────────────────────function isPointInPolygon(x: number, y: number, polygon: { x: number; y: number }[]) {
   let inside = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
     const xi = polygon[i].x, yi = polygon[i].y;

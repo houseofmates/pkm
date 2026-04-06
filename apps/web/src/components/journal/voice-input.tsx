@@ -1,8 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import { Mic, Download, Play } from 'lucide-react'
 
-// fallback button component (replace with correct import if available)
-const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { size?: string; variant?: string; className?: string }> = ({
+// fallback button component (replace with correct import if available)const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { size?: string; variant?: string; className?: string }> = ({
   children,
   size,
   variant,
@@ -18,8 +17,7 @@ const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { size?: 
 )
 import { useGamificationStore } from '../../stores/gamification-store'
 
-// ollama client stub (per context src/api/ollama-client.ts pattern)
-const OLLAMA_URL = 'http://192.168.4.233:11434/api/generate'
+// ollama client stub (per context src/api/ollama-client.ts pattern)const OLLAMA_URL = 'http://192.168.4.233:11434/api/generate'
 
 const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTranscribe }) => {
   const [isListening, setIsListening] = useState(false)
@@ -28,24 +26,21 @@ const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTran
   const [platform, setPlatform] = useState<'grapheneos' | 'ubuntu' | 'other'>('other')
   const { earnXp } = useGamificationStore()
 
-  // platform detect
-  React.useEffect(() => {
+  // platform detect  React.useEffect(() => {
     const ua = navigator.userAgent.toLowerCase()
     if (ua.includes('grapheneos')) setPlatform('grapheneos')
     else if (ua.includes('ubuntu')) setPlatform('ubuntu')
     else setPlatform('other')
   }, [])
 
-  // check offline
-  React.useEffect(() => {
+  // check offline  React.useEffect(() => {
     setIsOffline(!navigator.onLine)
   }, [])
 
   const startListening = useCallback(() => {
     const recognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!recognition) {
-      // firefox and other unsupported browsers - silently return without error
-      return
+      // firefox and other unsupported browsers - silently return without error      return
     }
 
     const instance = new recognition()
@@ -90,8 +85,7 @@ const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTran
   }, [onTranscribe, earnXp])
 
   const downloadWhisper = () => {
-    // stub: download whisper.cpp model for offline
-    const modelUrl = platform === 'grapheneos' 
+    // stub: download whisper.cpp model for offline    const modelUrl = platform === 'grapheneos' 
       ? 'whisper-tiny-mobile.ggml' 
       : 'whisper-small-desktop.ggml'
     window.open(`https://huggingface.co/ggerganov/whisper.cpp/${modelUrl}`)

@@ -24,8 +24,7 @@ export default function CaptureWidget({ data, onUpdate }: { data: any, onUpdate?
     ) || [];
 
     const handleSave = async () => {
-        // basic validation: ensure we have at least one field filled to avoid empty rows
-        const hasData = Object.keys(values).some(k => values[k] !== undefined && values[k] !== '' && values[k] !== null);
+        // basic validation: ensure we have at least one field filled to avoid empty rows        const hasData = Object.keys(values).some(k => values[k] !== undefined && values[k] !== '' && values[k] !== null);
         if (!hasData) {
             toast.error("please fill at least one field");
             return;

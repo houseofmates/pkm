@@ -1,20 +1,17 @@
 #!/bin/bash
-# build signed APK for PKM with bundled web assets
-
+# build signed apk for pkm with bundled web assets
 set -e
 
 echo "=========================================="
 echo "  PKM Android APK Builder"
 echo "=========================================="
 
-# colors for output
-RED='\033[0;31m'
+# colors for outputRED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # no color
 
-# check if running from correct directory
-if [ ! -f "capacitor.config.ts" ]; then
+# check if running from correct directoryif [ ! -f "capacitor.config.ts" ]; then
     echo -e "${RED}error: must run from apps/mobile directory${NC}"
     exit 1
 fi
@@ -23,14 +20,11 @@ MONOREPO_ROOT="$(cd ../.. && pwd)"
 
 echo ""
 echo -e "${YELLOW}step 1: building web assets...${NC}"
-# build the web app from monorepo root, injecting VITE_API_URL via process.env
-(cd "$MONOREPO_ROOT" && VITE_API_URL="https://pkm.houseofmates.space/api" npm run build)
+# build the web app from monorepo root, injecting vite_api_url via process.env(cd "$MONOREPO_ROOT" && VITE_API_URL="https://pkm.houseofmates.space/api" npm run build)
 
 echo ""
 echo -e "${YELLOW}step 2: copying build output to capacitor webDir...${NC}"
-# the vite build outputs to packages/core/dist (via apps/web -> @pkm/core)
-# capacitor.config.ts has webDir: 'dist', so copy there
-rm -rf dist
+# the vite build outputs to packages/core/dist (via apps/web -> @pkm/core)# capacitor.config.ts has webdir: 'dist', so copy thererm -rf dist
 if [ -d "$MONOREPO_ROOT/packages/core/dist" ]; then
     cp -r "$MONOREPO_ROOT/packages/core/dist" dist
     echo "  copied from packages/core/dist"
@@ -42,8 +36,7 @@ else
     exit 1
 fi
 
-# verify index.html exists
-if [ ! -f "dist/index.html" ]; then
+# verify index.html existsif [ ! -f "dist/index.html" ]; then
     echo -e "${RED}error: dist/index.html not found after build${NC}"
     exit 1
 fi
@@ -59,8 +52,7 @@ npx cap sync android
 
 echo ""
 echo -e "${YELLOW}step 4.5: patching java version...${NC}"
-# Capacitor 6 defaults to Java 21, but system has Java 17. Patching the generated configs.
-find android -type f -name "*.gradle" -exec sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' {} +
+# capacitor 6 defaults to java 21, but system has java 17. patching the generated configs.find android -type f -name "*.gradle" -exec sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' {} +
 
 echo ""
 echo -e "${YELLOW}step 5: building release APK...${NC}"
@@ -83,8 +75,7 @@ if [ -f "$APK_SOURCE" ]; then
     mkdir -p "$RELEASES_DIR"
     cp "$APK_SOURCE" "$RELEASES_DIR/$NEW_APK_NAME"
     
-    # Update version.json for the app's internal updater
-    cat > "$RELEASES_DIR/version.json" <<EOF
+    # update version.json for the app's internal updater    cat > "$RELEASES_DIR/version.json" <<EOF
 {
   "version": "$TIMESTAMP",
   "apkUrl": "https://pkm.houseofmates.space/apk/$NEW_APK_NAME",

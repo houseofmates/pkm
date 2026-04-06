@@ -3,9 +3,7 @@ import { cn } from '@/lib/utils';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-// google font: varela round should be loaded in index.html or global css
-// assuming it is available as 'font-varela' or similar utility.
-
+// google font: varela round should be loaded in index.html or global css// assuming it is available as 'font-varela' or similar utility.
 interface CircularGaugeProps {
   title: string;
   totalSeconds: number; // e.g. 1500 for pomodoro (25m)

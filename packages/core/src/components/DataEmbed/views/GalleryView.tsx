@@ -47,8 +47,7 @@ export function GalleryView({ records, isLoading, theme, onSelect }: GalleryView
 function GalleryCard({ record, theme, onClick }: any) {
   const [isHovered, setHovered] = useState(false);
 
-  // heuristics for image fields
-  const image = record.avatar?.[0]?.url || record.image?.[0]?.url || record.cover?.[0]?.url;
+  // heuristics for image fields  const image = record.avatar?.[0]?.url || record.image?.[0]?.url || record.cover?.[0]?.url;
   const color = record.color || theme.raw.primary || '#f5af12';
 
   return (

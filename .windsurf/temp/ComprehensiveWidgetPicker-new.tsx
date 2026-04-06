@@ -41,8 +41,7 @@ interface PresetWidget {
 }
 
 const PRESET_WIDGETS: PresetWidget[] = [
-  // PERSONAL / PKM
-  {
+  // personal / pkm  {
     id: 'journal-quick-entry',
     label: 'Journal Quick Entry',
     icon: FileText,
@@ -87,8 +86,7 @@ const PRESET_WIDGETS: PresetWidget[] = [
     dataSource: 'journal_entries'
   },
 
-  // HEALTH & WELLNESS
-  {
+  // health & wellness  {
     id: 'medication-tracker',
     label: 'Medication Tracker',
     icon: Pill,
@@ -159,8 +157,7 @@ const PRESET_WIDGETS: PresetWidget[] = [
     dataSource: 'pet_interactions'
   },
 
-  // FINANCE
-  {
+  // finance  {
     id: 'finance-summary',
     label: 'Finance Summary',
     icon: Wallet,
@@ -187,8 +184,7 @@ const PRESET_WIDGETS: PresetWidget[] = [
     dataSource: 'finance_daily'
   },
 
-  // PRODUCTIVITY
-  {
+  // productivity  {
     id: 'habit-tracker',
     label: 'Habit Tracker',
     icon: Target,
@@ -271,8 +267,7 @@ const PRESET_WIDGETS: PresetWidget[] = [
     defaultData: { showTags: true, autoSave: true, voiceEnabled: true }
   },
 
-  // MEDIA
-  {
+  // media  {
     id: 'voice-memo',
     label: 'Voice Memo',
     icon: Activity,
@@ -299,8 +294,7 @@ const PRESET_WIDGETS: PresetWidget[] = [
     dataSource: 'reading_list'
   },
 
-  // UTILITIES
-  {
+  // utilities  {
     id: 'clock-widget',
     label: 'Clock',
     icon: Clock,
@@ -358,8 +352,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
   const { collections } = useCollections();
   const addElement = useEdgelessStore((s: any) => s.addElement);
 
-  // Filter collections based on search
-  const filteredCollections = useMemo(() => {
+  // filter collections based on search  const filteredCollections = useMemo(() => {
     if (!collections) return [];
     if (!search) return collections;
     return collections.filter((c: any) => 
@@ -367,8 +360,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
     );
   }, [collections, search]);
 
-  // Filter preset widgets based on search and category
-  const filteredPresets = useMemo(() => {
+  // filter preset widgets based on search and category  const filteredPresets = useMemo(() => {
     let filtered = PRESET_WIDGETS;
     
     if (search) {
@@ -385,8 +377,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
     return filtered;
   }, [search, selectedCategory]);
 
-  // Group presets by category
-  const groupedPresets = useMemo(() => {
+  // group presets by category  const groupedPresets = useMemo(() => {
     const groups: Partial<Record<WidgetCategory | 'all', PresetWidget[]>> = {};
     
     if (selectedCategory === 'all') {
@@ -600,8 +591,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
       <div className="flex-1 overflow-y-auto p-4 max-h-[400px]">
         {activeTab === 'databases' ? (
           selectedCollection ? (
-            /* View Types Selection */
-            <div className="space-y-2">
+            /* view types selection */            <div className="space-y-2">
               <div className="text-xs text-white/40 lowercase mb-3">
                 choose view type for {selectedCollection.title || selectedCollection.name}
               </div>
@@ -633,8 +623,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
               })}
             </div>
           ) : (
-            /* Databases List */
-            <div className="space-y-1">
+            /* databases list */            <div className="space-y-1">
               {filteredCollections.length === 0 ? (
                 <div className="text-center py-8">
                   <div className="text-white/40 text-sm lowercase">no databases found</div>
@@ -665,8 +654,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
             </div>
           )
         ) : (
-          /* Preset Widgets List */
-          <div className="space-y-4">
+          /* preset widgets list */          <div className="space-y-4">
             {Object.entries(groupedPresets).map(([category, widgets]) => {
               if (!widgets || widgets.length === 0) return null;
               const catKey = category as WidgetCategory;

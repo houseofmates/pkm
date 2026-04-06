@@ -46,7 +46,6 @@ export function MoodboardPage() {
   };
 
   // --- element operations ---
-
   const addElement = (type: ElementType, content?: string, extra?: any) => {
     const center = {
       x: (-offset.x + window.innerWidth / 2) / scale,
@@ -88,11 +87,9 @@ export function MoodboardPage() {
     setElements(prev => prev.filter(el => el.id !== id));
   };
 
-  // --- interaction logic ---
-  const [dragState, setDragState] = useState<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
+  // --- interaction logic ---  const [dragState, setDragState] = useState<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  // canvas mode state machine: 'viewing' allows drag, 'editing' prevents drag for text input
-  const [canvasMode, setCanvasMode] = useState<'viewing' | 'editing'>('viewing');
+  // canvas mode state machine: 'viewing' allows drag, 'editing' prevents drag for text input  const [canvasMode, setCanvasMode] = useState<'viewing' | 'editing'>('viewing');
 
   const handleMouseMove = (e: React.MouseEvent) => {
 
@@ -139,8 +136,7 @@ export function MoodboardPage() {
           ref={containerRef}
           onMouseDown={(e) => {
             if (e.button === 0 && !dragState) {
-              // only drag canvas if clicking background
-              if ((e.target as HTMLElement).classList.contains('canvas-area')) {
+              // only drag canvas if clicking background              if ((e.target as HTMLElement).classList.contains('canvas-area')) {
                 setIsDraggingCanvas(true);
                 setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
               }
@@ -170,8 +166,7 @@ export function MoodboardPage() {
                   ...el.style
                 }}
                 onMouseDown={(e) => {
-                  // only allow dragging in viewing mode, not when editing
-                  if (canvasMode === 'editing' && editingId === el.id) return;
+                  // only allow dragging in viewing mode, not when editing                  if (canvasMode === 'editing' && editingId === el.id) return;
                   e.stopPropagation();
                   if (e.button === 0 && canvasMode === 'viewing') {
                     setDragState({
@@ -214,8 +209,7 @@ export function MoodboardPage() {
                     value={el.content}
                     onChange={(e) => updateElement(el.id, { content: e.target.value })}
                     onMouseDown={(e) => {
-                      // in editing mode, prevent drag initiation on the textarea
-                      if (canvasMode === 'editing') {
+                      // in editing mode, prevent drag initiation on the textarea                      if (canvasMode === 'editing') {
                         e.stopPropagation();
                       }
                     }}
@@ -237,9 +231,7 @@ export function MoodboardPage() {
                       {/* for moodboard, maybe just table or gallery is best? */}
                       {/* let's default to gallery for visuals */}
                       {(() => {
-                        // we need data. moodboard doesn't fetch on its own efficiently yet.
-                        // simple placeholder for now or efficient fetch?
-                        return <div className="p-4 text-xs text-muted-foreground">database view: {el.content}</div>
+                        // we need data. moodboard doesn't fetch on its own efficiently yet.                        // simple placeholder for now or efficient fetch?                        return <div className="p-4 text-xs text-muted-foreground">database view: {el.content}</div>
                       })()}
                     </div>
                   </div>

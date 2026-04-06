@@ -8,16 +8,14 @@ import {
 } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
-// helper to safely get lucide icon by name
-function getLucideIcon(name: string): LucideIcon | undefined {
+// helper to safely get lucide icon by namefunction getLucideIcon(name: string): LucideIcon | undefined {
   return (Icons as unknown as Record<string, LucideIcon>)[name];
 }
 import { toast } from 'sonner';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip, Cell } from 'recharts';
 import { secureLogger } from '@/lib/secure-logger';
 
-// --- server ip display ---
-interface ServerIPProps {
+// --- server ip display ---interface ServerIPProps {
   javaIP: string;
   javaPort?: string;
   bedrockIP?: string;
@@ -96,8 +94,7 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
   );
 }
 
-// --- server status ---
-interface ServerStatusProps {
+// --- server status ---interface ServerStatusProps {
   isOnline?: boolean;
   playerCount?: number;
   maxPlayers?: number;
@@ -148,8 +145,7 @@ export function ServerStatus({ isOnline = true, playerCount = 0, maxPlayers = 10
   );
 }
 
-// --- feature cards ---
-interface FeatureCardProps {
+// --- feature cards ---interface FeatureCardProps {
   icon: string; // icon key (lowercase) - mapped in iconmap
   title: string;
   description: string;
@@ -163,8 +159,7 @@ const iconMap: Record<string, any> = {
   chat: MessageCircle,
   gamepad: Gamepad2,
   wifi: Wifi,
-  // design/edit icons
-  pencil: Pencil,
+  // design/edit icons  pencil: Pencil,
   pen: Pen,
   edit: Edit,
   edit2: Edit2,
@@ -193,8 +188,7 @@ export function FeatureCard({ icon, title, description, color = 'var(--primary)'
   );
 }
 
-// --- staff card ---
-interface StaffMemberProps {
+// --- staff card ---interface StaffMemberProps {
   username: string;
   role: string;
   avatar?: string;
@@ -288,8 +282,7 @@ export function StaffCard({ username, role, avatar, color = 'var(--primary)' }: 
   );
 }
 
-// --- rules list ---
-interface RulesListProps {
+// --- rules list ---interface RulesListProps {
   rules: string[];
   title?: string;
 }
@@ -315,8 +308,7 @@ export function RulesList({ rules, title = 'server rules' }: RulesListProps) {
   );
 }
 
-// --- faq section ---
-interface FAQItem {
+// --- faq section ---interface FAQItem {
   question: string;
   answer: string;
 }
@@ -358,8 +350,7 @@ export function FAQSection({ items, title = 'frequently asked questions' }: FAQS
   );
 }
 
-// --- version badge ---
-interface VersionBadgeProps {
+// --- version badge ---interface VersionBadgeProps {
   versions: string[];
 }
 
@@ -386,8 +377,7 @@ export function VersionBadge({ versions }: VersionBadgeProps) {
   );
 }
 
-// --- hero section ---
-interface HeroSectionProps {
+// --- hero section ---interface HeroSectionProps {
   title: string;
   subtitle?: string;
   ctaText?: string;
@@ -437,8 +427,7 @@ export function HeroSection({ title, subtitle, ctaText, ctaLink, backgroundImage
   );
 }
 
-// --- social links ---
-interface SocialLinksProps {
+// --- social links ---interface SocialLinksProps {
   discord?: string;
   twitter?: string;
   youtube?: string;
@@ -478,8 +467,7 @@ export function SocialLinks({ discord, twitter, youtube, twitch, github, instagr
   );
 }
 
-// --- countdown timer ---
-interface CountdownProps {
+// --- countdown timer ---interface CountdownProps {
   targetDate: string; // iso date string
   title?: string;
 }
@@ -523,8 +511,7 @@ export function CountdownTimer({ targetDate, title }: CountdownProps) {
   );
 }
 
-// --- about section ---
-interface AboutSectionProps {
+// --- about section ---interface AboutSectionProps {
   title: string;
   content: string;
   image?: string;
@@ -551,8 +538,7 @@ export function AboutSection({ title, content, image, imagePosition = 'left' }: 
   );
 }
 
-// --- gallery ---
-interface GalleryProps {
+// --- gallery ---interface GalleryProps {
   images: { src: string; alt?: string }[];
   columns?: number;
 }
@@ -582,8 +568,7 @@ export function Gallery({ images, columns = 3 }: GalleryProps) {
   );
 }
 
-// --- testimonial ---
-interface TestimonialProps {
+// --- testimonial ---interface TestimonialProps {
   quote: string;
   author: string;
   role?: string;
@@ -607,8 +592,7 @@ export function Testimonial({ quote, author, role, avatar }: TestimonialProps) {
   );
 }
 
-// --- divider ---
-interface DividerProps {
+// --- divider ---interface DividerProps {
   style?: 'line' | 'dots' | 'gradient';
   spacing?: 'sm' | 'md' | 'lg';
 }
@@ -636,7 +620,6 @@ export function Divider({ style = 'line', spacing = 'md' }: DividerProps) {
 }
 
 // --- file embed elements ---
-
 interface CodeElementProps {
   code: string;
   language?: string;
@@ -710,7 +693,6 @@ export function FileElement({ url, filename, size }: FileElementProps) {
   );
 }
 // --- minecraft live stats widget ---
-
 export interface ServerStatusData {
   online: boolean;
   count: number;
@@ -736,8 +718,7 @@ export function MinecraftStatsWidget() {
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // fetch initial data
-    const fetchData = async () => {
+    // fetch initial data    const fetchData = async () => {
       try {
         const [statsRes, chatRes] = await Promise.all([
           fetch('/api/stats'),
@@ -761,44 +742,11 @@ export function MinecraftStatsWidget() {
             message: msg.message,
             timestamp: msg.timestamp
           }))); // keep order (oldest -> newest)
-          // actually our backend pushes newest to end of array? no, push adds to end.
-          // array in memory: [oldest, ..., newest].
-          // map preserves order.
-          // message list renders map((msg, i)...) -> top to bottom.
-          // so we want oldest at top.
-          // let's assume api returns [oldest...newest].
-          // wait, previous code used `setmessages(prev => [new, ...prev])`.
-          // this creates [newest, ...oldest].
-          // and renders `messages.map`.
-          // if map renders top-to-bottom:
-          //  row 0: newest
-          //  row 1: older
-          // this is a "chat log" style where newest is usually at bottom.
-          // if we want newest at bottom, we should store as [oldest, ...newest].
-          // but `flex-col` renders 0 first (top).
-          // if we want standard chat (newest at bottom), we need:
-          //  render: [oldest, ..., newest] ->
-          // top: oldest
-          // bottom: newest
-          // and scroll to bottom.
-          // my previous `socket.on` logic: `setmessages(prev => [newitem, ...prev])`
-          // this puts new item at index 0 (top).
-          // so chat was flowing down? no, top is index 0.
-          // if index 0 is newest, then newest is at top.
-          // standard chat: newest is at bottom.
-          // user said "scroll automatically to the bottom when a new message occurs".
-          // this implies newest should be at bottom.
-          // so i need to fix the storage order and the fetch order.
-
-          // fixed logic:
-          // 1. storage: [oldest, ..., newest]
-          // 2. fetch: returns [oldest, ..., newest] -> set as is.
-          // 3. socket: `setmessages(prev => [...prev, newitem])` (append to end)
-        }
+          // actually our backend pushes newest to end of array? no, push adds to end.          // array in memory: [oldest, ..., newest].          // map preserves order.          // message list renders map((msg, i)...) -> top to bottom.          // so we want oldest at top.          // let's assume api returns [oldest...newest].          // wait, previous code used `setmessages(prev => [new, ...prev])`.          // this creates [newest, ...oldest].          // and renders `messages.map`.          // if map renders top-to-bottom:          //  row 0: newest          //  row 1: older          // this is a "chat log" style where newest is usually at bottom.          // if we want newest at bottom, we should store as [oldest, ...newest].          // but `flex-col` renders 0 first (top).          // if we want standard chat (newest at bottom), we need:          //  render: [oldest, ..., newest] ->          // top: oldest          // bottom: newest          // and scroll to bottom.          // my previous `socket.on` logic: `setmessages(prev => [newitem, ...prev])`          // this puts new item at index 0 (top).          // so chat was flowing down? no, top is index 0.          // if index 0 is newest, then newest is at top.          // standard chat: newest is at bottom.          // user said "scroll automatically to the bottom when a new message occurs".          // this implies newest should be at bottom.          // so i need to fix the storage order and the fetch order.
+          // fixed logic:          // 1. storage: [oldest, ..., newest]          // 2. fetch: returns [oldest, ..., newest] -> set as is.          // 3. socket: `setmessages(prev => [...prev, newitem])` (append to end)        }
       } catch (err) {
         secureLogger.error('[MinecraftStats] Failed to fetch initial data:', err);
-        // set default state to prevent infinite loading
-        setStatus({ online: false, count: 0 });
+        // set default state to prevent infinite loading        setStatus({ online: false, count: 0 });
       } finally {
         setIsLoading(false);
       }
@@ -806,8 +754,7 @@ export function MinecraftStatsWidget() {
 
     fetchData();
 
-    // configure socket with automatic reconnection
-    const socket: Socket = io({
+    // configure socket with automatic reconnection    const socket: Socket = io({
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
@@ -817,8 +764,7 @@ export function MinecraftStatsWidget() {
 
     socketRef.current = socket;
 
-    // connection state handlers
-    socket.on('connect', () => {
+    // connection state handlers    socket.on('connect', () => {
       secureLogger.info('[MinecraftStats] Socket connected');
       setConnectionState('connected');
     });
@@ -851,11 +797,9 @@ export function MinecraftStatsWidget() {
       const isOnline = String(data.online) === 'true' || data.online === true;
       const playerCount = Number(data.count) || 0;
 
-      // update header stats (always update stats from any event)
-      setStatus({ online: isOnline, count: playerCount });
+      // update header stats (always update stats from any event)      setStatus({ online: isOnline, count: playerCount });
 
-      // handle state change messages only (no spam)
-      if (data.type === 'ping') {
+      // handle state change messages only (no spam)      if (data.type === 'ping') {
         if (isOnline !== lastStatusRef.current) {
           const statusMsg = {
             type: 'chat' as const,
@@ -863,15 +807,13 @@ export function MinecraftStatsWidget() {
             message: isOnline ? 'server is online' : 'server is offline',
             timestamp: new Date().toISOString()
           };
-          // append to bottom
-          setMessages(prev => [...prev, statusMsg].slice(-50));
+          // append to bottom          setMessages(prev => [...prev, statusMsg].slice(-50));
           lastStatusRef.current = isOnline;
         }
         return; // stop here for pings
       }
 
-      // show other events (chat, join, leave, quit)
-      if (['chat', 'join', 'leave', 'quit'].includes(data.type) && data.player) {
+      // show other events (chat, join, leave, quit)      if (['chat', 'join', 'leave', 'quit'].includes(data.type) && data.player) {
         const isSystemEvent = ['join', 'leave', 'quit'].includes(data.type) ||
           data.message.toLowerCase().includes('joined the') ||
           data.message.toLowerCase().includes('left the');
@@ -886,8 +828,7 @@ export function MinecraftStatsWidget() {
             : (data.message || ''),
           timestamp: data.timestamp || new Date().toISOString()
         };
-        // append to bottom with client-side deduplication check
-        setMessages(prev => {
+        // append to bottom with client-side deduplication check        setMessages(prev => {
           const isDup = prev.length > 0 &&
             prev[prev.length - 1].player === newMsg.player &&
             prev[prev.length - 1].message === newMsg.message &&
@@ -917,13 +858,11 @@ export function MinecraftStatsWidget() {
     };
   }, []);
 
-  // v7 deployment marker
-  useEffect(() => {
+  // v7 deployment marker  useEffect(() => {
     secureLogger.info('🚀 [LiveStats] V7 LIVE - HyperSnap Scroll + Forced System (WebsiteElements)');
   }, []);
 
-  // hyper-snap scroll: multiple attempts to catch layout shifts
-  const scrollToBottom = () => {
+  // hyper-snap scroll: multiple attempts to catch layout shifts  const scrollToBottom = () => {
     if (scrollContainerRef.current) {
       const el = scrollContainerRef.current;
       el.scrollTo({ top: el.scrollHeight, behavior: 'auto' });
@@ -933,15 +872,13 @@ export function MinecraftStatsWidget() {
   useEffect(() => {
     if (messages.length > 0) {
       scrollToBottom();
-      // catch trailing animations/images/dynamic text
-      const intervals = [50, 150, 300, 600, 1000];
+      // catch trailing animations/images/dynamic text      const intervals = [50, 150, 300, 600, 1000];
       const timers = intervals.map(ms => setTimeout(scrollToBottom, ms));
       return () => timers.forEach(clearTimeout);
     }
   }, [messages]);
 
-  // force scroll after initial connect and history load
-  useEffect(() => {
+  // force scroll after initial connect and history load  useEffect(() => {
     const timer = setTimeout(scrollToBottom, 1500);
     return () => clearTimeout(timer);
   }, [isLoading]);
@@ -1054,8 +991,7 @@ export function MinecraftStatsWidget() {
   );
 }
 
-// --- financial chart ---
-interface FinancialChartProps {
+// --- financial chart ---interface FinancialChartProps {
   title?: string;
   data?: { name: string; value: number; color?: string }[];
 }
@@ -1111,8 +1047,7 @@ export function FinancialChartElement({ title, data }: FinancialChartProps) {
   );
 }
 
-// --- tier list ---
-interface TierListProps {
+// --- tier list ---interface TierListProps {
   rows?: { label: string; color: string; items: string[] }[];
 }
 
@@ -1147,8 +1082,7 @@ export function TierListElement({ rows }: TierListProps) {
   );
 }
 
-// --- shopping card ---
-export interface ShoppingCardProps {
+// --- shopping card ---export interface ShoppingCardProps {
   title: string;
   price: string;
   image: string;
@@ -1183,8 +1117,7 @@ export function ShoppingCardElement({ title, price, image, description, buttonTe
   );
 }
 
-// --- floating reminder ---
-interface ReminderProps {
+// --- floating reminder ---interface ReminderProps {
   content: string;
   color?: string;
 }
@@ -1209,8 +1142,7 @@ export function FloatingReminderElement({ content, color = '#fef08a' }: Reminder
   );
 }
 
-// --- stats bar ---
-interface StatsBarProps {
+// --- stats bar ---interface StatsBarProps {
   label: string;
   value: number;
   max?: number;
@@ -1238,7 +1170,6 @@ export function StatsBarElement({ label, value, max = 100, color = 'var(--primar
 }
 
 // --- pkm visuals ---
-
 export function EternalFlameElement() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center relative group">
@@ -1291,8 +1222,7 @@ export function SleepRingElement() {
   );
 }
 
-// --- slick button ---
-export interface SlickButtonProps {
+// --- slick button ---export interface SlickButtonProps {
   text: string;
   url?: string;
   icon?: string;
@@ -1303,8 +1233,7 @@ export interface SlickButtonProps {
 }
 
 export function SlickButton({ text, url, icon, bgColor, textColor, iconColor, borderRadius }: SlickButtonProps) {
-  // helper to format icon name (e.g. "shopping-cart" -> "shoppingcart")
-  const formattedIconName = icon ? icon.charAt(0).toUpperCase() + icon.slice(1).replace(/-([a-z])/g, (g: any) => g[1].toUpperCase()) : null;
+  // helper to format icon name (e.g. "shopping-cart" -> "shoppingcart")  const formattedIconName = icon ? icon.charAt(0).toUpperCase() + icon.slice(1).replace(/-([a-z])/g, (g: any) => g[1].toUpperCase()) : null;
   const Icon = formattedIconName ? getLucideIcon(formattedIconName) : null;
 
   const handleClick = () => {

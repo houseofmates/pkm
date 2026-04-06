@@ -1,6 +1,4 @@
-// gemini image & text generation + background removal via rembg gradio api.
-// api key is stored in localstorage (no env var required).
-
+// gemini image & text generation + background removal via rembg gradio api.// api key is stored in localstorage (no env var required).
 export const API_KEY_STORAGE_KEY = 'gemini_api_key';
 
 const GEMINI_IMAGE_MODEL = 'gemini-3-pro-image-preview';   // "nano banana pro"
@@ -10,7 +8,6 @@ const TARGET_BG          = '#050505';
 const ICON_SIZE          = 512;
 
 // ── api key helpers ──────────────────────────────────────────────────────────
-
 export function getGeminiApiKey(): string | null {
   try { return localStorage.getItem(API_KEY_STORAGE_KEY); } catch { return null; }
 }
@@ -20,7 +17,6 @@ export function saveGeminiApiKey(key: string): void {
 }
 
 // ── prompt builder ───────────────────────────────────────────────────────────
-
 export function buildIconPrompt(userPrompt: string): string {
   return [
     userPrompt.trim(),
@@ -31,7 +27,6 @@ export function buildIconPrompt(userPrompt: string): string {
 }
 
 // ── image generation ─────────────────────────────────────────────────────────
-
 export async function generateGeminiIcon(userPrompt: string, apiKey: string): Promise<string> {
   const prompt = buildIconPrompt(userPrompt);
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${gemini_image_model}:generatecontent?key=${apikey}`;
@@ -86,7 +81,6 @@ export async function generateVerticalThumbnail(userPrompt: string, apiKey: stri
 }
 
 // ── prompt enhancement ───────────────────────────────────────────────────────
-
 export async function enhancePromptWithGemini(userPrompt: string, apiKey: string): Promise<string> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${gemini_text_model}:generatecontent?key=${apikey}`;
 
@@ -114,10 +108,8 @@ export async function enhancePromptWithGemini(userPrompt: string, apiKey: string
 }
 
 // ── background removal via rembg gradio api ──────────────────────────────────
-
 export async function removeBackground(dataUrl: string): Promise<string> {
-  // 1. upload image to the gradio server
-  const blob = await (await fetch(dataUrl)).blob();
+  // 1. upload image to the gradio server  const blob = await (await fetch(dataUrl)).blob();
   const form = new FormData();
   form.append('files', blob, 'icon.png');
 
@@ -127,8 +119,7 @@ export async function removeBackground(dataUrl: string): Promise<string> {
   const uploadedPaths: string[] = await uploadRes.json();
   const uploadedPath = uploadedPaths[0];
 
-  // 2. call /inference
-  const callRes = await fetch(`${REMBG_API_URL}/call/inference`, {
+  // 2. call /inference  const callRes = await fetch(`${REMBG_API_URL}/call/inference`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -149,8 +140,7 @@ export async function removeBackground(dataUrl: string): Promise<string> {
 
   const { event_id } = await callRes.json();
 
-  // 3. poll sse result
-  const resultRes = await fetch(`${REMBG_API_URL}/call/inference/${event_id}`);
+  // 3. poll sse result  const resultRes = await fetch(`${REMBG_API_URL}/call/inference/${event_id}`);
   if (!resultRes.ok) throw new Error(`rembg result fetch failed (${resultRes.status})`);
 
   const sseText = await resultRes.text();
@@ -181,9 +171,7 @@ export async function removeBackground(dataUrl: string): Promise<string> {
 }
 
 // ── legacy shim ──────────────────────────────────────────────────────────────
-
-/** @deprecated use generategeminiicon directly */
-export async function generateVertexIcon(userPrompt: string): Promise<string> {
+/** @deprecated use generategeminiicon directly */export async function generateVertexIcon(userPrompt: string): Promise<string> {
   const apiKey = getGeminiApiKey() ?? (import.meta.env?.VITE_VERTEX_API_KEY as string | undefined);
   if (!apiKey) throw new Error('no api key – click the ai icon button to add one');
   return generateGeminiIcon(userPrompt, apiKey);

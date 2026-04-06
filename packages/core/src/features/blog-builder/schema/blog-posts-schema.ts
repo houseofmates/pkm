@@ -1,6 +1,4 @@
-// blog posts collection schema for nocobase
-// this should be created in nocobase admin interface
-
+// blog posts collection schema for nocobase// this should be created in nocobase admin interface
 export const blogPostsSchema = {
   name: 'blog_posts',
   title: 'Blog Posts',

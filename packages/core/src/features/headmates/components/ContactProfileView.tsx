@@ -20,12 +20,10 @@ interface ContactProfileViewProps {
 export function ContactProfileView({ member, onClose, isOpen }: ContactProfileViewProps) {
   const { refresh } = useFronter();
 
-  // local state for editing
-  const [isEditing, setIsEditing] = useState(false);
+  // local state for editing  const [isEditing, setIsEditing] = useState(false);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
-  // state for editable fields
-  const [bannerUrl, setBannerUrl] = useState((member as any).banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop');
+  // state for editable fields  const [bannerUrl, setBannerUrl] = useState((member as any).banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop');
   const [name, setName] = useState(member.name);
   const [birthday, setBirthday] = useState((member as any).birthday || '');
   const [favColor, setFavColor] = useState(member.color || '#ffffff');
@@ -34,20 +32,10 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   const [role, setRole] = useState((member as any).role || '');
   const [status, setStatus] = useState((member as any).status || 'Active');
 
-  // fields - compute defaults directly from member
-  // const name = member.name;
-  // const bannerurl = (member as any).banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop';
-  // const birthday = (member as any).birthday || '';
-  // const favcolor = member.color || '#ffffff';
-  // const description = member.description || '';
-  // const pronouns = member.pronouns || '';
-  // const role = (member as any).role || '';
-  // const status = (member as any).status || 'active';
-
+  // fields - compute defaults directly from member  // const name = member.name;  // const bannerurl = (member as any).banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop';  // const birthday = (member as any).birthday || '';  // const favcolor = member.color || '#ffffff';  // const description = member.description || '';  // const pronouns = member.pronouns || '';  // const role = (member as any).role || '';  // const status = (member as any).status || 'active';
   const formattedName = formatHeadmateName(name);
 
-  // compute age from birthday
-  const age = useMemo(() => {
+  // compute age from birthday  const age = useMemo(() => {
     if (!birthday) return null;
     const birthdate = new Date(birthday);
     const today = new Date();
@@ -60,8 +48,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
     return ageValue;
   }, [birthday]);
 
-  // handle banner upload
-  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // handle banner upload  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -69,8 +56,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
       const formData = new FormData();
       formData.append('file', file);
 
-      // use fetch directly for file upload since uploadfile may not exist on api client
-      const res = await fetch('/api/upload', {
+      // use fetch directly for file upload since uploadfile may not exist on api client      const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });
@@ -85,8 +71,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
     }
   };
 
-  // handle save
-  const handleSave = async () => {
+  // handle save  const handleSave = async () => {
     try {
       await api.updateRecord('headmates', member.id, {
         name,

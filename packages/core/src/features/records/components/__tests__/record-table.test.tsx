@@ -4,8 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { RecordTable } from '../record-table';
 import { vi } from 'vitest';
 
-// simple mocks to avoid worrying about context dependencies
-vi.mock('@/features/records/components/record-context-menu', () => ({
+// simple mocks to avoid worrying about context dependenciesvi.mock('@/features/records/components/record-context-menu', () => ({
   RecordContextMenu: ({ children }: any) => <>{children}</>
 }));
 vi.mock('@/components/fields/smart-field', () => ({
@@ -15,8 +14,7 @@ vi.mock('@/contexts/auth-context', () => ({
   useAuth: () => ({ client: {} })
 }));
 
-// create a table with many columns to force horizontal overflow
-const makeData = () => {
+// create a table with many columns to force horizontal overflowconst makeData = () => {
   const rec: any = {};
   for (let i = 1; i <= 20; i++) {
     rec[`col${i}`] = `val${i}`;
@@ -47,17 +45,14 @@ describe('RecordTable horizontal scroll sync', () => {
     expect(header).toBeTruthy();
     expect(body).toBeTruthy();
 
-    // initially at left edge
-    expect(header.scrollLeft).toBe(0);
+    // initially at left edge    expect(header.scrollLeft).toBe(0);
     expect(body.scrollLeft).toBe(0);
 
-    // scroll the body
-    body.scrollLeft = 50;
+    // scroll the body    body.scrollLeft = 50;
     fireEvent.scroll(body);
     expect(header.scrollLeft).toBe(50);
 
-    // scroll the header and ensure body follows too
-    header.scrollLeft = 20;
+    // scroll the header and ensure body follows too    header.scrollLeft = 20;
     fireEvent.scroll(header);
     expect(body.scrollLeft).toBe(20);
   });

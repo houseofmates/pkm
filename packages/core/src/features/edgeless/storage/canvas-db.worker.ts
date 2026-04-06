@@ -1,12 +1,8 @@
-// canvas-db.worker.ts
-// all indexeddb operations for the canvas run here, off the main thread
-// communicates with db-bridge.ts via structured message passing
-
+// canvas-db.worker.ts// all indexeddb operations for the canvas run here, off the main thread// communicates with db-bridge.ts via structured message passing
 import { openDB } from 'idb'
 import type { DBSchema, IDBPDatabase } from 'idb' // dbschema is purely a type and already imported as such
 
-// simple logger for worker context (no access to main thread securelogger)
-const workerLogger = {
+// simple logger for worker context (no access to main thread securelogger)const workerLogger = {
   error: (...args: unknown[]) => console.error('[Worker]', ...args),
   warn: (...args: unknown[]) => console.warn('[Worker]', ...args),
   info: (...args: unknown[]) => console.info('[Worker]', ...args),
@@ -59,8 +55,7 @@ interface canvasdbschema extends DBSchema {
 }
 
 const DB_NAME = 'pkm-canvas-v1'
-// bump version to ensure upgrade runs for clients that created the db without stores
-const DB_VERSION = 2
+// bump version to ensure upgrade runs for clients that created the db without storesconst DB_VERSION = 2
 
 let db: IDBPDatabase<canvasdbschema> | null = null
 
@@ -103,8 +98,7 @@ async function getdb(): Promise<IDBPDatabase<canvasdbschema>> {
     return db
 }
 
-// message handler
-self.onmessage = async (e: MessageEvent) => {
+// message handlerself.onmessage = async (e: MessageEvent) => {
     const { id, method, args } = e.data
     try {
         const handler = handlers[method.toLowerCase()]
@@ -218,12 +212,9 @@ const handlers: Record<string, (...args: any[]) => Promise<unknown>> = {
             const all = await d.getAllFromIndex('oplog', 'by-drawing', drawingid)
             if (all.length <= keepcount) return 0
 
-            // sort by timestamp ascending (oldest first)
-            const sorted = all.sort((a, b) => a.timestamp - b.timestamp)
+            // sort by timestamp ascending (oldest first)            const sorted = all.sort((a, b) => a.timestamp - b.timestamp)
 
-            // determine which ones to delete (oldest ones, but keep 'keepcount' newest)
-            // and only delete if they are synced
-            const potentialDeletes = sorted.slice(0, all.length - keepcount)
+            // determine which ones to delete (oldest ones, but keep 'keepcount' newest)            // and only delete if they are synced            const potentialDeletes = sorted.slice(0, all.length - keepcount)
             const todelete = potentialDeletes.filter((e) => e.synced)
 
             if (todelete.length === 0) return 0
@@ -250,8 +241,7 @@ const handlers: Record<string, (...args: any[]) => Promise<unknown>> = {
         }
         await d.put('checkpoints', checkpoint)
 
-        // keep only last 3 checkpoints per drawing
-        const all = await d.getAllFromIndex('checkpoints', 'by-drawing', drawingid)
+        // keep only last 3 checkpoints per drawing        const all = await d.getAllFromIndex('checkpoints', 'by-drawing', drawingid)
         if (all.length > 3) {
             const todrop = all.sort((a, b) => a.timestamp - b.timestamp).slice(0, all.length - 3)
             const tx = d.transaction('checkpoints', 'readwrite')

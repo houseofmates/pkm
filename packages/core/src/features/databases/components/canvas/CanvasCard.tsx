@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
-// icons
-import { ExternalLink, GripVertical } from 'lucide-react';
+// iconsimport { ExternalLink, GripVertical } from 'lucide-react';
 import { useContextMenuStore } from '@/components/ui/context-menu-store';
 
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
@@ -27,8 +26,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
     setLocalData(data);
   }, [data]);
 
-  // --- living data: visual decay ---
-  const lastWatered = data['last_watered'] || data['updatedAt']; // fallback
+  // --- living data: visual decay ---  const lastWatered = data['last_watered'] || data['updatedAt']; // fallback
   const daysSince = lastWatered
     ? Math.floor((new Date().getTime() - new Date(lastWatered).getTime()) / (1000 * 3600 * 24))
     : 0;
@@ -36,28 +34,23 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
   const isWithered = daysSince > 7;
   const isThirsty = daysSince > 3 && !isWithered;
 
-  // dynamic filter style
-  const decayStyle = isWithered
+  // dynamic filter style  const decayStyle = isWithered
     ? { filter: 'grayscale(0.8) contrast(0.8)', opacity: 0.8 }
     : isThirsty
       ? { filter: 'grayscale(0.4)', opacity: 0.95 }
       : {};
 
-  // helpers to find key fields
-  const titleField = fields.find(f => f.name === 'title' || f.name === 'name' || f.primary) || fields.find(f => f.type === 'string' && !f.name.includes('id') && !f.name.includes('date')) || { name: 'id' };
+  // helpers to find key fields  const titleField = fields.find(f => f.name === 'title' || f.name === 'name' || f.primary) || fields.find(f => f.type === 'string' && !f.name.includes('id') && !f.name.includes('date')) || { name: 'id' };
   const imageField = fields.find(f => f.type === 'attachment')?.name || 'cover';
 
   const previewImage = useMemo(() => {
-    // 1. try 'thumbnail' (base64)
-    const thumb = localData['thumbnail'];
+    // 1. try 'thumbnail' (base64)    const thumb = localData['thumbnail'];
     if (thumb && typeof thumb === 'string' && thumb.startsWith('data:image')) return thumb;
 
-    // 2. try 'content' if it's an image (raw base64 sometimes stored here for drawing)
-    const content = localData['content'];
+    // 2. try 'content' if it's an image (raw base64 sometimes stored here for drawing)    const content = localData['content'];
     if (content && typeof content === 'string' && content.startsWith('data:image')) return content;
 
-    // 3. fallback to attachment
-    const attach = localData[imageField];
+    // 3. fallback to attachment    const attach = localData[imageField];
     if (attach) return attach?.url || (Array.isArray(attach) ? attach[0]?.url : null);
 
     return null;
@@ -90,31 +83,23 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
     if (!file) return;
 
     try {
-      // upload to nocobase
-      const uploaded = await api.upload(file);
+      // upload to nocobase      const uploaded = await api.upload(file);
       secureLogger.info("Uploaded:", uploaded);
 
-      // structure expected by nocobase attachment field is usually an array of objects
-      // or just the object depending on the field config.
-      // safest default is to append to existing array or create new array.
-      const current = localData[imageField] || [];
+      // structure expected by nocobase attachment field is usually an array of objects      // or just the object depending on the field config.      // safest default is to append to existing array or create new array.      const current = localData[imageField] || [];
       const newValue = Array.isArray(current) ? [...current, uploaded] : [uploaded];
 
       handleSave(imageField, newValue);
     } catch (error) {
       secureLogger.error("Upload failed", error);
-      // optional: show toast error
-    }
+      // optional: show toast error    }
   };
 
-  // filter fields to show (first 3 relevant ones excluding title/image)
-  // order based on fields array order
-  const visibleFields = fields
+  // filter fields to show (first 3 relevant ones excluding title/image)  // order based on fields array order  const visibleFields = fields
     .filter(f => !f.hidden && f.name !== titleField.name && f.name !== imageField && f.interface !== 'attachment' && f.name !== 'id')
     .slice(0, 3);
 
-  // selection style: use box-shadow instead of ring to respect radius
-  const selectionStyle = isSelected
+  // selection style: use box-shadow instead of ring to respect radius  const selectionStyle = isSelected
     ? { boxShadow: '0 0 0 2px var(--primary-gold), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }
     : {};
   return (
@@ -126,18 +111,15 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
       {/* inner content vessel - now the actual card container */}
       <div
         className={cn(
-          // outer shadow box container - universal rounding
-          "flex flex-col bg-card/80 backdrop-blur-sm text-card-foreground rounded-xl shadow-lg isolate relative transition-all hover:scale-[1.02]",
-          // "border-2 border-border/50 overflow-hidden", // removed: replaced by .card-fix
-          "card-fix",
+          // outer shadow box container - universal rounding          "flex flex-col bg-card/80 backdrop-blur-sm text-card-foreground rounded-xl shadow-lg isolate relative transition-all hover:scale-[1.02]",
+          // "border-2 border-border/50 overflow-hidden", // removed: replaced by .card-fix          "card-fix",
           "p-0 h-full w-full",
           className
         )}
         style={{
           ...selectionStyle,
           outline: 'none',
-          // rounded/border handled by .card-fix
-          ...style, ...decayStyle
+          // rounded/border handled by .card-fix          ...style, ...decayStyle
         }}
         onContextMenu={handleContextMenu}
       >

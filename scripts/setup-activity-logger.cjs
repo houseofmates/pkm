@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 // setup script for universal activity logger collections
-
 const axios = require('axios');
 
 const NOCOBASE_URL = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
@@ -35,8 +34,7 @@ async function createCollection(name, fields) {
 async function setup() {
   console.log('setting up activity logger collections...\n');
 
-  // activities registry - defines what can be logged
-  await createCollection('activities', [
+  // activities registry - defines what can be logged  await createCollection('activities', [
     { name: 'name', type: 'string', required: true },
     { name: 'category', type: 'string' }, // exercise, health, social, etc
     { name: 'icon', type: 'string' },
@@ -45,8 +43,7 @@ async function setup() {
     { name: 'loggable', type: 'boolean', defaultValue: true }
   ]);
 
-  // activity_logs - individual log entries
-  await createCollection('activity_logs', [
+  // activity_logs - individual log entries  await createCollection('activity_logs', [
     { name: 'activity_id', type: 'bigInt', required: true },
     { name: 'activity_name', type: 'string' }, // denormalized for quick queries
     { name: 'timestamp', type: 'date', required: true },
@@ -55,8 +52,7 @@ async function setup() {
     { name: 'notes', type: 'text' }
   ]);
 
-  // streaks - tracks consecutive days per activity
-  await createCollection('streaks', [
+  // streaks - tracks consecutive days per activity  await createCollection('streaks', [
     { name: 'activity_id', type: 'bigInt', required: true },
     { name: 'activity_name', type: 'string' },
     { name: 'current_streak', type: 'integer', defaultValue: 0 },

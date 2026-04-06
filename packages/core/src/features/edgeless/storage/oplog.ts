@@ -1,6 +1,4 @@
-// operation log types for delta-based canvas storage
-// each stroke, erase, or transform is recorded as an immutable operation
-
+// operation log types for delta-based canvas storage// each stroke, erase, or transform is recorded as an immutable operation
 import type { Canvas as FabricCanvas, Object as FabricObject, Image as FabricImage } from 'fabric'
 import { secureLogger } from '@/lib/secure-logger'
 
@@ -91,8 +89,7 @@ export interface CanvasCheckpoint {
   state: string | Record<string, unknown> // full fabricjs canvas state
 }
 
-/**
- * apply a single oplog operation to a fabric canvas instance.
+/** * apply a single oplog operation to a fabric canvas instance.
  *
  * this is intentionally low-level and avoids replaying the entire canvas
  * snapshot for each step; instead we mutate the canvas in-place.
@@ -121,8 +118,7 @@ export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<
     }
 
     case 'erase': {
-      // find target and replace or remove
-      const target = canvas.getObjects().find(
+      // find target and replace or remove      const target = canvas.getObjects().find(
         (o): o is FabricObject & { data?: { id?: string } } =>
           (o as FabricObject & { data?: { id?: string } }).data?.id === op.targetId
       )
@@ -131,8 +127,7 @@ export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<
       if (op.segmentsKept.length === 0) {
         canvas.remove(target)
       } else {
-        // remove old, add new segments
-        canvas.remove(target)
+        // remove old, add new segments        canvas.remove(target)
         for (const seg of op.segmentsKept) {
           const newPath = new fabricRef.Path(seg as unknown as string | import('fabric').TComplexPathData, {
             stroke: target.stroke,
@@ -219,18 +214,15 @@ export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<
   }
 }
 
-// replay oplog from checkpoint to reconstruct state
-export async function replayOplog(
+// replay oplog from checkpoint to reconstruct stateexport async function replayOplog(
   canvas: FabricCanvas,
   checkpoint: CanvasCheckpoint | undefined,
   ops: OpLogEntry[]
 ): Promise<void> {
-  // clear canvas
-  canvas.clear()
+  // clear canvas  canvas.clear()
   canvas.backgroundColor = '#050505'
 
-  // load checkpoint if exists
-  if (checkpoint?.state) {
+  // load checkpoint if exists  if (checkpoint?.state) {
     await new Promise<void>((resolve) => {
       canvas.loadFromJSON(checkpoint.state, () => {
         canvas.requestRenderAll()
@@ -239,18 +231,15 @@ export async function replayOplog(
     })
   }
 
-  // resolve conflicts and compact before applying
-  const resolvedOps = resolveConflicts(ops)
+  // resolve conflicts and compact before applying  const resolvedOps = resolveConflicts(ops)
   const compactedOps = compactOplog(resolvedOps)
 
-  // apply ops in order
-  for (const entry of compactedOps) {
+  // apply ops in order  for (const entry of compactedOps) {
     await applyOp(canvas, entry.op)
   }
 }
 
-/**
- * deterministically resolves conflicts between concurrent operations.
+/** * deterministically resolves conflicts between concurrent operations.
  * implements last-write-wins (lww) based on timestamp.
  * in case of a tie (same timestamp), it falls back to string comparison of the operation id.
  */
@@ -259,13 +248,11 @@ export function resolveConflicts(ops: OpLogEntry[]): OpLogEntry[] {
     if (a.timestamp !== b.timestamp) {
       return a.timestamp - b.timestamp;
     }
-    // tie-breaker: sort by id to ensure deterministic ordering across all clients
-    return a.id.localeCompare(b.id);
+    // tie-breaker: sort by id to ensure deterministic ordering across all clients    return a.id.localeCompare(b.id);
   });
 }
 
-/**
- * compacts an array of operations by removing redundant intermediate states.
+/** * compacts an array of operations by removing redundant intermediate states.
  * - keeps only the latest transformop for a given targetid.
  * - removes transformop and eraseop that precede a deleteop for the same targetid.
  * 
@@ -276,38 +263,33 @@ export function compactOplog(ops: OpLogEntry[]): OpLogEntry[] {
   const processedTransforms = new Set<string>();
   const terminalTargets = new Set<string>(); // targets that are deleted or fully replaced
 
-  // process from newest to oldest to preserve the latest state
-  for (let i = ops.length - 1; i >= 0; i--) {
+  // process from newest to oldest to preserve the latest state  for (let i = ops.length - 1; i >= 0; i--) {
     const entry = ops[i];
     const op = entry.op;
 
     if (op.type === 'delete' || op.type === 'bitmap-replace') {
       const targetId = op.targetId
-      // if we see a delete or replacement, any previous operations for this target are redundant
-      if (!terminalTargets.has(targetId)) {
+      // if we see a delete or replacement, any previous operations for this target are redundant      if (!terminalTargets.has(targetId)) {
         terminalTargets.add(targetId);
         result.unshift(entry);
       }
       continue;
     }
 
-    // skip operations on deleted or replaced targets
-    if ('targetId' in op && terminalTargets.has(op.targetId)) {
+    // skip operations on deleted or replaced targets    if ('targetId' in op && terminalTargets.has(op.targetId)) {
       continue;
     }
 
     if (op.type === 'transform') {
       const targetId = op.targetId
-      // keep only the latest transform for a given target
-      if (!processedTransforms.has(targetId)) {
+      // keep only the latest transform for a given target      if (!processedTransforms.has(targetId)) {
         processedTransforms.add(targetId);
         result.unshift(entry);
       }
       continue;
     }
 
-    // keep all other operations (path, layer-create, etc.)
-    result.unshift(entry);
+    // keep all other operations (path, layer-create, etc.)    result.unshift(entry);
   }
 
   return result;

@@ -8,7 +8,6 @@ import { extractRecords } from '@/lib/nocobase-utils';
 import { secureLogger } from '@/lib/secure-logger';
 
 // types available from @/types/nocobase if needed
-
 interface QueryParams {
   page?: number;
   pageSize?: number;
@@ -26,8 +25,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
   const activeFronterId = activeFronters[0] || null;
   const queryClient = useQueryClient();
 
-  // state for dynamic query parameters (pagination, filtering)
-  const [queryParams, setQueryParams] = useState<QueryParams>({
+  // state for dynamic query parameters (pagination, filtering)  const [queryParams, setQueryParams] = useState<QueryParams>({
     page: 1,
     pageSize: 20,
     ...initialParams
@@ -59,8 +57,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
   const records: Record<string, unknown>[] = extractRecords(data);
   const meta: Meta | undefined = (data as { meta?: Meta })?.meta;
 
-  // if a non-zero page returns no records, try swapping between 0/1 once.
-  const [pageFallbackTried, setPageFallbackTried] = useState(false);
+  // if a non-zero page returns no records, try swapping between 0/1 once.  const [pageFallbackTried, setPageFallbackTried] = useState(false);
   useEffect(() => {
     if (
       !isFetching &&
@@ -70,8 +67,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     ) {
       const current = queryParams.page as number;
       const newPage = current === 0 ? 1 : 0;
-      // postpone state update to avoid synchronous setstate in effect
-      setTimeout(() => {
+      // postpone state update to avoid synchronous setstate in effect      setTimeout(() => {
         setQueryParams((prev) => ({ ...prev, page: newPage }));
       }, 0);
       setPageFallbackTried(true);
@@ -82,12 +78,10 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     if (newParams) {
       setQueryParams((prev) => ({ ...prev, ...newParams }));
     }
-    // refetch returns a promise that resolves once the request completes
-    return refetch();
+    // refetch returns a promise that resolves once the request completes    return refetch();
   };
 
-  // create
-  const createMutation = useMutation({
+  // create  const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
       const payload: Record<string, unknown> = { ...data };
       if (activeFronterId) {
@@ -108,8 +102,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     },
   });
 
-  // update (optimistic)
-  const updateMutation = useMutation({
+  // update (optimistic)  const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string | number; data: Record<string, unknown> }) => {
       const payload: Record<string, unknown> = { ...data };
       if (activeFronterId) {
@@ -154,8 +147,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     },
   });
 
-  // delete
-  const deleteMutation = useMutation({
+  // delete  const deleteMutation = useMutation({
     mutationFn: async (id: string | number) => {
       const walId = await walWrite(collectionName, String(id), 'delete', null);
       try {
@@ -215,13 +207,11 @@ export function useRecord(collectionName: string, recordId: string | number) {
     },
   });
 
-  // safely extract data from various response formats
-  const extractRecordData = (responseData: unknown): unknown => {
+  // safely extract data from various response formats  const extractRecordData = (responseData: unknown): unknown => {
     if (!responseData) return null;
     if (typeof responseData !== 'object') return responseData;
 
-    // try to extract from common wrapper formats
-    const obj = responseData as Record<string, unknown>;
+    // try to extract from common wrapper formats    const obj = responseData as Record<string, unknown>;
     return obj.data ?? responseData;
   };
 

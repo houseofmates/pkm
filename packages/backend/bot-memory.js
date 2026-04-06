@@ -1,20 +1,16 @@
-// bot memory system - file-based memory similar to openclaw
-// stores memories in markdown files that the bot can read/write
-
+// bot memory system - file-based memory similar to openclaw// stores memories in markdown files that the bot can read/write
 import fs from 'fs';
 import path from 'path';
 
 const MEMORY_DIR = process.env.PKM_BOT_MEMORY_DIR || './data/bot-memory';
 
-// ensure memory directory exists
-function ensureMemoryDir() {
+// ensure memory directory existsfunction ensureMemoryDir() {
   if (!fs.existsSync(MEMORY_DIR)) {
     fs.mkdirSync(MEMORY_DIR, { recursive: true });
   }
 }
 
-// validate that a resolved path stays within the memory directory
-function safePath(fileName) {
+// validate that a resolved path stays within the memory directoryfunction safePath(fileName) {
   const normalized = path.normalize(fileName).replace(/^(\.\.(\/|\\|$))+/, '');
   const resolved = path.resolve(MEMORY_DIR, normalized);
   if (!resolved.startsWith(path.resolve(MEMORY_DIR))) {
@@ -23,8 +19,7 @@ function safePath(fileName) {
   return resolved;
 }
 
-// memory file paths
-const MEMORY_FILES = {
+// memory file pathsconst MEMORY_FILES = {
   important: 'important.md',
   context: 'context.md',
   tasks: 'tasks.md',
@@ -52,8 +47,7 @@ function sanitizeFileName(fileName) {
   return baseName;
 }
 
-// read a memory file
-export function readMemory(fileName) {
+// read a memory fileexport function readMemory(fileName) {
   ensureMemoryDir();
   const safeFileName = sanitizeFileName(fileName);
   const filePath = path.join(MEMORY_DIR, safeFileName);
@@ -69,8 +63,7 @@ export function readMemory(fileName) {
   return '';
 }
 
-// write to a memory file
-export function writeMemory(fileName, content) {
+// write to a memory fileexport function writeMemory(fileName, content) {
   ensureMemoryDir();
   const safeFileName = sanitizeFileName(fileName);
   const filePath = path.join(MEMORY_DIR, safeFileName);
@@ -84,23 +77,20 @@ export function writeMemory(fileName, content) {
   }
 }
 
-// append to a memory file
-export function appendMemory(fileName, content) {
+// append to a memory fileexport function appendMemory(fileName, content) {
   const existing = readMemory(fileName);
   const separator = existing && !existing.endsWith('\n') ? '\n' : '';
   return writeMemory(fileName, existing + separator + content);
 }
 
-// get all memories as context string
-export function getAllMemoryContext() {
+// get all memories as context stringexport function getAllMemoryContext() {
   const memories = {};
   
   for (const [key, fileName] of Object.entries(MEMORY_FILES)) {
     memories[key] = readMemory(fileName);
   }
   
-  // format as context string
-  let context = '';
+  // format as context string  let context = '';
   
   if (memories.important) {
     context += `## important\n${memories.important}\n\n`;
@@ -121,19 +111,16 @@ export function getAllMemoryContext() {
   return context;
 }
 
-// add a new memory
-export function addMemory(type, content, timestamp = new Date().toISOString()) {
+// add a new memoryexport function addMemory(type, content, timestamp = new Date().toISOString()) {
   const entry = `[${timestamp}] ${content}`;
   return appendMemory(MEMORY_FILES[type] || 'important', entry);
 }
 
-// clear a memory file
-export function clearMemory(fileName) {
+// clear a memory fileexport function clearMemory(fileName) {
   return writeMemory(fileName, '');
 }
 
-// get recent memories (last n entries)
-export function getRecentMemories(limit = 10) {
+// get recent memories (last n entries)export function getRecentMemories(limit = 10) {
   const recent = readMemory(MEMORY_FILES.recent);
   if (!recent) return [];
   
@@ -141,18 +128,15 @@ export function getRecentMemories(limit = 10) {
   return lines.slice(-limit);
 }
 
-// update context with current state
-export function updateContext(newContext) {
+// update context with current stateexport function updateContext(newContext) {
   return writeMemory(MEMORY_FILES.context, newContext);
 }
 
-// record an interaction
-export function recordInteraction(userMessage, botResponse) {
+// record an interactionexport function recordInteraction(userMessage, botResponse) {
   const timestamp = new Date().toISOString();
   const entry = `[${timestamp}] user: ${userMessage.substring(0, 100)}\nbot: ${botResponse.substring(0, 100)}`;
   
-  // keep only last 50 interactions
-  const existing = readMemory(MEMORY_FILES.recent);
+  // keep only last 50 interactions  const existing = readMemory(MEMORY_FILES.recent);
   const lines = existing ? existing.split('\n').filter(Boolean) : [];
   lines.push(entry);
   

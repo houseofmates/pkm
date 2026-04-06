@@ -20,26 +20,21 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
   const recordCount = (collection as any).recordCount;
 
   const [metadata] = useAppSetting<Record<string, { title?: string; image?: string; color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
-  // check for injected meta (from sidebar docs) or global metadata
-  const injectedMeta = (collection as any).meta || {};
+  // check for injected meta (from sidebar docs) or global metadata  const injectedMeta = (collection as any).meta || {};
   const meta = metadata[collection.name] || {};
 
   const description = collection.description || '';
-  // priority: metadata image > description url > none
-  const coverImage = meta.image || (description.startsWith('http') || description.startsWith('/') ? description : null);
+  // priority: metadata image > description url > none  const coverImage = meta.image || (description.startsWith('http') || description.startsWith('/') ? description : null);
 
-  // color priority: injected (sidebar) > metadata > default primary
-  const borderColor = injectedMeta.color || meta.color;
+  // color priority: injected (sidebar) > metadata > default primary  const borderColor = injectedMeta.color || meta.color;
 
-  // visual preview logic
-  const isDrawing = collection.name.startsWith('drawing_');
+  // visual preview logic  const isDrawing = collection.name.startsWith('drawing_');
   const isDoc = collection.name.startsWith('doc_');
   const isVisual = isDrawing || isDoc;
 
   let visualPreview = null;
   if (isDrawing) {
-    // try to get thumbnail from storage manager
-    const key = `drawing-config-${collection.name.replace('drawing_', '')}`;
+    // try to get thumbnail from storage manager    const key = `drawing-config-${collection.name.replace('drawing_', '')}`;
     try {
       const config = JSON.parse(storageManager.getItem(key) || '{}');
       if (config.thumbnail) {
@@ -50,11 +45,7 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
 
   const hasFields = !isVisual && fields.length > 0;
   // actually, user wants: "if something is fully empty... remove the extra space on the bottom"
-
-  // for databases: if no fields, don't render the bottom part.
-  // for visuals: if no thumbnail, don't render the bottom part? or render a small "empty" indicator?
-  // "remove the extra space... add it when necessary"
-  const showBottom = (isVisual && visualPreview) || (!isVisual && hasFields);
+  // for databases: if no fields, don't render the bottom part.  // for visuals: if no thumbnail, don't render the bottom part? or render a small "empty" indicator?  // "remove the extra space... add it when necessary"  const showBottom = (isVisual && visualPreview) || (!isVisual && hasFields);
 
   return (
     <Card
@@ -62,9 +53,7 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
       style={borderColor ? { borderColor: borderColor, borderWidth: '2px' } : undefined}
     >
       {coverImage ? (
-        /* cover image mode - keep fixed height or aspect ratio? use aspect-video? */
-        /* for consistency let's keep cover image cards fixed height or aspect ratio because the image is the content */
-        <div className="absolute inset-0 h-40">
+        /* cover image mode - keep fixed height or aspect ratio? use aspect-video? */        /* for consistency let's keep cover image cards fixed height or aspect ratio because the image is the content */        <div className="absolute inset-0 h-40">
           <img
             src={coverImage}
             alt={collection.title || collection.name}
@@ -90,7 +79,6 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
  but request is specific: "just remove the extra space".
  let's try auto height for all, but visual previews might need a specific height.
  */}
-
           {/* top row: icon */}
           <div className={cn("flex items-center justify-between relative z-10", showBottom ? "mb-2" : "mb-0")}>
             <Database
@@ -113,16 +101,14 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
           {/* preview area - only render if we have something to show */}
           {showBottom && (
             isVisual ? (
-              /* visual preview */
-              <div className="absolute inset-x-0 bottom-0 top-[40%] overflow-hidden rounded-b-[inherit]">
+              /* visual preview */              <div className="absolute inset-x-0 bottom-0 top-[40%] overflow-hidden rounded-b-[inherit]">
                 <div className="w-full h-full relative">
                   <img src={visualPreview!} className="w-full h-full object-cover opacity-80" />
                   <div className="absolute inset-0 bg-gradient-to-t from-transparent to-background/10" />
                 </div>
               </div>
             ) : (
-              /* database fields preview */
-              <div className="mt-4 relative z-10"> {/* added margin top instead of mt-auto if we are auto-height */}
+              /* database fields preview */              <div className="mt-4 relative z-10"> {/* added margin top instead of mt-auto if we are auto-height */}
                 <div className="flex flex-col gap-1">
                   {fields.slice(0, 3).map((f: any) => (
                     <div key={f.name} className="flex items-center text-[10px] text-muted-foreground gap-2">

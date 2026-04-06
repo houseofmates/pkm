@@ -22,7 +22,6 @@ import { secureLogger } from '@/lib/secure-logger';
 import { formatHeadmateName, getCapitalizationClass } from '@/utils/text-formatting';
 
 // local formatting removed in favor of global usage
-
 interface HeadmateContextMenuProps {
   memberId: string;
   memberName: string;
@@ -38,15 +37,12 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   const [imageOpen, setImageOpen] = useState(false);
   const [nameOpen, setNameOpen] = useState(false);
 
-  // edit state
-  const [desc, setDesc] = useState('');
+  // edit state  const [desc, setDesc] = useState('');
   const [visualName, setVisualName] = useState('');
 
-  // image state
-  const [imageUrl, setImageUrl] = useState('');
+  // image state  const [imageUrl, setImageUrl] = useState('');
 
-  // color state
-  const [color, setColor] = useState('#ffffff');
+  // color state  const [color, setColor] = useState('#ffffff');
   const [textColor, setTextColor] = useState('#ffffff');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -58,27 +54,21 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   toast.info(isHidden ? "headmate restored" : "headmate hidden");
   };
 
-  // --- image handling ---
-  // --- image handling ---
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // --- image handling ---  // --- image handling ---  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
-  // use the new memberservice to handle upload & sync
-  // we pass the updateoverride function as the callback
-  await MemberService.updateMemberAvatar(memberId, file, async (id, data) => {
+  // use the new memberservice to handle upload & sync  // we pass the updateoverride function as the callback  await MemberService.updateMemberAvatar(memberId, file, async (id, data) => {
   updateOverride(id, data);
 
-  // flush to persist the local override immediately
-  try {
+  // flush to persist the local override immediately  try {
  await flushOverrides();
   } catch (flushError) {
  secureLogger.warn('Failed to flush overrides:', flushError);
   }
   });
 
-  // reset file input and close dialog
-  if (fileInputRef.current) {
+  // reset file input and close dialog  if (fileInputRef.current) {
   fileInputRef.current.value = '';
   }
   setImageOpen(false);
@@ -88,8 +78,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   if (!imageUrl.trim()) return;
   updateOverride(memberId, { avatarUrl: imageUrl.trim() });
 
-  // flush immediately to ensure persistence
-  try {
+  // flush immediately to ensure persistence  try {
   await flushOverrides();
   } catch (flushError) {
   secureLogger.warn('Failed to flush overrides:', flushError);
@@ -100,8 +89,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   setImageOpen(false);
   };
 
-  // --- name/desc ---
-  const openEdit = () => {
+  // --- name/desc ---  const openEdit = () => {
   setDesc(currentOverride.description || '');
   setEditOpen(true);
   };
@@ -123,8 +111,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   toast.success("visual name saved");
   };
 
-  // --- colors ---
-  const openColor = () => {
+  // --- colors ---  const openColor = () => {
   setColor(currentOverride.color || '#cccccc');
   setTextColor(currentOverride.textColor || '#ffffff');
   setColorOpen(true);
@@ -136,8 +123,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   toast.success("colors saved");
   };
 
-  // --- front with status ---
-  const [frontStatusOpen, setFrontStatusOpen] = useState(false);
+  // --- front with status ---  const [frontStatusOpen, setFrontStatusOpen] = useState(false);
   const [customFrontStatus, setCustomFrontStatus] = useState('');
 
   const openFrontStatus = () => {
@@ -146,14 +132,12 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   };
 
   const handleFrontWithStatus = async () => {
-  // add to active fronters if not already there
-  const newFronters = [...activeFronters];
+  // add to active fronters if not already there  const newFronters = [...activeFronters];
   if (!newFronters.includes(memberId)) {
   newFronters.push(memberId);
   }
 
-  // update local state and sync
-  updateFronters(newFronters);
+  // update local state and sync  updateFronters(newFronters);
   await registerFrontChange(newFronters, customFrontStatus);
 
   setFrontStatusOpen(false);

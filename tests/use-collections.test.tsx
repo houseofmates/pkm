@@ -5,13 +5,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCollections, HARDCODED_COLLECTIONS } from '@/hooks/use-collections';
 import { useAuth } from '@/contexts/auth-context';
 
-// mock auth
-vi.mock('@/contexts/auth-context', () => ({
+// mock authvi.mock('@/contexts/auth-context', () => ({
   useAuth: vi.fn()
 }));
 
-// mock useQuery specifically for this test to bypass the global mock in setup-test.ts
-vi.mock('@tanstack/react-query', async (importOriginal) => {
+// mock usequery specifically for this test to bypass the global mock in setup-test.tsvi.mock('@tanstack/react-query', async (importOriginal) => {
   const actual = await importOriginal<any>();
   return {
     ...actual,
@@ -44,10 +42,8 @@ describe('useCollections filtering', () => {
       logout: mockClient.logout
     });
 
-    // simulate the useQuery behavior including the 'select' transformation
-    (useQuery as any).mockImplementation((options: any) => {
-      // we simulate the async fetch and then the select
-      const rawData = [
+    // simulate the usequery behavior including the 'select' transformation    (useQuery as any).mockImplementation((options: any) => {
+      // we simulate the async fetch and then the select      const rawData = [
         { name: 'posts', title: 'posts' },
         { name: 'pkm_settings', title: 'pkm settings', hidden: false },
         { name: 'public', title: 'public' },
@@ -74,13 +70,10 @@ describe('useCollections filtering', () => {
 
     const names = result.current.collections.map(c => c.name.toLowerCase().trim());
 
-    // verify 'journal' from hardcoded is included
-    expect(names).toContain('journal');
+    // verify 'journal' from hardcoded is included    expect(names).toContain('journal');
 
-    // verify 'posts' from api is included
-    expect(names).toContain('posts');
+    // verify 'posts' from api is included    expect(names).toContain('posts');
 
-    // verify pkm_settings is filtered out
-    expect(names).not.toContain('pkm_settings');
+    // verify pkm_settings is filtered out    expect(names).not.toContain('pkm_settings');
   });
 });

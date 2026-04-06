@@ -1,7 +1,4 @@
-// batch sync service for canvas operations
-// syncs oplog to nocobase every 5 seconds or 50 operations
-// implements client-side uuid collision resolution
-
+// batch sync service for canvas operations// syncs oplog to nocobase every 5 seconds or 50 operations// implements client-side uuid collision resolution
 import { api } from '@/api/nocobase-client'
 import {
   getUnsyncedOps,
@@ -42,17 +39,14 @@ class CanvasSyncService {
   start(): void {
     if (this.timer) return
 
-    // recover from crash: clear any stale sync state so drawings
-    // stuck as 'issyncing' get picked up on the next cycle
-    this.syncState.clear()
+    // recover from crash: clear any stale sync state so drawings    // stuck as 'issyncing' get picked up on the next cycle    this.syncState.clear()
     this.retryQueue.clear()
 
     this.timer = setInterval(() => {
       this.syncAllPending()
     }, SYNC_INTERVAL_MS)
 
-    // initial sync
-    this.syncAllPending()
+    // initial sync    this.syncAllPending()
   }
 
   stop(): void {
@@ -93,11 +87,9 @@ class CanvasSyncService {
     this.syncState.set(drawingId, state)
 
     try {
-      // get drawing metadata
-      const meta = await getDrawingMeta(drawingId)
+      // get drawing metadata      const meta = await getDrawingMeta(drawingId)
 
-      // build payload
-      const payload = {
+      // build payload      const payload = {
         drawingId,
         clientId: this.getClientId(),
         timestamp: Date.now(),
@@ -111,36 +103,27 @@ class CanvasSyncService {
         title: meta?.title || 'untitled',
       }
 
-      // fetch latest checkpoint if available
-      // (not implemented here - would require canvas access)
-
-      // send to nocobase
-      const result = await this.sendToServer(payload)
+      // fetch latest checkpoint if available      // (not implemented here - would require canvas access)
+      // send to nocobase      const result = await this.sendToServer(payload)
 
       if (result.success) {
-        // mark as synced
-        await markOpsSynced(batch.map((e) => e.id))
+        // mark as synced        await markOpsSynced(batch.map((e) => e.id))
 
-        // update metadata
-        await updateDrawingMeta(drawingId, {
+        // update metadata        await updateDrawingMeta(drawingId, {
           syncState: 'synced',
           serverId: result.serverDrawingId,
         })
 
-        // save checkpoint after successful sync
-        // (checkpoint data would come from canvas)
-
+        // save checkpoint after successful sync        // (checkpoint data would come from canvas)
         state.lastSyncAt = Date.now()
         state.isSyncing = false
         this.syncState.set(drawingId, state)
 
-        // process retry queue for this drawing
-        await this.processRetryQueue(drawingId)
+        // process retry queue for this drawing        await this.processRetryQueue(drawingId)
 
         return true
       } else if (result.conflict) {
-        // handle collision
-        await this.resolveConflict(drawingId, batch, result.serverOps || [])
+        // handle collision        await this.resolveConflict(drawingId, batch, result.serverOps || [])
         return false
       } else {
         throw new Error(result.error || 'sync failed')
@@ -150,8 +133,7 @@ class CanvasSyncService {
       state.isSyncing = false
       this.syncState.set(drawingId, state)
 
-      // queue for retry
-      this.queueForRetry(drawingId, batch)
+      // queue for retry      this.queueForRetry(drawingId, batch)
       return false
     }
   }
@@ -171,8 +153,7 @@ class CanvasSyncService {
           }
         : payload
 
-      // attempt to use pkm_canvases collection
-      const res = await api.request('pkm_canvases', 'create', {
+      // attempt to use pkm_canvases collection      const res = await api.request('pkm_canvases', 'create', {
         method: 'POST',
         data: {
           title,
@@ -183,10 +164,8 @@ class CanvasSyncService {
 
       return { success: true, serverDrawingId: (res?.data as any)?.id }
     } catch (err: any) {
-      // check for duplicate key (409 or 400 with unique constraint)
-      if (err.response?.status === 409 || err.response?.data?.errors?.[0]?.type === 'unique violation') {
-        // fetch server state for conflict resolution
-        try {
+      // check for duplicate key (409 or 400 with unique constraint)      if (err.response?.status === 409 || err.response?.data?.errors?.[0]?.type === 'unique violation') {
+        // fetch server state for conflict resolution        try {
           const serverOps = await this.fetchServerOps((payload as any).drawingId)
           return { success: false, conflict: true, serverOps }
         } catch {
@@ -233,26 +212,20 @@ class CanvasSyncService {
     localOps: OpLogEntry[],
     serverOps: unknown[]
   ): Promise<void> {
-    // last-write-wins based on timestamp
-    // if server has newer ops, we need to merge
-
+    // last-write-wins based on timestamp    // if server has newer ops, we need to merge
     const localIds = new Set(localOps.map((o) => o.id))
     const serverNewOps = serverOps.filter((o: any) => !localIds.has(o.id))
 
     if (serverNewOps.length > 0) {
-      // server has ops we don't have
-      // mark local ops as conflicted for manual resolution
-      await updateDrawingMeta(drawingId, { syncState: 'conflict' })
+      // server has ops we don't have      // mark local ops as conflicted for manual resolution      await updateDrawingMeta(drawingId, { syncState: 'conflict' })
 
-      // emit event for ui
-      window.dispatchEvent(
+      // emit event for ui      window.dispatchEvent(
         new CustomEvent('pkm:sync-conflict', {
           detail: { drawingId, localOps, serverOps },
         })
       )
     } else {
-      // we have all server ops, just resync
-      await markOpsSynced(localOps.map((o) => o.id))
+      // we have all server ops, just resync      await markOpsSynced(localOps.map((o) => o.id))
       await updateDrawingMeta(drawingId, { syncState: 'synced' })
     }
   }
@@ -275,20 +248,17 @@ class CanvasSyncService {
     const toRetry = queue.filter((e) => e.retries < MAX_RETRIES)
 
     if (toRetry.length > 0) {
-      // retry these ops
-      this.retryQueue.set(
+      // retry these ops      this.retryQueue.set(
         drawingId,
         queue.filter((e) => e.retries >= MAX_RETRIES) // keep failed ones for logging
       )
 
-      // they will be picked up on next sync cycle as unsynced
-      await updateDrawingMeta(drawingId, { syncState: 'pending' })
+      // they will be picked up on next sync cycle as unsynced      await updateDrawingMeta(drawingId, { syncState: 'pending' })
     }
   }
 
   private getClientId(): string {
-    // stable client identifier
-    let id = localStorage.getItem('pkm_client_id')
+    // stable client identifier    let id = localStorage.getItem('pkm_client_id')
     if (!id) {
       id = `client-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
       localStorage.setItem('pkm_client_id', id)
@@ -309,7 +279,6 @@ class CanvasSyncService {
 
 export const canvasSync = new CanvasSyncService()
 
-// react hook for sync status
-export function useSyncStatus(drawingId: string) {
+// react hook for sync statusexport function useSyncStatus(drawingId: string) {
   return canvasSync.getSyncState(drawingId)
 }

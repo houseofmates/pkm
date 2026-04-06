@@ -41,13 +41,11 @@ export function useFinanceTracker() {
   const today = new Date().toISOString().split('T')[0]
   const currentMonth = today.slice(0, 7) // yyyy-mm
 
-  // load finance data
-  useEffect(() => {
+  // load finance data  useEffect(() => {
     const loadFinance = async () => {
       setLoading(true)
       try {
-        // try to load from finance_daily collection
-        const res: any = await api.listRecords('finance_daily', {
+        // try to load from finance_daily collection        const res: any = await api.listRecords('finance_daily', {
           filter: { date: today },
           pageSize: 1
         })
@@ -62,8 +60,7 @@ export function useFinanceTracker() {
             { id: 'budget', name: 'budget', target: data.budget_target || 0, current: data.budget_remaining || 0, currency: 'USD' },
           ])
         } else {
-          // check localstorage fallback
-          const local = localStorage.getItem(`pkm:finance:${today}`)
+          // check localstorage fallback          const local = localStorage.getItem(`pkm:finance:${today}`)
           if (local) {
             const parsed = JSON.parse(local)
             setCategories(parsed.categories || categories)
@@ -85,14 +82,12 @@ export function useFinanceTracker() {
     )
     setCategories(newCategories)
     
-    // save to localstorage
-    localStorage.setItem(`pkm:finance:${today}`, JSON.stringify({
+    // save to localstorage    localStorage.setItem(`pkm:finance:${today}`, JSON.stringify({
       categories: newCategories,
       timestamp: new Date().toISOString()
     }))
     
-    // try to save to server
-    try {
+    // try to save to server    try {
       const existing: any = await api.listRecords('finance_daily', {
         filter: { date: today },
         pageSize: 1
@@ -104,8 +99,7 @@ export function useFinanceTracker() {
         timestamp: new Date().toISOString()
       }
       
-      // add the specific category value
-      const categoryMap: Record<string, string> = {
+      // add the specific category value      const categoryMap: Record<string, string> = {
         income: 'income',
         expenses: 'expenses',
         savings: 'savings',
@@ -124,8 +118,7 @@ export function useFinanceTracker() {
     }
   }, [categories, today, currentMonth])
 
-  // calculate completion based on targets
-  const completedCount = categories.filter(cat => {
+  // calculate completion based on targets  const completedCount = categories.filter(cat => {
     if (cat.target === 0) return cat.current > 0 // any activity counts if no target
     return cat.current >= cat.target * 0.8 // 80% of target counts
   }).length

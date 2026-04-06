@@ -3,7 +3,6 @@ import type { WeaveConfig } from '../shared/config.js';
 import { generateText, extractJson } from '../shared/ollama.js';
 
 // ── types ────────────────────────────────────────────────────
-
 export interface StaleNote {
   id: string;
   title: string;
@@ -22,15 +21,13 @@ export interface MergeSuggestion {
 }
 
 // ── stale detector ───────────────────────────────────────────
-
 export class StaleDetector {
   constructor(
     private vectorStore: VectorStore,
     private config: WeaveConfig,
   ) {}
 
-  /**
-   * run full stale/merge analysis:
+  /**   * run full stale/merge analysis:
    *   1. find notes not updated in `stalethresholddays`.
    *   2. find near-duplicate pairs (cosine sim above merge threshold).
    *   3. optionally enrich merge suggestions with llm reasoning.
@@ -43,8 +40,7 @@ export class StaleDetector {
     const now = Date.now();
     const staleMs = this.config.staleThresholdDays * 24 * 60 * 60 * 1000;
 
-    // ── stale notes ──────────────────────────────────────────
-    const staleNotes: StaleNote[] = [];
+    // ── stale notes ──────────────────────────────────────────    const staleNotes: StaleNote[] = [];
     for (const doc of docs) {
       const age = now - doc.mtime;
       if (age >= staleMs) {
@@ -59,8 +55,7 @@ export class StaleDetector {
     }
     staleNotes.sort((a, b) => b.daysSinceUpdate - a.daysSinceUpdate);
 
-    // ── merge candidates ─────────────────────────────────────
-    const pairs = this.vectorStore.findSimilarPairs(this.config.mergeSimilarityThreshold);
+    // ── merge candidates ─────────────────────────────────────    const pairs = this.vectorStore.findSimilarPairs(this.config.mergeSimilarityThreshold);
     let mergeSuggestions: MergeSuggestion[] = pairs.map(p => {
       const docA = this.vectorStore.get(p.a);
       const docB = this.vectorStore.get(p.b);
@@ -74,10 +69,8 @@ export class StaleDetector {
       };
     });
 
-    // ── optional llm enrichment ──────────────────────────────
-    if (options?.enrichWithLlm && mergeSuggestions.length > 0) {
-      // only enrich the top 10 to avoid excessive llm calls
-      const toEnrich = mergeSuggestions.slice(0, 10);
+    // ── optional llm enrichment ──────────────────────────────    if (options?.enrichWithLlm && mergeSuggestions.length > 0) {
+      // only enrich the top 10 to avoid excessive llm calls      const toEnrich = mergeSuggestions.slice(0, 10);
       const enriched = await Promise.allSettled(
         toEnrich.map(s => this.enrichMergeSuggestion(s)),
       );
@@ -98,7 +91,6 @@ export class StaleDetector {
   }
 
   // ── llm merge reasoning ────────────────────────────────────
-
   private async enrichMergeSuggestion(suggestion: MergeSuggestion): Promise<MergeSuggestion> {
     const docA = this.vectorStore.get(suggestion.docA);
     const docB = this.vectorStore.get(suggestion.docB);

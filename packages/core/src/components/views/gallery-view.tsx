@@ -71,8 +71,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
     );
   }
 
-  // helper to get media asset (url + kind) from record field or common keys
-  const getMediaAsset = (record: Record<string, any>, field: { name: string } | null) => {
+  // helper to get media asset (url + kind) from record field or common keys  const getMediaAsset = (record: Record<string, any>, field: { name: string } | null) => {
     const coerce = (val: any) => {
       if (!val) return null;
       const url = val.url || val.url_thumbnail || val.thumb || val.preview || (typeof val === 'string' ? val : null);
@@ -103,14 +102,12 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
     return null;
   };
 
-  // detect fields if not configured
-  const imageField = config.coverField
+  // detect fields if not configured  const imageField = config.coverField
     ? collection?.fields?.find((f: { name: string; interface?: string }) => f.name === config.coverField)
     : (collection?.fields?.find((f: { name: string; interface?: string }) => f.interface === 'attachment')
       || collection?.fields?.find((f: { name: string }) => /image|cover|avatar|photo|picture|icon/.test(f.name.toLowerCase())));
 
-  // prefer "title" as the gallery card title, then name, then first input
-  const titleField = config.titleField
+  // prefer "title" as the gallery card title, then name, then first input  const titleField = config.titleField
     ? collection?.fields?.find((f: { name: string; interface?: string }) => f.name === config.titleField)
     : (collection?.fields?.find((f: { name: string }) => f.name === 'title')
       || collection?.fields?.find((f: { name: string }) => f.name === 'name')

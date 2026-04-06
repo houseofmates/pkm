@@ -8,8 +8,7 @@ export const CollectionSchema = z.object({
   hidden: z.boolean().optional(),
 }).passthrough();
 
-// backward-compatible alias
-export const collectionSchema = CollectionSchema;
+// backward-compatible aliasexport const collectionSchema = CollectionSchema;
 
 export const ListCollectionsResponseSchema = z.object({
   data: z.union([

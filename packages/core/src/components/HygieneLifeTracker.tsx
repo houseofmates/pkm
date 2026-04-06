@@ -25,23 +25,19 @@ interface HygieneLifeTrackerProps {
 }
 
 const DEFAULT_TRACKERS: Omit<LifeTracker, 'checked' | 'scaleValue'>[] = [
-  // hygiene
-  { id: 'shower', label: 'shower', emoji: '🚿', category: 'hygiene', type: 'toggle' },
+  // hygiene  { id: 'shower', label: 'shower', emoji: '🚿', category: 'hygiene', type: 'toggle' },
   { id: 'brush_teeth_morning', label: 'brushed (am)', emoji: '🌅', category: 'hygiene', type: 'toggle' },
   { id: 'brush_teeth_night', label: 'brushed (pm)', emoji: '🌙', category: 'hygiene', type: 'toggle' },
   { id: 'wash_face', label: 'washed face', emoji: '🧴', category: 'hygiene', type: 'toggle' },
   { id: 'skincare', label: 'skincare', emoji: '✨', category: 'hygiene', type: 'toggle' },
   { id: 'makeup', label: 'grooming', emoji: '💄', category: 'hygiene', type: 'toggle' },
   
-  // health basics
-  { id: 'ate', label: 'ate something', emoji: '🍽️', category: 'health', type: 'toggle' },
+  // health basics  { id: 'ate', label: 'ate something', emoji: '🍽️', category: 'health', type: 'toggle' },
   { id: 'meds', label: 'took meds', emoji: '💊', category: 'health', type: 'toggle' },
   
-  // water with scale
-  { id: 'water', label: 'hydration', emoji: '💧', category: 'water', type: 'scale' },
+  // water with scale  { id: 'water', label: 'hydration', emoji: '💧', category: 'water', type: 'scale' },
   
-  // movement (the "left" track - progressive disclosure)
-  { id: 'left_bed', label: 'left bed', emoji: '🛏️', category: 'wellness', type: 'toggle' },
+  // movement (the "left" track - progressive disclosure)  { id: 'left_bed', label: 'left bed', emoji: '🛏️', category: 'wellness', type: 'toggle' },
   { id: 'left_room', label: 'left room', emoji: '🚪', category: 'wellness', type: 'toggle' },
   { id: 'left_house', label: 'left house', emoji: '🌳', category: 'wellness', type: 'toggle' },
 ];
@@ -177,8 +173,7 @@ export function HygieneLifeTracker({ date, onChange, className }: HygieneLifeTra
     }));
   });
   
-  // persist to localstorage
-  useEffect(() => {
+  // persist to localstorage  useEffect(() => {
     const checked: Record<string, boolean> = {};
     const scales: Record<string, number> = {};
     
@@ -210,8 +205,7 @@ export function HygieneLifeTracker({ date, onChange, className }: HygieneLifeTra
   const waterTracker = trackers.find(t => t.category === 'water');
   const wellnessTrackers = trackers.filter(t => t.category === 'wellness');
   
-  // calculate progress for each section
-  const hygieneProgress = hygieneTrackers.filter(t => t.checked).length;
+  // calculate progress for each section  const hygieneProgress = hygieneTrackers.filter(t => t.checked).length;
   const healthProgress = healthTrackers.filter(t => t.checked).length;
   const wellnessProgress = wellnessTrackers.filter(t => t.checked).length;
   
@@ -291,8 +285,7 @@ export function HygieneLifeTracker({ date, onChange, className }: HygieneLifeTra
   );
 }
 
-// hook for external access to tracker data
-export function useLifeTrackers(date?: string) {
+// hook for external access to tracker dataexport function useLifeTrackers(date?: string) {
   const storageKey = `pkm:life-trackers:${date || new Date().toISOString().split('T')[0]}`;
   
   const getTrackers = (): LifeTracker[] => {

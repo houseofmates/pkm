@@ -287,8 +287,7 @@ function formatValue(value: any): string {
   return String(value);
 }
 
-// markdown parser for {{database:name view:type}} syntax
-export function parseDatabaseTags(content: string): Array<{ tag: string; props: DatabaseViewProps }> {
+// markdown parser for {{database:name view:type}} syntaxexport function parseDatabaseTags(content: string): Array<{ tag: string; props: DatabaseViewProps }> {
   const regex = /\{\{database:(\w+)\s+view:(\w+)(?:\s+filter:(\w+))?(?:\s+limit:(\d+))?(?:\s+groupBy:(\w+))?(?:\s+type:(\w+))?\}\}/g;
   const matches: Array<{ tag: string; props: DatabaseViewProps }> = [];
   

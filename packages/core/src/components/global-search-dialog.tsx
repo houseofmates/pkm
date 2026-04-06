@@ -35,7 +35,6 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
   }, [open]);
 
   // semantic search is handled by searchbar -> backend lancedb -> results written to zustand store
-
   const handleSemanticSearch = async (q: string) => {
     if (!q || !q.trim()) return;
     setLoading(true);
@@ -43,8 +42,7 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
     setStatus('thinking...');
     try {
       setQuery(q);
-      // build context from store searchresults (already written by searchbar)
-      const results = searchResults || [];
+      // build context from store searchresults (already written by searchbar)      const results = searchResults || [];
       let context = `user query: "${q}"\n\nsearch results from database:\n`;
       if (results.length > 0) {
       results.forEach((res: { collectionName?: string; collectionTitle?: string; record?: Record<string, unknown>; id?: string; score?: number }) => {

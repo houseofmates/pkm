@@ -17,22 +17,17 @@ interface NodePosition {
 }
 
 export function MindMapView({ data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete }: ViewProps) {
-  // all hooks must be called before any early return
-  const [positions, setPositions] = useState<Record<string, NodePosition>>({});
+  // all hooks must be called before any early return  const [positions, setPositions] = useState<Record<string, NodePosition>>({});
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  // node drag logic
-  const [nodeDrag, setNodeDrag] = useState<{ id: string, startX: number, startY: number, initialX: number, initialY: number } | null>(null);
+  // node drag logic  const [nodeDrag, setNodeDrag] = useState<{ id: string, startX: number, startY: number, initialX: number, initialY: number } | null>(null);
 
-  // load saved positions on mount only
-  useEffect(() => {
+  // load saved positions on mount only  useEffect(() => {
     if (!collection) return;
-    // in a real app, this would be saved in 'config' prop passed from parent
-    // for now, we'll try to load from config or localstorage fallback
-    const saved = config?.positions || storageManager.getItem(`mindmap_${collection.name}`);
+    // in a real app, this would be saved in 'config' prop passed from parent    // for now, we'll try to load from config or localstorage fallback    const saved = config?.positions || storageManager.getItem(`mindmap_${collection.name}`);
     if (saved) {
       try {
         setPositions(typeof saved === 'string' ? JSON.parse(saved) : saved);
@@ -40,8 +35,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
         secureLogger.error("Failed to load positions");
       }
     } else {
-      // initial auto-layout (grid)
-      const initial: Record<string, NodePosition> = {};
+      // initial auto-layout (grid)      const initial: Record<string, NodePosition> = {};
       const cols = Math.ceil(Math.sqrt(data.length));
       data.forEach((record, i) => {
         initial[record.id] = {
@@ -54,8 +48,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
     }
   }, [collection?.name]);
 
-  // calculate edges based on relations
-  const edges = useMemo(() => {
+  // calculate edges based on relations  const edges = useMemo(() => {
     if (!collection) return [];
     const links: { source: string; target: string; label: string }[] = [];
     const relationFields = collection.fields?.filter((f: any) => f.interface === 'linkToMany' || f.interface === 'linkToOne') || [];
@@ -67,8 +60,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
         const targets = Array.isArray(target) ? target : [target];
         targets.forEach((t: any) => {
           const tId = typeof t === 'object' ? t.id : t;
-          // only draw if both exist in current view
-          if (data.find(d => d.id === tId)) {
+          // only draw if both exist in current view          if (data.find(d => d.id === tId)) {
             links.push({ source: src.id, target: tId, label: field.uiSchema?.title });
           }
         });
@@ -89,12 +81,10 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   }
 
   const handleSave = () => {
-    // save to parent config if possible
-    if (onConfigChange) {
+    // save to parent config if possible    if (onConfigChange) {
       onConfigChange('positions', positions);
     }
-    // also local backup (use storagemanager for safety)
-    storageManager.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
+    // also local backup (use storagemanager for safety)    storageManager.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
     toast.success("mind map layout saved");
   };
 
@@ -159,8 +149,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
  const t = positions[edge.target];
  if (!s || !t) return null;
 
- // center of nodes (assuming w=200, h=80 approx)
- const sx = s.x + 100;
+ // center of nodes (assuming w=200, h=80 approx) const sx = s.x + 100;
  const sy = s.y + 40;
  const tx = t.x + 100;
  const ty = t.y + 40;

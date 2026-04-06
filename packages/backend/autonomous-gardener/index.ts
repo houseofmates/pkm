@@ -7,7 +7,6 @@ import { StaleDetector } from './stale-detector.js';
 import { ContinuityReporter } from './continuity-report.js';
 
 // ── types ────────────────────────────────────────────────────
-
 export interface GardenerContext {
   linkChecker: LinkChecker;
   clusterTagger: ClusterTagger;
@@ -16,8 +15,7 @@ export interface GardenerContext {
   config: WeaveConfig;
 }
 
-// cached results from the last full run
-interface GardenerCache {
+// cached results from the last full runinterface GardenerCache {
   lastRun: string | null;      // iso timestamp
   brokenLinks: unknown[] | null;
   clusters: unknown[] | null;
@@ -32,7 +30,6 @@ const cache: GardenerCache = {
 };
 
 // ── initialization ───────────────────────────────────────────
-
 export function initGardener(vectorStore: VectorStore, config: WeaveConfig): GardenerContext {
   const linkChecker = new LinkChecker(config.notesDir, vectorStore);
   const clusterTagger = new ClusterTagger(vectorStore, config);
@@ -42,15 +39,13 @@ export function initGardener(vectorStore: VectorStore, config: WeaveConfig): Gar
   return { linkChecker, clusterTagger, staleDetector, continuityReporter, config };
 }
 
-/**
- * start the gardener background scheduler. runs the full analysis
+/** * start the gardener background scheduler. runs the full analysis
  * at the configured interval.
  */
 export function startGardenerScheduler(ctx: GardenerContext): { stop: () => void } {
   const intervalMs = ctx.config.gardenerIntervalHours * 60 * 60 * 1000;
 
-  // run first analysis after a short delay (let the indexer finish initial scan)
-  const initialTimeout = setTimeout(() => {
+  // run first analysis after a short delay (let the indexer finish initial scan)  const initialTimeout = setTimeout(() => {
     runFullAnalysis(ctx).catch(err => console.error('[gardener] scheduled run failed:', err));
   }, 30_000); // 30 seconds after startup
 
@@ -70,7 +65,6 @@ export function startGardenerScheduler(ctx: GardenerContext): { stop: () => void
 }
 
 // ── full analysis run ────────────────────────────────────────
-
 async function runFullAnalysis(ctx: GardenerContext): Promise<void> {
   const start = Date.now();
   console.log('[gardener] starting full analysis...');
@@ -87,8 +81,7 @@ async function runFullAnalysis(ctx: GardenerContext): Promise<void> {
     cache.staleAnalysis = staleAnalysis.status === 'fulfilled' ? staleAnalysis.value : null;
     cache.lastRun = new Date().toISOString();
 
-    // generate continuity report
-    await ctx.continuityReporter.generate().catch(err =>
+    // generate continuity report    await ctx.continuityReporter.generate().catch(err =>
       console.error('[gardener] continuity report failed:', err),
     );
 
@@ -100,12 +93,10 @@ async function runFullAnalysis(ctx: GardenerContext): Promise<void> {
 }
 
 // ── express router ───────────────────────────────────────────
-
 export function createGardenerRouter(ctx: GardenerContext): Router {
   const router = Router();
 
-  // post /gardener/run — trigger a full analysis
-  router.post('/run', async (_req: Request, res: Response) => {
+  // post /gardener/run — trigger a full analysis  router.post('/run', async (_req: Request, res: Response) => {
     try {
       await runFullAnalysis(ctx);
       res.json({ ok: true, lastRun: cache.lastRun });
@@ -115,8 +106,7 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     }
   });
 
-  // get /gardener/status — last run info
-  router.get('/status', (_req: Request, res: Response) => {
+  // get /gardener/status — last run info  router.get('/status', (_req: Request, res: Response) => {
     res.json({
       lastRun: cache.lastRun,
       hasResults: cache.brokenLinks !== null,
@@ -124,11 +114,9 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     });
   });
 
-  // get /gardener/links — broken link report
-  router.get('/links', async (req: Request, res: Response) => {
+  // get /gardener/links — broken link report  router.get('/links', async (req: Request, res: Response) => {
     try {
-      // if no cached results or ?fresh=true, run check now
-      if (!cache.brokenLinks || req.query.fresh === 'true') {
+      // if no cached results or ?fresh=true, run check now      if (!cache.brokenLinks || req.query.fresh === 'true') {
         cache.brokenLinks = await ctx.linkChecker.check();
       }
       res.json({ brokenLinks: cache.brokenLinks });
@@ -138,8 +126,7 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     }
   });
 
-  // get /gardener/clusters — concept cluster report
-  router.get('/clusters', async (req: Request, res: Response) => {
+  // get /gardener/clusters — concept cluster report  router.get('/clusters', async (req: Request, res: Response) => {
     try {
       if (!cache.clusters || req.query.fresh === 'true') {
         cache.clusters = await ctx.clusterTagger.analyze();
@@ -151,8 +138,7 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     }
   });
 
-  // get /gardener/stale — stale notes and merge suggestions
-  router.get('/stale', async (req: Request, res: Response) => {
+  // get /gardener/stale — stale notes and merge suggestions  router.get('/stale', async (req: Request, res: Response) => {
     try {
       const enrichWithLlm = req.query.enrich === 'true';
       if (!cache.staleAnalysis || req.query.fresh === 'true') {
@@ -165,8 +151,7 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     }
   });
 
-  // get /gardener/report — latest continuity report
-  router.get('/report', async (_req: Request, res: Response) => {
+  // get /gardener/report — latest continuity report  router.get('/report', async (_req: Request, res: Response) => {
     try {
       const dates = await ctx.continuityReporter.listReports();
       if (dates.length === 0) {
@@ -180,12 +165,10 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     }
   });
 
-  // get /gardener/report/:date — report for a specific date
-  router.get('/report/:date', async (req: Request, res: Response) => {
+  // get /gardener/report/:date — report for a specific date  router.get('/report/:date', async (req: Request, res: Response) => {
     try {
       const dateStr = String(req.params.date);
-      // basic validation: yyyy-mm-dd
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      // basic validation: yyyy-mm-dd      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
         return res.status(400).json({ error: 'invalid date format, expected yyyy-mm-dd' });
       }
       const report = await ctx.continuityReporter.getReport(dateStr);

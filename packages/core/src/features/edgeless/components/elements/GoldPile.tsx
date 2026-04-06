@@ -7,8 +7,7 @@ export const GoldPile = React.memo(function GoldPile({ element }: { element: any
   const multiplierRef = useRef(1);
 
   useEffect(() => {
-    // optimization: cap at 50 coins
-    let numCoins = Math.floor(current_amount / 10);
+    // optimization: cap at 50 coins    let numCoins = Math.floor(current_amount / 10);
     let mult = 1;
 
     if (numCoins > 50) {
@@ -42,8 +41,7 @@ export const GoldPile = React.memo(function GoldPile({ element }: { element: any
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // draw container (glass jar)
-      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+      // draw container (glass jar)      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(50, 50);
@@ -52,17 +50,14 @@ export const GoldPile = React.memo(function GoldPile({ element }: { element: any
       ctx.lineTo(250, 50);
       ctx.stroke();
 
-      // fill level indicator
-      const fillHeight = (current_amount / target_amount) * 230;
+      // fill level indicator      const fillHeight = (current_amount / target_amount) * 230;
       ctx.fillStyle = 'rgba(246, 176, 18, 0.1)';
       ctx.fillRect(55, 280 - fillHeight, 190, fillHeight);
 
-      // draw coins
-      coins.forEach(coin => {
+      // draw coins      coins.forEach(coin => {
         if (coin.y < 280 - coin.r) {
           coin.y += coin.vy;
-          // simple bounce/stack simulation
-          if (coin.y > 280 - Math.random() * 10) {
+          // simple bounce/stack simulation          if (coin.y > 280 - Math.random() * 10) {
             coin.y = 280 - Math.random() * 10;
             coin.vy = 0;
           }

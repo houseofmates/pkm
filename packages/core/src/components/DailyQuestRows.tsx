@@ -12,8 +12,7 @@ export const DailyQuestRows: React.FC<DailyQuestRowsProps> = () => {
       try {
         const parsed = JSON.parse(draft);
         if (parsed.body) {
-          // logic
-        }
+          // logic        }
       } catch (e) {
         secureLogger.debug("failed to parse journal draft:", e);
       }

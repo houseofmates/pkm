@@ -7,8 +7,7 @@ export interface IdentityContext {
   avatarUrl?: string; // local or proxied url
   } | null;
   systemName?: string;
-  // we can add a summary of recent fronters here later if needed
-}
+  // we can add a summary of recent fronters here later if needed}
 
 export interface AffectiveContext {
   currentMood: {
@@ -16,8 +15,7 @@ export interface AffectiveContext {
   intensity?: number; // 0-10 or similar
   note?: string;
   } | null;
-  // derived from moodboard or specific mood logs
-  globalState?: string; // e.g. "stressed", "relaxed"
+  // derived from moodboard or specific mood logs  globalState?: string; // e.g. "stressed", "relaxed"
 }
 
 export interface ActivityContext {

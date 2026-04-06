@@ -5,8 +5,7 @@ import { Badge } from '../ui/badge'
 import { Volume2, Play, Pause, Circle } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
 
-// breathing animation data
-const BREATHING_PATTERN = [
+// breathing animation dataconst BREATHING_PATTERN = [
   { duration: 4000, label: 'in 4s', size: 100 },
   { duration: 7000, label: 'hold 7s', size: 120 },
   { duration: 8000, label: 'out 8s', size: 80 }
@@ -29,18 +28,15 @@ const SensoryHub: React.FC = () => {
   const [calmStreak, setCalmStreak] = useState(0)
   const { earnXp } = useGamificationStore()
 
-  // breathing cycle
-  useEffect(() => {
+  // breathing cycle  useEffect(() => {
     let interval: NodeJS.Timeout
     if (isBreathing) {
       const phase = BREATHING_PATTERN[breathPhase]
       interval = setInterval(() => {
         setBreathProgress(prev => {
           if (prev >= 100) {
-            // next phase
-            if (breathPhase === 2) {
-              // cycle complete
-              setIsBreathing(false)
+            // next phase            if (breathPhase === 2) {
+              // cycle complete              setIsBreathing(false)
               setBreathPhase(0)
               setBreathProgress(0)
               setCalmStreak(prev => prev + 1)
@@ -58,26 +54,22 @@ const SensoryHub: React.FC = () => {
     return () => clearInterval(interval)
   }, [isBreathing, breathPhase])
 
-  // calm streak decay (slow)
-  useEffect(() => {
+  // calm streak decay (slow)  useEffect(() => {
     const decay = setInterval(() => {
       setCalmStreak(prev => Math.max(0, prev - 0.1))
     }, 60000)
     return () => clearInterval(decay)
   }, [])
 
-  // white noise toggle
-  const toggleNoise = (id: string) => {
+  // white noise toggle  const toggleNoise = (id: string) => {
     if (activeNoise === id) {
-      // stop all
-      WHITE_NOISES.forEach(n => {
+      // stop all      WHITE_NOISES.forEach(n => {
         const audio = (document.querySelector(`#${n.id}`) as HTMLAudioElement)
         if (audio) audio.pause()
       })
       setActiveNoise('')
     } else {
-      // stop others, play this
-      WHITE_NOISES.forEach(n => {
+      // stop others, play this      WHITE_NOISES.forEach(n => {
         const audio = (document.querySelector(`#${n.id}`) as HTMLAudioElement)
         if (audio) {
           if (n.id === id) {
@@ -93,8 +85,7 @@ const SensoryHub: React.FC = () => {
     }
   }
 
-  // fidget spinner
-  const spinFidget = () => {
+  // fidget spinner  const spinFidget = () => {
     setFidgetSpins(prev => prev + 1)
     if (fidgetSpins % 10 === 0) earnXp(1, 'focus fidget')
   }

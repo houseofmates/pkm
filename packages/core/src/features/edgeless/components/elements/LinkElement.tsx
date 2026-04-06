@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ExternalLink, Type, Eye, File, type LucideIcon } from 'lucide-react';
-// dynamic icon loader for lucide icons
-const lucideIconMap: Record<string, LucideIcon> = {};
+// dynamic icon loader for lucide iconsconst lucideIconMap: Record<string, LucideIcon> = {};
 function getLucideIcon(name: string): LucideIcon | undefined {
   return lucideIconMap[name];
 }
@@ -26,8 +25,7 @@ export const LinkElement = React.memo(function LinkElement({ element }: LinkElem
   const data = element.data || {};
   const { title, url, icon, iconType, variant = 'card' } = data; // variant: 'card' | 'simple'
 
-  // icon rendering
-  const renderIcon = (className = "h-6 w-6") => {
+  // icon rendering  const renderIcon = (className = "h-6 w-6") => {
     if (iconType === 'emoji') return <span className="text-2xl leading-none">{icon}</span>;
     if (iconType === 'image') return <img src={icon} alt="" className={className + " object-contain"} />;
     if (iconType === 'lucide') {
@@ -39,8 +37,7 @@ export const LinkElement = React.memo(function LinkElement({ element }: LinkElem
 
   const handleOpen = () => {
     if (url) {
-      // handle internal navigation vs external
-      if (url.startsWith('http') && !url.includes(window.location.host)) {
+      // handle internal navigation vs external      if (url.startsWith('http') && !url.includes(window.location.host)) {
         window.open(url, '_blank');
       } else {
         navigate(url.replace(window.location.origin, '')); // naive relative
@@ -48,8 +45,7 @@ export const LinkElement = React.memo(function LinkElement({ element }: LinkElem
     }
   };
 
-  // card variant (preview screenshot style - using big icon/color)
-  if (variant === 'card') {
+  // card variant (preview screenshot style - using big icon/color)  if (variant === 'card') {
     return (
       <ContextMenu>
         <ContextMenuTrigger>
@@ -96,8 +92,7 @@ export const LinkElement = React.memo(function LinkElement({ element }: LinkElem
     );
   }
 
-  // simple variant
-  return (
+  // simple variant  return (
     <ContextMenu>
       <ContextMenuTrigger>
         <div

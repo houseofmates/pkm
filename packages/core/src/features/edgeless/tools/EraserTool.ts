@@ -22,8 +22,7 @@ export class EraserTool extends BaseTool {
     const size = store.eraserWidth || 20;
     const effectiveSize = size * Math.max(0.1, pressure);
 
-    // don't save/restore here - keep destination-out mode for continuous erasing
-    ctx.ctx.globalCompositeOperation = 'destination-out';
+    // don't save/restore here - keep destination-out mode for continuous erasing    ctx.ctx.globalCompositeOperation = 'destination-out';
     ctx.ctx.globalAlpha = 1;
     ctx.ctx.strokeStyle = 'rgba(0,0,0,1)';
     ctx.ctx.beginPath();

@@ -32,8 +32,7 @@ export function ContinuityMap({ data }: ContinuityMapProps) {
     setMounted(true);
   }, []);
 
-  // calculate date range
-  const dateRange = useMemo(() => {
+  // calculate date range  const dateRange = useMemo(() => {
     const end = new Date();
     const start = new Date();
     start.setMonth(start.getMonth() - monthsToShow);
@@ -41,8 +40,7 @@ export function ContinuityMap({ data }: ContinuityMapProps) {
     return { start, end };
   }, [monthsToShow]);
 
-  // process activity data into daily buckets
-  const activityData = useMemo(() => {
+  // process activity data into daily buckets  const activityData = useMemo(() => {
     if (!records) return new Map<string, number>();
 
     const dataMap = new Map<string, number>();
@@ -51,8 +49,7 @@ export function ContinuityMap({ data }: ContinuityMapProps) {
       const timestamp = record.timestamp || record.created_at;
       if (!timestamp) return;
       
-      // filter by activity type if specified
-      if (activityType && record.type !== activityType && record.activity_type !== activityType) {
+      // filter by activity type if specified      if (activityType && record.type !== activityType && record.activity_type !== activityType) {
         return;
       }
       
@@ -63,16 +60,14 @@ export function ContinuityMap({ data }: ContinuityMapProps) {
     return dataMap;
   }, [records, activityType]);
 
-  // generate calendar grid data
-  const calendarData = useMemo(() => {
+  // generate calendar grid data  const calendarData = useMemo(() => {
     const weeks: DayData[][] = [];
     let currentWeek: DayData[] = [];
 
     const { start, end } = dateRange;
     const current = new Date(start);
 
-    // align to sunday
-    while (current.getDay() !== 0) {
+    // align to sunday    while (current.getDay() !== 0) {
       current.setDate(current.getDate() - 1);
     }
 
@@ -80,8 +75,7 @@ export function ContinuityMap({ data }: ContinuityMapProps) {
       const dateStr = current.toISOString().split('T')[0];
       const count = activityData.get(dateStr) || 0;
       
-      // calculate intensity level
-      let level: 0 | 1 | 2 | 3 | 4 = 0;
+      // calculate intensity level      let level: 0 | 1 | 2 | 3 | 4 = 0;
       if (count > 0) level = 1;
       if (count >= 2) level = 2;
       if (count >= 4) level = 3;
@@ -108,8 +102,7 @@ export function ContinuityMap({ data }: ContinuityMapProps) {
     return weeks;
   }, [activityData, dateRange]);
 
-  // calculate month labels
-  const monthLabels = useMemo(() => {
+  // calculate month labels  const monthLabels = useMemo(() => {
     const labels: { month: string; index: number }[] = [];
     const seen = new Set<string>();
     
@@ -130,8 +123,7 @@ export function ContinuityMap({ data }: ContinuityMapProps) {
     return labels;
   }, [calendarData]);
 
-  // calculate stats
-  const stats = useMemo(() => {
+  // calculate stats  const stats = useMemo(() => {
     const totalDays = calendarData.flat().length;
     const activeDays = calendarData.flat().filter(d => d.count > 0).length;
     const maxStreak = (() => {
@@ -151,8 +143,7 @@ export function ContinuityMap({ data }: ContinuityMapProps) {
     return { totalDays, activeDays, maxStreak };
   }, [calendarData]);
 
-  // color intensity function
-  const getIntensityColor = (level: number): string => {
+  // color intensity function  const getIntensityColor = (level: number): string => {
     const baseColor = THEME_COLOR;
     switch (level) {
       case 0: return 'rgba(255, 255, 255, 0.05)';

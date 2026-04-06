@@ -58,8 +58,7 @@ export function XPExplosion({ trigger, onComplete, className, rowId = 'journal' 
     setParticles(newParticles);
     setIsExploding(true);
     
-    // auto-cleanup after animation
-    setTimeout(() => {
+    // auto-cleanup after animation    setTimeout(() => {
       setIsExploding(false);
       setParticles([]);
       onComplete?.();
@@ -72,8 +71,7 @@ export function XPExplosion({ trigger, onComplete, className, rowId = 'journal' 
     }
   }, [trigger, createExplosion, isExploding]);
   
-  // animation loop
-  useEffect(() => {
+  // animation loop  useEffect(() => {
     if (!isExploding || particles.length === 0) return;
     
     let animationId: number;
@@ -139,15 +137,13 @@ export function XPExplosion({ trigger, onComplete, className, rowId = 'journal' 
   );
 }
 
-// hook to trigger explosions
-export function useXPExplosion() {
+// hook to trigger explosionsexport function useXPExplosion() {
   const [explosions, setExplosions] = useState<Record<string, boolean>>({});
   
   const triggerExplosion = useCallback((rowId: string) => {
     setExplosions(prev => ({ ...prev, [rowId]: true }));
     
-    // auto-reset after animation
-    setTimeout(() => {
+    // auto-reset after animation    setTimeout(() => {
       setExplosions(prev => ({ ...prev, [rowId]: false }));
     }, 2000);
   }, []);

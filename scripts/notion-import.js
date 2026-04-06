@@ -151,8 +151,7 @@ function transformWorkspace(ws) {
             instructions.push({ type: 'createRecord', collection: db.name, data: row });
         }
     }
-    // build pages collection schema including any frontmatter keys
-    const pageFields = { title: 'string', body: 'text' };
+    // build pages collection schema including any frontmatter keys    const pageFields = { title: 'string', body: 'text' };
     for (const page of ws.pages) {
         for (const key of Object.keys(page.frontmatter || {})) {
             if (!pageFields[key]) {
@@ -171,11 +170,7 @@ function transformWorkspace(ws) {
 async function unzipToTemp(zipPath) {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'notion-import-'));
     console.log(`extracting ${zipPath} -> ${tempDir}`);
-    // `unzipper.Extract().promise()` does not attach a listener for stream
-    // errors, which leads to unhandled "error" events bubbling to the
-    // process (see node:events ERR_UNHANDLED_ERROR logged previously). we
-    // wrap in a promise with explicit handlers.
-    await new Promise((resolve, reject) => {
+    // `unzipper.extract().promise()` does not attach a listener for stream    // errors, which leads to unhandled "error" events bubbling to the    // process (see node:events err_unhandled_error logged previously). we    // wrap in a promise with explicit handlers.    await new Promise((resolve, reject) => {
         const stream = fs.createReadStream(zipPath).pipe(unzipper.Parse());
         stream.on('entry', (entry) => {
             const rawPath = entry.path.replace(/\\/g, '/');

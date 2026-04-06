@@ -13,12 +13,10 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
   const debounceMs = options?.debounceMs ?? 1000;
   const pollIntervalMs = options?.pollIntervalMs;
 
-  // expose a way to flush pending saves immediately (useful when you need cross-device persistence)
-  const flushRef = useRef<() => Promise<void> | null>(null);
+  // expose a way to flush pending saves immediately (useful when you need cross-device persistence)  const flushRef = useRef<() => Promise<void> | null>(null);
   const { isAuthenticated, token, client } = useAuth();
 
-  // initialize from localstorage for immediate availability
-  const [value, setValue] = useState<T>(() => {
+  // initialize from localstorage for immediate availability  const [value, setValue] = useState<T>(() => {
     try {
       const local = storageManager.getItem(`pkm_setting:${key}`);
       return local ? JSON.parse(local) : defaultValue;
@@ -27,24 +25,20 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
     }
   });
 
-  // keep a ref to latest value for flush to read
-  const valueRef = useRef<T>(value);
+  // keep a ref to latest value for flush to read  const valueRef = useRef<T>(value);
   useEffect(() => { valueRef.current = value; }, [value]);
 
-  // serialize immediate saves
-  const savePromiseRef = useRef<Promise<void> | null>(null);
+  // serialize immediate saves  const savePromiseRef = useRef<Promise<void> | null>(null);
 
   const [loading, setLoading] = useState(false);
   const settingIdRef = useRef<string | number | null>(null);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // fetch from backend on mount
-  const fetchSetting = useCallback(async () => {
+  // fetch from backend on mount  const fetchSetting = useCallback(async () => {
     if (!isAuthenticated || !token || !storageManager.getItem('nocobase_token')) return;
     setLoading(true);
     try {
-      // use :list instead of :get for filtering by key
-      type ListResponse<T> = { data: T[] } | T[];
+      // use :list instead of :get for filtering by key      type ListResponse<T> = { data: T[] } | T[];
       const response: unknown = await client.request('pkm_settings', 'list', {
         params: {
           filter: { key: { $eq: key } },
@@ -53,8 +47,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         silent: true
       });
 
-      // nocobase :list returns { data: [...] }
-      const listResponse = response as ListResponse<AppSetting>;
+      // nocobase :list returns { data: [...] }      const listResponse = response as ListResponse<AppSetting>;
       const data = Array.isArray(listResponse)
         ? listResponse
         : Array.isArray((listResponse as { data?: AppSetting[] }).data)
@@ -65,16 +58,14 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         settingIdRef.current = setting.id ?? null;
 
         if (setting.value !== undefined) {
-          // deep compare to avoid redundant re-renders
-          const newValueString = JSON.stringify(setting.value);
+          // deep compare to avoid redundant re-renders          const newValueString = JSON.stringify(setting.value);
           const localValueString = storageManager.getItem(`pkm_setting:${key}`);
 
           if (newValueString !== localValueString) {
             setValue(setting.value as T);
             try {
               storageManager.setItem(`pkm_setting:${key}`, newValueString);
-              // broadcast change to other hooks in the same window
-              setTimeout(() => {
+              // broadcast change to other hooks in the same window              setTimeout(() => {
                 window.dispatchEvent(new CustomEvent(`pkm_setting_update:${key}`, { detail: setting.value }));
               }, 0);
             } catch (_e) {
@@ -86,32 +77,27 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
     } catch (_err: unknown) {
       const msg = _err instanceof Error ? _err.message : '';
       if (!msg.includes('404') && !msg.includes('400')) {
-        // ignore silent errors for existence checks
-      }
+        // ignore silent errors for existence checks      }
     } finally {
       setLoading(false);
     }
   }, [key, isAuthenticated, token, client]);
 
-  // initial load
-  useEffect(() => {
+  // initial load  useEffect(() => {
     fetchSetting();
   }, [fetchSetting]);
 
-  // optional polling interval sync across devices
-  useEffect(() => {
+  // optional polling interval sync across devices  useEffect(() => {
     if (!pollIntervalMs) return;
     const interval = setInterval(fetchSetting, pollIntervalMs);
     return () => clearInterval(interval);
   }, [fetchSetting, pollIntervalMs]);
 
-  // event bus listener for cross-component sync
-  useEffect(() => {
+  // event bus listener for cross-component sync  useEffect(() => {
     const handler = (e: CustomEvent) => {
       const newValue = e.detail;
       setValue(prev => {
-        // prevent loops/unnecessary renders
-        if (JSON.stringify(prev) === JSON.stringify(newValue)) return prev;
+        // prevent loops/unnecessary renders        if (JSON.stringify(prev) === JSON.stringify(newValue)) return prev;
         return newValue;
       });
     };
@@ -119,19 +105,16 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
     return () => window.removeEventListener(`pkm_setting_update:${key}`, handler as EventListener);
   }, [key]);
 
-  // save to backend (debounced)
-  const updateValue = useCallback((newValue: T | ((val: T) => T)) => {
+  // save to backend (debounced)  const updateValue = useCallback((newValue: T | ((val: T) => T)) => {
     setValue((prev) => {
       const resolvedValue = newValue instanceof Function ? newValue(prev) : newValue;
       try {
         storageManager.setItem(`pkm_setting:${key}`, JSON.stringify(resolvedValue));
-        // broadcast change to other hooks
-        setTimeout(() => {
+        // broadcast change to other hooks        setTimeout(() => {
           window.dispatchEvent(new CustomEvent(`pkm_setting_update:${key}`, { detail: resolvedValue }));
         }, 0);
       } catch (e) {
-        // ignore quotaexceedederror - just don't cache locally, rely on server
-        secureLogger.warn(`Failed to save locally for ${key}`, e);
+        // ignore quotaexceedederror - just don't cache locally, rely on server        secureLogger.warn(`Failed to save locally for ${key}`, e);
       }
 
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
@@ -141,8 +124,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
           try {
             const payload = { value: valueToSave };
 
-            // try update first
-            try {
+            // try update first            try {
               const res = await client.request('pkm_settings', 'update', {
                 method: 'POST',
                 params: settingIdRef.current ? { filterByTk: settingIdRef.current } : { filter: { key: { $eq: key } } },
@@ -157,8 +139,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
               }
             } catch (e) { /* ignore update failure, try create */ }
 
-            // if update didn't work, create
-            const createRes = await client.request('pkm_settings', 'create', {
+            // if update didn't work, create            const createRes = await client.request('pkm_settings', 'create', {
               method: 'POST',
               data: { key, value: valueToSave },
               silent: true
@@ -171,8 +152,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             const errMsg = (err instanceof Error ? err.message : "").toLowerCase();
             if (errMsg.includes('404') || errMsg.includes('not found')) {
               secureLogger.warn("PKM Setting save failed: Collection not ready.", errMsg);
-              // initial ensurebackendcollection should handle this; we just fail silently here to avoid loops
-            }
+              // initial ensurebackendcollection should handle this; we just fail silently here to avoid loops            }
           }
         };
 
@@ -190,8 +170,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
     const attemptUpsert = async (attempt = 1): Promise<void> => {
       try {
         const payload = { value: toSave };
-        // update first
-        try {
+        // update first        try {
           const res = await client.request('pkm_settings', 'update', {
             method: 'POST',
             params: settingIdRef.current ? { filterByTk: settingIdRef.current } : { filter: { key: { $eq: key } } },
@@ -205,8 +184,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
           }
         } catch (e) {/* try create */ }
 
-        // create
-        const createRes = await client.request('pkm_settings', 'create', {
+        // create        const createRes = await client.request('pkm_settings', 'create', {
           method: 'POST',
           data: { key, value: toSave },
           silent: true
@@ -216,8 +194,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
       } catch (err: unknown) {
         const errMsg = (err instanceof Error ? err.message : "").toLowerCase();
         if (attempt < 2 && (errMsg.includes('404') || errMsg.includes('not found'))) {
-          // retry once for network blips
-          return attemptUpsert(attempt + 1);
+          // retry once for network blips          return attemptUpsert(attempt + 1);
         }
         throw err;
       }

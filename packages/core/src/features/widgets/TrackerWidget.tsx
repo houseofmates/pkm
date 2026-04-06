@@ -71,8 +71,7 @@ export function TrackerWidget({ data, onUpdate }: TrackerWidgetProps) {
     }
   }, [records]);
 
-  // timer effect
-  useEffect(() => {
+  // timer effect  useEffect(() => {
     if (!activeTimer || !timerStart) return;
     
     const interval = setInterval(() => {
@@ -110,8 +109,7 @@ export function TrackerWidget({ data, onUpdate }: TrackerWidgetProps) {
 
       await createRecord(payload);
       
-      // emit sync event
-      dataService.emitDataUpdate('activity_logged', {
+      // emit sync event      dataService.emitDataUpdate('activity_logged', {
         activity_id: activityId,
         duration,
         collection: collectionName
@@ -145,8 +143,7 @@ export function TrackerWidget({ data, onUpdate }: TrackerWidgetProps) {
 
       await createRecord(payload);
 
-      // emit sync event
-      dataService.emitDataUpdate('activity_logged', {
+      // emit sync event      dataService.emitDataUpdate('activity_logged', {
         activity_id: type,
         collection: collectionName
       });

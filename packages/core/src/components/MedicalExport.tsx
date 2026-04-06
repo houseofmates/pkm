@@ -66,27 +66,23 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
   const { entries } = useJournalData();
   const { collections } = useCollections();
 
-  // calculate date range
-  const dateRange = useMemo(() => {
+  // calculate date range  const dateRange = useMemo(() => {
     const end = new Date();
     const start = new Date();
     start.setDate(start.getDate() - (weeks * 7));
     return { start, end };
   }, [weeks]);
 
-  // aggregate data from all sources
-  useEffect(() => {
+  // aggregate data from all sources  useEffect(() => {
     async function loadData() {
       setIsLoading(true);
       try {
-        // filter journal entries by date
-        const filteredEntries = entries.filter(e => {
+        // filter journal entries by date        const filteredEntries = entries.filter(e => {
           const entryDate = new Date(e.date);
           return entryDate >= dateRange.start && entryDate <= dateRange.end;
         }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-        // fetch habit logs
-        const habitLogsRes = await api.listRecords('habit_logs', {
+        // fetch habit logs        const habitLogsRes = await api.listRecords('habit_logs', {
           filter: {
             createdAt: {
               $gte: dateRange.start.toISOString(),
@@ -97,8 +93,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
         });
         const habitLogs = (habitLogsRes.data as any[]) || [];
 
-        // fetch medications
-        const medsRes = await api.listRecords('medication_logs', {
+        // fetch medications        const medsRes = await api.listRecords('medication_logs', {
           filter: {
             date: {
               $gte: dateRange.start.toLocaleDateString('en-CA'),
@@ -109,8 +104,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
         });
         const medications = (medsRes.data as any[]) || [];
 
-        // process mood trend
-        const moodTrend = filteredEntries
+        // process mood trend        const moodTrend = filteredEntries
           .filter(e => e.mood)
           .map(e => ({
             date: e.date,
@@ -118,8 +112,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
             label: MOOD_LABELS[parseInt(e.mood!) - 1] || 'unknown',
           }));
 
-        // process activity summary
-        const activityMap = new Map();
+        // process activity summary        const activityMap = new Map();
         habitLogs.forEach((log: any) => {
           const key = log.habit_id || log.habit_name;
           if (!activityMap.has(key)) {
@@ -138,8 +131,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           .sort((a, b) => b.count - a.count)
           .slice(0, 10);
 
-        // process sleep data from journal entries (use type assertion for extensible fields)
-        const sleepData = filteredEntries
+        // process sleep data from journal entries (use type assertion for extensible fields)        const sleepData = filteredEntries
           .filter(e => (e as any).sleep_hours || (e as any).sleep_quality)
           .map(e => ({
             date: e.date,
@@ -147,8 +139,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
             quality: parseInt((e as any).sleep_quality || '0'),
           }));
 
-        // process symptoms from journal body text
-        const symptomKeywords = ['headache', 'pain', 'nausea', 'fatigue', 'anxiety', 'depression', 
+        // process symptoms from journal body text        const symptomKeywords = ['headache', 'pain', 'nausea', 'fatigue', 'anxiety', 'depression', 
           'stress', 'insomnia', 'migraine', 'dizzy', 'tired', 'exhausted'];
         const symptomLog = filteredEntries
           .filter(e => e.body)
@@ -163,8 +154,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           })
           .filter(s => s.symptoms.length > 0);
 
-        // aggregate gamification stats from localstorage (fallback)
-        const gamificationData = JSON.parse(localStorage.getItem('gamification-state') || '{}');
+        // aggregate gamification stats from localstorage (fallback)        const gamificationData = JSON.parse(localStorage.getItem('gamification-state') || '{}');
         const questsCompleted = gamificationData.questRows?.filter((r: any) => r.completed).length || 0;
         const totalQuests = gamificationData.questRows?.length || 0;
 
@@ -194,13 +184,11 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
     loadData();
   }, [entries, dateRange, weeks]);
 
-  // export to pdf
-  const handleExportPDF = () => {
+  // export to pdf  const handleExportPDF = () => {
     window.print();
   };
 
-  // export to html for sharing
-  const handleExportHTML = () => {
+  // export to html for sharing  const handleExportHTML = () => {
     const html = generateMedicalHTML(data!, weeks);
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -768,8 +756,7 @@ function SummaryCard({ icon, label, value, color }: { icon: React.ReactNode; lab
   );
 }
 
-// generate html export for sharing
-function generateMedicalHTML(data: AggregatedData, weeks: number): string {
+// generate html export for sharingfunction generateMedicalHTML(data: AggregatedData, weeks: number): string {
   const avgMood = data.moodTrend.length > 0 
     ? (data.moodTrend.reduce((a, b) => a + b.mood, 0) / data.moodTrend.length).toFixed(1)
     : 'N/A';
@@ -786,8 +773,7 @@ function generateMedicalHTML(data: AggregatedData, weeks: number): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Medical Summary Report</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
+    * { margin: 0; padding: 0; box-sizing: border-box; }    body { 
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #fafafa;
       color: #333;

@@ -8,13 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 
 export const TableManager: React.FC = () => {
-  // subscribe to the collections from the central zustand store
-  const collections = useCollectionsStore((state) => state.collections);
+  // subscribe to the collections from the central zustand store  const collections = useCollectionsStore((state) => state.collections);
   const [newTableName, setNewTableName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  // when the component mounts, trigger a sync to load cached data and fetch fresh data.
-  useEffect(() => {
+  // when the component mounts, trigger a sync to load cached data and fetch fresh data.  useEffect(() => {
     dataService.syncTables();
   }, []);
 
@@ -26,12 +24,10 @@ export const TableManager: React.FC = () => {
 
     setIsCreating(true);
     try {
-      // for simplicity, new tables will have a single 'name' field by default.
-      const defaultFields: FieldInstance[] = [{ name: 'name', type: 'text' }];
+      // for simplicity, new tables will have a single 'name' field by default.      const defaultFields: FieldInstance[] = [{ name: 'name', type: 'text' }];
       await dataService.createTable(newTableName, defaultFields);
       setNewTableName('');
-      // no need to manually refresh; createtable now triggers a sync automatically.
-      toast.success(`collection '${newTableName}' created successfully`);
+      // no need to manually refresh; createtable now triggers a sync automatically.      toast.success(`collection '${newTableName}' created successfully`);
     } catch (error) {
       if (error instanceof Error) {
         toast.error(`failed to create table: ${error.message}`);

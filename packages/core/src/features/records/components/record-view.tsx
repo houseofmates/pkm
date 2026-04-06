@@ -35,8 +35,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId, o
   const [loading, setLoading] = useState(true);
   const [showProperties, setShowProperties] = useState(true);
 
-  // template/layout detection
-  const [templateConfig, setTemplateConfig] = useState<any>(null);
+  // template/layout detection  const [templateConfig, setTemplateConfig] = useState<any>(null);
 
   useEffect(() => {
     if (!collectionName || !recordId || !client) return;
@@ -55,8 +54,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId, o
         if (!col.fields || col.fields.length === 0) {
           try {
             const fieldRes = await client.request('get', `collections/${collectionName}/fields`);
-            // our normalization should put array on res.data
-            col.fields = Array.isArray((fieldRes as any)?.data) ? (fieldRes as any).data : [];
+            // our normalization should put array on res.data            col.fields = Array.isArray((fieldRes as any)?.data) ? (fieldRes as any).data : [];
           } catch (e) {
             col.fields = [];
           }
@@ -67,16 +65,14 @@ export function RecordView({ collectionName: propCollection, recordId: propId, o
         const data = (recRes.data || recRes) as Record<string, any>;
         setRecord(data);
 
-        // detect template configuration
-        if (data.template_data) {
+        // detect template configuration        if (data.template_data) {
           try {
             setTemplateConfig(typeof data.template_data === 'string' ? JSON.parse(data.template_data) : data.template_data);
           } catch (e) {
             secureLogger.error("Failed to parse template_data", e);
           }
         } else if (data.content && data.content.trim().startsWith('{') && data.content.trim().endsWith('}')) {
-          // heuristic: check if content is json
-          try {
+          // heuristic: check if content is json          try {
             const parsed = JSON.parse(data.content);
             if (parsed.layout || parsed.widgets) {
               setTemplateConfig(parsed);
@@ -104,9 +100,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId, o
   };
 
   const updateWidgetData = (source: string, rowIndex: number, patch: any) => {
-    // for now, this just updates the local record state or fetches fresh data if it was a real db source
-    // in a template document, 'source' usually refers to a database key or a static data key in the template
-    setTemplateConfig((prev: any) => {
+    // for now, this just updates the local record state or fetches fresh data if it was a real db source    // in a template document, 'source' usually refers to a database key or a static data key in the template    setTemplateConfig((prev: any) => {
       if (!prev) return prev;
       const next = { ...prev };
       if (next.data && next.data[source]) {
@@ -116,9 +110,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId, o
       return next;
     });
 
-    // if the template document is bound to real databases, we'd trigger updates there too
-    // for now, let's just keep it interactive in the sandbox/preview-like document view
-  };
+    // if the template document is bound to real databases, we'd trigger updates there too    // for now, let's just keep it interactive in the sandbox/preview-like document view  };
 
   if (loading) {
     return (

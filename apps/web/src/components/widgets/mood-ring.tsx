@@ -3,8 +3,7 @@ import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { ChevronRight } from 'lucide-react'
-// import link from 'next/link'
-const Link: React.FC<{ href: string; className?: string; children: React.ReactNode }> = ({ href, className = '', children }) => (
+// import link from 'next/link'const Link: React.FC<{ href: string; className?: string; children: React.ReactNode }> = ({ href, className = '', children }) => (
   <div className={className} onClick={() => window.location.href = href} style={{ cursor: 'pointer' }}>
     {children}
   </div>

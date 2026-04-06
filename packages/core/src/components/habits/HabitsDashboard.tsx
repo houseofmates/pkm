@@ -40,8 +40,7 @@ export interface HabitDashboardProps {
   showDetails?: boolean;
 }
 
-// xp calculation based on habit performance
-function calculateLevel(totalDuration: number, totalSessions: number, streak: number): { level: number; xp: number; nextLevelXp: number } {
+// xp calculation based on habit performancefunction calculateLevel(totalDuration: number, totalSessions: number, streak: number): { level: number; xp: number; nextLevelXp: number } {
   const baseXp = Math.floor(totalDuration / 60) + (totalSessions * 10) + (streak * 5);
   const level = Math.floor(Math.sqrt(baseXp / 100)) + 1;
   const xp = baseXp % 100;
@@ -49,8 +48,7 @@ function calculateLevel(totalDuration: number, totalSessions: number, streak: nu
   return { level, xp, nextLevelXp };
 }
 
-// stat names for gamification feel
-const STAT_NAMES: Record<string, string> = {
+// stat names for gamification feelconst STAT_NAMES: Record<string, string> = {
   'dental': 'oral hygiene',
   'mindfulness': 'mindfulness',
   'movement': 'fitness',
@@ -226,31 +224,26 @@ export function HabitsDashboard({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
-  // load habits data from nocobase
-  useEffect(() => {
+  // load habits data from nocobase  useEffect(() => {
     const loadHabits = async () => {
       try {
-        // fetch habits collection
-        const habitsRes: any = await api.listRecords('habits', { pageSize: 100 });
+        // fetch habits collection        const habitsRes: any = await api.listRecords('habits', { pageSize: 100 });
         
-        // fetch activity logs for metrics
-        const logsRes: any = await api.listRecords('habit_logs', { 
+        // fetch activity logs for metrics        const logsRes: any = await api.listRecords('habit_logs', { 
           pageSize: 1000,
           sort: '-timestamp'
         });
         
         const logs = logsRes?.data || [];
         
-        // calculate metrics for each habit
-        const metrics: HabitMetric[] = (habitsRes?.data || []).map((habit: any) => {
+        // calculate metrics for each habit        const metrics: HabitMetric[] = (habitsRes?.data || []).map((habit: any) => {
           const habitLogs = logs.filter((l: any) => l.habit_id === habit.id);
           
           const totalSessions = habitLogs.length;
           const totalDuration = habitLogs.reduce((sum: number, l: any) => sum + (l.duration_seconds || 0), 0);
           const totalIntensity = habitLogs.reduce((sum: number, l: any) => sum + (l.intensity || 0), 0);
           
-          // calculate streak
-          const dates = [...new Set(habitLogs.map((l: any) => l.date))].sort();
+          // calculate streak          const dates = [...new Set(habitLogs.map((l: any) => l.date))].sort();
           let currentStreak = 0;
           const today = new Date().toISOString().split('T')[0];
           
@@ -267,8 +260,7 @@ export function HabitsDashboard({
             }
           }
           
-          // weekly progress (last 7 days)
-          const weeklyProgress = Array(7).fill(0);
+          // weekly progress (last 7 days)          const weeklyProgress = Array(7).fill(0);
           const now = new Date();
           for (let i = 0; i < 7; i++) {
             const date = new Date(now);
@@ -313,8 +305,7 @@ export function HabitsDashboard({
     return () => clearInterval(interval);
   }, []);
   
-  // calculate overall stats
-  const overallStats = useMemo(() => {
+  // calculate overall stats  const overallStats = useMemo(() => {
     if (habits.length === 0) return null;
     
     const totalXp = habits.reduce((sum, h) => sum + h.xp + (h.level - 1) * 100, 0);
@@ -323,8 +314,7 @@ export function HabitsDashboard({
     const totalTime = habits.reduce((sum, h) => sum + h.totalDuration, 0);
     const activeHabits = habits.filter(h => h.currentStreak > 0).length;
     
-    // category breakdown
-    const categories = [...new Set(habits.map(h => h.category))];
+    // category breakdown    const categories = [...new Set(habits.map(h => h.category))];
     const categoryStats = categories.map(cat => ({
       name: STAT_NAMES[cat] || cat,
       value: habits.filter(h => h.category === cat).reduce((sum, h) => sum + h.xp, 0),
@@ -343,14 +333,12 @@ export function HabitsDashboard({
     };
   }, [habits]);
   
-  // filtered habits
-  const filteredHabits = useMemo(() => {
+  // filtered habits  const filteredHabits = useMemo(() => {
     if (!selectedCategory) return habits;
     return habits.filter(h => h.category === selectedCategory);
   }, [habits, selectedCategory]);
   
-  // top habits by level
-  const topHabits = useMemo(() => {
+  // top habits by level  const topHabits = useMemo(() => {
     return [...habits].sort((a, b) => (b.level * 100 + b.xp) - (a.level * 100 + a.xp)).slice(0, 3);
   }, [habits]);
   

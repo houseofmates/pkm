@@ -1,8 +1,4 @@
-// ai.worker.ts — thin web worker shell
-//
-// all logic lives in ai-worker-core.ts so it can also be imported
-// directly on the main thread as a fallback on mobile webviews.
-
+// ai.worker.ts — thin web worker shell//// all logic lives in ai-worker-core.ts so it can also be imported// directly on the main thread as a fallback on mobile webviews.
 import * as Comlink from 'comlink';
 import { createWorkerAPI } from './ai-worker-core';
 

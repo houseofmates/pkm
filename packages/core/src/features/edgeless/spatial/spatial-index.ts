@@ -1,7 +1,4 @@
-// uniform grid spatial index for canvas objects
-// transforms o(n) hit detection into o(1) average case
-// critical for eraser performance on complex drawings
-
+// uniform grid spatial index for canvas objects// transforms o(n) hit detection into o(1) average case// critical for eraser performance on complex drawings
 import type { Canvas as FabricCanvas, Object as FabricObject } from 'fabric'
 
 export interface Bounds {
@@ -16,8 +13,7 @@ export interface SpatialObject {
   bounds: Bounds
   layerId: string
   visible: boolean
-  // reference to fabric object for direct manipulation
-  ref?: unknown
+  // reference to fabric object for direct manipulation  ref?: unknown
 }
 
 interface GridCell {
@@ -37,8 +33,7 @@ export class SpatialIndex {
     this.layerFilter = null
   }
 
-  // set active layer for filtering (eraser respects layer isolation)
-  setLayerFilter(layerId: string | null) {
+  // set active layer for filtering (eraser respects layer isolation)  setLayerFilter(layerId: string | null) {
     this.layerFilter = layerId
   }
 
@@ -67,8 +62,7 @@ export class SpatialIndex {
   }
 
   insert(obj: SpatialObject): void {
-    // remove if exists to update position
-    if (this.objects.has(obj.id)) {
+    // remove if exists to update position    if (this.objects.has(obj.id)) {
       this.remove(obj.id)
     }
 
@@ -114,8 +108,7 @@ export class SpatialIndex {
     return true
   }
 
-  // query objects within radius of point
-  queryRadius(x: number, y: number, radius: number): SpatialObject[] {
+  // query objects within radius of point  queryRadius(x: number, y: number, radius: number): SpatialObject[] {
     const bounds: Bounds = {
       minX: x - radius,
       minY: y - radius,
@@ -135,16 +128,14 @@ export class SpatialIndex {
       }
     }
 
-    // filter by actual distance and layer
-    const results: SpatialObject[] = []
+    // filter by actual distance and layer    const results: SpatialObject[] = []
     for (const id of candidates) {
       const obj = this.objects.get(id)
       if (!obj) continue
       if (!obj.visible) continue
       if (this.layerFilter && obj.layerId !== this.layerFilter) continue
 
-      // rough bounds check first
-      if (
+      // rough bounds check first      if (
         obj.bounds.maxX < bounds.minX ||
         obj.bounds.minX > bounds.maxX ||
         obj.bounds.maxY < bounds.minY ||
@@ -159,8 +150,7 @@ export class SpatialIndex {
     return results
   }
 
-  // query objects intersecting a line segment
-  querySegment(x1: number, y1: number, x2: number, y2: number): SpatialObject[] {
+  // query objects intersecting a line segment  querySegment(x1: number, y1: number, x2: number, y2: number): SpatialObject[] {
     const bounds: Bounds = {
       minX: Math.min(x1, x2),
       minY: Math.min(y1, y2),
@@ -193,12 +183,8 @@ export class SpatialIndex {
     return results
   }
 
-  // query objects within viewport bounds with optional margin for smooth scrolling
-  // this is the primary method for viewport culling - aggressively strips off-screen elements
-  queryVisible(viewportBounds: Bounds, marginX: number = 200, marginY: number = 200): SpatialObject[] {
-    // expand viewport bounds with margin to include elements near screen edge
-    // this prevents flickering when elements are just outside the viewport
-    const expandedBounds: Bounds = {
+  // query objects within viewport bounds with optional margin for smooth scrolling  // this is the primary method for viewport culling - aggressively strips off-screen elements  queryVisible(viewportBounds: Bounds, marginX: number = 200, marginY: number = 200): SpatialObject[] {
+    // expand viewport bounds with margin to include elements near screen edge    // this prevents flickering when elements are just outside the viewport    const expandedBounds: Bounds = {
       minX: viewportBounds.minX - marginX,
       minY: viewportBounds.minY - marginY,
       maxX: viewportBounds.maxX + marginX,
@@ -217,16 +203,14 @@ export class SpatialIndex {
       }
     }
 
-    // fast rejection: check expanded bounds first before precise check
-    const results: SpatialObject[] = []
+    // fast rejection: check expanded bounds first before precise check    const results: SpatialObject[] = []
     for (const id of candidates) {
       const obj = this.objects.get(id)
       if (!obj) continue
       if (!obj.visible) continue
       if (this.layerFilter && obj.layerId !== this.layerFilter) continue
 
-      // final precise bounds check against expanded viewport
-      if (
+      // final precise bounds check against expanded viewport      if (
         obj.bounds.maxX < expandedBounds.minX ||
         obj.bounds.minX > expandedBounds.maxX ||
         obj.bounds.maxY < expandedBounds.minY ||
@@ -241,14 +225,12 @@ export class SpatialIndex {
     return results
   }
 
-  // get all visible object ids for quick lookup
-  getVisibleIds(viewportBounds: Bounds, marginX: number = 200, marginY: number = 200): Set<string> {
+  // get all visible object ids for quick lookup  getVisibleIds(viewportBounds: Bounds, marginX: number = 200, marginY: number = 200): Set<string> {
     const visible = this.queryVisible(viewportBounds, marginX, marginY)
     return new Set(visible.map(obj => obj.id))
   }
 
-  /**
-   * convenience method for overlay elements: convert viewport params (pan + zoom
+  /**   * convenience method for overlay elements: convert viewport params (pan + zoom
    * + screen dimensions) into world-space bounds and return visible element ids.
    *
    * @param panx - viewport pan x (viewport.x)
@@ -266,17 +248,14 @@ export class SpatialIndex {
     screenH: number,
     bufferPercent: number = 0.2,
   ): Set<string> {
-    // convert screen-space viewport rectangle to world-space coordinates.
-    // screen point (sx, sy) maps to world point:  wx = (sx - panx) / zoom
-    const worldBounds: Bounds = {
+    // convert screen-space viewport rectangle to world-space coordinates.    // screen point (sx, sy) maps to world point:  wx = (sx - panx) / zoom    const worldBounds: Bounds = {
       minX: -panX / zoom,
       minY: -panY / zoom,
       maxX: (screenW - panX) / zoom,
       maxY: (screenH - panY) / zoom,
     }
 
-    // buffer in world units
-    const marginX = (screenW * bufferPercent) / zoom
+    // buffer in world units    const marginX = (screenW * bufferPercent) / zoom
     const marginY = (screenH * bufferPercent) / zoom
 
     return this.getVisibleIds(worldBounds, marginX, marginY)
@@ -295,8 +274,7 @@ export class SpatialIndex {
     return this.objects.size
   }
 
-  // debug: visualize grid occupancy
-  getGridStats(): { cells: number; avgObjectsPerCell: number } {
+  // debug: visualize grid occupancy  getGridStats(): { cells: number; avgObjectsPerCell: number } {
     let totalObjects = 0
     for (const cell of this.grid.values()) {
       totalObjects += cell.objects.size
@@ -308,8 +286,7 @@ export class SpatialIndex {
   }
 }
 
-// factory for creating bounds from fabric objects
-export function boundsFromFabricObject(obj: FabricObject): Bounds {
+// factory for creating bounds from fabric objectsexport function boundsFromFabricObject(obj: FabricObject): Bounds {
   const rect = obj.getBoundingRect()
   return {
     minX: rect.left,
@@ -319,8 +296,7 @@ export function boundsFromFabricObject(obj: FabricObject): Bounds {
   }
 }
 
-// rebuild spatial index from fabric canvas
-export function buildSpatialIndex(canvas: FabricCanvas): SpatialIndex {
+// rebuild spatial index from fabric canvasexport function buildSpatialIndex(canvas: FabricCanvas): SpatialIndex {
   const index = new SpatialIndex(100) // 100px cells
 
   const objects = canvas.getObjects()
@@ -340,8 +316,7 @@ export function buildSpatialIndex(canvas: FabricCanvas): SpatialIndex {
   return index
 }
 
-/**
- * build a spatial index from edgelesselement overlay elements (not fabric objects).
+/** * build a spatial index from edgelesselement overlay elements (not fabric objects).
  * used for viewport culling of the html overlay layer.
  */
 export function buildOverlaySpatialIndex(elements: { id: string; x: number; y: number; width: number; height: number; layerId?: string }[]): SpatialIndex {

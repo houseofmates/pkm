@@ -8,10 +8,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-// ============================================================================
-// types
-// ============================================================================
-
+// ============================================================================// types// ============================================================================
 export interface TemplateWidget {
   id: string;
   type: 'mood-tracker' | 'energy-slider' | 'checklist' | 'gratitude-input' | 'goal-tracker' | 'time-tracker' | 'note-block' | 'habit-grid' | 'reflection-prompt' | 'data-embed';
@@ -45,10 +42,7 @@ export interface TemplateData {
   widgetData: Record<string, any>;
 }
 
-// ============================================================================
-// pre-built complex templates
-// ============================================================================
-
+// ============================================================================// pre-built complex templates// ============================================================================
 export const COMPLEX_TEMPLATES: EntryTemplate[] = [
   {
     id: 'morning-pages',
@@ -209,10 +203,7 @@ export const COMPLEX_TEMPLATES: EntryTemplate[] = [
   },
 ];
 
-// ============================================================================
-// widget components
-// ============================================================================
-
+// ============================================================================// widget components// ============================================================================
 function MoodTrackerWidget({ value, onChange }: { value?: string; onChange: (val: string) => void }) {
   const moods = [
     { id: 'terrible', emoji: '😢', color: '#ef4444' },
@@ -422,10 +413,7 @@ function ReflectionPromptWidget({ value, onChange, prompt }: { value?: string; o
   );
 }
 
-// ============================================================================
-// template renderer
-// ============================================================================
-
+// ============================================================================// template renderer// ============================================================================
 interface TemplateRendererProps {
   template: EntryTemplate;
   data: Record<string, any>;
@@ -545,10 +533,7 @@ export function TemplateRenderer({ template, data, onDataChange, onSave }: Templ
   );
 }
 
-// ============================================================================
-// template selector modal
-// ============================================================================
-
+// ============================================================================// template selector modal// ============================================================================
 interface TemplateSelectorProps {
   isOpen: boolean;
   onClose: () => void;
@@ -574,8 +559,7 @@ export function TemplateSelectorModal({ isOpen, onClose, onSelect }: TemplateSel
   const handleSave = () => {
     if (!selectedTemplate) return;
     
-    // convert template data to entry format
-    const entryBody = generateEntryBody(selectedTemplate, templateData);
+    // convert template data to entry format    const entryBody = generateEntryBody(selectedTemplate, templateData);
     
     onSelect({
       ...selectedTemplate,

@@ -43,8 +43,7 @@ export function RoutineChecklist() {
       const routinesList = routinesRes?.data || [];
       setRoutines(routinesList);
 
-      // load today's completions
-      const today = new Date().toISOString().split('T')[0];
+      // load today's completions      const today = new Date().toISOString().split('T')[0];
       const completionsRes: any = await api.listRecords('routine_completions', {
         filter: { date: today },
         pageSize: 100
@@ -70,8 +69,7 @@ export function RoutineChecklist() {
       let newCompletedItems: string[];
       
       if (!completion) {
-        // create new completion
-        newCompletedItems = [itemId];
+        // create new completion        newCompletedItems = [itemId];
         const percentage = (newCompletedItems.length / routine.items.length) * 100;
         
         const res: any = await api.createRecord('routine_completions', {
@@ -87,8 +85,7 @@ export function RoutineChecklist() {
           [routine.id]: res.data
         }));
       } else {
-        // update existing completion
-        const currentItems = completion.completed_items || [];
+        // update existing completion        const currentItems = completion.completed_items || [];
         newCompletedItems = currentItems.includes(itemId)
           ? currentItems.filter(id => id !== itemId)
           : [...currentItems, itemId];
@@ -112,8 +109,7 @@ export function RoutineChecklist() {
         }));
       }
 
-      // check if routine fully completed
-      if (newCompletedItems.length === routine.items.length) {
+      // check if routine fully completed      if (newCompletedItems.length === routine.items.length) {
         toast.success(`${routine.name} complete! 🎉`);
       }
     } catch (err) {

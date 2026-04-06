@@ -32,11 +32,9 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
   const lastCheckpointTimeRef = useRef(Date.now());
   const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // no longer using historyopslength via hook to avoid re-renders on every stroke.
-  const historyOpsLengthRef = useRef(0);
+  // no longer using historyopslength via hook to avoid re-renders on every stroke.  const historyOpsLengthRef = useRef(0);
 
-  // sync the ref with the store manually
-  useEffect(() => {
+  // sync the ref with the store manually  useEffect(() => {
     return useEdgelessStore.subscribe(
       (state) => {
         historyOpsLengthRef.current = state.history.ops.length;
@@ -49,8 +47,7 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
   const setTool = useEdgelessStore(s => s.setTool);
   const setMode = useEdgelessStore(s => s.setMode);
 
-  // load drawing from oplog
-  useEffect(() => {
+  // load drawing from oplog  useEffect(() => {
     if (!id || migrating) return;
 
     const load = async () => {
@@ -87,8 +84,7 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
     };
   }, [id, migrating, setDrawingId, loadFromOplog, setElements, setMode, setTool]);
 
-  // sync status polling
-  useEffect(() => {
+  // sync status polling  useEffect(() => {
     if (!id) return;
     const checkStatus = () => {
       const state = canvasSync.getSyncState(id);
@@ -102,8 +98,7 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
     };
   }, [id]);
 
-  // define save function before the effect that uses it
-  const saveCurrentCheckpoint = useCallback(async () => {
+  // define save function before the effect that uses it  const saveCurrentCheckpoint = useCallback(async () => {
     if (!id) return;
     setSaving(true);
     try {
@@ -124,16 +119,13 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
     }
   }, [id]);
 
-  // ref to always point to latest version of savecurrentcheckpoint
-  const saveCurrentCheckpointRef = useRef(saveCurrentCheckpoint);
+  // ref to always point to latest version of savecurrentcheckpoint  const saveCurrentCheckpointRef = useRef(saveCurrentCheckpoint);
   saveCurrentCheckpointRef.current = saveCurrentCheckpoint;
 
-  // auto-save effect - uses store subscription to monitor progress without re-renders
-  useEffect(() => {
+  // auto-save effect - uses store subscription to monitor progress without re-renders  useEffect(() => {
     if (!id || loading) return;
     
-    // check every 5 seconds as a fallback, and also on every store change
-    const checkAndSave = () => {
+    // check every 5 seconds as a fallback, and also on every store change    const checkAndSave = () => {
       if (!initialLoadCompleteRef.current) return;
       const state = useEdgelessStore.getState();
       const curLen = state.history.ops.length;
@@ -156,8 +148,7 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
     };
   }, [id, loading]);
 
-  // emergency save on unload
-  useEffect(() => {
+  // emergency save on unload  useEffect(() => {
     const handleUnload = () => {
       saveCurrentCheckpointRef.current();
       if (id) void flushDrawingOps(id);
@@ -166,8 +157,7 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
     return () => window.removeEventListener('beforeunload', handleUnload);
   }, [id]);
 
-  // persist element state (widgets, notes, etc.) when it changes
-  useEffect(() => {
+  // persist element state (widgets, notes, etc.) when it changes  useEffect(() => {
     if (!id) return;
     let timeout: number | null = null;
     const unsubscribe = useEdgelessStore.subscribe((s, prev) => {
@@ -184,8 +174,7 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
     };
   }, [id]);
 
-  // manual save listener
-  useEffect(() => {
+  // manual save listener  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
@@ -198,8 +187,7 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [id]);
 
-  // conflict listener
-  useEffect(() => {
+  // conflict listener  useEffect(() => {
     const handleConflict = (e: CustomEvent<{ drawingId?: string }>) => {
       if (e.detail?.drawingId === id) {
         setSyncStatus('conflict');

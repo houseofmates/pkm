@@ -11,8 +11,7 @@ import { secureLogger } from '@/lib/secure-logger';
 import { Calendar, BookOpen, ChevronRight, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
-// system aliveness indicator
-function AlivenessOrb({ className }: { className?: string }) {
+// system aliveness indicatorfunction AlivenessOrb({ className }: { className?: string }) {
   const { sevenDayCoverage } = useGamificationStore();
   const [isHovered, setIsHovered] = useState(false);
   
@@ -38,8 +37,7 @@ function AlivenessOrb({ className }: { className?: string }) {
   );
 }
 
-// monthly coverage map
-function MonthlyCoverageMap({ className }: { className?: string }) {
+// monthly coverage mapfunction MonthlyCoverageMap({ className }: { className?: string }) {
   const [moodData, setMoodData] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   
@@ -102,8 +100,7 @@ function MonthlyCoverageMap({ className }: { className?: string }) {
   );
 }
 
-// journal status card
-function JournalStatusCard({ className }: { className?: string }) {
+// journal status cardfunction JournalStatusCard({ className }: { className?: string }) {
   const navigate = useNavigate();
   const [todayEntry, setTodayEntry] = useState<any>(null);
   
@@ -143,8 +140,7 @@ function JournalStatusCard({ className }: { className?: string }) {
   );
 }
 
-// hibernation streak display
-function StreakDisplay({ className }: { className?: string }) {
+// hibernation streak displayfunction StreakDisplay({ className }: { className?: string }) {
   const { streakDays, longestStreak } = useGamificationStore();
   const { streakData } = useHibernationStreak();
   const isHibernating = streakData.hibernating;
@@ -168,8 +164,7 @@ function StreakDisplay({ className }: { className?: string }) {
   );
 }
 
-// xp and level display
-function LevelDisplay({ className }: { className?: string }) {
+// xp and level displayfunction LevelDisplay({ className }: { className?: string }) {
   const { totalXp, level, levelName } = useGamificationStore();
   const getNextLevelXp = (lvl: number) => [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2500, 3000, 3500, 4000, 5000][lvl] || 10000;
   const currentLevelBase = getNextLevelXp(level - 1);
@@ -193,8 +188,7 @@ function LevelDisplay({ className }: { className?: string }) {
   );
 }
 
-// main today page component
-export function TodayPage() {
+// main today page componentexport function TodayPage() {
   const navigate = useNavigate();
   const { loadFromServer, saveToServer, setSevenDayCoverage, updateCategory } = useGamificationStore();
   const { recordActivity } = useHibernationStreak();

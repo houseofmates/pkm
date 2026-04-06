@@ -97,12 +97,10 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   const [recordCounts, setRecordCounts] = useState<Record<string, number>>({});
   const { client } = useAuth();
 
-  // 1. filter out internal collections from grid
-  const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'];
+  // 1. filter out internal collections from grid  const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'];
   const filteredCollections = collections.filter((c: Collection) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
 
-  // 2. supplement missing field metadata for collections the api doesn't return fields for
-  const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string }>> = {
+  // 2. supplement missing field metadata for collections the api doesn't return fields for  const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string }>> = {
     events: [
       { name: 'title', type: 'string', interface: 'input' },
       { name: 'start_time', type: 'datetime', interface: 'datetime' },
@@ -158,8 +156,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     return col;
   });
 
-  // fetch record counts for each collection
-  useEffect(() => {
+  // fetch record counts for each collection  useEffect(() => {
     if (!isAuthenticated || collectionsWithFallbackFields.length === 0) return;
     let cancelled = false;
 
@@ -172,8 +169,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
               method: 'GET',
               params: { pageSize: 1, fields: ['id'] }
             }) as any;
-            // Handle various NocoBase API response structures
-            const total = res?.data?.meta?.count ?? 
+            // handle various nocobase api response structures            const total = res?.data?.meta?.count ?? 
                           res?.data?.meta?.total ?? 
                           res?.data?.meta?.totalCount ?? 
                           res?.meta?.count ?? 
@@ -196,8 +192,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     return () => { cancelled = true; };
   }, [isAuthenticated, collectionsWithFallbackFields.length, client]);
 
-  // inject record counts into collection objects
-  const collectionsWithCounts = collectionsWithFallbackFields.map((c) => ({
+  // inject record counts into collection objects  const collectionsWithCounts = collectionsWithFallbackFields.map((c) => ({
     ...c,
     recordCount: recordCounts[c.name]
   })) as Collection[];
@@ -220,9 +215,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     }
   }, [location, navigate, isAuthenticated]);
 
-  // 2. extract docs and drawings from sidebar items
-  // we treat them as "pseudo collections" so they can live in the grid
-  const sidebarDocs = sidebarItems
+  // 2. extract docs and drawings from sidebar items  // we treat them as "pseudo collections" so they can live in the grid  const sidebarDocs = sidebarItems
     .filter(item => (item.id.startsWith('doc_') || item.id.startsWith('drawing_')))
     .map(item => ({
       name: item.id, // e.g. doc_123 - use this as unique key
@@ -232,8 +225,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
       meta: { color: item.color } // inject color for collectioncard to pick up
     })) as unknown as Collection[];
 
-  // 3. merge lists
-  const allItems = [...collectionsWithCounts, ...sidebarDocs];
+  // 3. merge lists  const allItems = [...collectionsWithCounts, ...sidebarDocs];
 
   const sortedCollections = [...allItems].sort((a, b) => {
     const indexA = dbOrder.indexOf(a.name);
@@ -258,8 +250,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     if (onSelect) {
       onSelect(name);
     } else {
-      // check for docs/drawings
-      if (name.startsWith('doc_')) {
+      // check for docs/drawings      if (name.startsWith('doc_')) {
         navigate(`/canvas/${name.replace('doc_', '')}`, { state: { fromSidebar: true } });
         return;
       }
@@ -268,8 +259,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
         return;
       }
 
-      // default database navigation
-      navigate(`/databases/${encodeURIComponent(name)}`, { state: { fromSidebar: true } });
+      // default database navigation      navigate(`/databases/${encodeURIComponent(name)}`, { state: { fromSidebar: true } });
     }
   };
 
@@ -281,12 +271,9 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     }
     setValidating(true);
     try {
-      // save token directly - it will be validated on first actual api call
-      // this avoids timeout issues during login
-      login(apiKey);
+      // save token directly - it will be validated on first actual api call      // this avoids timeout issues during login      login(apiKey);
       toast.success("connected to nocobase");
-      // give a brief moment for the state to update
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // give a brief moment for the state to update      await new Promise(resolve => setTimeout(resolve, 100));
       await refresh();
     } catch (error: any) {
       secureLogger.error('[DatabasesPage] login failed:', error);
@@ -339,8 +326,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     return <div className="p-8 text-muted-foreground">Loading Databases...</div>;
   }
 
-  // only exclude if truly empty (no collections and no sidebar docs)
-  if (allItems.length === 0) {
+  // only exclude if truly empty (no collections and no sidebar docs)  if (allItems.length === 0) {
     return (
       <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
         {/* still show the add button even if empty */}

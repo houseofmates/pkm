@@ -2,16 +2,11 @@ import { useEffect, useCallback } from 'react';
 import { useEdgelessStore } from '../store';
 
 export function useCanvasEvents() {
-  // ── stable callbacks: read viewport from store at call-time ──
-  // this eliminates the dependency on viewport, so callbacks are never recreated
-  // during pan/zoom. the paste event listener stays stable.
-
+  // ── stable callbacks: read viewport from store at call-time ──  // this eliminates the dependency on viewport, so callbacks are never recreated  // during pan/zoom. the paste event listener stays stable.
   const addElement = useEdgelessStore((s) => s.addElement);
 
   const handlePaste = useCallback(async (e: ClipboardEvent) => {
-    // prevent default paste (text) if we handle it
-    // we'll let normal inputs handle paste naturally if focused
-    if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable) {
+    // prevent default paste (text) if we handle it    // we'll let normal inputs handle paste naturally if focused    if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable) {
       return;
     }
 
@@ -20,8 +15,7 @@ export function useCanvasEvents() {
     if (!items) return;
 
     for (const item of items) {
-      // 1. handle images (screenshots, file copies)
-      if (item.type.startsWith('image/')) {
+      // 1. handle images (screenshots, file copies)      if (item.type.startsWith('image/')) {
         const blob = item.getAsFile();
         if (blob) {
           const reader = new FileReader();
@@ -34,8 +28,7 @@ export function useCanvasEvents() {
         return; // prioritize image if mixed
       }
 
-      // 2. handle text (links, image urls)
-      if (item.type === 'text/plain') {
+      // 2. handle text (links, image urls)      if (item.type === 'text/plain') {
         item.getAsString(async (text) => {
           await processTextContent(text);
         });
@@ -44,12 +37,8 @@ export function useCanvasEvents() {
   }, []); // ← stable: no viewport dependency
 
   const handleDrop = useCallback(async (e: React.DragEvent) => {
-    // don't intercept internal drags (like nodes moving) if managed by fabric
-    // but do intercept drop from outside or records
-    // check if datatransfer has files or specific types
-    
-    // handle gamification widget drops from sidebar
-    if (e.dataTransfer.types.includes('application/json')) {
+    // don't intercept internal drags (like nodes moving) if managed by fabric    // but do intercept drop from outside or records    // check if datatransfer has files or specific types    
+    // handle gamification widget drops from sidebar    if (e.dataTransfer.types.includes('application/json')) {
       e.preventDefault();
       e.stopPropagation();
       
@@ -57,8 +46,7 @@ export function useCanvasEvents() {
       if (data) {
         try {
           const widget = JSON.parse(data);
-          // check if this is a widget template
-          if (widget.id && ['streak', 'mood', 'pet', 'quest', 'voice'].includes(widget.id)) {
+          // check if this is a widget template          if (widget.id && ['streak', 'mood', 'pet', 'quest', 'voice'].includes(widget.id)) {
             const x = e.clientX;
             const y = e.clientY;
             
@@ -66,8 +54,7 @@ export function useCanvasEvents() {
             const canvasX = (x - vx) / zoom;
             const canvasY = (y - vy) / zoom;
             
-            // map widget types to gamification widget ids
-            const widgetIdMap: Record<string, string> = {
+            // map widget types to gamification widget ids            const widgetIdMap: Record<string, string> = {
               'streak': 'gamification-streak',
               'mood': 'gamification-mood',
               'pet': 'gamification-pets',
@@ -89,8 +76,7 @@ export function useCanvasEvents() {
             return;
           }
         } catch {
-          // not valid json or not a widget, continue with other drop handling
-        }
+          // not valid json or not a widget, continue with other drop handling        }
       }
     }
     
@@ -101,8 +87,7 @@ export function useCanvasEvents() {
       const x = e.clientX;
       const y = e.clientY;
 
-      // handle files
-      if (e.dataTransfer.files?.length > 0) {
+      // handle files      if (e.dataTransfer.files?.length > 0) {
         for (const file of e.dataTransfer.files) {
           if (file.type.startsWith('image/')) {
             const reader = new FileReader();
@@ -116,17 +101,14 @@ export function useCanvasEvents() {
         return;
       }
 
-      // handle links / text (uri list often has the image url if dragged from browser)
-      const text = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text/uri-list');
+      // handle links / text (uri list often has the image url if dragged from browser)      const text = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text/uri-list');
       if (text) {
         await processTextContent(text, x, y);
       }
     }
   }, [addElement]); // ← stable: no viewport dependency
 
-  // --- helpers ---
-  // all helpers read viewport at call-time from the store, making them closure-stable.
-
+  // --- helpers ---  // all helpers read viewport at call-time from the store, making them closure-stable.
   const createImageElement = (src: string, x?: number, y?: number) => {
     const { x: vx, y: vy, zoom } = useEdgelessStore.getState().viewPort;
 
@@ -164,26 +146,22 @@ export function useCanvasEvents() {
   const processTextContent = async (text: string, x?: number, y?: number) => {
     const trimmed = text.trim();
 
-    // 1. is image url?
-    if (trimmed.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || trimmed.includes('images.unsplash.com') || trimmed.includes('media.giphy.com')) {
+    // 1. is image url?    if (trimmed.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || trimmed.includes('images.unsplash.com') || trimmed.includes('media.giphy.com')) {
       createImageElement(trimmed, x, y);
       return;
     }
 
-    // 2. is youtube/spotify?
-    if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be') || trimmed.includes('spotify.com')) {
+    // 2. is youtube/spotify?    if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be') || trimmed.includes('spotify.com')) {
       createEmbedElement(trimmed, 'media', x, y);
       return;
     }
 
-    // 3. is shopping (amazon/steam)? - "the harpoon"
-    if (trimmed.includes('amazon.com') || trimmed.includes('steampowered.com')) {
+    // 3. is shopping (amazon/steam)? - "the harpoon"    if (trimmed.includes('amazon.com') || trimmed.includes('steampowered.com')) {
       createShoppingCard(trimmed, x, y);
       return;
     }
 
-    // 4. fallback: create link card with void glyph logic
-    if (trimmed.startsWith('http://') || trimmed.startswith('https://')) {
+    // 4. fallback: create link card with void glyph logic    if (trimmed.startsWith('http://') || trimmed.startswith('https://')) {
       try {
         createLinkElement(trimmed, x, y);
       } catch (e) {
@@ -201,8 +179,7 @@ export function useCanvasEvents() {
     if (url.includes('amazon')) service = 'amazon';
     if (url.includes('steam')) service = 'steam';
 
-    // void glyph fallback for title
-    let title = 'Wishlist Item';
+    // void glyph fallback for title    let title = 'Wishlist Item';
     try {
       const domain = new URL(url).hostname.replace('www.', '');
       title = `[${domain.toUpperCase()}] Item`;

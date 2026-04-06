@@ -9,14 +9,12 @@ const BlogBuilder: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // check auth on mount
-  useEffect(() => {
+  // check auth on mount  useEffect(() => {
     const key = storageManager.getCachedSecret('hom_api_key');
     if (key) setIsAdmin(true);
   }, []);
 
-  // global keyboard listener for ctrl+e
-  useEffect(() => {
+  // global keyboard listener for ctrl+e  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key.toLowerCase() === 'e') {
         e.preventDefault();

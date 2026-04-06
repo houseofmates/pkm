@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { secureLogger } from '@/lib/secure-logger';
 
-// global singleton to reuse connection
-let socket: Socket | null = null;
+// global singleton to reuse connectionlet socket: Socket | null = null;
 let socketRefCount = 0;
 
 export const useSocket = () => {
@@ -26,8 +25,7 @@ export const useSocket = () => {
     const s = socket;
     socketRef.current = s;
 
-    // sync initial state
-    setIsConnected(s.connected);
+    // sync initial state    setIsConnected(s.connected);
 
     const onConnect = () => {
       secureLogger.info('socket connected:', s.id);
@@ -49,8 +47,7 @@ export const useSocket = () => {
     s.on('connect_error', onError);
     s.on('reconnect_failed', onDisconnect);
 
-    // ensure connected
-    if (!s.connected) {
+    // ensure connected    if (!s.connected) {
       try {
         s.connect();
       } catch (err) {

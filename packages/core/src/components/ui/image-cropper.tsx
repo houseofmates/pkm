@@ -37,8 +37,7 @@ export function ImageCropper({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
-  // load image when file changes
-  useEffect(() => {
+  // load image when file changes  useEffect(() => {
     if (imageFile) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -79,20 +78,16 @@ export function ImageCropper({
     canvas.width = cropSize;
     canvas.height = cropSize / (aspectRatio || 1);
 
-    // clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // clear canvas    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // save context state
-    ctx.save();
+    // save context state    ctx.save();
 
-    // apply transformations
-    ctx.translate(canvas.width / 2, canvas.height / 2);
+    // apply transformations    ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate((rotation * Math.PI) / 180);
     ctx.scale(scale, scale);
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
-    // draw image centered with position offset
-    const drawWidth = img.naturalWidth;
+    // draw image centered with position offset    const drawWidth = img.naturalWidth;
     const drawHeight = img.naturalHeight;
     const drawX = (canvas.width - drawWidth) / 2 + position.x;
     const drawY = (canvas.height - drawHeight) / 2 + position.y;
@@ -100,8 +95,7 @@ export function ImageCropper({
     ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
     ctx.restore();
 
-    // convert canvas to blob
-    canvas.toBlob((blob) => {
+    // convert canvas to blob    canvas.toBlob((blob) => {
       if (blob) {
         onCropComplete(blob);
         onClose();

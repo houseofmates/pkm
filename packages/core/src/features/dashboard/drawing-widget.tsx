@@ -15,8 +15,7 @@ export function DrawingWidget({ title = 'quick sketch' }: DrawingWidgetProps) {
   const [brushSize, setBrushSize] = useState(3);
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
 
-  // initialize canvas
-  useEffect(() => {
+  // initialize canvas  useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;

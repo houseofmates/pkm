@@ -18,8 +18,7 @@ interface FormulaEditorProps {
   client: any; // nocobase client
 }
 
-// mock ai service until websocket is fully confirmed
-const fetchAIResponse = async (prompt: string, context: any) => {
+// mock ai service until websocket is fully confirmedconst fetchAIResponse = async (prompt: string, context: any) => {
   try {
     const url = getOllamaGenerateUrl();
     const response = await generateText(
@@ -43,12 +42,10 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
-  // run code
-  const handleRun = async () => {
+  // run code  const handleRun = async () => {
   setOutput('Running...');
   try {
-  // safe(ish) execution wrapper
-  const func = new Function('record', 'api', 'console', `
+  // safe(ish) execution wrapper  const func = new Function('record', 'api', 'console', `
  try {
  ${code}
  } catch(e) {
@@ -56,8 +53,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  }
   `);
 
-  // capture securelogger.info
-  const logs: string[] = [];
+  // capture securelogger.info  const logs: string[] = [];
   const mockConsole = {
  log: (...args: any[]) => logs.push(args.map(a => JSON.stringify(a)).join(' ')),
  error: (...args: any[]) => logs.push('ERROR: ' + args.map(a => JSON.stringify(a)).join(' ')),
@@ -76,16 +72,14 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   }
   };
 
-  // send to ai
-  const handleSendChat = async () => {
+  // send to ai  const handleSendChat = async () => {
   if (!chatInput.trim()) return;
   const userMsg = chatInput;
   setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
   setChatInput('');
   setIsAiLoading(true);
 
-  // context for ai
-  const context = {
+  // context for ai  const context = {
   recordKeys: Object.keys(record || {}),
   currentCode: code
   };

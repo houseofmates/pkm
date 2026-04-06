@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-/*
-  normalize-collections.cjs
+/*  normalize-collections.cjs
 
   usage:
     nocobase_url=http://localhost:4100/api admin_api_key="$admin_api_key" node scripts/normalize-collections.cjs [--dry-run]
@@ -66,8 +65,7 @@ function normalizeNameVariants(s) {
           break;
         }
 
-        // also match loose contains (in case of e.g., "dupe mates pages - extra")
-        if (title.includes(desired) || variants.some(v => name.includes(v))) {
+        // also match loose contains (in case of e.g., "dupe mates pages - extra")        if (title.includes(desired) || variants.some(v => name.includes(v))) {
           updates.push({ col, desired });
           break;
         }
@@ -92,8 +90,7 @@ function normalizeNameVariants(s) {
       const baseUrl = base.replace(/\/$/, '');
       const tried = [];
 
-      // try multiple possible endpoints: by name, by id, and with filterbytk
-      const candidates = [
+      // try multiple possible endpoints: by name, by id, and with filterbytk      const candidates = [
         `${baseUrl}/collections/${encodeURIComponent(col.name)}:update`,
         `${baseUrl}/collections/${encodeURIComponent(col.id)}:update`,
         `${baseUrl}/collections:update?filterByTk=${encodeURIComponent(col.name)}`,
@@ -110,8 +107,7 @@ function normalizeNameVariants(s) {
           break;
         } catch (err) {
           const msg = err.response?.data || err.message || err;
-          // if 404/not found, keep trying other endpoints
-          console.warn(`  Attempt failed for ${url}:`, msg);
+          // if 404/not found, keep trying other endpoints          console.warn(`  Attempt failed for ${url}:`, msg);
         }
       }
 

@@ -10,8 +10,7 @@ import { storageManager } from '@/lib/storage-manager';
 import type { AxiosInstance } from 'axios';
 import { normalizeListResponse } from '@/lib/nocobase-utils';
 
-// type definitions for nocobase api
-export interface Collection {
+// type definitions for nocobase apiexport interface Collection {
   name: string;
   title?: string;
   displayName?: string;
@@ -53,8 +52,7 @@ export class NocoBaseClient {
     return this._axios;
   }
 
-  // --- collection methods ---
-  async listCollections(params: Record<string, unknown> = {}) {
+  // --- collection methods ---  async listCollections(params: Record<string, unknown> = {}) {
     const res = await this._axios.get('/collections:list', { params });
     return ListCollectionsResponseSchema.parse(res.data);
   }
@@ -119,8 +117,7 @@ export class NocoBaseClient {
       }
       return true;
     } catch {
-      // not found
-    }
+      // not found    }
 
     secureLogger.info(`[NocoBase] Creating ${COL_NAME} collection...`);
     try {
@@ -142,8 +139,7 @@ export class NocoBaseClient {
     }
   }
 
-  // --- field methods ---
-  async listFields(collectionName: string): Promise<Field[]> {
+  // --- field methods ---  async listFields(collectionName: string): Promise<Field[]> {
     const res = await this._axios.get(`/collections/${collectionName}/fields:list`);
     return Array.isArray(res.data) ? res.data : (res.data?.data || []);
   }
@@ -163,8 +159,7 @@ export class NocoBaseClient {
     return ActionResponseSchema.parse(res.data);
   }
 
-  // --- record methods ---
-  async listRecords(collection: string, params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
+  // --- record methods ---  async listRecords(collection: string, params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
     const res = await this._axios.get(`/${collection}:list`, { params });
     const normalized = normalizeListResponse(res.data);
     try {
@@ -201,8 +196,7 @@ export class NocoBaseClient {
     return ActionResponseSchema.parse(res.data);
   }
 
-  // --- storage methods ---
-  async upload(file: File) {
+  // --- storage methods ---  async upload(file: File) {
     const formData = new FormData();
     formData.append('file', file);
     const res = await this._axios.post('/attachments', formData, {
@@ -211,8 +205,7 @@ export class NocoBaseClient {
     return GetRecordResponseSchema.parse(res.data);
   }
 
-  // --- generic request ---
-  async request(resource: string, action: string, params: Record<string, unknown> = {}) {
+  // --- generic request ---  async request(resource: string, action: string, params: Record<string, unknown> = {}) {
     const { method = 'GET', ...rest } = params;
     const res = await this._axios.request({
       url: `/${resource}:${action}`,

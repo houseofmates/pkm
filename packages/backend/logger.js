@@ -1,18 +1,14 @@
-// structured logging for pkm backend
-// uses winston for production-ready logging
-
+// structured logging for pkm backend// uses winston for production-ready logging
 import winston from 'winston';
 import path from 'path';
 import fs from 'fs';
 
-// ensure logs directory exists
-const logsDir = path.join(process.cwd(), 'logs');
+// ensure logs directory existsconst logsDir = path.join(process.cwd(), 'logs');
 if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
 }
 
-// define log levels
-const levels = {
+// define log levelsconst levels = {
     error: 0,
     warn: 1,
     info: 2,
@@ -20,8 +16,7 @@ const levels = {
     debug: 4
 };
 
-// define log level colors
-const colors = {
+// define log level colorsconst colors = {
     error: 'red',
     warn: 'yellow',
     info: 'green',
@@ -29,48 +24,41 @@ const colors = {
     debug: 'white'
 };
 
-// add colors to winston
-winston.addColors(colors);
+// add colors to winstonwinston.addColors(colors);
 
-// define log format
-const format = winston.format.combine(
+// define log formatconst format = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
     winston.format.errors({ stack: true }),
     winston.format.splat(),
     winston.format.json()
 );
 
-// console format with colors
-const consoleFormat = winston.format.combine(
+// console format with colorsconst consoleFormat = winston.format.combine(
     winston.format.colorize({ all: true }),
     winston.format.printf(
         (info) => `${info.timestamp} ${info.level}: ${info.message}${info.stack ? '\n' + info.stack : ''}`
     )
 );
 
-// create logger instance
-const logger = winston.createLogger({
+// create logger instanceconst logger = winston.createLogger({
     level: process.env.LOG_LEVEL || 'info',
     levels,
     format,
     transports: [
-        // error log
-        new winston.transports.File({
+        // error log        new winston.transports.File({
             filename: path.join(logsDir, 'error.log'),
             level: 'error',
             maxsize: 5242880, // 5mb
             maxFiles: 5
         }),
         
-        // combined log
-        new winston.transports.File({
+        // combined log        new winston.transports.File({
             filename: path.join(logsDir, 'combined.log'),
             maxsize: 5242880, // 5mb
             maxFiles: 5
         }),
         
-        // http log
-        new winston.transports.File({
+        // http log        new winston.transports.File({
             filename: path.join(logsDir, 'http.log'),
             level: 'http',
             maxsize: 5242880, // 5mb
@@ -79,15 +67,13 @@ const logger = winston.createLogger({
     ]
 });
 
-// add console transport in non-production environments
-if (process.env.NODE_ENV !== 'production') {
+// add console transport in non-production environmentsif (process.env.NODE_ENV !== 'production') {
     logger.add(new winston.transports.Console({
         format: consoleFormat
     }));
 }
 
-// http request logger middleware
-export function httpLogger(req, res, next) {
+// http request logger middlewareexport function httpLogger(req, res, next) {
     const start = Date.now();
     
     res.on('finish', () => {
@@ -105,8 +91,7 @@ export function httpLogger(req, res, next) {
     next();
 }
 
-// api request/response logger
-export function apiLogger(req, res, next) {
+// api request/response loggerexport function apiLogger(req, res, next) {
     const start = Date.now();
     
     logger.info({
@@ -117,8 +102,7 @@ export function apiLogger(req, res, next) {
         userId: req.user?.id || 'anonymous'
     });
     
-    // log response
-    const originalJson = res.json.bind(res);
+    // log response    const originalJson = res.json.bind(res);
     res.json = (body) => {
         const duration = Date.now() - start;
         logger.info({
@@ -134,8 +118,7 @@ export function apiLogger(req, res, next) {
     next();
 }
 
-// security event logger
-export function securityLogger(event, details) {
+// security event loggerexport function securityLogger(event, details) {
     logger.warn({
         type: 'SECURITY_EVENT',
         event,
@@ -143,8 +126,7 @@ export function securityLogger(event, details) {
     });
 }
 
-// performance logger
-export function performanceLogger(operation, duration, metadata = {}) {
+// performance loggerexport function performanceLogger(operation, duration, metadata = {}) {
     logger.info({
         type: 'PERFORMANCE',
         operation,
@@ -153,8 +135,7 @@ export function performanceLogger(operation, duration, metadata = {}) {
     });
 }
 
-// error logger with context
-export function errorLogger(error, context = {}) {
+// error logger with contextexport function errorLogger(error, context = {}) {
     logger.error({
         type: 'ERROR',
         message: error.message,
@@ -163,8 +144,7 @@ export function errorLogger(error, context = {}) {
     });
 }
 
-// database query logger
-export function queryLogger(query, duration, metadata = {}) {
+// database query loggerexport function queryLogger(query, duration, metadata = {}) {
     logger.debug({
         type: 'DATABASE_QUERY',
         query,

@@ -1,8 +1,5 @@
-// error handling middleware for pkm backend
-// provides consistent error responses and proper logging
-
-/**
- * custom error class for api errors
+// error handling middleware for pkm backend// provides consistent error responses and proper logging
+/** * custom error class for api errors
  */
 export class APIError extends Error {
     constructor(message, statusCode = 500, code = 'INTERNAL_ERROR') {
@@ -14,8 +11,7 @@ export class APIError extends Error {
     }
 }
 
-/**
- * not found error handler
+/** * not found error handler
  */
 export function notFoundHandler(req, res, next) {
     const error = new APIError(
@@ -26,12 +22,10 @@ export function notFoundHandler(req, res, next) {
     next(error);
 }
 
-/**
- * global error handling middleware
+/** * global error handling middleware
  */
 export function errorHandler(err, req, res, next) {
-    // log error details
-    const errorLog = {
+    // log error details    const errorLog = {
         timestamp: new Date().toISOString(),
         method: req.method,
         url: req.originalUrl,
@@ -41,17 +35,13 @@ export function errorHandler(err, req, res, next) {
         code: err.code || 'INTERNAL_ERROR'
     };
 
-    // log appropriately based on error type
-    if (err.statusCode && err.statusCode < 500) {
+    // log appropriately based on error type    if (err.statusCode && err.statusCode < 500) {
         console.warn('[API Error]', errorLog);
     } else {
         console.error('[API Error]', errorLog);
-        // in production, you might want to send to error tracking service
-        // e.g., sentry.captureexception(err);
-    }
+        // in production, you might want to send to error tracking service        // e.g., sentry.captureexception(err);    }
 
-    // send error response
-    res.status(err.statusCode || 500).json({
+    // send error response    res.status(err.statusCode || 500).json({
         success: false,
         error: {
             message: err.message || 'Internal server error',
@@ -61,8 +51,7 @@ export function errorHandler(err, req, res, next) {
     });
 }
 
-/**
- * async handler wrapper to catch async errors
+/** * async handler wrapper to catch async errors
  * usage: app.get('/', asynchandler(async (req, res) => { ... }))
  */
 export function asyncHandler(fn) {
@@ -71,8 +60,7 @@ export function asyncHandler(fn) {
     };
 }
 
-/**
- * validation error handler for zod/joi validation errors
+/** * validation error handler for zod/joi validation errors
  */
 export function validationErrorHandler(err, req, res, next) {
     if (err.name === 'ZodError' || err.name === 'ValidationError') {
@@ -92,8 +80,7 @@ export function validationErrorHandler(err, req, res, next) {
     next(err);
 }
 
-/**
- * rate limit exceeded handler
+/** * rate limit exceeded handler
  */
 export function rateLimitHandler(req, res, next) {
     res.status(429).json({
@@ -106,8 +93,7 @@ export function rateLimitHandler(req, res, next) {
     });
 }
 
-/**
- * authentication error handler
+/** * authentication error handler
  */
 export function authErrorHandler(err, req, res, next) {
     if (err.name === 'UnauthorizedError' || err.message.includes('auth')) {

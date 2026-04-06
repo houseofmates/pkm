@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Database, Home, Users, Search, MessageCircle, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, BookOpen, type LucideIcon, MessageSquare } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
-// dynamic icon loader for lucide icons
-function getLucideIcon(name: string): LucideIcon | undefined {
+// dynamic icon loader for lucide iconsfunction getLucideIcon(name: string): LucideIcon | undefined {
   return (LucideIcons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
 }
 
@@ -86,10 +85,8 @@ interface NavigationProps {
   onSelectCollection: (name: string | null) => void;
   selectedCollection: string | null;
 
-  // lifted state props
-  items: NavItem[];
-  // setitems can be omitted for read-only renders (e.g. mobile drawer that just displays the list)
-  setItems?: (items: NavItem[] | ((prev: NavItem[]) => NavItem[])) => void; // for local updates like folder creation
+  // lifted state props  items: NavItem[];
+  // setitems can be omitted for read-only renders (e.g. mobile drawer that just displays the list)  setItems?: (items: NavItem[] | ((prev: NavItem[]) => NavItem[])) => void; // for local updates like folder creation
 }
 
 function NavIconButton({ tab, isActive, onClick }: { tab: any, isActive: boolean, onClick: () => void }) {
@@ -119,7 +116,6 @@ function NavIconButton({ tab, isActive, onClick }: { tab: any, isActive: boolean
 
 
 // --- sortable components ---
-
 import { DatabaseContextMenu } from '@/features/databases/components/database-context-menu';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { useSidebarColors } from '@/hooks/use-sidebar-colors';
@@ -130,32 +126,25 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const [hovered, setHovered] = useState(false);
 
 
-  // global metadata for collections (legacy localStorage fallback)
-  const [metadata] = useAppSetting<Record<string, { color?: string; title?: string }>>('collection_metadata', {});
-  // prefer synced colors from nocobase (cross-device sync), then local item color, then legacy metadata
-  const metaColor = syncedColors?.[id]?.color || item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
+  // global metadata for collections (legacy localstorage fallback)  const [metadata] = useAppSetting<Record<string, { color?: string; title?: string }>>('collection_metadata', {});
+  // prefer synced colors from nocobase (cross-device sync), then local item color, then legacy metadata  const metaColor = syncedColors?.[id]?.color || item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
-  // determine highlight color based on item type
-  function getHighlightColor(opacity = 0.22) {
-    // sidebar items: use their own color if available, else white
-    const base = metaColor || '#ffffff';
+  // determine highlight color based on item type  function getHighlightColor(opacity = 0.22) {
+    // sidebar items: use their own color if available, else white    const base = metaColor || '#ffffff';
     if (base.startsWith('#')) {
-      // convert hex to rgba
-      const hex = base.replace('#', '');
+      // convert hex to rgba      const hex = base.replace('#', '');
       const r = parseInt(hex.substring(0, 2), 16);
       const g = parseInt(hex.substring(2, 4), 16);
       const b = parseInt(hex.substring(4, 6), 16);
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     }
     if (base.startsWith('rgb')) {
-      // replace any existing alpha with desired opacity
-      if (base.startsWith('rgba')) {
+      // replace any existing alpha with desired opacity      if (base.startsWith('rgba')) {
         return base.replace(/rgba\(([^,]+),([^,]+),([^,]+),[^)]+\)/, `rgba($1,$2,$3,${opacity})`);
       }
       return base.replace(/rgb\(([^)]+)\)/, `rgba($1,${opacity})`);
     }
-    // fallback to white
-    return `rgba(255, 255, 255, ${opacity})`;
+    // fallback to white    return `rgba(255, 255, 255, ${opacity})`;
   }
 
   const highlightColor = getHighlightColor(0.22);
@@ -171,26 +160,19 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   };
 
 
-  // render icon logic
-  const renderIcon = () => {
-    // use current theme color if no local override
-    // logic: if item.color is set, use it. if generic, use primary.
-    // no explicit icon color, let css inherit from the button/text color
-
+  // render icon logic  const renderIcon = () => {
+    // use current theme color if no local override    // logic: if item.color is set, use it. if generic, use primary.    // no explicit icon color, let css inherit from the button/text color
     if (item.icon && item.iconType) {
-      // ... strict icon logic
-      if (item.iconType === 'emoji') return <span className="mr-2 text-xl leading-none flex-shrink-0">{item.icon}</span>;
+      // ... strict icon logic      if (item.iconType === 'emoji') return <span className="mr-2 text-xl leading-none flex-shrink-0">{item.icon}</span>;
       if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-6 w-6 mr-2 object-contain flex-shrink-0" />;
       if (item.iconType === 'lucide') {
         const Icon = getLucideIcon(item.icon);
         if (Icon) return <Icon className="h-6 w-6 mr-2 flex-shrink-0" />;
       }
     }
-    // fallback
-    if (item.type === 'folder') return <Folder className="h-6 w-6 mr-2 flex-shrink-0" />;
+    // fallback    if (item.type === 'folder') return <Folder className="h-6 w-6 mr-2 flex-shrink-0" />;
 
-    // default for collections/documents without explicit icon
-    return <Database className="h-6 w-6 mr-2 flex-shrink-0" />;
+    // default for collections/documents without explicit icon    return <Database className="h-6 w-6 mr-2 flex-shrink-0" />;
   };
 
   const rawName = (item.type === 'collection' && metadata[id]?.title) ? metadata[id].title! : item.name;
@@ -281,29 +263,23 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 }
 
 export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems }: NavigationProps) {
-  // provide a no-op setter if the caller didn't supply one (mobile drawer sometimes omits it)
-  const safeSetItems = setItems ?? (() => {});
+  // provide a no-op setter if the caller didn't supply one (mobile drawer sometimes omits it)  const safeSetItems = setItems ?? (() => {});
 
-  // synced colors from nocobase (cross-device persistence)
-  const { colors: syncedColors, updateMetadata, isUpdating: isSyncingColors } = useSidebarColors({
+  // synced colors from nocobase (cross-device persistence)  const { colors: syncedColors, updateMetadata, isUpdating: isSyncingColors } = useSidebarColors({
     pollIntervalMs: 30000 // sync every 30 seconds
   });
 
-  // track recently deleted items to prevent useeffect from re-adding them
-  // stored in a ref so it does not cause re-renders or effect dependency churn
-  const deletedItemsRef = useRef<Set<string>>(new Set());
+  // track recently deleted items to prevent useeffect from re-adding them  // stored in a ref so it does not cause re-renders or effect dependency churn  const deletedItemsRef = useRef<Set<string>>(new Set());
 
   const { collections, refresh } = useCollections();
   const navigate = useNavigate();
 
-  // hide the internal dashboard background drawing from the sidebar
-  const [homeCanvasDrawingId] = useAppSetting<string | null>('dashboard_home_drawing_id', null);
+  // hide the internal dashboard background drawing from the sidebar  const [homeCanvasDrawingId] = useAppSetting<string | null>('dashboard_home_drawing_id', null);
 
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
-  // csv upload helpers (simple button no longer uploads directly)
-  const [csvInputKey, setCsvInputKey] = useState(0);
+  // csv upload helpers (simple button no longer uploads directly)  const [csvInputKey, setCsvInputKey] = useState(0);
   const [importCsvData, setImportCsvData] = useState<any[]>([]);
   const [importCsvFields, setImportCsvFields] = useState<any[]>([]);
   const [importDisplayName, setImportDisplayName] = useState('');
@@ -320,8 +296,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   const handleCsvChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // parse csv locally then open create dialog with preloaded data
-    const Papa = await import('papaparse').then(m => m.default);
+    // parse csv locally then open create dialog with preloaded data    const Papa = await import('papaparse').then(m => m.default);
     Papa.parse(file, {
       header: true,
       dynamicTyping: true,
@@ -354,19 +329,16 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     setCsvInputKey(k => k + 1);
   };
 
-  // handle updates to specific items (name, icon, refresh, delete)
-  const handleUpdateItem = (id: string, updates: any) => {
+  // handle updates to specific items (name, icon, refresh, delete)  const handleUpdateItem = (id: string, updates: any) => {
     if (updates.refresh) {
       refresh();
       return;
     }
 
-    // sync color/icon changes to nocobase for cross-device persistence
-    if (updates.color || updates.icon || updates.iconType) {
+    // sync color/icon changes to nocobase for cross-device persistence    if (updates.color || updates.icon || updates.iconType) {
       const itemType = updates.itemType || (id.startsWith('folder_') ? 'folder' : id.startsWith('doc_') ? 'document' : id.startsWith('drawing_') ? 'drawing' : 'collection');
       
-      // save to nocobase (async, fire and forget with error handling)
-      updateMetadata(id, {
+      // save to nocobase (async, fire and forget with error handling)      updateMetadata(id, {
         color: updates.color,
         icon: updates.icon,
         iconType: updates.iconType
@@ -375,8 +347,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       });
     }
 
-    // persist local documents only; drawings are db-only now
-    if (id.startsWith('doc_')) {
+    // persist local documents only; drawings are db-only now    if (id.startsWith('doc_')) {
       const key = `canvas-config-${id.replace('doc_', '')}`;
       try {
         const existing = JSON.parse(storageManager.getItem(key) || '{}');
@@ -384,8 +355,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         if (updates.name) toSave.title = updates.name;
         if (updates.icon) toSave.icon = updates.icon;
         if (updates.iconType) toSave.iconType = updates.iconType;
-        // color is now synced via nocobase, but keep local copy for offline
-        if (updates.color) toSave.color = updates.color;
+        // color is now synced via nocobase, but keep local copy for offline        if (updates.color) toSave.color = updates.color;
 
         if (updates.delete) {
           storageManager.removeItem(key);
@@ -398,8 +368,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       }
     }
 
-    // drawings persist exclusively in indexeddb
-    if (id.startsWith('drawing_')) {
+    // drawings persist exclusively in indexeddb    if (id.startsWith('drawing_')) {
       const drawingId = id.replace('drawing_', '');
       if (updates.delete) {
         deleteDrawing(drawingId).catch((e) => {
@@ -412,19 +381,14 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       }
     }
 
-    // for collections (databases), refresh from server to ensure sync
-    if (!id.startsWith('doc_') && !id.startsWith('drawing_') && !id.startsWith('folder_')) {
+    // for collections (databases), refresh from server to ensure sync    if (!id.startsWith('doc_') && !id.startsWith('drawing_') && !id.startsWith('folder_')) {
       if (updates.delete) {
-        // track this deletion so the useeffect won't re-add it
-        deletedItemsRef.current.add(id.toLowerCase());
+        // track this deletion so the useeffect won't re-add it        deletedItemsRef.current.add(id.toLowerCase());
         addStoredDeleted(id);
-        // immediately remove from local state for instant feedback
-        safeSetItems(items.filter(i => i.id !== id));
-        // refresh after a delay to allow the server delete to complete
-        setTimeout(() => {
+        // immediately remove from local state for instant feedback        safeSetItems(items.filter(i => i.id !== id));
+        // refresh after a delay to allow the server delete to complete        setTimeout(() => {
           refresh();
-          // clear the deleted tracker after sync window
-          setTimeout(() => {
+          // clear the deleted tracker after sync window          setTimeout(() => {
             deletedItemsRef.current.delete(id.toLowerCase());
           }, 5000);
         }, 1000);
@@ -437,8 +401,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       return;
     }
 
-    // if renaming a collection, update both .name and .title fields for sidebar display
-    if (updates.name) {
+    // if renaming a collection, update both .name and .title fields for sidebar display    if (updates.name) {
       safeSetItems(items.map(item =>
         item.id === id ? { ...item, name: updates.name, title: updates.name, ...updates } : item
       ));
@@ -449,17 +412,13 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     }
   };
 
-  // initialize/sync items from collections and local documents/drawings
-  useEffect(() => {
+  // initialize/sync items from collections and local documents/drawings  useEffect(() => {
     if (collections.length === 0) return;
 
-    // only hide system/internal collections - all user collections should be visible
-    const forbiddenCollections = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'users', 'roles'];
+    // only hide system/internal collections - all user collections should be visible    const forbiddenCollections = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'users', 'roles'];
     const visibleCollections = collections.filter((c: any) => !forbiddenCollections.includes(String(c.name).toLowerCase()));
 
-    // clear any stored deleted state for collections that exist on server
-    // this ensures newly created collections always appear
-    const storedDeleted = getStoredDeleted();
+    // clear any stored deleted state for collections that exist on server    // this ensures newly created collections always appear    const storedDeleted = getStoredDeleted();
     visibleCollections.forEach((c: any) => {
       const nameLC = String(c.name).toLowerCase();
       if (storedDeleted.has(nameLC)) {
@@ -467,19 +426,15 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       }
     });
 
-    // load drawings from indexeddb, then merge everything in one atomic update
-    const syncAll = async () => {
+    // load drawings from indexeddb, then merge everything in one atomic update    const syncAll = async () => {
       let drawingItems: NavItem[] = [];
       try {
         const drawings = await listPendingDrawings();
         drawingItems = drawings
           .filter((d: any) => {
-            // hide the dashboard's internal drawing so it doesn't show up as a "home canvas" in the sidebar
-            if (homeCanvasDrawingId && d.id === homeCanvasDrawingId) return false;
-            // legacy fallback: if a dashboard canvas title was used historically
-            const title = String(d.title || '').trim().toLowerCase();
-            // match common variations (extra spaces, capitalization)
-            if (/\bhome\s*canvas\b/.test(title)) return false;
+            // hide the dashboard's internal drawing so it doesn't show up as a "home canvas" in the sidebar            if (homeCanvasDrawingId && d.id === homeCanvasDrawingId) return false;
+            // legacy fallback: if a dashboard canvas title was used historically            const title = String(d.title || '').trim().toLowerCase();
+            // match common variations (extra spaces, capitalization)            if (/\bhome\s*canvas\b/.test(title)) return false;
             return true;
           })
           .map((d: any) => ({
@@ -493,46 +448,35 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         secureLogger.error('failed to load drawings from database', e);
       }
 
-      // use functional updater to always get the latest items
-      safeSetItems((prevItems: NavItem[]) => {
-        // strip forbidden items, stale collections, and old drawings (will re-add fresh ones)
-        const storedDeleted = getStoredDeleted();
+      // use functional updater to always get the latest items      safeSetItems((prevItems: NavItem[]) => {
+        // strip forbidden items, stale collections, and old drawings (will re-add fresh ones)        const storedDeleted = getStoredDeleted();
         const cleaned = prevItems.filter(item => {
           const idLower = String(item.id).toLowerCase();
-          // hide any stale "home canvas" items (should never be visible to users)
-          const itemName = String(item.name || '').trim().toLowerCase();
+          // hide any stale "home canvas" items (should never be visible to users)          const itemName = String(item.name || '').trim().toLowerCase();
           if (/\bhome\s*canvas\b/.test(itemName)) return false;
           if (forbiddenCollections.includes(idLower)) return false;
-          // remove any existing drawing items; they will be re-added from indexeddb
-          if (item.id.startsWith('drawing_')) return false;
+          // remove any existing drawing items; they will be re-added from indexeddb          if (item.id.startsWith('drawing_')) return false;
 
-          // if the item is persistently deleted, drop it unless server still returns it (we'll clear below)
-          if (storedDeleted.has(idLower)) {
+          // if the item is persistently deleted, drop it unless server still returns it (we'll clear below)          if (storedDeleted.has(idLower)) {
             const stillExists = visibleCollections.some((c: any) => String(c.name).toLowerCase() === idLower);
             if (!stillExists) {
-              // server confirms deletion; remove from storage
-              removeStoredDeleted(idLower);
+              // server confirms deletion; remove from storage              removeStoredDeleted(idLower);
             }
-            // always drop the item while it's marked deleted
-            return false;
+            // always drop the item while it's marked deleted            return false;
           }
 
-          // if it's a normal database/collection (not a local doc/folder)
-          if (!item.id.startsWith('doc_') && !item.id.startsWith('folder_')) {
+          // if it's a normal database/collection (not a local doc/folder)          if (!item.id.startsWith('doc_') && !item.id.startsWith('folder_')) {
             const stillExists = visibleCollections.some((c: any) => String(c.name).toLowerCase() === idLower);
             if (!stillExists) {
-              // removed on server
-              return false;
+              // removed on server              return false;
             }
           }
           return true;
         });
 
-        // build a set of existing ids (non-drawing, non-forbidden)
-        const existingIds = new Set(cleaned.map(i => String(i.id).toLowerCase()));
+        // build a set of existing ids (non-drawing, non-forbidden)        const existingIds = new Set(cleaned.map(i => String(i.id).toLowerCase()));
 
-        // add new collections that aren't already present and weren't recently deleted
-        const newCols = visibleCollections
+        // add new collections that aren't already present and weren't recently deleted        const newCols = visibleCollections
           .filter((c: any) => {
             const nameLC = String(c.name).toLowerCase();
             return !existingIds.has(nameLC) && !deletedItemsRef.current.has(nameLC);
@@ -543,20 +487,17 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             name: c.title || c.name,
           }));
 
-        // also deduplicate drawing items
-        const allIds = new Set([...existingIds, ...newCols.map((c: NavItem) => c.id.toLowerCase())]);
+        // also deduplicate drawing items        const allIds = new Set([...existingIds, ...newCols.map((c: NavItem) => c.id.toLowerCase())]);
         const uniqueDrawings = drawingItems.filter(d => !allIds.has(d.id.toLowerCase()));
 
-        // merge: existing cleaned items + new collections + fresh drawings
-        return [...cleaned, ...newCols, ...uniqueDrawings];
+        // merge: existing cleaned items + new collections + fresh drawings        return [...cleaned, ...newCols, ...uniqueDrawings];
       });
     };
 
     syncAll();
   }, [collections, items, safeSetItems, homeCanvasDrawingId]);
 
-  // create folder logic
-  const createFolder = () => {
+  // create folder logic  const createFolder = () => {
     if (!newFolderName) return;
     const folderId = `folder_${Date.now()}`;
     const folder: NavItem = {
@@ -571,8 +512,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     setNewFolderName('');
   };
 
-  // toggle folder
-  const toggleFolder = (id: string) => {
+  // toggle folder  const toggleFolder = (id: string) => {
     safeSetItems(items.map(item =>
       item.id === id ? { ...item, collapsed: !item.collapsed } : item
     ));
@@ -647,15 +587,12 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   }
                 />
                 <DropdownMenuItem onSelect={() => {
-                  // create new document (canvas)
-                  const id = crypto.randomUUID();
+                  // create new document (canvas)                  const id = crypto.randomUUID();
                   const config = { title: 'untitled document' };
                   storageManager.setItem(`canvas-config-${id}`, JSON.stringify(config));
-                  // force refresh of local docs
-                  navigate(`/page/${id}`);
+                  // force refresh of local docs                  navigate(`/page/${id}`);
 
-                  // manually add to items to ensure immediate sidebar update
-                  safeSetItems([...items, {
+                  // manually add to items to ensure immediate sidebar update                  safeSetItems([...items, {
                     id: `doc_${id}`,
                     type: 'collection',
                     name: config.title,
@@ -667,8 +604,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   <span>New Document</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={async () => {
-                  // create new drawing in idb and navigate
-                  const id = crypto.randomUUID();
+                  // create new drawing in idb and navigate                  const id = crypto.randomUUID();
                   const title = 'untitled drawing';
                   try {
                     await updateDrawingMeta(id, { title, syncState: 'pending' });
@@ -677,8 +613,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   }
                   navigate(`/drawings/${id}`);
 
-                  // manually add to items so sidebar updates immediately
-                  safeSetItems([...items, {
+                  // manually add to items so sidebar updates immediately                  safeSetItems([...items, {
                     id: `drawing_${id}`,
                     type: 'collection',
                     name: title,

@@ -13,8 +13,7 @@ import {
   ResponsiveContainer
 } from 'recharts'
 
-// muscle rows for oral-b style grid (5 rows x 5 exercises)
-const MUSCLE_ROWS = [
+// muscle rows for oral-b style grid (5 rows x 5 exercises)const MUSCLE_ROWS = [
   { row: 0, muscles: ['chest-upper', 'chest-mid', 'chest-lower', 'shoulders', 'traps'], name: 'upper body', bonus: false },
   { row: 1, muscles: ['back-wide', 'back-mid', 'back-lower', 'lats', 'rear-delts'], name: 'back day', bonus: false },
   { row: 2, muscles: ['biceps', 'triceps', 'forearms', 'grip', 'wrists'], name: 'arms', bonus: false },
@@ -33,8 +32,7 @@ const ExerciseTracker: React.FC = () => {
       const newWorked = { ...prev, [muscleId]: isWorked }
       if (isWorked) {
         earnXp(15, `worked ${muscleId}`)
-        // check row bonus
-        MUSCLE_ROWS.forEach(row => {
+        // check row bonus        MUSCLE_ROWS.forEach(row => {
           const rowComplete = row.muscles.every(m => newWorked[m])
           if (rowComplete) {
             completeQuest(`muscle-row-${row.row}`)

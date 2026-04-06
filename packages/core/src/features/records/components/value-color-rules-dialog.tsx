@@ -23,8 +23,7 @@ interface ValueColorRulesDialogProps {
   onSetRule: (value: string, color: string) => void;
 }
 
-// preset colors for quick selection
-const PRESET_COLORS = [
+// preset colors for quick selectionconst PRESET_COLORS = [
   "#ef4444", "#f97316", "#eab308", "#22c55e",
   "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899",
   "#64748b", "#ffffff",
@@ -42,8 +41,7 @@ export function ValueColorRulesDialog({
   const [editingKey, setEditingKey] = React.useState<string | null>(null);
   const [pickerColor, setPickerColor] = React.useState("#3b82f6");
 
-  // determine if this field has predefined options (select, multipleselect, radiogroup, checkboxgroup)
-  const isSelectType =
+  // determine if this field has predefined options (select, multipleselect, radiogroup, checkboxgroup)  const isSelectType =
     field?.interface === "select" ||
     field?.interface === "multipleSelect" ||
     field?.interface === "radioGroup" ||
@@ -99,8 +97,7 @@ export function ValueColorRulesDialog({
           <ScrollArea className="max-h-[300px]">
             <div className="space-y-2 pr-2">
               {isSelectType && selectOptions.length > 0 ? (
-                // select-type: show all options, let user assign colors
-                selectOptions.map((opt) => {
+                // select-type: show all options, let user assign colors                selectOptions.map((opt) => {
                   const currentColor = rules[opt.value] || "";
                   const isEditing = editingKey === opt.value;
                   return (
@@ -155,8 +152,7 @@ export function ValueColorRulesDialog({
                   );
                 })
               ) : (
-                // text/number type: show existing rules
-                <>
+                // text/number type: show existing rules                <>
                   {Object.entries(rules).map(([val, color]) => (
                     <div
                       key={val}

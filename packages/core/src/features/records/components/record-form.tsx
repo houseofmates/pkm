@@ -22,8 +22,7 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
     setValues(initialData || {});
   }, [initialData]);
 
-  // simple reactive formula example
-  useEffect(() => {
+  // simple reactive formula example  useEffect(() => {
     const p = parseFloat(values.price);
     const q = parseFloat(values.quantity || values.qty);
     if (!isNaN(p) && !isNaN(q)) {
@@ -34,8 +33,7 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
     }
   }, [values.price, values.quantity, values.qty, values.total]);
 
-  // if fields is undefined, we are likely still loading the collection meta
-  if (!collection.fields) {
+  // if fields is undefined, we are likely still loading the collection meta  if (!collection.fields) {
     return <div className="p-4 text-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin inline mr-2" /> loading fields...</div>;
   }
 

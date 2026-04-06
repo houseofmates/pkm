@@ -25,40 +25,33 @@ export interface ChatSession {
 }
 
 interface LLMState {
-  // core state
-  isConnected: boolean
+  // core state  isConnected: boolean
   activeModel: string
   apiUrl: string
   useRag: boolean // enable/disable rag retrieval
 
-  // chat sessions
-  sessions: ChatSession[]
+  // chat sessions  sessions: ChatSession[]
   currentSessionId: string | null
 
-  // current chat state
-  interactionHistory: ChatMessage[]
+  // current chat state  interactionHistory: ChatMessage[]
   isThinking: boolean
   streamingContent: string
 
-  // context state
-  currentContext: Record<string, unknown> | null
+  // context state  currentContext: Record<string, unknown> | null
   setContext: (data: Record<string, unknown> | null) => void
 
-  // attachments
-  pendingAttachments: Attachment[]
+  // attachments  pendingAttachments: Attachment[]
   addAttachment: (file: File) => Promise<void>
   removeAttachment: (id: string) => void
   clearAttachments: () => void
 
-  // session management
-  createNewChat: (title?: string) => string
+  // session management  createNewChat: (title?: string) => string
   loadSession: (sessionId: string) => void
   renameSession: (sessionId: string, newTitle: string) => void
   deleteSession: (sessionId: string) => void
   setCurrentSessionTitle: (title: string) => void
 
-  // actions
-  setApiUrl: (url: string) => void
+  // actions  setApiUrl: (url: string) => void
   setModel: (model: string) => void
   toggleConnection: () => void
   toggleRag: () => void
@@ -78,8 +71,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
   apiUrl: getOllamaGenerateUrl(),
   useRag: true, // default to enabled
 
-  // sessions
-  sessions: (() => {
+  // sessions  sessions: (() => {
     try {
       const saved = storageManager.getItem('wilson_chat_sessions');
       if (saved) return JSON.parse(saved);
@@ -98,24 +90,21 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
   pendingAttachments: [],
 
   addAttachment: async (file: File) => {
-    // determine attachment type
-    let type: Attachment['type'] = 'other';
+    // determine attachment type    let type: Attachment['type'] = 'other';
     if (file.type.startsWith('image/')) {
       type = file.type === 'image/gif' ? 'gif' : 'image';
     } else if (file.type.startsWith('video/')) {
       type = 'video';
     }
 
-    // create attachment object
-    const attachment: Attachment = {
+    // create attachment object    const attachment: Attachment = {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       file,
       type,
       name: file.name,
     };
 
-    // convert to data url for preview and sending
-    const dataUrl = await new Promise<string>((resolve) => {
+    // convert to data url for preview and sending    const dataUrl = await new Promise<string>((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result as string);
       reader.readAsDataURL(file);
@@ -138,8 +127,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
     set({ pendingAttachments: [] });
   },
 
-  // session management
-  createNewChat: (title?: string) => {
+  // session management  createNewChat: (title?: string) => {
     const newSession: ChatSession = {
       id: `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title: title || `chat`,
@@ -201,8 +189,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
     }
   },
 
-  // gemini api key handling (deprecated - using ollama now)
-  getGeminiApiKey: () => null,
+  // gemini api key handling (deprecated - using ollama now)  getGeminiApiKey: () => null,
   ensureGeminiApiKey: async () => null,
   appendGeminiKeyToUrl: (url: string) => url,
 
@@ -222,15 +209,13 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
 
   clearHistory: () => set({ interactionHistory: [], streamingContent: '' }),
 
-  // primary entry point — delegates to rag or legacy based on toggle
-  askWilson: async (text, isBackground = false) => {
+  // primary entry point — delegates to rag or legacy based on toggle  askWilson: async (text, isBackground = false) => {
     if (!text.trim() && get().pendingAttachments.length === 0) return null
 
     const { pendingAttachments } = get()
     const hasAttachments = pendingAttachments.length > 0
 
-    // add user message
-    if (!isBackground) {
+    // add user message    if (!isBackground) {
       set((state) => ({
         interactionHistory: [...state.interactionHistory, {
           id: Date.now(),
@@ -245,8 +230,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
 
     set({ isThinking: true, streamingContent: '' })
 
-    // check if we're using local ollama (no api key needed)
-    const ollamaBase = getOllamaBase();
+    // check if we're using local ollama (no api key needed)    const ollamaBase = getOllamaBase();
     const isOllama = !ollamaBase.includes('googleapis.com') && !ollamaBase.includes('gemini');
     
     if (!isOllama) {
@@ -267,26 +251,21 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
 
     const { useRag } = get()
 
-    // if rag is enabled, use the worker-backed streaming method
-    if (useRag) {
+    // if rag is enabled, use the worker-backed streaming method    if (useRag) {
       return get().askWilsonWithRag(text, isBackground)
     }
 
-    // fallback to legacy non-rag mode (still offloaded to worker)
-    return get().askWilsonLegacy(text)
+    // fallback to legacy non-rag mode (still offloaded to worker)    return get().askWilsonLegacy(text)
   },
 
-  // rag-enabled method — runs entirely in the web worker with streaming
-  askWilsonWithRag: async (text, isBackground = false) => {
+  // rag-enabled method — runs entirely in the web worker with streaming  askWilsonWithRag: async (text, isBackground = false) => {
     if (!text.trim() && get().pendingAttachments.length === 0) return null
 
-    // get attachments from the last user message if they exist
-    const lastMessage = get().interactionHistory[get().interactionHistory.length - 1]
+    // get attachments from the last user message if they exist    const lastMessage = get().interactionHistory[get().interactionHistory.length - 1]
     const attachments = lastMessage?.attachments || get().pendingAttachments
     const hasAttachments = attachments && attachments.length > 0
 
-    // add user message if not background and not already added by askwilson
-    if (!isBackground && lastMessage?.content !== text && !lastMessage?.attachments) {
+    // add user message if not background and not already added by askwilson    if (!isBackground && lastMessage?.content !== text && !lastMessage?.attachments) {
       set((state) => ({
         interactionHistory: [...state.interactionHistory, {
           id: Date.now(),
@@ -302,8 +281,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
     set({ isThinking: true, streamingContent: '' })
 
     try {
-      // get fronter info
-      let fronterName = 'friend'
+      // get fronter info      let fronterName = 'friend'
       try {
         const fronterData = storageManager.getItem('active_fronters')
         if (fronterData) {
@@ -316,8 +294,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
 
       const { activeModel, apiUrl } = get()
       
-      // use local ollama directly - no api key needed
-      const resolvedUrl = apiUrl;
+      // use local ollama directly - no api key needed      const resolvedUrl = apiUrl;
       
       secureLogger.info('[wilson] using endpoint:', resolvedUrl)
       
@@ -326,16 +303,13 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
         throw new Error('AI worker failed to initialize')
       }
 
-      // stream tokens from the worker — each callback updates streamingcontent
-      // which only the streamingbubble component subscribes to
-      const onToken = Comlink.proxy((cumulativeContent: string) => {
+      // stream tokens from the worker — each callback updates streamingcontent      // which only the streamingbubble component subscribes to      const onToken = Comlink.proxy((cumulativeContent: string) => {
         set({ streamingContent: cumulativeContent.toLowerCase() })
       })
 
       let result: AskWithRagResult | null = null
       try {
-        // use askwithragandattachments if there are attachments, otherwise use askwithrag
-        if (hasAttachments) {
+        // use askwithragandattachments if there are attachments, otherwise use askwithrag        if (hasAttachments) {
           secureLogger.info('[wilson] sending with attachments:', attachments.length)
           secureLogger.debug('[wilson] Calling askWithRagAndAttachments with:', { text, fronterName, activeModel, resolvedUrl, attachmentsCount: attachments?.length });
           result = await worker.askWithRagAndAttachments(
@@ -367,8 +341,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
         return null
       }
 
-      // finalize: push the completed message into history, clear streaming
-      set((state) => {
+      // finalize: push the completed message into history, clear streaming      set((state) => {
         const assistantMsg: ChatMessage = {
           id: Date.now() + 1,
           role: 'assistant' as const,
@@ -377,8 +350,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
           createdAt: Date.now(),
         };
         const newHistory = [...state.interactionHistory, assistantMsg];
-        // save to session if we have one
-        const { currentSessionId, sessions } = state;
+        // save to session if we have one        const { currentSessionId, sessions } = state;
         let updatedSessions = sessions;
         if (currentSessionId) {
           updatedSessions = sessions.map(s =>
@@ -424,12 +396,10 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
     }
   },
 
-  // legacy non-rag method — also offloaded to worker for consistency
-  askWilsonLegacy: async (text: string) => {
+  // legacy non-rag method — also offloaded to worker for consistency  askWilsonLegacy: async (text: string) => {
     const { currentContext, activeModel, apiUrl } = get()
 
-    // get fronter info
-    let fronterName = 'friend'
+    // get fronter info    let fronterName = 'friend'
     try {
       const fronterData = storageManager.getItem('active_fronters')
       if (fronterData) {
@@ -458,12 +428,10 @@ important rules:
     const fullPrompt = `${systemPrompt}\n\n${fronterName}: ${text}\nwilson:`
 
     try {
-      // use local ollama directly
-      const resolvedUrl = apiUrl;
+      // use local ollama directly      const resolvedUrl = apiUrl;
       const worker = await getAIWorkerProxy()
 
-      // stream even in legacy mode for consistent ux
-      const onToken = Comlink.proxy((cumulativeContent: string) => {
+      // stream even in legacy mode for consistent ux      const onToken = Comlink.proxy((cumulativeContent: string) => {
         set({ streamingContent: cumulativeContent.toLowerCase() })
       })
 
@@ -482,8 +450,7 @@ important rules:
 
       const finalContent = response.toLowerCase()
 
-      // add wilson message
-      set((state) => {
+      // add wilson message      set((state) => {
         const assistantMsg: ChatMessage = {
           id: Date.now() + 1,
           role: 'assistant' as const,
@@ -491,8 +458,7 @@ important rules:
           createdAt: Date.now()
         };
         const newHistory = [...state.interactionHistory, assistantMsg];
-        // save to session if we have one
-        const { currentSessionId, sessions } = state;
+        // save to session if we have one        const { currentSessionId, sessions } = state;
         let updatedSessions = sessions;
         if (currentSessionId) {
           updatedSessions = sessions.map(s =>
@@ -528,8 +494,7 @@ important rules:
   }
 }))
 
-// extract source references from prompt
-function extractSourcesFromPrompt(prompt: string): string[] {
+// extract source references from promptfunction extractSourcesFromPrompt(prompt: string): string[] {
   const sources: string[] = []
   const regex = /\[source:\s*([^:\]]+):([^:\]]+)\]/g
   let match

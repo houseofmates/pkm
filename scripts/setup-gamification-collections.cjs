@@ -2,8 +2,7 @@ const { execSync } = require('child_process')
 
 console.log('setting up gamification nocobase collections...')
 
-// gamification_daily
-execSync(`
+// gamification_dailyexecSync(`
 curl -X POST http://localhost:13000/api/v1/meta/collections \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -22,8 +21,7 @@ curl -X POST http://localhost:13000/api/v1/meta/collections \\
   }'
 `, { stdio: 'inherit' })
 
-// widget_config
-execSync(`
+// widget_configexecSync(`
 curl -X POST http://localhost:13000/api/v1/meta/collections \\
   -H "Content-Type: application/json" \\
   -d '{

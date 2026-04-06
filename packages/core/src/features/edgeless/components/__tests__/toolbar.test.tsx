@@ -6,8 +6,7 @@ import { useEdgelessStore } from '../../store';
 import { FronterProvider } from '@/contexts/fronter-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// custom render that includes required providers
-function render(ui: React.ReactElement) {
+// custom render that includes required providersfunction render(ui: React.ReactElement) {
   const queryClient = new QueryClient();
   return rtlRender(
     <QueryClientProvider client={queryClient}>
@@ -16,9 +15,7 @@ function render(ui: React.ReactElement) {
   );
 }
 
-// wrap component with store if needed
-// the toolbar doesn't need router
-
+// wrap component with store if needed// the toolbar doesn't need router
 describe('Toolbar', () => {
   it('renders with bottom safe-area class', () => {
     render(<Toolbar />);
@@ -28,14 +25,11 @@ describe('Toolbar', () => {
   });
 
   it('shows brush opacity and smoothness sliders in brush menu', () => {
-    // ensure default tool is pen/brush
-    useEdgelessStore.setState({ activeTool: 'pen' });
+    // ensure default tool is pen/brush    useEdgelessStore.setState({ activeTool: 'pen' });
     render(<Toolbar />);
-    // find brush button by title or aria-label? use tool prop 'pen'
-    const brushBtn = screen.getByTitle(/pen|brush/i);
+    // find brush button by title or aria-label? use tool prop 'pen'    const brushBtn = screen.getByTitle(/pen|brush/i);
     fireEvent.click(brushBtn);
-    // now menu should appear; look for opacity label
-    expect(screen.getByText(/opacity/i)).toBeInTheDocument();
+    // now menu should appear; look for opacity label    expect(screen.getByText(/opacity/i)).toBeInTheDocument();
     expect(screen.getByText(/smooth/i)).toBeInTheDocument();
   });
 

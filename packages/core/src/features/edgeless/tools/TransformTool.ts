@@ -1,7 +1,6 @@
 import { BaseTool, ToolContext } from './BaseTool';
 
-/**
- * transformtool – apply move / scale / rotate to the entire active layer.
+/** * transformtool – apply move / scale / rotate to the entire active layer.
  * ported from drawing-app transformtool.ts.
  *
  * usage:
@@ -25,8 +24,7 @@ export class TransformTool extends BaseTool {
   onStart(_ctx: ToolContext, x: number, y: number, _pressure: number) {
     this.lastX = x;
     this.lastY = y;
-    // default to move; a future revision could detect handle proximity
-    this.activeHandle = 'move';
+    // default to move; a future revision could detect handle proximity    this.activeHandle = 'move';
   }
 
   onMove(ctx: ToolContext, x: number, y: number, _pressure: number) {
@@ -41,15 +39,13 @@ export class TransformTool extends BaseTool {
         this.y += dy;
         break;
       case 'scale': {
-        // scale relative to center based on horizontal movement
-        const factor = 1 + dx * 0.005;
+        // scale relative to center based on horizontal movement        const factor = 1 + dx * 0.005;
         this.scaleX *= factor;
         this.scaleY *= factor;
         break;
       }
       case 'rotate': {
-        // rotation proportional to horizontal movement
-        this.rotation += dx * 0.01;
+        // rotation proportional to horizontal movement        this.rotation += dx * 0.01;
         break;
       }
     }
@@ -63,24 +59,20 @@ export class TransformTool extends BaseTool {
     this.activeHandle = null;
   }
 
-  /** set the active interaction handle programmatically */
-  setHandle(handle: 'move' | 'scale' | 'rotate') {
+  /** set the active interaction handle programmatically */  setHandle(handle: 'move' | 'scale' | 'rotate') {
     this.activeHandle = handle;
   }
 
-  /** apply the accumulated transformation to the layer canvas pixels */
-  apply(ctx: ToolContext) {
+  /** apply the accumulated transformation to the layer canvas pixels */  apply(ctx: ToolContext) {
     const { ctx: layerCtx, canvas } = ctx;
 
-    // copy current pixels to a temp canvas
-    const tempCanvas = document.createElement('canvas');
+    // copy current pixels to a temp canvas    const tempCanvas = document.createElement('canvas');
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
     const tempCtx = tempCanvas.getContext('2d')!;
     tempCtx.drawImage(canvas, 0, 0);
 
-    // clear and redraw with transformation
-    layerCtx.clearRect(0, 0, canvas.width, canvas.height);
+    // clear and redraw with transformation    layerCtx.clearRect(0, 0, canvas.width, canvas.height);
     layerCtx.save();
     layerCtx.translate(this.x, this.y);
     layerCtx.rotate(this.rotation);
@@ -88,16 +80,14 @@ export class TransformTool extends BaseTool {
     layerCtx.drawImage(tempCanvas, 0, 0);
     layerCtx.restore();
 
-    // reset accumulators
-    this.x = 0;
+    // reset accumulators    this.x = 0;
     this.y = 0;
     this.scaleX = 1;
     this.scaleY = 1;
     this.rotation = 0;
   }
 
-  /** reset without applying */
-  reset() {
+  /** reset without applying */  reset() {
     this.x = 0;
     this.y = 0;
     this.scaleX = 1;
@@ -107,7 +97,5 @@ export class TransformTool extends BaseTool {
   }
 
   private updatePreview(_ctx: ToolContext) {
-    // in a live preview implementation, a ghost overlay would render here.
-    // for now the transform is applied on confirmtransform / apply().
-  }
+    // in a live preview implementation, a ghost overlay would render here.    // for now the transform is applied on confirmtransform / apply().  }
 }

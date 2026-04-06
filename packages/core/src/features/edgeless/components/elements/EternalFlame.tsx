@@ -4,8 +4,7 @@ export const EternalFlame = React.memo(function EternalFlame({ element: _element
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fuel, setFuel] = useState(100);
 
-  // particle system
-  useEffect(() => {
+  // particle system  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -20,8 +19,7 @@ export const EternalFlame = React.memo(function EternalFlame({ element: _element
       const size = Math.random() * 20 + 10;
       const speedY = Math.random() * 2 + 1;
       const life = Math.random() * 60 + 30;
-      // colors: gold to red to smoke
-      const colors = ['var(--primary)', '#ff4500', '#555555'];
+      // colors: gold to red to smoke      const colors = ['var(--primary)', '#ff4500', '#555555'];
       const color = colors[Math.floor(Math.random() * colors.length)];
 
       particles.push({ x, y, size, speedY, life, maxLife: life, color });
@@ -30,12 +28,10 @@ export const EternalFlame = React.memo(function EternalFlame({ element: _element
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // refuel glow
-      ctx.shadowBlur = 20;
+      // refuel glow      ctx.shadowBlur = 20;
       ctx.shadowColor = `rgba(246, 176, 18, ${fuel / 100})`;
 
-      // create particles based on fuel
-      if (fuel > 0 && Math.random() > (1 - fuel / 100)) {
+      // create particles based on fuel      if (fuel > 0 && Math.random() > (1 - fuel / 100)) {
         createParticle();
       }
 
@@ -44,8 +40,7 @@ export const EternalFlame = React.memo(function EternalFlame({ element: _element
         p.size *= 0.95; // shrink
         p.life--;
 
-        // sway
-        p.x += Math.sin(p.life / 10) * 0.5;
+        // sway        p.x += Math.sin(p.life / 10) * 0.5;
 
         ctx.globalAlpha = p.life / p.maxLife;
         ctx.fillStyle = p.color;
@@ -64,8 +59,7 @@ export const EternalFlame = React.memo(function EternalFlame({ element: _element
     return () => cancelAnimationFrame(animationFrame);
   }, [fuel]);
 
-  // fuel decay
-  useEffect(() => {
+  // fuel decay  useEffect(() => {
     const interval = setInterval(() => {
       setFuel(prev => Math.max(0, prev - 1));
     }, 60000); // burn 1% every minute (fast for demo, normally 24h = 1440 mins, so 1% every 15 mins)

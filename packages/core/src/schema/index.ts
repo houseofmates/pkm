@@ -1,5 +1,4 @@
-/**
- * schema module - modular database canvas foundation
+/** * schema module - modular database canvas foundation
  * 
  * this module provides the core infrastructure for a visual, programmable
  * database canvas. it includes:
@@ -30,8 +29,7 @@
  * ```
  */
 
-// export all types
-export type {
+// export all typesexport type {
   ValidationRule,
   FieldTypeDefinition,
   FieldDefinition,
@@ -50,8 +48,7 @@ export type {
   RecordChange,
 } from './types';
 
-// export schemas for runtime validation
-export {
+// export schemas for runtime validationexport {
   ValidationRuleSchema,
   FieldTypeDefinitionSchema,
   FieldDefinitionSchema,
@@ -68,7 +65,6 @@ export {
   RecordChangeSchema,
 } from './types';
 
-// export services
-export { fieldRegistry, registerBuiltinFieldTypes } from './field-registry';
+// export servicesexport { fieldRegistry, registerBuiltinFieldTypes } from './field-registry';
 export { persistenceService } from './persistence-service';
 export { schemaService } from './schema-service';

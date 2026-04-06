@@ -22,8 +22,7 @@ import { useGamificationStore, HABIT_TO_QUEST_MAPPING, XP_PER_ENTRY } from '@/st
 import { dataService } from '@/services/data.service';
 import { secureLogger } from '@/lib/secure-logger';
 
-// activity logging types and constants from use-journal-data.ts
-type ActivityId = string;
+// activity logging types and constants from use-journal-data.tstype ActivityId = string;
 
 type Activity = {
   id: ActivityId;
@@ -78,8 +77,7 @@ interface SearchResult {
     score?: number;
 }
 
-// localstorage helpers for activity tracking
-function getStoredData<T>(key: string, defaultValue: T): T {
+// localstorage helpers for activity trackingfunction getStoredData<T>(key: string, defaultValue: T): T {
   const raw = localStorage.getItem(key);
   if (raw === null) return defaultValue;
   try {
@@ -93,12 +91,10 @@ function setStoredData(key: string, value: any) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // ignore
-  }
+    // ignore  }
 }
 
-// medication groups for logging individual meds
-const MEDICATION_GROUPS: Record<string, { group: 'morning' | 'afternoon' | 'night'; meds: Array<{ id: string; name: string; dose: string; quantity: number }> }> = {
+// medication groups for logging individual medsconst MEDICATION_GROUPS: Record<string, { group: 'morning' | 'afternoon' | 'night'; meds: Array<{ id: string; name: string; dose: string; quantity: number }> }> = {
   meds_morning: {
     group: 'morning',
     meds: [
@@ -140,17 +136,14 @@ export function Spotlight() {
 
     const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-    // keyboard shortcuts & global events
-    useEffect(() => {
+    // keyboard shortcuts & global events    useEffect(() => {
         const down = (e: KeyboardEvent) => {
             const target = e.target as HTMLElement;
-            // ctrl+k opens spotlight (existing)
-            if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+            // ctrl+k opens spotlight (existing)            if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
                 setOpen((open) => !open);
             }
-            // ctrl+shift+a opens activity logging directly
-            if (e.key === "a" && (e.metaKey || e.ctrlKey) && e.shiftKey) {
+            // ctrl+shift+a opens activity logging directly            if (e.key === "a" && (e.metaKey || e.ctrlKey) && e.shiftKey) {
                 e.preventDefault();
                 setMode('activity');
                 setOpen(true);
@@ -183,16 +176,14 @@ export function Spotlight() {
     }, []);
 
     const performSearch = async (val: string) => {
-        // legacy search logic kept for command mode
-        if (!val || val.length < 2) {
+        // legacy search logic kept for command mode        if (!val || val.length < 2) {
             setDbResults([]);
             return;
         }
 
         setIsSearching(true);
         try {
-            // simple collection title match for now
-            const results: SearchResult[] = [];
+            // simple collection title match for now            const results: SearchResult[] = [];
             collections.forEach((c: Collection) => {
                 if (c.title?.toLowerCase().includes(val.toLowerCase()) || c.name.toLowerCase().includes(val.toLowerCase())) {
                     results.push({ id: c.name, collectionName: c.name, collectionTitle: c.title, record: { title: c.title } });
@@ -213,20 +204,17 @@ export function Spotlight() {
         }, 400);
     };
 
-    // activity logging function
-    const logActivity = useCallback((activity: Activity) => {
+    // activity logging function    const logActivity = useCallback((activity: Activity) => {
         const now = new Date().toISOString();
         
-        // update activity history in localstorage
-        const historyKey = 'journal_activity_history';
+        // update activity history in localstorage        const historyKey = 'journal_activity_history';
         const existingHistory = getStoredData<Record<string, string[]>>(historyKey, {});
         const activityTimestamps = existingHistory[activity.id] || [];
         activityTimestamps.push(now);
         existingHistory[activity.id] = activityTimestamps;
         setStoredData(historyKey, existingHistory);
         
-        // handle medication groups
-        if (MEDICATION_GROUPS[activity.id]) {
+        // handle medication groups        if (MEDICATION_GROUPS[activity.id]) {
             const medGroup = MEDICATION_GROUPS[activity.id];
             const medLogKey = 'medication_log';
             type MedLogEntry = { id: string; name: string; dose: string; quantity: number; timestamp: string; group: 'morning' | 'afternoon' | 'night' };
@@ -242,15 +230,12 @@ export function Spotlight() {
             setStoredData(medLogKey, [...existingMeds, ...newMeds]);
         }
         
-        // gamification updates
-        const { addXp, updateQuestCell, updateCategory, saveToServer } = gamificationStore;
+        // gamification updates        const { addXp, updateQuestCell, updateCategory, saveToServer } = gamificationStore;
         
-        // add base xp for logging activity
-        const xpGained = XP_PER_ENTRY;
+        // add base xp for logging activity        const xpGained = XP_PER_ENTRY;
         addXp(xpGained);
         
-        // check for quest mappings and update quest cells
-        const activityIdLower = activity.id.toLowerCase();
+        // check for quest mappings and update quest cells        const activityIdLower = activity.id.toLowerCase();
         const activityLabelLower = activity.label.toLowerCase();
         const mappings = HABIT_TO_QUEST_MAPPING[activityIdLower] || 
                         HABIT_TO_QUEST_MAPPING[activityLabelLower] ||
@@ -266,8 +251,7 @@ export function Spotlight() {
             });
         }
         
-        // update category saturation based on activity category
-        const categoryMap: Record<string, keyof typeof gamificationStore.saturation> = {
+        // update category saturation based on activity category        const categoryMap: Record<string, keyof typeof gamificationStore.saturation> = {
             'health': 'body',
             'medication': 'body',
             'exercise': 'body',
@@ -286,11 +270,9 @@ export function Spotlight() {
             updateCategory(saturationCategory, Math.min(100, currentValue + 10));
         }
         
-        // persist to server
-        saveToServer();
+        // persist to server        saveToServer();
         
-        // show toast with activity and xp info
-        const themeColor = '#f6b012';
+        // show toast with activity and xp info        const themeColor = '#f6b012';
         toast.success(
             <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
@@ -311,8 +293,7 @@ export function Spotlight() {
             }
         );
         
-        // emit data update to server for other devices
-        dataService.emitDataUpdate('activity_logged', {
+        // emit data update to server for other devices        dataService.emitDataUpdate('activity_logged', {
             activity_id: activity.id,
             activity_name: activity.label,
             category: activity.category,
@@ -323,8 +304,7 @@ export function Spotlight() {
         setOpen(false);
     }, [gamificationStore]);
 
-    // filtered activities for activity mode
-    const filteredActivities = useMemo(() => {
+    // filtered activities for activity mode    const filteredActivities = useMemo(() => {
         if (mode !== 'activity') return [];
         const q = query.trim().toLowerCase();
         if (!q) return DEFAULT_ACTIVITIES;
@@ -336,8 +316,7 @@ export function Spotlight() {
 
     const runAction = useCallback((action: () => void) => {
         setOpen(false);
-        // delay action to allow dialog close animation to complete
-        setTimeout(() => {
+        // delay action to allow dialog close animation to complete        setTimeout(() => {
             action();
         }, 150);
     }, []);

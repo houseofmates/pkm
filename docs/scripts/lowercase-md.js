@@ -15,8 +15,7 @@ function scanAndFix(dir) {
       const lines = content.split('\n')
       let changed = false
       const newLines = lines.map(line => {
-        // fix ui text like buttons, labels (not code blocks)
-        if (line.match(/^[-*]/) || line.includes('```')) return line
+        // fix ui text like buttons, labels (not code blocks)        if (line.match(/^[-*]/) || line.includes('```')) return line
         const fixed = line.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
         if (fixed !== line) changed = true
         return fixed

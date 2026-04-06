@@ -11,8 +11,7 @@ interface SaturationRingProps {
   className?: string;
 }
 
-// category colors matching the store
-const CATEGORY_COLORS = {
+// category colors matching the storeconst CATEGORY_COLORS = {
   mood: '#f472b6',    // pink-400
   body: '#60a5fa',    // blue-400
   mind: '#a78bfa',    // purple-400
@@ -45,8 +44,7 @@ export function SaturationRing({
   const availableDegrees = 360 - totalGap;
   const segmentDegrees = availableDegrees / categories.length;
 
-  // calculate overall coverage
-  const avgCoverage = Math.round((mood + body + mind + finance + social) / 5);
+  // calculate overall coverage  const avgCoverage = Math.round((mood + body + mind + finance + social) / 5);
 
   return (
     <div className={cn("flex flex-col items-center gap-3", className)}>

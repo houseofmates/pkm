@@ -3,8 +3,7 @@ import { schemaService } from './schema.service';
 import type { FieldType } from './schema.service';
 import { secureLogger } from '@/lib/secure-logger';
 
-/**
- * text field type
+/** * text field type
  * a simple string-based field.
  */
 const textField: FieldType = {
@@ -13,8 +12,7 @@ const textField: FieldType = {
   defaultValue: '',
 };
 
-/**
- * number field type
+/** * number field type
  * a numeric field that supports both integers and floats.
  */
 const numberField: FieldType = {
@@ -23,8 +21,7 @@ const numberField: FieldType = {
   defaultValue: 0,
 };
 
-// additional field types used by nocobase
-const booleanField: FieldType = {
+// additional field types used by nocobaseconst booleanField: FieldType = {
   typeName: 'boolean',
   schema: z.boolean().nullable(),
   defaultValue: false,
@@ -131,8 +128,7 @@ const relationField: FieldType = {
   defaultValue: null,
 };
 
-/**
- * link database field type
+/** * link database field type
  * references another database/collection in the pkm system.
  * stores the database name and display info.
  */
@@ -145,8 +141,7 @@ const linkDatabaseField: FieldType = {
   defaultValue: null,
 };
 
-/**
- * link item field type
+/** * link item field type
  * references a specific item/record in any database, canvas, or document.
  * stores the item id, collection name, title, and item type.
  */
@@ -161,8 +156,7 @@ const linkItemField: FieldType = {
   defaultValue: null,
 };
 
-// register all of them
-schemaService.registerFieldType(textField);
+// register all of themschemaService.registerFieldType(textField);
 schemaService.registerFieldType(numberField);
 schemaService.registerFieldType(booleanField);
 schemaService.registerFieldType(dateField);

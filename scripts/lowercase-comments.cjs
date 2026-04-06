@@ -14,11 +14,9 @@ const files = [
 ];
 
 function lowercaseComments(content) {
-  // regex for single line comments
-  content = content.replace(/\/\/.*$/gm, (match) => match.toLowerCase());
+  // regex for single line comments  content = content.replace(/\/\/.*$/gm, (match) => match.toLowerCase());
 
-  // regex for multi-line comments
-  content = content.replace(/\/\*[\s\S]*?\*\//g, (match) => match.toLowerCase());
+  // regex for multi-line comments  content = content.replace(/\/\*[\s\S]*?\*\//g, (match) => match.toLowerCase());
 
   return content;
 }

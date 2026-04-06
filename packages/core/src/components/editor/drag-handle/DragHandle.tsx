@@ -20,8 +20,7 @@ export function DragHandle({ editor }: DragHandleProps) {
       const editorDom = editor.view.dom;
       const rect = editorDom.getBoundingClientRect();
 
-      // expanded hit area for the handle
-      if (
+      // expanded hit area for the handle      if (
         e.clientY >= rect.top &&
         e.clientY <= rect.bottom &&
         e.clientX >= rect.left - 60 && // wider gutter detection
@@ -30,12 +29,9 @@ export function DragHandle({ editor }: DragHandleProps) {
         const pos = editor.view.posAtCoords({ left: rect.left + 10, top: e.clientY });
 
         if (pos) {
-          // find the block node
-          const resolvedPos = editor.state.doc.resolve(pos.pos);
+          // find the block node          const resolvedPos = editor.state.doc.resolve(pos.pos);
           let depth = resolvedPos.depth;
-          // walk up to find a block level node that is a direct child of doc or column
-          // we want the "block" (paragraph, heading, etc)
-          while (depth > 0) {
+          // walk up to find a block level node that is a direct child of doc or column          // we want the "block" (paragraph, heading, etc)          while (depth > 0) {
             const node = resolvedPos.node(depth);
             if (node.isBlock && (node.type.name !== 'doc' && node.type.name !== 'columnList')) {
               break;
@@ -43,8 +39,7 @@ export function DragHandle({ editor }: DragHandleProps) {
             depth--;
           }
 
-          // if we went too far up or didn't find a good block, fallback to immediate
-          if (depth <= 0) depth = 1;
+          // if we went too far up or didn't find a good block, fallback to immediate          if (depth <= 0) depth = 1;
 
           const nodePos = resolvedPos.before(depth);
           const nodeDom = editor.view.nodeDOM(nodePos) as HTMLElement;
@@ -52,12 +47,9 @@ export function DragHandle({ editor }: DragHandleProps) {
           if (nodeDom && nodeDom.getBoundingClientRect) {
             const nodeRect = nodeDom.getBoundingClientRect();
 
-            // only update if significantly different to avoid jitter
-            // check y position
-            const newTop = nodeRect.top + window.scrollY;
+            // only update if significantly different to avoid jitter            // check y position            const newTop = nodeRect.top + window.scrollY;
 
-            // debounce/check if close enough
-            setPosition({
+            // debounce/check if close enough            setPosition({
               top: newTop,
               left: nodeRect.left + window.scrollX - 24,
               height: nodeRect.height
@@ -67,8 +59,7 @@ export function DragHandle({ editor }: DragHandleProps) {
           }
         }
       }
-      // don't hide immediately if hovering the handle itself
-      if (menuRef.current && menuRef.current.contains(e.target as Node)) return;
+      // don't hide immediately if hovering the handle itself      if (menuRef.current && menuRef.current.contains(e.target as Node)) return;
 
       setPosition(null);
     };
@@ -99,15 +90,10 @@ export function DragHandle({ editor }: DragHandleProps) {
           e.dataTransfer.effectAllowed = 'move';
           e.dataTransfer.setDragImage(e.target as Element, 0, 0);
 
-          // select the node
-          const node = editor.state.doc.nodeAt(currentNodePos);
+          // select the node          const node = editor.state.doc.nodeAt(currentNodePos);
           if (node) {
-             // we set a custom mime type to identify this as a prose-mirror drag
-             // but actually, we just want to leverage native behavior if possible
-             // or trigger our extension's drag handler
-
-             // trick: select the node in the editor so tiptap's drag handler picks it up
-             editor.commands.setNodeSelection(currentNodePos);
+             // we set a custom mime type to identify this as a prose-mirror drag             // but actually, we just want to leverage native behavior if possible             // or trigger our extension's drag handler
+             // trick: select the node in the editor so tiptap's drag handler picks it up             editor.commands.setNodeSelection(currentNodePos);
           }
         }}
       >
@@ -120,10 +106,7 @@ export function DragHandle({ editor }: DragHandleProps) {
         title="Wrap in Columns"
         onClick={() => {
             if (currentNodePos !== null) {
-                // replace setcolumns with a valid command or show a placeholder
-                // example: wrap node in columns extension if available, otherwise show toast
-                // editor.chain().setnodeselection(currentnodepos).wrapincolumns(2).run();
-                toast.info('columns extension not available');
+                // replace setcolumns with a valid command or show a placeholder                // example: wrap node in columns extension if available, otherwise show toast                // editor.chain().setnodeselection(currentnodepos).wrapincolumns(2).run();                toast.info('columns extension not available');
             }
         }}
       >

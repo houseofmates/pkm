@@ -1,5 +1,4 @@
-/**
- * persistence service for the modular schema service
+/** * persistence service for the modular schema service
  * 
  * this module provides data persistence using indexeddb via the idb library.
  * it handles storing table definitions, records, and metadata.
@@ -11,14 +10,11 @@ import type { DBSchema } from 'idb';
 import type { TableDefinition, Record, QueryOptions, QueryResult, FilterCondition, FilterGroup } from './types';
 import { secureLogger } from '@/lib/secure-logger';
 
-// database configuration
-const DB_NAME = 'pkm_schema_db';
+// database configurationconst DB_NAME = 'pkm_schema_db';
 const DB_VERSION = 1;
 
-// database schema definition
-interface SchemaDB extends DBSchema {
-  // store for table definitions (schemas)
-  tables: {
+// database schema definitioninterface SchemaDB extends DBSchema {
+  // store for table definitions (schemas)  tables: {
     key: string; // table id
     value: TableDefinition;
     indexes: {
@@ -26,8 +22,7 @@ interface SchemaDB extends DBSchema {
     };
   };
   
-  // store for records - dynamic based on table
-  records: {
+  // store for records - dynamic based on table  records: {
     key: string; // record id
     value: Record;
     indexes: {
@@ -36,22 +31,19 @@ interface SchemaDB extends DBSchema {
     };
   };
   
-  // store for metadata/settings
-  metadata: {
+  // store for metadata/settings  metadata: {
     key: string;
     value: any;
   };
 }
 
-/**
- * persistence service class - manages all data storage
+/** * persistence service class - manages all data storage
  */
 class PersistenceService {
   private db: IDBPDatabase<SchemaDB> | null = null;
   private initPromise: Promise<void> | null = null;
 
-  /**
-   * initialize the database connection
+  /**   * initialize the database connection
    */
   public async initialize(): Promise<void> {
     if (this.initPromise) {
@@ -66,22 +58,18 @@ class PersistenceService {
     this.db = await openDB<SchemaDB>(DB_NAME, DB_VERSION, {
       upgrade(db, _oldVersion, _newVersion, _transaction) {
         // create object stores and indexes
-
-        // tables store - holds table definitions
-        if (!db.objectStoreNames.contains('tables')) {
+        // tables store - holds table definitions        if (!db.objectStoreNames.contains('tables')) {
           const tableStore = db.createObjectStore('tables', { keyPath: 'id' });
           tableStore.createIndex('by-name', 'name', { unique: true });
         }
 
-        // records store - holds all records from all tables
-        if (!db.objectStoreNames.contains('records')) {
+        // records store - holds all records from all tables        if (!db.objectStoreNames.contains('records')) {
           const recordStore = db.createObjectStore('records', { keyPath: 'id' });
           recordStore.createIndex('by-table', 'tableName', { unique: false });
           recordStore.createIndex('by-updated', 'updatedAt', { unique: false });
         }
 
-        // metadata store - holds app settings and metadata
-        if (!db.objectStoreNames.contains('metadata')) {
+        // metadata store - holds app settings and metadata        if (!db.objectStoreNames.contains('metadata')) {
           db.createObjectStore('metadata');
         }
       },
@@ -90,8 +78,7 @@ class PersistenceService {
     secureLogger.info('persistence service initialized - database:', DB_NAME, 'version:', DB_VERSION);
   }
 
-  /**
-   * ensure database is initialized before operations
+  /**   * ensure database is initialized before operations
    */
   private async ensureInitialized(): Promise<IDBPDatabase<SchemaDB>> {
     if (!this.db) {
@@ -103,12 +90,8 @@ class PersistenceService {
     return this.db;
   }
 
-  // ============================================================================
-  // table operations
-  // ============================================================================
-
-  /**
-   * save a table definition
+  // ============================================================================  // table operations  // ============================================================================
+  /**   * save a table definition
    * @param table the table definition to save
    */
   public async saveTable(table: TableDefinition): Promise<void> {
@@ -116,8 +99,7 @@ class PersistenceService {
     await db.put('tables', table);
   }
 
-  /**
-   * get a table definition by id
+  /**   * get a table definition by id
    * @param tableid the table id
    * @returns the table definition or undefined
    */
@@ -126,8 +108,7 @@ class PersistenceService {
     return db.get('tables', tableId);
   }
 
-  /**
-   * get a table definition by name
+  /**   * get a table definition by name
    * @param tablename the table name
    * @returns the table definition or undefined
    */
@@ -136,8 +117,7 @@ class PersistenceService {
     return db.getFromIndex('tables', 'by-name', tableName);
   }
 
-  /**
-   * get all table definitions
+  /**   * get all table definitions
    * @returns array of all table definitions
    */
   public async getAllTables(): Promise<TableDefinition[]> {
@@ -145,19 +125,16 @@ class PersistenceService {
     return db.getAll('tables');
   }
 
-  /**
-   * delete a table and all its records
+  /**   * delete a table and all its records
    * @param tableid the table id to delete
    */
   public async deleteTable(tableId: string): Promise<void> {
     const db = await this.ensureInitialized();
     
-    // get table to find its name
-    const table = await db.get('tables', tableId);
+    // get table to find its name    const table = await db.get('tables', tableId);
     if (!table) return;
 
-    // delete all records for this table
-    const tx = db.transaction(['tables', 'records'], 'readwrite');
+    // delete all records for this table    const tx = db.transaction(['tables', 'records'], 'readwrite');
     const recordStore = tx.objectStore('records');
     const index = recordStore.index('by-table');
     const recordIds = await index.getAllKeys(table.name);
@@ -166,17 +143,12 @@ class PersistenceService {
       await recordStore.delete(recordId);
     }
 
-    // delete the table definition
-    await tx.objectStore('tables').delete(tableId);
+    // delete the table definition    await tx.objectStore('tables').delete(tableId);
     await tx.done;
   }
 
-  // ============================================================================
-  // record operations
-  // ============================================================================
-
-  /**
-   * save a record
+  // ============================================================================  // record operations  // ============================================================================
+  /**   * save a record
    * @param tablename the table this record belongs to
    * @param record the record to save
    */
@@ -186,8 +158,7 @@ class PersistenceService {
     await db.put('records', recordWithTable);
   }
 
-  /**
-   * get a record by id
+  /**   * get a record by id
    * @param recordid the record id
    * @returns the record or undefined
    */
@@ -196,8 +167,7 @@ class PersistenceService {
     return db.get('records', recordId);
   }
 
-  /**
-   * get all records for a table
+  /**   * get all records for a table
    * @param tablename the table name
    * @returns array of records
    */
@@ -207,8 +177,7 @@ class PersistenceService {
     return index.getAll(tableName);
   }
 
-  /**
-   * delete a record
+  /**   * delete a record
    * @param recordid the record id to delete
    */
   public async deleteRecord(recordId: string): Promise<void> {
@@ -216,8 +185,7 @@ class PersistenceService {
     await db.delete('records', recordId);
   }
 
-  /**
-   * query records with filtering, sorting, and pagination
+  /**   * query records with filtering, sorting, and pagination
    * @param tablename the table to query
    * @param options query options
    * @returns query result with records and pagination info
@@ -225,34 +193,27 @@ class PersistenceService {
   public async queryRecords(tableName: string, options: QueryOptions = {}): Promise<QueryResult> {
     const db = await this.ensureInitialized();
     
-    // get all records for this table
-    let records = await this.getRecordsByTable(tableName);
+    // get all records for this table    let records = await this.getRecordsByTable(tableName);
 
-    // apply filters
-    if (options.filter) {
+    // apply filters    if (options.filter) {
       records = records.filter(record => this.matchesFilter(record, options.filter!));
     }
 
-    // get total count before pagination
-    const total = records.length;
+    // get total count before pagination    const total = records.length;
 
-    // apply sorting
-    if (options.sort && options.sort.length > 0) {
+    // apply sorting    if (options.sort && options.sort.length > 0) {
       records = this.sortRecords(records, options.sort);
     }
 
-    // apply pagination
-    const page = options.page || 1;
+    // apply pagination    const page = options.page || 1;
     const pageSize = options.pageSize || 100;
     const startIndex = (page - 1) * pageSize;
     const endIndex = startIndex + pageSize;
     const paginatedRecords = records.slice(startIndex, endIndex);
 
-    // apply field selection
-    const finalRecords = paginatedRecords.map(record => {
+    // apply field selection    const finalRecords = paginatedRecords.map(record => {
       if (options.fields) {
-        // include only specified fields
-        const filtered: Record = { ...record };
+        // include only specified fields        const filtered: Record = { ...record };
         const allFields = Object.keys(record);
         for (const field of allFields) {
           if (!options.fields.includes(field) && 
@@ -264,8 +225,7 @@ class PersistenceService {
       }
       
       if (options.excludeFields) {
-        // exclude specified fields
-        const filtered: Record = { ...record };
+        // exclude specified fields        const filtered: Record = { ...record };
         for (const field of options.excludeFields) {
           delete filtered[field];
         }
@@ -288,12 +248,10 @@ class PersistenceService {
     };
   }
 
-  /**
-   * check if a record matches a filter condition or group
+  /**   * check if a record matches a filter condition or group
    */
   private matchesFilter(record: Record, filter: FilterCondition | FilterGroup): boolean {
-    // check if it's a filter group
-    if ('conditions' in filter) {
+    // check if it's a filter group    if ('conditions' in filter) {
       const group = filter as FilterGroup;
       const results = group.conditions.map(condition => this.matchesFilter(record, condition));
       
@@ -304,8 +262,7 @@ class PersistenceService {
       }
     }
 
-    // it's a single condition
-    const condition = filter as FilterCondition;
+    // it's a single condition    const condition = filter as FilterCondition;
     const value = record[condition.field];
     
     switch (condition.operator) {
@@ -345,8 +302,7 @@ class PersistenceService {
     }
   }
 
-  /**
-   * sort records by sort specifications
+  /**   * sort records by sort specifications
    */
   private sortRecords(records: Record[], sortSpecs: { field: string; direction?: 'asc' | 'desc' }[]): Record[] {
     return [...records].sort((a, b) => {
@@ -378,12 +334,8 @@ class PersistenceService {
     });
   }
 
-  // ============================================================================
-  // metadata operations
-  // ============================================================================
-
-  /**
-   * get metadata value
+  // ============================================================================  // metadata operations  // ============================================================================
+  /**   * get metadata value
    * @param key the metadata key
    * @returns the metadata value or undefined
    */
@@ -392,8 +344,7 @@ class PersistenceService {
     return db.get('metadata', key);
   }
 
-  /**
-   * set metadata value
+  /**   * set metadata value
    * @param key the metadata key
    * @param value the value to store
    */
@@ -402,8 +353,7 @@ class PersistenceService {
     await db.put('metadata', value, key);
   }
 
-  /**
-   * delete metadata
+  /**   * delete metadata
    * @param key the metadata key to delete
    */
   public async deleteMetadata(key: string): Promise<void> {
@@ -411,12 +361,8 @@ class PersistenceService {
     await db.delete('metadata', key);
   }
 
-  // ============================================================================
-  // utility operations
-  // ============================================================================
-
-  /**
-   * clear all data (use with caution!)
+  // ============================================================================  // utility operations  // ============================================================================
+  /**   * clear all data (use with caution!)
    */
   public async clearAll(): Promise<void> {
     const db = await this.ensureInitialized();
@@ -428,8 +374,7 @@ class PersistenceService {
     secureLogger.info('all data cleared from database');
   }
 
-  /**
-   * close the database connection
+  /**   * close the database connection
    */
   public async close(): Promise<void> {
     if (this.db) {
@@ -439,8 +384,7 @@ class PersistenceService {
     }
   }
 
-  /**
-   * export all data as json (for backup)
+  /**   * export all data as json (for backup)
    * @returns object containing all tables and records
    */
   public async exportAll(): Promise<{ tables: TableDefinition[]; records: Record[] }> {
@@ -450,8 +394,7 @@ class PersistenceService {
     return { tables, records };
   }
 
-  /**
-   * import data from json (for restore)
+  /**   * import data from json (for restore)
    * @param data the data to import
    */
   public async importAll(data: { tables: TableDefinition[]; records: Record[] }): Promise<void> {
@@ -459,17 +402,14 @@ class PersistenceService {
     
     const tx = db.transaction(['tables', 'records'], 'readwrite');
     
-    // clear existing data
-    await tx.objectStore('tables').clear();
+    // clear existing data    await tx.objectStore('tables').clear();
     await tx.objectStore('records').clear();
     
-    // import tables
-    for (const table of data.tables) {
+    // import tables    for (const table of data.tables) {
       await tx.objectStore('tables').put(table);
     }
     
-    // import records
-    for (const record of data.records) {
+    // import records    for (const record of data.records) {
       await tx.objectStore('records').put(record);
     }
     
@@ -478,5 +418,4 @@ class PersistenceService {
   }
 }
 
-// singleton instance
-export const persistenceService = new PersistenceService();
+// singleton instanceexport const persistenceService = new PersistenceService();

@@ -1,13 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useLLMStore } from '@/stores/llm-store'
 
-// mock the ai worker proxy so we don't spawn real workers in tests
-vi.mock('@/hooks/use-ai-worker', () => ({
+// mock the ai worker proxy so we don't spawn real workers in testsvi.mock('@/hooks/use-ai-worker', () => ({
   getAIWorkerProxy: vi.fn(() => mockWorkerProxy),
 }))
 
-// mock comlink
-vi.mock('comlink', () => ({
+// mock comlinkvi.mock('comlink', () => ({
   proxy: vi.fn((fn: any) => fn),
   wrap: vi.fn(),
   expose: vi.fn(),
@@ -28,8 +26,7 @@ const mockWorkerProxy = {
 
 describe('useLLMStore.askWilson', () => {
   beforeEach(() => {
-    // reset store state
-    useLLMStore.setState({
+    // reset store state    useLLMStore.setState({
       interactionHistory: [],
       isThinking: false,
       streamingContent: '',
@@ -39,16 +36,14 @@ describe('useLLMStore.askWilson', () => {
       useRag: true,
       pendingAttachments: [],
     })
-    // ensure gemini key is present to avoid prompt dialogs in tests
-    localStorage.setItem('gemini_api_key', 'test')
+    // ensure gemini key is present to avoid prompt dialogs in tests    localStorage.setItem('gemini_api_key', 'test')
     vi.clearAllMocks()
   })
 
   it('delegates to worker.askWithRag when rag is enabled and appends assistant reply', async () => {
     mockWorkerProxy.askWithRag.mockImplementation(
       async (query: string, fronterName: string, model: string, endpoint: string, onToken: (s: string) => void) => {
-        // simulate streaming tokens
-        onToken('hel')
+        // simulate streaming tokens        onToken('hel')
         onToken('hello ')
         onToken('hello there')
         return { response: 'hello there', sources: ['test:1'] }
@@ -57,17 +52,14 @@ describe('useLLMStore.askWilson', () => {
 
     const reply = await useLLMStore.getState().askWilson('summarize this')
 
-    // worker.askWithRag should have been called
-    expect(mockWorkerProxy.askWithRag).toHaveBeenCalled()
+    // worker.askwithrag should have been called    expect(mockWorkerProxy.askWithRag).toHaveBeenCalled()
 
-    // store should contain assistant message
-    const history = useLLMStore.getState().interactionHistory
+    // store should contain assistant message    const history = useLLMStore.getState().interactionHistory
     expect(history.some(m => m.role === 'assistant' && m.content === 'hello there')).toBeTruthy()
     expect(history.some(m => m.role === 'assistant' && m.sources?.includes('test:1'))).toBeTruthy()
     expect(reply).toBe('hello there')
 
-    // streaming should be cleared after completion
-    expect(useLLMStore.getState().streamingContent).toBe('')
+    // streaming should be cleared after completion    expect(useLLMStore.getState().streamingContent).toBe('')
     expect(useLLMStore.getState().isThinking).toBe(false)
   })
 
@@ -99,8 +91,7 @@ describe('useLLMStore.askWilson', () => {
   })
 
   it('uses askWithRagAndAttachments when there are pending attachments', async () => {
-    // Set up a mock attachment
-    const mockAttachment = {
+    // set up a mock attachment    const mockAttachment = {
       id: 'test-attachment-1',
       name: 'test.png',
       type: 'image' as const,
@@ -120,8 +111,7 @@ describe('useLLMStore.askWilson', () => {
 
     const reply = await useLLMStore.getState().askWilson('what do you see in this image?')
 
-    // worker.askWithRagAndAttachments should have been called
-    expect(mockWorkerProxy.askWithRagAndAttachments).toHaveBeenCalled()
+    // worker.askwithragandattachments should have been called    expect(mockWorkerProxy.askWithRagAndAttachments).toHaveBeenCalled()
     expect(mockWorkerProxy.askWithRagAndAttachments).toHaveBeenCalledWith(
       'what do you see in this image?',
       expect.any(String),
@@ -131,18 +121,15 @@ describe('useLLMStore.askWilson', () => {
       expect.arrayContaining([expect.objectContaining({ id: 'test-attachment-1' })])
     )
 
-    // pending attachments should be cleared after sending
-    expect(useLLMStore.getState().pendingAttachments).toHaveLength(0)
+    // pending attachments should be cleared after sending    expect(useLLMStore.getState().pendingAttachments).toHaveLength(0)
 
-    // reply should be lowercase
-    expect(reply).toBe('i can see the image')
+    // reply should be lowercase    expect(reply).toBe('i can see the image')
   })
 
   it('adds attachments correctly', async () => {
     const store = useLLMStore.getState()
     
-    // Create a mock file
-    const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
+    // create a mock file    const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
     
     await store.addAttachment(mockFile)
     
@@ -155,8 +142,7 @@ describe('useLLMStore.askWilson', () => {
   it('removes attachments correctly', () => {
     const store = useLLMStore.getState()
     
-    // Set up mock attachments
-    useLLMStore.setState({
+    // set up mock attachments    useLLMStore.setState({
       pendingAttachments: [
         { id: '1', name: 'test1.png', type: 'image' as const, file: new File([''], 'test1.png') },
         { id: '2', name: 'test2.png', type: 'image' as const, file: new File([''], 'test2.png') },

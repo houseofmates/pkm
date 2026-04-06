@@ -11,8 +11,7 @@ import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getContrastColor } from '@/lib/utils';
 
-// placeholder data for "wireframe" mode
-const PLACEHOLDER_DATA = [
+// placeholder data for "wireframe" modeconst PLACEHOLDER_DATA = [
   { name: 'Category A', value: 40, value2: 24, amt: 2400 },
   { name: 'Category B', value: 30, value2: 13, amt: 2210 },
   { name: 'Category C', value: 20, value2: 98, amt: 2290 },
@@ -41,8 +40,7 @@ interface ChartProps {
   onDataContextMenu?: (e: any, data: any, xKey: string, seriesKey?: string) => void;
 }
 
-// extracted placeholder overlay component to avoid recreation on render
-interface PlaceholderOverlayProps {
+// extracted placeholder overlay component to avoid recreation on renderinterface PlaceholderOverlayProps {
   label?: string;
   targetKey?: string;
   isPlaceholder: boolean;
@@ -92,8 +90,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   const [isReady, setIsReady] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // default palette - updated to include var(--primary) as primary
-  const DEFAULT_ALTS = ['var(--primary)', '#00C49F', '#0088FE', '#FF8042', '#8884d8', '#ff0055', '#7F00FF', '#00FF00'];
+  // default palette - updated to include var(--primary) as primary  const DEFAULT_ALTS = ['var(--primary)', '#00C49F', '#0088FE', '#FF8042', '#8884d8', '#ff0055', '#7F00FF', '#00FF00'];
 
   const getColor = (key: string, index: number) => {
     if (seriesColors && seriesColors[key]) return seriesColors[key];
@@ -118,33 +115,26 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   const isPlaceholder = !data || data.length === 0;
   const chartData = isPlaceholder ? PLACEHOLDER_DATA : data;
 
-  // helper to request config change
-  const triggerConfig = (configKey: string, val?: any) => {
+  // helper to request config change  const triggerConfig = (configKey: string, val?: any) => {
     if (!onConfig) return;
     onConfig(configKey, val);
   };
 
-  // common axis props for placeholders
-  const placeholderAxisProps = isPlaceholder ? {
-    // we can't easily put a select on axis click without positioning logic
-    // so we fallback to simple trigger or just let the main overlay handle it
-    cursor: "pointer",
+  // common axis props for placeholders  const placeholderAxisProps = isPlaceholder ? {
+    // we can't easily put a select on axis click without positioning logic    // so we fallback to simple trigger or just let the main overlay handle it    cursor: "pointer",
     tick: { fill: 'var(--muted-foreground)', opacity: 0.5 }
   } : {};
   const toggle = (k: string) => setHidden(prev => ({ ...prev, [k]: !prev[k] }));
 
-  // build the ordered keys list (respect seriesorder if present)
-  const buildKeys = () => {
+  // build the ordered keys list (respect seriesorder if present)  const buildKeys = () => {
     const base = seriesKeys || [];
     if (seriesOrder && seriesOrder.length > 0) {
-      // only include keys that exist in base and preserve order
-      return seriesOrder.filter(k => base.includes(k));
+      // only include keys that exist in base and preserve order      return seriesOrder.filter(k => base.includes(k));
     }
     return base;
   };
 
-  // multi-series rendering helper
-  const renderSeries = () => {
+  // multi-series rendering helper  const renderSeries = () => {
     const keys = buildKeys();
     if (!keys || keys.length === 0) return null;
     return keys.map((key, idx) => {
@@ -508,8 +498,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
                 )
               }
               const col = getColor(name, index);
-              // contrast check
-              const textColor = getContrastColor(col);
+              // contrast check              const textColor = getContrastColor(col);
 
               return (
                 <g>
@@ -566,8 +555,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
-    // funnel sort
-    const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[yKey] || 0) - (a[yKey] || 0));
+    // funnel sort    const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[yKey] || 0) - (a[yKey] || 0));
     return (
       <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
         <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select stage" targetKey="chartX" />
@@ -580,8 +568,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
               isAnimationActive
               onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
               onContextMenu={(...args: unknown[]) => {
-                // funnel might pass different args
-                const e = args[args.length - 1] as { preventDefault?: () => void };
+                // funnel might pass different args                const e = args[args.length - 1] as { preventDefault?: () => void };
                 const data = args[0];
                 if (e?.preventDefault && onDataContextMenu) onDataContextMenu(e as unknown as Event, data, xKey);
               }}
@@ -658,9 +645,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         onClick={() => {
           if (isPlaceholder) triggerConfig('chartY');
           else if (onDataClick) onDataClick({ name: 'All' }, xKey); // special handling for kpi to signal all?
-          // note: chartview needs to handle 'all', or we rely on user filtering.
-          // for now, let's just trigger it.
-        }}>
+          // note: chartview needs to handle 'all', or we rely on user filtering.          // for now, let's just trigger it.        }}>
         <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="configure kpi values" targetKey="chartY" />
         <div className={cn("text-sm  mb-2", isPlaceholder ? "text-muted-foreground/50" : "text-muted-foreground")}>
           {isPlaceholder ? "total metric" : (xKey + ' total')}

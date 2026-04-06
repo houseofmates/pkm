@@ -16,8 +16,7 @@ const moodEmojis = ['😢', '😟', '😐', '🙂', '😊', '🤩'];
 const moodLabels = ['terrible', 'bad', 'fine', 'good', 'great', 'amazing'];
 
 export const MoodTrendWidget = memo(function MoodTrendWidget({ entries, className }: MoodTrendWidgetProps) {
-  // get last 7 days of moods
-  const last7Days = useMemo(() => {
+  // get last 7 days of moods  const last7Days = useMemo(() => {
     const days: (MoodEntry | null)[] = [];
     const today = new Date();
     
@@ -33,8 +32,7 @@ export const MoodTrendWidget = memo(function MoodTrendWidget({ entries, classNam
     return days;
   }, [entries]);
 
-  // calculate trend
-  const trend = useMemo(() => {
+  // calculate trend  const trend = useMemo(() => {
     const validMoods = last7Days.filter(d => d !== null).map(d => d!.mood);
     if (validMoods.length < 2) return 'neutral';
     
@@ -46,8 +44,7 @@ export const MoodTrendWidget = memo(function MoodTrendWidget({ entries, classNam
     return 'neutral';
   }, [last7Days]);
 
-  // calculate average
-  const average = useMemo(() => {
+  // calculate average  const average = useMemo(() => {
     const validMoods = last7Days.filter(d => d !== null).map(d => d!.mood);
     if (validMoods.length === 0) return null;
     return validMoods.reduce((a, b) => a + b, 0) / validMoods.length;

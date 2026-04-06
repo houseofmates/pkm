@@ -231,8 +231,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   }
 };
 
-// layout profiles for different times of day
-export type LayoutProfile = 'morning' | 'active' | 'rest';
+// layout profiles for different times of dayexport type LayoutProfile = 'morning' | 'active' | 'rest';
 
 export interface ProfileConfig {
   id: LayoutProfile;
@@ -297,22 +296,19 @@ export const LAYOUT_PROFILES: Record<LayoutProfile, ProfileConfig> = {
   }
 };
 
-// dynamic widget factory - generates tracker widgets from nocobase collections
-export function createTrackerWidgetFromCollection(
+// dynamic widget factory - generates tracker widgets from nocobase collectionsexport function createTrackerWidgetFromCollection(
   collection: NocoBaseCollection
 ): WidgetDefinition | null {
   const fields = collection.fields || [];
   
-  // check if collection matches tracker schema
-  const hasTimestamp = fields.some(f => f.name === 'timestamp' || f.name === 'created_at');
+  // check if collection matches tracker schema  const hasTimestamp = fields.some(f => f.name === 'timestamp' || f.name === 'created_at');
   const hasActivityType = fields.some(f => f.name === 'activity_type' || f.name === 'type');
   
   if (!hasTimestamp || !hasActivityType) {
     return null;
   }
 
-  // determine icon based on collection name
-  let icon = Activity;
+  // determine icon based on collection name  let icon = Activity;
   const name = collection.name.toLowerCase();
   if (name.includes('hygiene') || name.includes('shower')) icon = Droplets;
   else if (name.includes('med') || name.includes('pill')) icon = Pill;
@@ -339,8 +335,7 @@ export function createTrackerWidgetFromCollection(
   };
 }
 
-// registry manager class for dynamic widget discovery
-export class WidgetRegistryManager {
+// registry manager class for dynamic widget discoveryexport class WidgetRegistryManager {
   private static instance: WidgetRegistryManager;
   private dynamicWidgets: Map<string, WidgetDefinition> = new Map();
   private registeredCollections: Set<string> = new Set();

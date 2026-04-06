@@ -5,9 +5,7 @@ import { secureLogger } from '@/lib/secure-logger';
 
 export type { Collection };
 
-// the single source of truth for all 15 user collections.
-// these are merged with api results so collections show up even if the api doesn't list them.
-export const HARDCODED_COLLECTIONS = [
+// the single source of truth for all 15 user collections.// these are merged with api results so collections show up even if the api doesn't list them.export const HARDCODED_COLLECTIONS = [
   'activities', 'activity_logs', 'bookmarks', 'captures', 'drawings',
   'events', 'exercise', 'finances', 'habits', 'headmates',
   'hygiene-log', 'journal', 'media', 'products', 'sleep'
@@ -23,12 +21,10 @@ const SYSTEM_COLLECTIONS_SET = new Set([
   'form_submissions', 'site_pages',
 ]);
 
-// discover additional collections from localstorage cache
-function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
+// discover additional collections from localstorage cachefunction discoverCollectionsFromCache(): Array<{name: string, title: string}> {
   const discovered: Array<{name: string, title: string}> = [];
   try {
-    // check sidebar items for collection references
-    const sidebarItems = localStorage.getItem('sidebar_items');
+    // check sidebar items for collection references    const sidebarItems = localStorage.getItem('sidebar_items');
     if (sidebarItems) {
       const items = JSON.parse(sidebarItems);
       items.forEach((item: any) => {
@@ -42,8 +38,7 @@ function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
       });
     }
     
-    // check database order setting
-    const dbOrder = localStorage.getItem('database_order');
+    // check database order setting    const dbOrder = localStorage.getItem('database_order');
     if (dbOrder) {
       const order = JSON.parse(dbOrder);
       order.forEach((name: string) => {
@@ -54,8 +49,7 @@ function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
       });
     }
   } catch (e) {
-    // ignore cache errors
-  }
+    // ignore cache errors  }
   return discovered;
 }
 
@@ -66,12 +60,10 @@ export function useCollections() {
     if (!isAuthenticated) return [];
 
     try {
-      // request collections with their fields so widgets and forms can render correctly
-      const response = await client.listCollections({ appends: ['fields'] });
+      // request collections with their fields so widgets and forms can render correctly      const response = await client.listCollections({ appends: ['fields'] });
       const rawCollections = Array.isArray(response.data) ? response.data : (response?.data as any)?.data || [];
 
-      // side effects (hiding check)
-      rawCollections.forEach(async (col: Collection) => {
+      // side effects (hiding check)      rawCollections.forEach(async (col: Collection) => {
         const nameNorm = (col.name || '').toLowerCase().trim();
         if (nameNorm === 'pkm_settings' && !col.hidden) {
           try {
@@ -110,20 +102,16 @@ export function useCollections() {
         return true;
       });
 
-      // merge with hardcoded collections that may be missing from api response
-      const existingNames = new Set(filtered.map((c: Collection) => c.name.toLowerCase()));
+      // merge with hardcoded collections that may be missing from api response      const existingNames = new Set(filtered.map((c: Collection) => c.name.toLowerCase()));
       const cachedCollections = discoverCollectionsFromCache();
       
-      // normalize names for dedup (handles hygiene-log vs hygiene_log etc.)
-      const normalizedExisting = new Set(filtered.map((c: Collection) => (c.name || '').toLowerCase().replace(/[-_]/g, '')));
+      // normalize names for dedup (handles hygiene-log vs hygiene_log etc.)      const normalizedExisting = new Set(filtered.map((c: Collection) => (c.name || '').toLowerCase().replace(/[-_]/g, '')));
       
-      // first add hardcoded collections that are missing from api
-      const hardcodedMissing = HARDCODED_COLLECTIONS
+      // first add hardcoded collections that are missing from api      const hardcodedMissing = HARDCODED_COLLECTIONS
         .filter(name => !normalizedExisting.has(name.toLowerCase().replace(/[-_]/g, '')))
         .map(name => ({ name, title: name, fields: [] } as Collection));
 
-      // then add any additional collections discovered from cache
-      const cacheMissing = cachedCollections
+      // then add any additional collections discovered from cache      const cacheMissing = cachedCollections
         .filter(hc => !existingNames.has(hc.name.toLowerCase()) && !HARDCODED_COLLECTIONS.includes(hc.name.toLowerCase()))
         .map(hc => ({ ...hc, fields: [] } as Collection));
 
@@ -144,8 +132,7 @@ export function useCollection(name: string) {
   const { collections, loading: collectionsLoading, error: collectionsError } = useCollections();
   const collectionFromList = collections.find((c: Collection) => c.name === name);
 
-  // if collection has no fields, fetch full details
-  const shouldFetchDetails = !!collectionFromList && (!collectionFromList.fields || collectionFromList.fields.length === 0);
+  // if collection has no fields, fetch full details  const shouldFetchDetails = !!collectionFromList && (!collectionFromList.fields || collectionFromList.fields.length === 0);
 
   const { data: fullCollection, isLoading: detailsLoading } = useQuery({
     queryKey: ['collection', name],

@@ -11,8 +11,7 @@ export interface Headmate {
   pronouns?: string;
   color?: string;
   description?: string;
-  // ... any other fields
-}
+  // ... any other fields}
 
 export interface FrontEntry {
   id: string;
@@ -30,8 +29,7 @@ interface FronterContextType {
   refresh: () => Promise<void>;
   registerFrontChange: (memberIds: string[], comment?: string) => Promise<void>;
 
-  // legacy support (to be refactored out)
-  overrides: Record<string, any>;
+  // legacy support (to be refactored out)  overrides: Record<string, any>;
   updateOverride: (id: string, data: any) => void;
   setOverrides: (overrides: Record<string, any>) => void;
   flushOverrides: () => Promise<void>;
@@ -39,8 +37,7 @@ interface FronterContextType {
   updateFronters: (fronters: string[]) => void;
   toggleFronter: (id: string) => void; // convenience
 
-  // member colors from simplyplural
-  memberColors: Record<string, string>;
+  // member colors from simplyplural  memberColors: Record<string, string>;
 }
 
 const FronterContext = createContext<FronterContextType | undefined>(undefined);
@@ -51,8 +48,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   const [activeFronters, setActiveFronters] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // member colors state
-  const [memberColors, setMemberColors] = useState<Record<string, string>>(() => {
+  // member colors state  const [memberColors, setMemberColors] = useState<Record<string, string>>(() => {
     try {
       const stored = storageManager.getItem('member_colors');
       return stored ? JSON.parse(stored) : {};
@@ -61,8 +57,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  // overrides for simplyplural integration
-  const [overrides, setOverridesState] = useState<Record<string, any>>(() => {
+  // overrides for simplyplural integration  const [overrides, setOverridesState] = useState<Record<string, any>>(() => {
     try {
       const stored = storageManager.getItem('headmate_overrides');
       return stored ? JSON.parse(stored) : {};
@@ -85,13 +80,11 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   };
 
   const flushOverrides = async () => {
-    // save to localstorage (already done in setoverrides)
-    return Promise.resolve();
+    // save to localstorage (already done in setoverrides)    return Promise.resolve();
   };
 
   const cacheMemberColors = (members: any[]) => {
-    // store member colors from simplyplural
-    const colorCache: Record<string, string> = {};
+    // store member colors from simplyplural    const colorCache: Record<string, string> = {};
     members.forEach((m: any) => {
       if (m.content?.color) {
         colorCache[m.id] = m.content.color;
@@ -108,41 +101,28 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   const refresh = async () => {
     setLoading(true);
     try {
-      // 1. ensure collections exist (lazy init)
-      // ideally this runs once, but for safety in dev:
-      // catch errors? assuming they exist or we create them.
-      // let's just try list.
-
-      // fetch headmates
-      let headmatesData: any[] = [];
+      // 1. ensure collections exist (lazy init)      // ideally this runs once, but for safety in dev:      // catch errors? assuming they exist or we create them.      // let's just try list.
+      // fetch headmates      let headmatesData: any[] = [];
       try {
         const res = await api.listRecords('headmates', { sort: 'name', pageSize: 100 });
         headmatesData = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
       } catch (e) {
         secureLogger.warn("Headmates collection missing?", e);
-        // create if missing?
-        // for now, assume schema creation is a separate step or handled via ui.
-        // but the user asked for "schema strategy". i should perhaps ensure they exist here?
-        // i'll leave empty if missing.
-      }
+        // create if missing?        // for now, assume schema creation is a separate step or handled via ui.        // but the user asked for "schema strategy". i should perhaps ensure they exist here?        // i'll leave empty if missing.      }
 
-      // fetch history (keep existing if fetch fails)
-      let historyData: any[] | null = null;
+      // fetch history (keep existing if fetch fails)      let historyData: any[] | null = null;
       try {
         const res = await api.listRecords('front_history', { sort: '-startTime', pageSize: 50 });
         historyData = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
       } catch (e: any) {
-        // axios aborts (e.g. hmr / navigation) often show as econnaborted.
-        // this is not fatal; keep existing history instead of wiping it.
-        const isAbort = e?.code === 'ECONNABORTED' || e?.message?.toLowerCase()?.includes('aborted');
+        // axios aborts (e.g. hmr / navigation) often show as econnaborted.        // this is not fatal; keep existing history instead of wiping it.        const isAbort = e?.code === 'ECONNABORTED' || e?.message?.toLowerCase()?.includes('aborted');
         secureLogger.warn('Front history fetch failed (will keep cached history):', e);
         if (isAbort) {
           historyData = null;
         }
       }
 
-      // parse members
-      const parsedMembers: Headmate[] = headmatesData.map((m: any) => ({
+      // parse members      const parsedMembers: Headmate[] = headmatesData.map((m: any) => ({
         id: m.id?.toString(), // ensure string id
         name: m.name || 'Unnamed',
         avatar: m.avatar?.[0]?.url || m.avatarUrl, // nocobase attachment vs direct url
@@ -152,8 +132,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       }));
       setMembers(parsedMembers);
 
-      // parse history only if we actually fetched it
-      if (historyData) {
+      // parse history only if we actually fetched it      if (historyData) {
         const parsedHistory: FrontEntry[] = historyData.map((h: any) => ({
           id: h.id?.toString(),
           startTime: h.startTime || h.createdAt,
@@ -163,8 +142,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         }));
         setHistory(parsedHistory);
 
-        // derive active fronters
-        const latest = parsedHistory[0];
+        // derive active fronters        const latest = parsedHistory[0];
         secureLogger.info('Latest front history entry:', latest);
         secureLogger.info('All history entries:', parsedHistory);
         if (latest && !latest.endTime) {
@@ -172,16 +150,14 @@ export function FronterProvider({ children }: { children: ReactNode }) {
           secureLogger.info('Setting active fronters from history:', fronterIds);
           setActiveFronters(fronterIds);
 
-          // also cache to storage manager as backup
-          try {
+          // also cache to storage manager as backup          try {
             storageManager.setItem('pkm_active_fronters', JSON.stringify(fronterIds));
           } catch (e) {
             secureLogger.warn('Failed to cache fronters to storage manager:', e);
           }
         } else {
           secureLogger.info('No active front found in history, checking localStorage backup');
-          // try to restore from localstorage if database has no active front
-          try {
+          // try to restore from localstorage if database has no active front          try {
             const cached = storageManager.getItem('pkm_active_fronters');
             if (cached) {
               const cachedIds = JSON.parse(cached);
@@ -207,20 +183,17 @@ export function FronterProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // simplyplural sync: pull front status
-  const syncFrontFromSimplyPlural = async () => {
+  // simplyplural sync: pull front status  const syncFrontFromSimplyPlural = async () => {
     try {
       const apiKey = storageManager.getItem('pk_api_key');
       if (!apiKey) return;
-      // get system id
-      const meRes = await fetch(require('@/lib/simply-plural-client').SimplyPluralClient.url('/me'), {
+      // get system id      const meRes = await fetch(require('@/lib/simply-plural-client').SimplyPluralClient.url('/me'), {
         headers: { 'Authorization': apiKey }
       });
       if (!meRes.ok) return;
       const meData = await meRes.json();
       const systemId = meData.id;
-      // get front status
-      const frontRes = await fetch(require('@/lib/simply-plural-client').SimplyPluralClient.url(`/front/${systemId}`), {
+      // get front status      const frontRes = await fetch(require('@/lib/simply-plural-client').SimplyPluralClient.url(`/front/${systemId}`), {
         headers: { 'Authorization': apiKey }
       });
       if (!frontRes.ok) return;
@@ -236,8 +209,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // initial load & poll
-  useEffect(() => {
+  // initial load & poll  useEffect(() => {
     let cancelled = false;
     const doRefresh = async () => {
       if (!cancelled) await refresh();
@@ -256,8 +228,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
     secureLogger.info('registerFrontChange called with:', { memberIds, timestamp });
 
     try {
-      // 1. close current front if exists
-      const currentActive = history.find(h => !h.endTime);
+      // 1. close current front if exists      const currentActive = history.find(h => !h.endTime);
       secureLogger.info('Current active front:', currentActive);
       if (currentActive) {
         secureLogger.info('Closing current front:', currentActive.id);
@@ -267,8 +238,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         secureLogger.info('Current front closed, result:', updateResult);
       }
 
-      // 2. create new front
-      if (memberIds.length > 0) {
+      // 2. create new front      if (memberIds.length > 0) {
         const newEntry: Record<string, string | number | boolean | undefined> = {
           startTime: timestamp,
           members: JSON.stringify(memberIds.map((id, index) => ({
@@ -282,20 +252,17 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         const createResult = await api.createRecord('front_history', newEntry);
         secureLogger.info('New front entry created, result:', createResult);
 
-        // --- simplyplural sync ---
-        try {
+        // --- simplyplural sync ---        try {
           const apiKey = storageManager.getItem('pk_api_key');
           if (apiKey) {
-            // get system id
-            const meRes = await fetch(
+            // get system id            const meRes = await fetch(
               require('@/lib/simply-plural-client').SimplyPluralClient.url('/me'),
               { headers: { 'Authorization': apiKey } }
             );
             if (!meRes.ok) throw new Error('Failed to fetch system info from SimplyPlural');
             const meData = await meRes.json();
             const systemId = meData.id;
-            // push fronters
-            const frontPayload = {
+            // push fronters            const frontPayload = {
               fronters: memberIds.map((id, idx) => ({ id, role: idx === 0 ? 'primary' : 'secondary' }))
             };
             const frontRes = await fetch(
@@ -320,13 +287,11 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         } catch (spErr) {
           secureLogger.error('SimplyPlural sync error:', spErr);
         }
-        // --- end simplyplural sync ---
-      } else {
+        // --- end simplyplural sync ---      } else {
         secureLogger.info('No members specified, just closing previous front');
       }
 
-      // 3. refresh
-      secureLogger.info('Calling refresh...');
+      // 3. refresh      secureLogger.info('Calling refresh...');
       await refresh();
       secureLogger.info('Refresh complete');
       toast.success("front updated");
@@ -346,22 +311,18 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       : [...activeFronters, stringId];
     secureLogger.info('toggleFronter:', { id: stringId, wasFronting: isCnt, newFronters: newIds });
 
-    // optimistic update: set state immediately
-    setActiveFronters(newIds);
+    // optimistic update: set state immediately    setActiveFronters(newIds);
 
-    // cache to localstorage immediately
-    try {
+    // cache to localstorage immediately    try {
       storageManager.setItem('pkm_active_fronters', JSON.stringify(newIds));
       secureLogger.info('Cached to localStorage:', newIds);
     } catch (e) {
       secureLogger.warn('Failed to cache fronters:', e);
     }
 
-    // then sync to backend (don't await, it refreshes internally)
-    registerFrontChange(newIds).catch(err => {
+    // then sync to backend (don't await, it refreshes internally)    registerFrontChange(newIds).catch(err => {
       secureLogger.error('failed to register front change:', err);
-      // revert optimistic update on failure using functional update to avoid stale closure
-      setActiveFronters((prev) => prev.filter(fid => String(fid) !== stringId));
+      // revert optimistic update on failure using functional update to avoid stale closure      setActiveFronters((prev) => prev.filter(fid => String(fid) !== stringId));
       toast.error('front sync failed, reverted locally');
     });
   };

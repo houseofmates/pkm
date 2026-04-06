@@ -138,21 +138,18 @@ export class TransformBox {
     ctx.rotate(rotation);
     ctx.translate(-cx, -cy);
 
-    // marching ants border
-    ctx.setLineDash([6, 4]);
+    // marching ants border    ctx.setLineDash([6, 4]);
     ctx.lineDashOffset = -time * 0.05;
     ctx.strokeStyle = '#f6b012';
     ctx.lineWidth = 1.5;
     ctx.strokeRect(x, y, w, h);
 
-    // handles
-    const handles = this.getHandles();
+    // handles    const handles = this.getHandles();
     ctx.setLineDash([]);
     handles.forEach(handle => {
       ctx.beginPath();
       if (handle.type === 'rotate') {
-        // draw rotation handle
-        ctx.strokeStyle = '#f6b012';
+        // draw rotation handle        ctx.strokeStyle = '#f6b012';
         ctx.lineWidth = 1;
         ctx.moveTo(x + w / 2, y);
         ctx.lineTo(handle.x, handle.y);

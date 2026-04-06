@@ -5,16 +5,8 @@ import tippy, { type Instance } from 'tippy.js';
 import { MentionList } from './MentionList';
 
 export const getMentionSuggestionItems = ({ query }: { query: string }) => {
-  // todo: real api search.
-  // for now, return a filtered list of dummy/cached items or expose a global function?
-  // hack: we can attach a global search handler on window?
-  // or just fetch from a known endpoint if we had the client.
-  // let's rely on a window global for "quick pkm access" if needed,
-  // or just return hardcoded for verification -> phase 3 verification.
-
-  // better: let's try to fetch from a standard endpoint if we can, or just mock it.
-  // mocking for speed.
-  const mockItems = [
+  // todo: real api search.  // for now, return a filtered list of dummy/cached items or expose a global function?  // hack: we can attach a global search handler on window?  // or just fetch from a known endpoint if we had the client.  // let's rely on a window global for "quick pkm access" if needed,  // or just return hardcoded for verification -> phase 3 verification.
+  // better: let's try to fetch from a standard endpoint if we can, or just mock it.  // mocking for speed.  const mockItems = [
   { id: '1', title: 'Project Alpha' },
   { id: '2', title: 'Meeting Notes' },
   { id: '3', title: 'PKM' },

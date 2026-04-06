@@ -20,13 +20,10 @@ export function RelationshipPicker({ collectionName, onSelect, value }: Relation
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState<any[]>([]);
 
-  // very basic implementation: fetch all options
-  // in a real app we'd need search/pagination here too
-  useEffect(() => {
+  // very basic implementation: fetch all options  // in a real app we'd need search/pagination here too  useEffect(() => {
     if (open && options.length === 0) {
       client.listRecords(collectionName, { pageSize: 50 }).then((res: any) => {
-        // our client normalizes so data should always be an array
-        const data: any[] = Array.isArray(res) ? res : (res?.data || []);
+        // our client normalizes so data should always be an array        const data: any[] = Array.isArray(res) ? res : (res?.data || []);
         setOptions(data);
       });
     }

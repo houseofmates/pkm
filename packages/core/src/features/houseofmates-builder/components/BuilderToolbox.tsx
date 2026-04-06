@@ -15,7 +15,6 @@ import { storageManager } from '@/lib/storage-manager';
 import { FormBuilder } from './FormRenderer';
 
 // unsplash & giphy keys will be stored in localstorage under 'unsplash_key' and 'giphy_key'
-
 type TabType = 'basic' | 'home' | 'website' | 'minecraft' | 'media' | 'integrations' | 'embeds';
 
 export function BuilderToolbox() {
@@ -40,14 +39,12 @@ export function BuilderToolbox() {
   zIndex: page?.elements.length || 0,
   });
 
-  // generic handler for new widgets
-  const handleAddElement = (type: ElementData['type'], content: any = {}) => {
+  // generic handler for new widgets  const handleAddElement = (type: ElementData['type'], content: any = {}) => {
   addElement(createDefaultElement(type, content));
   setIsOpen(false);
   };
 
-  // --- basic elements ---
-  const handleAddText = () => {
+  // --- basic elements ---  const handleAddText = () => {
   addElement(createDefaultElement('text', {
     html: '<p style="color: white; font-size: 18px;">new text block</p>',
   }));
@@ -83,8 +80,7 @@ export function BuilderToolbox() {
   setIsOpen(false);
   };
 
-  // --- website elements ---
-  const handleAddHero = () => {
+  // --- website elements ---  const handleAddHero = () => {
   addElement({
   ...createDefaultElement('hero', {
  title: 'welcome to our site',
@@ -198,8 +194,7 @@ export function BuilderToolbox() {
   setIsOpen(false);
   };
 
-  // --- minecraft elements ---
-  const handleAddServerIP = () => {
+  // --- minecraft elements ---  const handleAddServerIP = () => {
   addElement({
   ...createDefaultElement('serverip', {
  javaIP: 'dupemates.playit.pub',
@@ -299,8 +294,7 @@ export function BuilderToolbox() {
   setIsOpen(false);
   };
 
-  // --- home elements ---
-  const handleAddLinkCard = () => {
+  // --- home elements ---  const handleAddLinkCard = () => {
   addElement({
   ...createDefaultElement('linkcard', {
  title: 'my website',
@@ -328,8 +322,7 @@ export function BuilderToolbox() {
   setIsOpen(false);
   };
 
-  // --- form ---
-  const handleFormSave = (formData: any) => {
+  // --- form ---  const handleFormSave = (formData: any) => {
   addElement({
   ...createDefaultElement('form', formData),
   width: 400,
@@ -339,8 +332,7 @@ export function BuilderToolbox() {
   setIsOpen(false);
   };
 
-  // --- media ---
-  const handleImageUpload = () => {
+  // --- media ---  const handleImageUpload = () => {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
@@ -419,8 +411,7 @@ export function BuilderToolbox() {
   setisopen(false);
   };
 
-  // unsplash search
-  const searchunsplash = async () => {
+  // unsplash search  const searchunsplash = async () => {
     if (!searchquery.trim()) return;
     setsearching(true);
   try {
@@ -443,8 +434,7 @@ export function BuilderToolbox() {
   }
   };
 
-  // giphy search
-  const searchgiphy = async () => {
+  // giphy search  const searchgiphy = async () => {
     if (!searchquery.trim()) return;
     setsearching(true);
   try {

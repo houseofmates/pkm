@@ -56,8 +56,7 @@ function startServer(port = 3030) {
 
 function updateState(key, value) {
     state[key] = value;
-    // console.log(`state updated: ${key} = ${value}`);
-}
+    // console.log(`state updated: ${key} = ${value}`);}
 
 async function buildContext() {
     const client = axios.create({
@@ -67,13 +66,7 @@ async function buildContext() {
         }
     });
 
-    // helper to find collection name
-    // caching this would be better but for now we fetch list if needed or just try known names
-    // to minimize latency, let's assume standard names for now or do a quick check?
-    // let's do a quick lookup of collections first to map them.
-    // optimization: cache collection mapping?
-    // for this mvp, let's just fetch collections first.
-    let collections = [];
+    // helper to find collection name    // caching this would be better but for now we fetch list if needed or just try known names    // to minimize latency, let's assume standard names for now or do a quick check?    // let's do a quick lookup of collections first to map them.    // optimization: cache collection mapping?    // for this mvp, let's just fetch collections first.    let collections = [];
     try {
         const res = await client.get('/collections:list', { params: { paginate: false } });
         collections = res.data.data || [];
@@ -104,14 +97,9 @@ async function buildContext() {
         }
     };
 
-    // 1. identity
-    if (state.activeFronterId) {
-        // fetch specific member
-        try {
-            // if activefronterid is an id, fetch it.
-            // but checking if it's a uuid or just a name?
-            // assuming id.
-            const res = await client.get(`/${membersCol}/${state.activeFronterId}`);
+    // 1. identity    if (state.activeFronterId) {
+        // fetch specific member        try {
+            // if activefronterid is an id, fetch it.            // but checking if it's a uuid or just a name?            // assuming id.            const res = await client.get(`/${membersCol}/${state.activeFronterId}`);
             const member = res.data.data;
             context.identity_context = {
                 active_headmate: member.name,
@@ -123,12 +111,9 @@ async function buildContext() {
             console.warn("Failed to fetch active fronter", e.message);
         }
     } else {
-        // try to fetch 'front' or 'active' status from somewhere? 
-        // for now, if no local state, it's unknown.
-    }
+        // try to fetch 'front' or 'active' status from somewhere?         // for now, if no local state, it's unknown.    }
 
-    // 2. affect (mood)
-    try {
+    // 2. affect (mood)    try {
         const res = await client.get(`/${moodsCol}`, {
             params: {
                 pageSize: 1,
@@ -144,11 +129,9 @@ async function buildContext() {
             };
         }
     } catch (e) {
-        // ignore
-    }
+        // ignore    }
 
-    // 3. activity
-    try {
+    // 3. activity    try {
         const res = await client.get(`/${activitiesCol}`, {
             params: {
                 pageSize: 1,
@@ -163,8 +146,7 @@ async function buildContext() {
             };
         }
     } catch (e) {
-        // ignore
-    }
+        // ignore    }
 
     return context;
 }

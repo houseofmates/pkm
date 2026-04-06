@@ -20,8 +20,7 @@ export function QuickVoiceWidget({ className, onTranscript }: QuickVoiceWidgetPr
     onTranscript: (text) => {
       onTranscript?.(text);
       
-      // also dispatch event for journal to capture
-      window.dispatchEvent(new CustomEvent('quick-voice-capture', { 
+      // also dispatch event for journal to capture      window.dispatchEvent(new CustomEvent('quick-voice-capture', { 
         detail: { transcript: text, timestamp: Date.now() } 
       }));
       

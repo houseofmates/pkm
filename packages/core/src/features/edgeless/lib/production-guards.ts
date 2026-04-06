@@ -1,6 +1,4 @@
-// production safeguards for the canvas system
-// error recovery, memory management, and performance monitoring
-
+// production safeguards for the canvas system// error recovery, memory management, and performance monitoring
 import { toast } from 'sonner'
 import { storageManager } from '@/lib/storage-manager'
 import { secureLogger } from '@/lib/secure-logger'
@@ -19,13 +17,11 @@ class ProductionGuard {
   private readonly memoryThreshold = 0.9 // 90% memory usage
 
   startMonitoring(): void {
-    // memory monitoring
-    this.memoryCheckInterval = setInterval(() => {
+    // memory monitoring    this.memoryCheckInterval = setInterval(() => {
       this.checkMemory()
     }, 30000) // check every 30 seconds
 
-    // global error handler
-    window.addEventListener('error', this.handleGlobalError)
+    // global error handler    window.addEventListener('error', this.handleGlobalError)
     window.addEventListener('unhandledrejection', this.handleUnhandledRejection)
   }
 
@@ -50,8 +46,7 @@ class ProductionGuard {
             duration: 5000,
           })
 
-          // trigger emergency checkpoint
-          this.emergencyCheckpoint()
+          // trigger emergency checkpoint          this.emergencyCheckpoint()
         }
       }
     }
@@ -73,8 +68,7 @@ class ProductionGuard {
   private handleUnhandledRejection = (event: PromiseRejectionEvent) => {
     secureLogger.error('[production guard] unhandled rejection:', event.reason)
 
-    // check if it's an indexeddb error
-    if (event.reason?.name?.includes('IndexedDB') || event.reason?.message?.includes('indexeddb')) {
+    // check if it's an indexeddb error    if (event.reason?.name?.includes('IndexedDB') || event.reason?.message?.includes('indexeddb')) {
       toast.error('storage error - try clearing browser data')
     }
   }
@@ -128,8 +122,7 @@ class ProductionGuard {
 
 export const productionGuard = new ProductionGuard()
 
-// performance monitoring
-class PerformanceMonitor {
+// performance monitoringclass PerformanceMonitor {
   private marks: Map<string, number> = new Map()
   private measures: Map<string, number[]> = new Map()
 
@@ -146,8 +139,7 @@ class PerformanceMonitor {
 
     const duration = end - start
 
-    // store for averaging
-    const existing = this.measures.get(name) || []
+    // store for averaging    const existing = this.measures.get(name) || []
     existing.push(duration)
     if (existing.length > 100) existing.shift() // keep last 100
     this.measures.set(name, existing)
@@ -172,21 +164,18 @@ class PerformanceMonitor {
 
 export const perfMonitor = new PerformanceMonitor()
 
-// idb connection health check
-export async function checkStorageHealth(): Promise<{
+// idb connection health checkexport async function checkStorageHealth(): Promise<{
   healthy: boolean
   issues: string[]
 }> {
   const issues: string[] = []
 
   try {
-    // check indexeddb availability
-    if (!('indexedDB' in window)) {
+    // check indexeddb availability    if (!('indexedDB' in window)) {
       issues.push('indexeddb not available')
     }
 
-    // check storage quota
-    if ('storage' in navigator && 'estimate' in navigator.storage) {
+    // check storage quota    if ('storage' in navigator && 'estimate' in navigator.storage) {
       const estimate = await navigator.storage.estimate()
       if (estimate.usage && estimate.quota) {
         const usageRatio = estimate.usage / estimate.quota
@@ -196,8 +185,7 @@ export async function checkStorageHealth(): Promise<{
       }
     }
 
-    // test idb write
-    const testDb = await openDB('pkm-health-check', 1, {
+    // test idb write    const testDb = await openDB('pkm-health-check', 1, {
       upgrade(db) {
         db.createObjectStore('test')
       },
@@ -206,8 +194,7 @@ export async function checkStorageHealth(): Promise<{
     await testDb.delete('test', 'key')
     await testDb.close()
 
-    // cleanup
-    indexedDB.deleteDatabase('pkm-health-check')
+    // cleanup    indexedDB.deleteDatabase('pkm-health-check')
   } catch (e) {
     issues.push('indexeddb write test failed: ' + (e as Error).message)
   }
@@ -218,5 +205,4 @@ export async function checkStorageHealth(): Promise<{
   }
 }
 
-// import for idb
-import { openDB } from 'idb'
+// import for idbimport { openDB } from 'idb'

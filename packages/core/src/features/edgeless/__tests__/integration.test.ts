@@ -11,8 +11,7 @@ describe('edgeless canvas integration', () => {
   })
 
   afterEach(async () => {
-    // cleanup
-    const db = await getCanvasDB()
+    // cleanup    const db = await getCanvasDB()
     await db.clear('oplog')
     await db.clear('checkpoints')
   })
@@ -143,13 +142,11 @@ describe('edgeless canvas integration', () => {
         visible: true,
       })
 
-      // query near first object
-      const results = index.queryRadius(25, 25, 30)
+      // query near first object      const results = index.queryRadius(25, 25, 30)
       expect(results).toHaveLength(1)
       expect(results[0].id).toBe('obj-1')
 
-      // query both
-      const allResults = index.queryRadius(125, 125, 200)
+      // query both      const allResults = index.queryRadius(125, 125, 200)
       expect(allResults).toHaveLength(2)
     })
 
@@ -178,10 +175,7 @@ describe('edgeless canvas integration', () => {
 
     it('should query viewport with 20% buffer', () => {
       const index = new SpatialIndex(100)
-      // screen 1000x1000, 20% buffer = 200px
-      // world bounds: (0,0) to (1000,1000)
-      // buffered bounds: (-200,-200) to (1200,1200)
-
+      // screen 1000x1000, 20% buffer = 200px      // world bounds: (0,0) to (1000,1000)      // buffered bounds: (-200,-200) to (1200,1200)
       index.insert({
         id: 'visible',
         bounds: { minX: 100, minY: 100, maxX: 200, maxY: 200 },

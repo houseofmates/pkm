@@ -22,8 +22,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
   const [editedData, setEditedData] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  // reset edited data when record changes
-  useEffect(() => {
+  // reset edited data when record changes  useEffect(() => {
     if (record) {
       setEditedData({ ...record });
     }
@@ -31,8 +30,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
   if (!record || !collection) return null;
 
-  // Apply fallback fields for collections that don't have fields defined
-  const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string; uiSchema?: { title?: string } }>> = {
+  // apply fallback fields for collections that don't have fields defined  const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string; uiSchema?: { title?: string } }>> = {
     events: [
       { name: 'title', type: 'string', interface: 'input', uiSchema: { title: 'Title' } },
       { name: 'start_time', type: 'datetime', interface: 'datetime', uiSchema: { title: 'Start Time' } },
@@ -86,8 +84,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
   const fields = collectionWithFallback.fields || [];
   
-  // filter out internal/system fields
-  const displayFields = fields.filter((f: any) => {
+  // filter out internal/system fields  const displayFields = fields.filter((f: any) => {
     const internalFields = ['id', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'created_at', 'updated_at'];
     return !internalFields.includes(f.name);
   });
@@ -104,8 +101,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
     setIsSaving(true);
     try {
-      // only send changed fields
-      const changedFields: Record<string, any> = {};
+      // only send changed fields      const changedFields: Record<string, any> = {};
       Object.keys(editedData).forEach(key => {
         if (editedData[key] !== record[key]) {
           changedFields[key] = editedData[key];

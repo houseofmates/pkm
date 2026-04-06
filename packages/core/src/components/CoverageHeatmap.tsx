@@ -2,8 +2,7 @@ import { cn } from '@/lib/utils';
 import { useMemo } from 'react';
 
 interface CoverageHeatmapProps {
-  // 7 days of data, most recent last
-  days: Array<{
+  // 7 days of data, most recent last  days: Array<{
     date: string;
     mood: number;
     body: number;
@@ -25,8 +24,7 @@ const CATEGORY_COLORS = {
 
 export function CoverageHeatmap({ days, className }: CoverageHeatmapProps) {
   const weekDays = useMemo(() => {
-    // ensure we have exactly 7 days
-    const padded = [...days];
+    // ensure we have exactly 7 days    const padded = [...days];
     while (padded.length < 7) {
       padded.unshift({
         date: '',
@@ -60,8 +58,7 @@ export function CoverageHeatmap({ days, className }: CoverageHeatmapProps) {
     if (!day.hasEntry) return 'rgba(255,255,255,0.03)';
     
     const coverage = calculateCoverage(day);
-    // gradient from dim to bright based on coverage
-    const alpha = 0.2 + (coverage / 100) * 0.8;
+    // gradient from dim to bright based on coverage    const alpha = 0.2 + (coverage / 100) * 0.8;
     return `rgba(34, 197, 94, ${alpha})`;
   };
 

@@ -1,7 +1,6 @@
 import tailwindcssAnimate from "tailwindcss-animate";
 
-/** @type {import('tailwindcss').Config} */
-export default {
+/** @type {import('tailwindcss').config} */export default {
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
@@ -15,8 +14,7 @@ export default {
         "./packages/core/contexts/**/*.{js,ts,jsx,tsx}",
         "./packages/core/lib/**/*.{js,ts,jsx,tsx}",
         "./packages/core/types/**/*.{js,ts,jsx,tsx}",
-        // exclude test files (they trigger PostCSS errors when being read)
-        "!./src/**/*.test.{js,ts,jsx,tsx}",
+        // exclude test files (they trigger postcss errors when being read)        "!./src/**/*.test.{js,ts,jsx,tsx}",
         "!./packages/core/src/**/*.test.{js,ts,jsx,tsx}",
     ],
     theme: {

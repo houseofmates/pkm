@@ -21,17 +21,12 @@ export const Wikilink = Extension.create({
             .insertContent(props.label)
             .run();
 
-          // register this link in the bidirectional link registry
-          // href format is /databases/{collection}/{id}
-            const hrefParts = props.href.split('/').filter(Boolean)
+          // register this link in the bidirectional link registry          // href format is /databases/{collection}/{id}            const hrefParts = props.href.split('/').filter(Boolean)
             if (hrefParts.length >= 3 && hrefParts[0] === 'databases') {
               const targetCollection = hrefParts[1]
               const targetId = hrefParts[2]
 
-            // source context is not available here — will be resolved
-            // when the document is saved via registry.rescan() in use-records.ts
-            // but we can eagerly register if we have context
-            const sourceMeta = (editor.options as { editorProps?: { attributes?: { 'data-record-id'?: string; 'data-collection'?: string } } })?.editorProps?.attributes
+            // source context is not available here — will be resolved            // when the document is saved via registry.rescan() in use-records.ts            // but we can eagerly register if we have context            const sourceMeta = (editor.options as { editorProps?: { attributes?: { 'data-record-id'?: string; 'data-collection'?: string } } })?.editorProps?.attributes
             if (sourceMeta?.['data-record-id']) {
               registry.register({
                 sourceId: sourceMeta['data-record-id'],

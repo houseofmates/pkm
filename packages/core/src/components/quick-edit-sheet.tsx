@@ -42,14 +42,9 @@ export function QuickEditSheet() {
   };
 
   const handleSave = () => {
-    // optimistic update locally?
-    // in a real app, this would call api.
-    // for this ui demo, we trigger the callback which might update local state in the view.
-    // we also emit a global update event if views are listening.
-    if (callback) callback(data);
+    // optimistic update locally?    // in a real app, this would call api.    // for this ui demo, we trigger the callback which might update local state in the view.    // we also emit a global update event if views are listening.    if (callback) callback(data);
 
-    // dispatch global update to refresh views
-    window.dispatchEvent(new CustomEvent('pkm:record-updated', {
+    // dispatch global update to refresh views    window.dispatchEvent(new CustomEvent('pkm:record-updated', {
       detail: { collection: collectionName, record: data }
     }));
 

@@ -54,36 +54,30 @@ export function useHibernationStreak() {
     }
   })
 
-  // save to localstorage whenever data changes
-  useEffect(() => {
+  // save to localstorage whenever data changes  useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(streakData))
   }, [streakData])
 
-  // check streak status on mount and daily
-  useEffect(() => {
+  // check streak status on mount and daily  useEffect(() => {
     const checkStreak = () => {
       const today = getToday()
       
       if (!streakData.lastDate) {
-        // no streak yet
-        return
+        // no streak yet        return
       }
       
       if (streakData.lastDate === today) {
-        // already logged today
-        return
+        // already logged today        return
       }
       
       const daysSince = daysBetween(streakData.lastDate, today)
       
       if (daysSince === 1) {
-        // yesterday - streak continues normally
-        return
+        // yesterday - streak continues normally        return
       }
       
       if (daysSince <= GRACE_WINDOW_DAYS) {
-        // within grace window - enter hibernation if not already
-        if (!streakData.hibernating) {
+        // within grace window - enter hibernation if not already        if (!streakData.hibernating) {
           setStreakData(prev => ({
             ...prev,
             hibernating: true,
@@ -92,8 +86,7 @@ export function useHibernationStreak() {
           }))
         }
       } else {
-        // past grace window - reset streak but save previous best
-        if (streakData.current > 0) {
+        // past grace window - reset streak but save previous best        if (streakData.current > 0) {
           setStreakData(prev => ({
             ...prev,
             previousBest: Math.max(prev.previousBest, prev.current),
@@ -108,8 +101,7 @@ export function useHibernationStreak() {
 
     checkStreak()
     
-    // check every hour
-    const interval = setInterval(checkStreak, 60 * 60 * 1000)
+    // check every hour    const interval = setInterval(checkStreak, 60 * 60 * 1000)
     return () => clearInterval(interval)
   }, [streakData.lastDate, streakData.hibernating])
 
@@ -117,8 +109,7 @@ export function useHibernationStreak() {
     const today = getToday()
     
     setStreakData(prev => {
-      // already recorded today
-      if (prev.lastDate === today) {
+      // already recorded today      if (prev.lastDate === today) {
         return prev
       }
       
@@ -128,23 +119,19 @@ export function useHibernationStreak() {
       let newGraceDaysUsed = 0
       
       if (!prev.lastDate) {
-        // first ever activity
-        newCurrent = 1
+        // first ever activity        newCurrent = 1
       } else {
         const daysSince = daysBetween(prev.lastDate, today)
         
         if (daysSince === 1) {
-          // consecutive day - increment streak
-          newCurrent = prev.current + 1
+          // consecutive day - increment streak          newCurrent = prev.current + 1
         } else if (daysSince <= GRACE_WINDOW_DAYS && prev.hibernating) {
-          // resumed from hibernation within grace window
-          newCurrent = prev.current + 1
+          // resumed from hibernation within grace window          newCurrent = prev.current + 1
           newHibernating = false
           newHibernationStart = null
           newGraceDaysUsed = 0
         } else if (daysSince > GRACE_WINDOW_DAYS) {
-          // too long, start new streak
-          newCurrent = 1
+          // too long, start new streak          newCurrent = 1
         }
       }
       

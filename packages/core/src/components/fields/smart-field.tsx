@@ -21,8 +21,7 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useAppSetting } from '@/hooks/use-app-setting';
 
-// navigation hook that degrades gracefully when no router is present (tests)
-function useSafeNavigate() {
+// navigation hook that degrades gracefully when no router is present (tests)function useSafeNavigate() {
   try {
     return useNavigate();
   } catch {
@@ -33,8 +32,7 @@ function useSafeNavigate() {
 import { useCollectionsStore } from '@/store/useCollectionsStore';
 import { secureLogger } from '@/lib/secure-logger';
 
-// import formula editor
-import { FormulaEditor } from '@/components/formula-editor';
+// import formula editorimport { FormulaEditor } from '@/components/formula-editor';
 
 import {
   ContextMenu,
@@ -49,12 +47,9 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 // helper wrapper for the granular context menu
-
 const FieldContextMenu = ({ children, onEdit, onClear, value, record, collectionName, field }: any) => {
-  // row color logic
-  const [recordMeta, setRecordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collectionName || 'unknown'}`, {});
-  // date/time display preferences per field
-  const [dateTimePrefs, setDateTimePrefs] = useAppSetting<Record<string, { showDate?: boolean; showTime?: boolean }>>(`datetime_prefs_${collectionName || 'unknown'}`, {});
+  // row color logic  const [recordMeta, setRecordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collectionName || 'unknown'}`, {});
+  // date/time display preferences per field  const [dateTimePrefs, setDateTimePrefs] = useAppSetting<Record<string, { showDate?: boolean; showTime?: boolean }>>(`datetime_prefs_${collectionName || 'unknown'}`, {});
 
   const handleRowColor = (color: string) => {
     if (!record || !collectionName) return;
@@ -67,8 +62,7 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
     });
   };
 
-  // check if this is a date/time field
-  const fieldName = field?.name?.toLowerCase() || '';
+  // check if this is a date/time field  const fieldName = field?.name?.toLowerCase() || '';
   const fieldBaseType = field?.interface || field?.type || 'string';
   const isDateTimeField = field && (field.interface === 'datetime' || field.type === 'datetime' || fieldBaseType === 'datetime' || fieldName.includes('datetime') ||
     field.interface === 'date' || field.type === 'date' || fieldName.includes('date'));
@@ -97,8 +91,7 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
         {/* ensure we stop propagation so we don't trigger the row menu */}
         <div onContextMenu={(e) => {
           e.stopPropagation();
-          // oncontextmenu handles nesting
-        }}>
+          // oncontextmenu handles nesting        }}>
           {children}
         </div>
       </ContextMenuTrigger>
@@ -146,12 +139,7 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
                   <HexColorPicker
                     color={recordMeta?.[record.id]?.color || '#ffffff'}
                     onChange={(c) => {
-                      // debounce or just set?
-                      // setting state in render cycle is bad if not throttled, but onchange is event.
-                      // we can just call handlerowcolor(c).
-                      // but dragging might cause too many updates.
-                      // for now, let's just update.
-                      handleRowColor(c);
+                      // debounce or just set?                      // setting state in render cycle is bad if not throttled, but onchange is event.                      // we can just call handlerowcolor(c).                      // but dragging might cause too many updates.                      // for now, let's just update.                      handleRowColor(c);
                     }}
                     style={{ width: '100%', height: '120px' }}
                   />
@@ -186,20 +174,17 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
   )
 }
 
-// --- relation picker component ---
-function RelationPicker({ field, value, onChange, onCancel }: any) {
+// --- relation picker component ---function RelationPicker({ field, value, onChange, onCancel }: any) {
   const { client } = useAuth() as any;
   const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // fetch target records
-    const fetchTarget = async () => {
+    // fetch target records    const fetchTarget = async () => {
       if (!field.target) return;
       setLoading(true);
       try {
-        // determine target collection
-        const res = await client?.listRecords(field.target);
+        // determine target collection        const res = await client?.listRecords(field.target);
         const data = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
         setOptions(data);
       } catch (e) { secureLogger.error(String(e)); }
@@ -208,27 +193,20 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
     fetchTarget();
   }, [field, client]);
 
-  // handle selection
-  // if "many", we usually need a multi-select.
-  // checking field.interface or type for "many" hint.
-  const isMany = field.interface?.includes('Many') || field.type?.includes('Many');
+  // handle selection  // if "many", we usually need a multi-select.  // checking field.interface or type for "many" hint.  const isMany = field.interface?.includes('Many') || field.type?.includes('Many');
 
   const handleSelect = (recId: string) => {
-    // find full record or just send id? nocobase usually wants id or object.
-    // sending object for now to keep local state pretty
-    const selected = options.find(o => o.id == recId); // loose match
+    // find full record or just send id? nocobase usually wants id or object.    // sending object for now to keep local state pretty    const selected = options.find(o => o.id == recId); // loose match
 
     if (isMany) {
-      // if already array, add/remove
-      const current = Array.isArray(value) ? value : [];
+      // if already array, add/remove      const current = Array.isArray(value) ? value : [];
       const exists = current.find((c: any) => c.id == recId);
       let newVal;
       if (exists) newVal = current.filter((c: any) => c.id != recId);
       else newVal = [...current, selected];
       onChange(newVal);
     } else {
-      // single select: immediate save
-      onChange(selected);
+      // single select: immediate save      onChange(selected);
     }
   };
 
@@ -267,8 +245,7 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
   )
 }
 
-// --- link database picker component ---
-function LinkDatabasePicker({ value, onChange, onCancel }: any) {
+// --- link database picker component ---function LinkDatabasePicker({ value, onChange, onCancel }: any) {
   const collections = useCollectionsStore((state) => state.collections);
   const [search, setSearch] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(0);
@@ -283,8 +260,7 @@ function LinkDatabasePicker({ value, onChange, onCancel }: any) {
     setHighlightedIndex(0);
   }, [search]);
 
-  // click outside to close
-  useEffect(() => {
+  // click outside to close  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         onCancel();
@@ -383,8 +359,7 @@ function LinkDatabasePicker({ value, onChange, onCancel }: any) {
   );
 }
 
-// --- link item picker component ---
-function LinkItemPicker({ value, onChange, onCancel }: any) {
+// --- link item picker component ---function LinkItemPicker({ value, onChange, onCancel }: any) {
   const { client } = useAuth() as any;
   const collections = useCollectionsStore((state) => state.collections);
   const [search, setSearch] = useState('');
@@ -396,8 +371,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
   const containerRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // debounced search with cleanup
-  useEffect(() => {
+  // debounced search with cleanup  useEffect(() => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
@@ -417,8 +391,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
       let hasErrors = false;
 
       try {
-        // search in collections (records)
-        if (selectedType === 'all' || selectedType === 'record') {
+        // search in collections (records)        if (selectedType === 'all' || selectedType === 'record') {
           const searchPromises = collections.slice(0, 5).map(async (collection: any) => {
             try {
               const res = await client?.listRecords(collection.name, {
@@ -446,8 +419,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
           });
         }
 
-        // search in canvases (from local storage)
-        if (selectedType === 'all' || selectedType === 'canvas') {
+        // search in canvases (from local storage)        if (selectedType === 'all' || selectedType === 'canvas') {
           try {
             const canvasData = localStorage.getItem('edgeless_canvases');
             if (canvasData) {
@@ -468,8 +440,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
           }
         }
 
-        // search in documents
-        if (selectedType === 'all' || selectedType === 'document') {
+        // search in documents        if (selectedType === 'all' || selectedType === 'document') {
           try {
             const docsData = localStorage.getItem('pkm_documents');
             if (docsData) {
@@ -509,13 +480,11 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
     };
   }, [search, selectedType, collections, client]);
 
-  // reset highlight when results change
-  useEffect(() => {
+  // reset highlight when results change  useEffect(() => {
     setHighlightedIndex(0);
   }, [results.length]);
 
-  // click outside to close
-  useEffect(() => {
+  // click outside to close  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         onCancel();
@@ -707,21 +676,15 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 }
 
 // real implementation moved to separate component to keep wrapper small
-
 function SmartFieldInner({ value, field, record, collectionName, mode: _mode = 'view', onChange, className, inputClassName, size = 'lg' }: SmartFieldProps) {
-  // during unit tests we bypass the complex rendering logic entirely —
-  // past failures showed the component often returned nothing in vitest,
-  // so this stub keeps tests focused on integration elsewhere.
-  if (import.meta.env?.VITEST) {
+  // during unit tests we bypass the complex rendering logic entirely —  // past failures showed the component often returned nothing in vitest,  // so this stub keeps tests focused on integration elsewhere.  if (import.meta.env?.VITEST) {
     return <div data-testid="smartfield-vitest">{String(value)}</div>;
   }
 
-  // defensive: if field or value is missing, show a graceful message instead of error boundary
-  if (!field) {
+  // defensive: if field or value is missing, show a graceful message instead of error boundary  if (!field) {
     return <div className="italic text-red-400">field missing</div>;
   }
-  // if value is undefined/null, show 'empty' (matches existing ui convention)
-  if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
+  // if value is undefined/null, show 'empty' (matches existing ui convention)  if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
     return <div className="italic text-muted-foreground">empty</div>;
   }
 
@@ -810,8 +773,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
   const isUrl = detectedType === 'url' || detectedType === 'link' || name.includes('link') || name.includes('url');
   const isFile = detectedType === 'attachment' || name.includes('file') || name.includes('image') || name.includes('avatar');
   const isDateTime = detectedType === 'datetime' || baseType === 'datetime' || field?.interface === 'datetime' || field?.type === 'datetime' || name.includes('datetime');
-  // only treat as pure time field if explicitly time type/interface, or if name suggests time-only (not datetime)
-  const isTime = detectedType === 'time' || field?.interface === 'time' || field?.type === 'time' || 
+  // only treat as pure time field if explicitly time type/interface, or if name suggests time-only (not datetime)  const isTime = detectedType === 'time' || field?.interface === 'time' || field?.type === 'time' || 
     (name.includes('time') && !name.includes('date') && !isDateTime);
   const isId = looksLikeId(value);
   const isDate = looksLikeDate(value) && !isDateTime && !isTime;
@@ -821,16 +783,13 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
   const isLinkDatabase = detectedType === 'linkDatabase' || field?.type === 'linkDatabase' || field?.interface === 'linkDatabase';
   const isLinkItem = detectedType === 'linkItem' || field?.type === 'linkItem' || field?.interface === 'linkItem';
 
-  // searchable dropdown state for select fields
-  const [searchText, setSearchText] = useState('');
-  // color palette saved in app settings (persisted)
-  const [palette, setPalette] = useAppSetting<string[]>('color_palette', []);
+  // searchable dropdown state for select fields  const [searchText, setSearchText] = useState('');
+  // color palette saved in app settings (persisted)  const [palette, setPalette] = useAppSetting<string[]>('color_palette', []);
   const [currentColor, setCurrentColor] = useState('#ffffff');
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [colorTarget, setColorTarget] = useState<string | null>(null);
 
-  // date/time display preferences per field (persisted) - use same key as fieldcontextmenu
-  const [dateTimePrefs, setDateTimePrefs] = useAppSetting<Record<string, { showDate?: boolean; showTime?: boolean }>>(`datetime_prefs_${collectionName || 'unknown'}`, {});
+  // date/time display preferences per field (persisted) - use same key as fieldcontextmenu  const [dateTimePrefs, setDateTimePrefs] = useAppSetting<Record<string, { showDate?: boolean; showTime?: boolean }>>(`datetime_prefs_${collectionName || 'unknown'}`, {});
   const fieldKey = field?.name || 'unknown';
   const currentPref = { showDate: true, showTime: true, ...dateTimePrefs[fieldKey] };
   const isDateTimeField = isDateTime || isDate || isTime;
@@ -877,8 +836,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
       hours = hours % 12;
       hours = hours ? hours : 12; // 0 should be 12
       const minutes = t.getMinutes();
-      // only show minutes if not zero
-      return minutes === 0 ? `${hours}${ampm}` : `${hours}:${String(minutes).padStart(2, '0')}${ampm}`;
+      // only show minutes if not zero      return minutes === 0 ? `${hours}${ampm}` : `${hours}:${String(minutes).padStart(2, '0')}${ampm}`;
     } catch (e) { return dateStr; }
   };
 
@@ -893,8 +851,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
     return new File([blob], filename, { type: blob.type || 'image/png' });
   };
 
-  // imageeditor component - extracted to avoid hooks-in-function issue
-  const ImageEditor = ({ src }: { src: string }) => {
+  // imageeditor component - extracted to avoid hooks-in-function issue  const ImageEditor = ({ src }: { src: string }) => {
     const drawPreview = async () => {
       const canvas = previewRef.current;
       if (!canvas) return;
@@ -917,8 +874,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
       ctx.drawImage(img, 0, 0, w, h);
       ctx.filter = 'none';
 
-      // apply color grading via overlay blending
-      if (filters.shadowAmount > 0) {
+      // apply color grading via overlay blending      if (filters.shadowAmount > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'multiply';
         ctx.fillStyle = `rgba(${filters.shadowR}, ${filters.shadowG}, ${filters.shadowB}, ${filters.shadowAmount / 100})`;
@@ -1007,8 +963,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
       ctx.drawImage(img, 0, 0, w, h);
       ctx.filter = 'none';
 
-      // apply color grading via overlay blending
-      if (filters.shadowAmount > 0) {
+      // apply color grading via overlay blending      if (filters.shadowAmount > 0) {
         ctx.save();
         ctx.globalCompositeOperation = 'multiply';
         ctx.fillStyle = `rgba(${filters.shadowR}, ${filters.shadowG}, ${filters.shadowB}, ${filters.shadowAmount / 100})`;
@@ -1096,17 +1051,14 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
       } else if (crop) {
         let w = x - crop.x;
         let h = y - crop.y;
-        // apply aspect ratio constraint if set
-        if (cropAspect && cropAspect > 0) {
+        // apply aspect ratio constraint if set        if (cropAspect && cropAspect > 0) {
           const absW = Math.abs(w);
           const absH = Math.abs(h);
           const targetH = absW / cropAspect;
           if (targetH > absH) {
-            // adjust width to match height
-            w = w > 0 ? absH * cropAspect : -absH * cropAspect;
+            // adjust width to match height            w = w > 0 ? absH * cropAspect : -absH * cropAspect;
           } else {
-            // adjust height to match width
-            h = h > 0 ? targetH : -targetH;
+            // adjust height to match width            h = h > 0 ? targetH : -targetH;
           }
         }
         setCrop({ ...crop, w, h });
@@ -1148,8 +1100,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
                     const url = uploaded?.data?.url || uploaded?.url;
                     handleSave(url || dataUrl);
                   } catch (e) {
-                    // fallback to data url if upload fails
-                    handleSave(dataUrl);
+                    // fallback to data url if upload fails                    handleSave(dataUrl);
                   }
                   setEditorOpen(false);
                 }
@@ -1507,8 +1458,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
     }
 
     if (isMultiSelect || isSelect) {
-      // searchable dropdown with add-option support
-      const options = localOptions;
+      // searchable dropdown with add-option support      const options = localOptions;
       const filtered = options.filter((o) => o.label.toLowerCase().includes(searchText.toLowerCase()));
       const showAdd = searchText && !options.some(o => o.label.toLowerCase() === searchText.toLowerCase());
 
@@ -1516,8 +1466,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
         const value = label.toLowerCase().replace(/\s+/g, '_');
         const newOpt = { label, value, color: undefined };
         setLocalOptions(prev => [...prev, newOpt]);
-        // persist back to field configuration along with default color
-        try {
+        // persist back to field configuration along with default color        try {
           await client.updateField(collectionName, field.name, {
             uiSchema: { ...field.uiSchema, enum: [...options, newOpt] },
             optionColors: [...(field?.optionColors || []), '#ffffff']
@@ -1537,8 +1486,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
       };
 
       const changeOptionColor = async (optValue: string, color: string) => {
-        // update palette
-        setPalette(prev => {
+        // update palette        setPalette(prev => {
           if (prev.includes(color)) return prev;
           const next = [...prev];
           next.unshift(color);
@@ -1553,8 +1501,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
           nxt[idx] = { ...nxt[idx], color };
           return nxt;
         });
-        // persist colors array
-        const colorsArr = [...(field?.optionColors || [])];
+        // persist colors array        const colorsArr = [...(field?.optionColors || [])];
         colorsArr[idx] = color;
         try {
           await client.updateField(collectionName, field.name, {
@@ -1828,8 +1775,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
         } else if (isTime) {
           displayValue = showTime ? formatTime(value) : '';
         } else {
-          // datetime - combine based on preferences with ' - ' separator
-          const datePart = showDate ? formatDate(value) : '';
+          // datetime - combine based on preferences with ' - ' separator          const datePart = showDate ? formatDate(value) : '';
           const timePart = showTime ? formatTime(value) : '';
           const separator = datePart && timePart ? ' - ' : ' ';
           displayValue = `${datePart}${separator}${timePart}`.trim();
@@ -1846,8 +1792,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
       );
     }
 
-    // show label text instead of raw value for select/multi-select, and open on click
-    if (isSelect) {
+    // show label text instead of raw value for select/multi-select, and open on click    if (isSelect) {
       const options = enrich(field?.uiSchema?.enum || []);
         if (isMultiSelect) {
           return (

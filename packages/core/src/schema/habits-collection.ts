@@ -1,5 +1,4 @@
-/**
- * nocobase collection schema: high-granularity activity logging system
+/** * nocobase collection schema: high-granularity activity logging system
  * 
  * this file contains the complete collection configuration for the
  * multi-metric habits tracking system with timer support and
@@ -9,10 +8,7 @@
  * typography: varela round (all ui text lowercase)
  */
 
-// ============================================================================
-// collection 1: habits (activity definitions)
-// ============================================================================
-
+// ============================================================================// collection 1: habits (activity definitions)// ============================================================================
 export const HABITS_COLLECTION_SCHEMA = {
   name: 'habits',
   title: 'habits',
@@ -97,8 +93,7 @@ export const HABITS_COLLECTION_SCHEMA = {
         },
       },
     },
-    // multi-metric support flags
-    {
+    // multi-metric support flags    {
       name: 'supports_duration',
       type: 'boolean',
       interface: 'checkbox',
@@ -190,10 +185,7 @@ export const HABITS_COLLECTION_SCHEMA = {
   ],
 };
 
-// ============================================================================
-// collection 2: habit_logs (activity instances)
-// ============================================================================
-
+// ============================================================================// collection 2: habit_logs (activity instances)// ============================================================================
 export const HABIT_LOGS_COLLECTION_SCHEMA = {
   name: 'habit_logs',
   title: 'habit logs',
@@ -215,8 +207,7 @@ export const HABIT_LOGS_COLLECTION_SCHEMA = {
       type: 'date',
       interface: 'updatedAt',
     },
-    // relationship to habits
-    {
+    // relationship to habits    {
       name: 'habit_id',
       type: 'bigInt',
       interface: 'integer',
@@ -237,8 +228,7 @@ export const HABIT_LOGS_COLLECTION_SCHEMA = {
       target: 'habits',
       foreignKey: 'habit_id',
     },
-    // timestamps
-    {
+    // timestamps    {
       name: 'timestamp',
       type: 'date',
       interface: 'datetime',
@@ -265,8 +255,7 @@ export const HABIT_LOGS_COLLECTION_SCHEMA = {
         },
       },
     },
-    // multi-metric fields
-    {
+    // multi-metric fields    {
       name: 'duration_seconds',
       type: 'integer',
       interface: 'number',
@@ -326,8 +315,7 @@ export const HABIT_LOGS_COLLECTION_SCHEMA = {
         },
       },
     },
-    // meta-commentary
-    {
+    // meta-commentary    {
       name: 'notes',
       type: 'text',
       interface: 'textarea',
@@ -340,8 +328,7 @@ export const HABIT_LOGS_COLLECTION_SCHEMA = {
         },
       },
     },
-    // flexible metadata for custom fields
-    {
+    // flexible metadata for custom fields    {
       name: 'metadata',
       type: 'json',
       interface: 'json',
@@ -351,8 +338,7 @@ export const HABIT_LOGS_COLLECTION_SCHEMA = {
         'x-component': 'Input.JSON',
       },
     },
-    // computed fields for dashboard
-    {
+    // computed fields for dashboard    {
       name: 'xp_earned',
       type: 'virtual',
       interface: 'formula',
@@ -368,10 +354,7 @@ export const HABIT_LOGS_COLLECTION_SCHEMA = {
   ],
 };
 
-// ============================================================================
-// collection 3: habit_tips (category-specific facts)
-// ============================================================================
-
+// ============================================================================// collection 3: habit_tips (category-specific facts)// ============================================================================
 export const HABIT_TIPS_COLLECTION_SCHEMA = {
   name: 'habit_tips',
   title: 'habit tips',
@@ -480,10 +463,7 @@ export const HABIT_TIPS_COLLECTION_SCHEMA = {
   ],
 };
 
-// ============================================================================
-// collection 4: habit_streaks (aggregated streak data)
-// ============================================================================
-
+// ============================================================================// collection 4: habit_streaks (aggregated streak data)// ============================================================================
 export const HABIT_STREAKS_COLLECTION_SCHEMA = {
   name: 'habit_streaks',
   title: 'habit streaks',
@@ -591,10 +571,7 @@ export const HABIT_STREAKS_COLLECTION_SCHEMA = {
   ],
 };
 
-// ============================================================================
-// nocobase setup instructions
-// ============================================================================
-
+// ============================================================================// nocobase setup instructions// ============================================================================
 export const NOCOBASE_SETUP_INSTRUCTIONS = `
 # NocoBase Activity Logging Schema Setup
 
@@ -665,13 +642,9 @@ The system uses standard NocoBase REST API:
 - POST /api/habits:create - Create new habit
 `;
 
-// ============================================================================
-// example api calls
-// ============================================================================
-
+// ============================================================================// example api calls// ============================================================================
 export const EXAMPLE_API_CALLS = {
-  // create a habit log with full metrics
-  createHabitLog: {
+  // create a habit log with full metrics  createHabitLog: {
     method: 'POST',
     endpoint: '/api/habit_logs:create',
     body: {
@@ -690,8 +663,7 @@ export const EXAMPLE_API_CALLS = {
     }
   },
   
-  // query habit stats
-  getHabitStats: {
+  // query habit stats  getHabitStats: {
     method: 'GET',
     endpoint: '/api/habit_logs:list',
     params: {
@@ -701,8 +673,7 @@ export const EXAMPLE_API_CALLS = {
     }
   },
   
-  // get today's logs
-  getTodayLogs: {
+  // get today's logs  getTodayLogs: {
     method: 'GET',
     endpoint: '/api/habit_logs:list',
     params: {
@@ -711,10 +682,7 @@ export const EXAMPLE_API_CALLS = {
   }
 };
 
-// ============================================================================
-// type definitions for frontend
-// ============================================================================
-
+// ============================================================================// type definitions for frontend// ============================================================================
 export interface HabitRecord {
   id: number;
   name: string;

@@ -1,6 +1,4 @@
-// ai field generator service
-// handles generation of ai field content with rag context
-
+// ai field generator service// handles generation of ai field content with rag context
 import { generateAiFieldContent } from './rag-service';
 import { generateText } from '@/lib/llm-service';
 import { getOllamaGenerateUrl, DEFAULT_OLLAMA_MODEL } from '@/lib/llm-config';
@@ -29,8 +27,7 @@ export interface AiGenerationResult {
   };
 }
 
-// default generation options
-const DEFAULT_OPTIONS: Partial<AiGenerationOptions> = {
+// default generation optionsconst DEFAULT_OPTIONS: Partial<AiGenerationOptions> = {
   model: DEFAULT_OLLAMA_MODEL,
   temperature: 0.7,
   includeRelated: true,
@@ -38,8 +35,7 @@ const DEFAULT_OPTIONS: Partial<AiGenerationOptions> = {
   maxTokens: 2048,
 };
 
-// generate ai field content and save to record
-export async function generateAndSaveAiField(
+// generate ai field content and save to recordexport async function generateAndSaveAiField(
   collection: string,
   recordId: string | number,
   fieldName: string = 'ai',
@@ -49,8 +45,7 @@ export async function generateAndSaveAiField(
   const opts = { ...DEFAULT_OPTIONS, ...options };
 
   try {
-    // 1. build the prompt with rag context
-    const prompt = await generateAiFieldContent(
+    // 1. build the prompt with rag context    const prompt = await generateAiFieldContent(
       collection,
       recordId,
       opts.instruction,
@@ -60,26 +55,22 @@ export async function generateAndSaveAiField(
       }
     );
 
-    // 2. generate content via ollama
-    const apiUrl = getOllamaGenerateUrl();
+    // 2. generate content via ollama    const apiUrl = getOllamaGenerateUrl();
     const response = await generateText(prompt, opts.model!, apiUrl);
 
     if (!response) {
       throw new Error('no response from llm');
     }
 
-    // 3. clean the response (remove markdown code blocks if present)
-    const cleanedContent = cleanAiResponse(response);
+    // 3. clean the response (remove markdown code blocks if present)    const cleanedContent = cleanAiResponse(response);
 
-    // 4. save to the record
-    await api.updateRecord(collection, recordId, {
+    // 4. save to the record    await api.updateRecord(collection, recordId, {
       [fieldName]: cleanedContent,
     });
 
     const duration = Date.now() - startTime;
 
-    // 5. extract sources from the prompt (they're in the context)
-    const sources = extractSourcesFromPrompt(prompt);
+    // 5. extract sources from the prompt (they're in the context)    const sources = extractSourcesFromPrompt(prompt);
 
     return {
       success: true,
@@ -109,8 +100,7 @@ export async function generateAndSaveAiField(
   }
 }
 
-// generate without saving (for preview)
-export async function previewAiFieldContent(
+// generate without saving (for preview)export async function previewAiFieldContent(
   collection: string,
   recordId: string | number,
   options: AiGenerationOptions
@@ -167,30 +157,24 @@ export async function previewAiFieldContent(
   }
 }
 
-// clean ai response (remove markdown code blocks, normalize)
-function cleanAiResponse(response: string): string {
+// clean ai response (remove markdown code blocks, normalize)function cleanAiResponse(response: string): string {
   let cleaned = response.trim();
 
-  // remove markdown code block wrappers if present
-  const codeBlockMatch = cleaned.match(/^```(?:markdown)?\s*([\s\S]*?)\s*```$/);
+  // remove markdown code block wrappers if present  const codeBlockMatch = cleaned.match(/^```(?:markdown)?\s*([\s\S]*?)\s*```$/);
   if (codeBlockMatch) {
     cleaned = codeBlockMatch[1].trim();
   }
 
-  // ensure lowercase (per user preference)
-  cleaned = cleaned.toLowerCase();
+  // ensure lowercase (per user preference)  cleaned = cleaned.toLowerCase();
 
-  // normalize line endings
-  cleaned = cleaned.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // normalize line endings  cleaned = cleaned.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
-  // remove excessive blank lines
-  cleaned = cleaned.replace(/\n{4,}/g, '\n\n\n');
+  // remove excessive blank lines  cleaned = cleaned.replace(/\n{4,}/g, '\n\n\n');
 
   return cleaned;
 }
 
-// extract source references from prompt
-function extractSourcesFromPrompt(prompt: string): string[] {
+// extract source references from promptfunction extractSourcesFromPrompt(prompt: string): string[] {
   const sources: string[] = [];
   const regex = /\[source:\s*([^:\]]+):([^:\]]+)\]/g;
   let match;
@@ -202,14 +186,11 @@ function extractSourcesFromPrompt(prompt: string): string[] {
   return [...new Set(sources)];
 }
 
-// estimate token count (rough approximation)
-function estimateTokens(text: string): number {
-  // rough estimate: 1 token ≈ 4 characters for english text
-  return Math.ceil(text.length / 4);
+// estimate token count (rough approximation)function estimateTokens(text: string): number {
+  // rough estimate: 1 token ≈ 4 characters for english text  return Math.ceil(text.length / 4);
 }
 
-// batch generate ai fields for multiple records
-export async function batchGenerateAiFields(
+// batch generate ai fields for multiple recordsexport async function batchGenerateAiFields(
   collection: string,
   recordIds: (string | number)[],
   fieldName: string,
@@ -228,8 +209,7 @@ export async function batchGenerateAiFields(
     const result = await generateAndSaveAiField(collection, recordId, fieldName, options);
     results.push(result);
 
-    // small delay to avoid overwhelming the api
-    if (i < recordIds.length - 1) {
+    // small delay to avoid overwhelming the api    if (i < recordIds.length - 1) {
       await new Promise(r => setTimeout(r, 500));
     }
   }
@@ -237,8 +217,7 @@ export async function batchGenerateAiFields(
   return results;
 }
 
-// get suggested instructions based on collection type
-export function getSuggestedInstructions(collectionName: string): string[] {
+// get suggested instructions based on collection typeexport function getSuggestedInstructions(collectionName: string): string[] {
   const lower = collectionName.toLowerCase();
 
   if (lower.includes('note') || lower.includes('journal')) {
@@ -281,8 +260,7 @@ export function getSuggestedInstructions(collectionName: string): string[] {
     ];
   }
 
-  // default suggestions
-  return [
+  // default suggestions  return [
     'synthesize key insights and hidden connections',
     'generate 3 powerful questions to deepen understanding',
     'identify related items across the knowledge base',
@@ -291,8 +269,7 @@ export function getSuggestedInstructions(collectionName: string): string[] {
   ];
 }
 
-// validate that a collection has an 'ai' field
-export async function validateAiField(collection: string, fieldName: string = 'ai'): Promise<boolean> {
+// validate that a collection has an 'ai' fieldexport async function validateAiField(collection: string, fieldName: string = 'ai'): Promise<boolean> {
   try {
     const colRes: any = await api.getCollection(collection);
     const fields = colRes.data?.fields || colRes.fields || [];
@@ -304,14 +281,12 @@ export async function validateAiField(collection: string, fieldName: string = 'a
   }
 }
 
-// ensure 'ai' field exists on collection (create if missing)
-export async function ensureAiField(collection: string, fieldName: string = 'ai'): Promise<boolean> {
+// ensure 'ai' field exists on collection (create if missing)export async function ensureAiField(collection: string, fieldName: string = 'ai'): Promise<boolean> {
   try {
     const exists = await validateAiField(collection, fieldName);
     if (exists) return true;
 
-    // create the field
-    await api.createField(collection, {
+    // create the field    await api.createField(collection, {
       name: fieldName,
       type: 'text',
       interface: 'markdown',

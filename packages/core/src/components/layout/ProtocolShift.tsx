@@ -4,8 +4,7 @@ export function ProtocolShift() {
   const [shifted, setShifted] = useState(false);
   const [sequence, setSequence] = useState<string[]>([]);
 
-  // konami code: up up down down left right left right b a
-  const KONAMI_CODE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+  // konami code: up up down down left right left right b a  const KONAMI_CODE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
 
   useEffect(() => {
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -32,8 +31,7 @@ export function ProtocolShift() {
   }
   }, [sequence]);
 
-  // escape to exit
-  useEffect(() => {
+  // escape to exit  useEffect(() => {
   const handleEsc = (e: KeyboardEvent) => {
   if (e.key === 'Escape') {
     const raf = requestAnimationFrame(() => setShifted(false));
@@ -69,8 +67,7 @@ export function ProtocolShift() {
   );
 }
 
-// add global styles for "shattering" ui
-const style = document.createElement('style');
+// add global styles for "shattering" uiconst style = document.createElement('style');
 style.textContent = `
   body.protocol-shift .sidebar-container,
   body.protocol-shift header,

@@ -5,8 +5,7 @@ import { CanvasControls } from '../CanvasControls'
 import { useEdgelessStore } from '../../store'
 import { FronterProvider } from '@/contexts/fronter-context'
 
-// minimal render w/ provider
-function render(ui: React.ReactElement) {
+// minimal render w/ providerfunction render(ui: React.ReactElement) {
   return rtlRender(<FronterProvider>{ui}</FronterProvider>)
 }
 
@@ -19,8 +18,7 @@ describe('CanvasControls', () => {
   })
 
   it('shows undo/redo buttons', () => {
-    // default store history is empty
-    render(<CanvasControls />)
+    // default store history is empty    render(<CanvasControls />)
     const undo = screen.getByTitle(/undo/i)
     const redo = screen.getByTitle(/redo/i)
     expect(undo).toBeInTheDocument()

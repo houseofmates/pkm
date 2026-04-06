@@ -22,8 +22,7 @@ let mainWindow = null;
 let currentVersion = null;
 let updateCheckInterval = null;
 
-// Fetch version from server to detect updates
-async function checkForUpdates() {
+// fetch version from server to detect updatesasync function checkForUpdates() {
     if (!mainWindow || isDev) return;
 
     const remoteUrl = process.env.PKM_REMOTE_URL || 'https://pkm.houseofmates.space';
@@ -41,15 +40,13 @@ async function checkForUpdates() {
 
         if (!serverVersion) return;
 
-        // First check - just store the version
-        if (!currentVersion) {
+        // first check - just store the version        if (!currentVersion) {
             currentVersion = serverVersion;
             console.log(`[Update Check] Initial version: ${currentVersion}`);
             return;
         }
 
-        // Version changed - update available
-        if (serverVersion !== currentVersion) {
+        // version changed - update available        if (serverVersion !== currentVersion) {
             console.log(`[Update Check] Update available! ${currentVersion} -> ${serverVersion}`);
 
             const result = dialog.showMessageBoxSync(mainWindow, {
@@ -68,15 +65,13 @@ async function checkForUpdates() {
             }
         }
     } catch (err) {
-        // Silent fail - server might be down
-        console.log('[Update Check] Could not reach server:', err.message);
+        // silent fail - server might be down        console.log('[Update Check] Could not reach server:', err.message);
     }
 }
 
 function startUpdateChecker() {
     if (updateCheckInterval) clearInterval(updateCheckInterval);
-    // Check every 30 seconds for updates
-    updateCheckInterval = setInterval(checkForUpdates, 30000);
+    // check every 30 seconds for updates    updateCheckInterval = setInterval(checkForUpdates, 30000);
     console.log('[Update Check] Started checking every 30 seconds');
 }
 
@@ -102,13 +97,11 @@ function createWindow() {
         },
     });
 
-    // prevent page from changing window title
-    mainWindow.webContents.on('page-title-updated', (e, title) => {
+    // prevent page from changing window title    mainWindow.webContents.on('page-title-updated', (e, title) => {
         e.preventDefault();
     });
 
-    // open links in external browser
-    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    // open links in external browser    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith('https:') || url.startsWith('http:')) {
             shell.openExternal(url);
             return { action: 'deny' };
@@ -122,26 +115,20 @@ function createWindow() {
         mainWindow.loadURL('http://localhost:3010');
         mainWindow.webContents.openDevTools();
     } else if (process.env.PKM_REMOTE_URL || !app.isPackaged) {
-        // Live update mode: load from remote and check for updates
-        mainWindow.loadURL(remoteUrl);
+        // live update mode: load from remote and check for updates        mainWindow.loadURL(remoteUrl);
         console.log(`[pkm] Live-update mode: Loading from ${remoteUrl}`);
         console.log(`[pkm] The app will auto-reload when code changes are deployed.`);
 
-        // Start checking for updates after initial load
-        mainWindow.webContents.on('did-finish-load', () => {
-            // Wait a bit then do first version check
-            setTimeout(checkForUpdates, 5000);
+        // start checking for updates after initial load        mainWindow.webContents.on('did-finish-load', () => {
+            // wait a bit then do first version check            setTimeout(checkForUpdates, 5000);
             startUpdateChecker();
         });
     } else {
-        // Always use live-update mode: load from remote to share localStorage with web app
-        // This fixes JWT token sync between web and AppImage
-        mainWindow.loadURL(remoteUrl);
+        // always use live-update mode: load from remote to share localstorage with web app        // this fixes jwt token sync between web and appimage        mainWindow.loadURL(remoteUrl);
         console.log(`[pkm] Live-update mode: Loading from ${remoteUrl}`);
         console.log(`[pkm] Shares localStorage with web app for JWT token compatibility`);
 
-        // Start checking for updates after initial load
-        mainWindow.webContents.on('did-finish-load', () => {
+        // start checking for updates after initial load        mainWindow.webContents.on('did-finish-load', () => {
             setTimeout(checkForUpdates, 5000);
             startUpdateChecker();
         });
@@ -154,8 +141,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-    // Remove menu bar BEFORE creating window (important for Linux)
-    Menu.setApplicationMenu(null);
+    // remove menu bar before creating window (important for linux)    Menu.setApplicationMenu(null);
     
     protocol.handle('pkm', (request) => {
         let urlPath = request.url.slice('pkm://app/'.length);
@@ -178,27 +164,23 @@ app.whenReady().then(() => {
 
     createWindow();
 
-    // start the context api server (serves llm context to renderer)
-    contextServer.start();
+    // start the context api server (serves llm context to renderer)    contextServer.start();
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 
-    // ipc listener: receive context updates from renderer and update server state
-    ipcMain.on('context:update', (event, data) => {
+    // ipc listener: receive context updates from renderer and update server state    ipcMain.on('context:update', (event, data) => {
         contextServer.updateContext(data);
     });
 
-    // Handle update check from renderer
-    ipcMain.on('app:check-update', () => {
+    // handle update check from renderer    ipcMain.on('app:check-update', () => {
         checkForUpdates();
     });
 });
 
 app.on('window-all-closed', () => {
-    // stop server when all windows closed
-    contextServer.stop();
+    // stop server when all windows closed    contextServer.stop();
     stopUpdateChecker();
     if (process.platform !== 'darwin') app.quit();
 });

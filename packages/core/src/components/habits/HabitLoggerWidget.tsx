@@ -40,8 +40,7 @@ export interface HabitLoggerWidgetProps {
   compact?: boolean;
 }
 
-// default habits with multi-metric support
-export const DEFAULT_HABITS: Habit[] = [
+// default habits with multi-metric supportexport const DEFAULT_HABITS: Habit[] = [
   { 
     id: 'water_floss', 
     name: 'water floss', 
@@ -197,8 +196,7 @@ export const DEFAULT_HABITS: Habit[] = [
   },
 ];
 
-// quick log form for non-timed habits
-function QuickLogForm({
+// quick log form for non-timed habitsfunction QuickLogForm({
   habit,
   onSubmit,
   onCancel
@@ -313,8 +311,7 @@ export function HabitLoggerWidget({
   const [view, setView] = useState<'grid' | 'timer' | 'quick'>('grid');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
-  // load remote habits from nocobase
-  useEffect(() => {
+  // load remote habits from nocobase  useEffect(() => {
     const loadHabits = async () => {
       try {
         const res: any = await api.listRecords('habits', { pageSize: 100 });
@@ -390,11 +387,9 @@ export function HabitLoggerWidget({
     };
     
     try {
-      // save to nocobase
-      await api.createRecord('habit_logs', log as unknown as Record<string, unknown>);
+      // save to nocobase      await api.createRecord('habit_logs', log as unknown as Record<string, unknown>);
       
-      // update local streak cache
-      const streakKey = `habit:streak:${selectedHabit.id}`;
+      // update local streak cache      const streakKey = `habit:streak:${selectedHabit.id}`;
       const existingStreak = JSON.parse(localStorage.getItem(streakKey) || '[]');
       const today = now.toISOString().split('T')[0];
       if (!existingStreak.includes(today)) {
@@ -411,8 +406,7 @@ export function HabitLoggerWidget({
       
       onLogged?.(log);
       
-      // reset
-      setSelectedHabit(null);
+      // reset      setSelectedHabit(null);
       setShowFactBuffer(false);
       setView('grid');
     } catch (err) {
@@ -464,8 +458,7 @@ export function HabitLoggerWidget({
     onClose?.();
   }, [onClose]);
   
-  // timer view with fact buffer
-  if (view === 'timer' && selectedHabit && showFactBuffer) {
+  // timer view with fact buffer  if (view === 'timer' && selectedHabit && showFactBuffer) {
     return (
       <FactBuffer
         activityId={selectedHabit.id}
@@ -484,8 +477,7 @@ export function HabitLoggerWidget({
     );
   }
   
-  // quick log view
-  if (view === 'quick' && selectedHabit) {
+  // quick log view  if (view === 'quick' && selectedHabit) {
     return (
       <QuickLogForm
         habit={selectedHabit}
@@ -495,8 +487,7 @@ export function HabitLoggerWidget({
     );
   }
   
-  // grid view
-  return (
+  // grid view  return (
     <div className={cn(
       "p-4 rounded-2xl border border-white/10 bg-[#050505]",
       className

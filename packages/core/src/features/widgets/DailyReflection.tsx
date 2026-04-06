@@ -36,8 +36,7 @@ export function DailyReflection({ data, onUpdate }: DailyReflectionProps) {
   const [anchors, setAnchors] = useState<DailyAnchor[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
-  // process records into anchors
-  useEffect(() => {
+  // process records into anchors  useEffect(() => {
     if (records) {
       const processed = records
         .map((r: any) => ({
@@ -54,8 +53,7 @@ export function DailyReflection({ data, onUpdate }: DailyReflectionProps) {
     }
   }, [records]);
 
-  // check if already submitted today
-  const hasTodayAnchor = useCallback(() => {
+  // check if already submitted today  const hasTodayAnchor = useCallback(() => {
     const today = new Date().toISOString().split('T')[0];
     return anchors.some(a => a.date === today);
   }, [anchors]);
@@ -74,8 +72,7 @@ export function DailyReflection({ data, onUpdate }: DailyReflectionProps) {
 
       await createRecord(payload);
 
-      // emit sync event
-      dataService.emitDataUpdate('daily_anchor_created', {
+      // emit sync event      dataService.emitDataUpdate('daily_anchor_created', {
         content: inputValue.trim(),
         date: today.split('T')[0],
       });
@@ -112,8 +109,7 @@ export function DailyReflection({ data, onUpdate }: DailyReflectionProps) {
     }).toLowerCase();
   };
 
-  // input mode - simple one-sentence entry
-  if (mode === 'input') {
+  // input mode - simple one-sentence entry  if (mode === 'input') {
     const todayComplete = hasTodayAnchor();
 
     return (
@@ -227,8 +223,7 @@ export function DailyReflection({ data, onUpdate }: DailyReflectionProps) {
     );
   }
 
-  // display mode - scrolling list of previous anchors
-  return (
+  // display mode - scrolling list of previous anchors  return (
     <div 
       className="w-full h-full rounded-xl overflow-hidden flex flex-col p-3"
       style={{ 

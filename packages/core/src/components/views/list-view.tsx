@@ -8,13 +8,10 @@ import { getLucideIcon } from '@/lib/field-meta';
 import { List as _List } from 'react-window';
 import { AutoSizer as _AutoSizer } from 'react-virtualized-auto-sizer';
 
-// react-window v2 ships its own types that conflict with @types/react-window v1 api.
-// the v1 api (itemcount, itemsize, etc) works at runtime; cast to bypass the type mismatch.
-const List = _List as any;
+// react-window v2 ships its own types that conflict with @types/react-window v1 api.// the v1 api (itemcount, itemsize, etc) works at runtime; cast to bypass the type mismatch.const List = _List as any;
 const AutoSizer = _AutoSizer as any;
 
-// row component for react-window list
-const RowComponent = ({ index, style, data }: { index: number; style: React.CSSProperties; data: any }): React.ReactElement | null => {
+// row component for react-window listconst RowComponent = ({ index, style, data }: { index: number; style: React.CSSProperties; data: any }): React.ReactElement | null => {
   const { rows, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord, metadata } = data;
   const record = rows[index];
 
@@ -25,8 +22,7 @@ const RowComponent = ({ index, style, data }: { index: number; style: React.CSSP
   const visibleFieldNames = config.visibleFields || [];
   const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
 
-  // cover logic
-  const coverField = config.coverField ? collection.fields?.find((f: { name: string }) => f.name === config.coverField) : null;
+  // cover logic  const coverField = config.coverField ? collection.fields?.find((f: { name: string }) => f.name === config.coverField) : null;
   const coverValue = coverField ? record[coverField.name] : null;
   const attachmentField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'attachment');
   const firstImage = coverValue || (attachmentField ? record[attachmentField.name] : null);

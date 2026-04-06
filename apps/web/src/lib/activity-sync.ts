@@ -25,8 +25,7 @@ function extractId(resp: any) {
   return d?.id || d?.key || d?._id || null
 }
 
-// prevent concurrent findorcreateactivity calls for the same name
-const activityCreationPromises: Record<string, Promise<string | null>> = {};
+// prevent concurrent findorcreateactivity calls for the same nameconst activityCreationPromises: Record<string, Promise<string | null>> = {};
 
 export async function findOrCreateActivity(name: string, localId?: string): Promise<string | null> {
   const cacheKey = name.toLowerCase().trim();
@@ -118,8 +117,7 @@ export async function syncAllLocalLogs() {
     activities.forEach((a: any) => nameById[a.id] = a.name)
 
     let pushed = 0
-    // process sequentially to avoid overwhelming server and hitting race conditions
-    for (const l of logs) {
+    // process sequentially to avoid overwhelming server and hitting race conditions    for (const l of logs) {
       const localName = nameById[l.activityId] || l.activityId || 'other'
       const serverActivityId = await findOrCreateActivity(localName, l.activityId)
       if (!serverActivityId) continue

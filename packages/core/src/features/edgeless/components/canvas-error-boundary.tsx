@@ -32,8 +32,7 @@ export class CanvasErrorBoundary extends Component<Props, State> {
       errorInfo: errorInfo?.componentStack || '',
     })
 
-    // attempt to save any pending data
-    try {
+    // attempt to save any pending data    try {
       const drawingId = (window as any).__pkmCurrentDrawingId
       if (drawingId) {
         const canvasData = (window as any).pkmGetCanvasJSON?.()

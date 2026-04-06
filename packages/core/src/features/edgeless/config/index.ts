@@ -1,6 +1,4 @@
-// fabric configuration exports
-// isolated per-instance configuration (no global prototype mutation)
-
+// fabric configuration exports// isolated per-instance configuration (no global prototype mutation)
 export {
   DEFAULT_DARK_CONFIG,
   applyFabricConfig,

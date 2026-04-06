@@ -1,20 +1,8 @@
-// ai-worker-core.ts — pure logic extracted from ai.worker.ts
-//
-// this module contains all the ai/vector/rag/streaming logic with
-// zero comlink or web-worker dependencies. it can be imported by:
-//   1. ai.worker.ts (runs in a dedicated worker thread)
-//   2. use-ai-worker.ts main-thread fallback (runs on the ui thread)
-//
-// a custom `fetchimpl` can be injected at init time so mobile builds
-// can route requests through capacitor's native http bridge.
-
+// ai-worker-core.ts — pure logic extracted from ai.worker.ts//// this module contains all the ai/vector/rag/streaming logic with// zero comlink or web-worker dependencies. it can be imported by://   1. ai.worker.ts (runs in a dedicated worker thread)//   2. use-ai-worker.ts main-thread fallback (runs on the ui thread)//// a custom `fetchimpl` can be injected at init time so mobile builds// can route requests through capacitor's native http bridge.
 import { secureLogger } from '@/lib/secure-logger';
 import type { AIWorkerAPI, SearchResultDTO, RagPromptResult, AskWithRagResult, ChatMessage, Attachment } from './ai-worker-types';
 
-// ---------------------------------------------------------------------------
-// configuration
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// configuration// ---------------------------------------------------------------------------
 const VECTOR_CONFIG = {
     knowledgeBaseId: 'pkm-global-kb',
     chunkSize: 512,
@@ -24,19 +12,13 @@ const VECTOR_CONFIG = {
     embeddingEndpoint: 'http://localhost:11434/api/embeddings',
 };
 
-// ---------------------------------------------------------------------------
-// internal state
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// internal state// ---------------------------------------------------------------------------
 let _apiBaseUrl = '';
 let _authToken = '';
 let _fetch: typeof globalThis.fetch = globalThis.fetch?.bind(globalThis);
 let _ollamaBaseUrl = 'http://localhost:11434';
 
-// ---------------------------------------------------------------------------
-// init
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// init// ---------------------------------------------------------------------------
 export function init(
     apiBaseUrl: string,
     authToken: string,
@@ -47,8 +29,7 @@ export function init(
     _apiBaseUrl = apiBaseUrl.replace(/\/+$/, '');
     _authToken = authToken;
     
-    // log the incoming ollamabaseurl for debugging
-    secureLogger.info('[ai-worker] init called with ollamaBaseUrl:', ollamaBaseUrl);
+    // log the incoming ollamabaseurl for debugging    secureLogger.info('[ai-worker] init called with ollamaBaseUrl:', ollamaBaseUrl);
     
     _ollamaBaseUrl = (ollamaBaseUrl || _ollamaBaseUrl || 'http://localhost:11434').replace(/\/+$/, '');
     
@@ -63,10 +44,7 @@ export function init(
     if (fetchImpl) _fetch = fetchImpl;
 }
 
-// ---------------------------------------------------------------------------
-// internal helpers — fetch wrappers
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// internal helpers — fetch wrappers// ---------------------------------------------------------------------------
 async function apiFetch(path: string, body: Record<string, unknown>): Promise<any> {
     const url = `${_apiBaseUrl}${path}`;
     const res = await _fetch(url, {
@@ -93,10 +71,7 @@ async function apiGet(path: string): Promise<any> {
     return res.json();
 }
 
-// ---------------------------------------------------------------------------
-// embedding generation
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// embedding generation// ---------------------------------------------------------------------------
 async function generateEmbedding(text: string): Promise<number[]> {
     const embeddingEndpoint = VECTOR_CONFIG.embeddingEndpoint || `${_ollamaBaseUrl}/api/embeddings`;
     const res = await _fetch(embeddingEndpoint, {
@@ -112,14 +87,9 @@ async function generateEmbedding(text: string): Promise<number[]> {
     return data.embedding;
 }
 
-// ---------------------------------------------------------------------------
-// knowledge-base search
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// knowledge-base search// ---------------------------------------------------------------------------
 async function searchKnowledgeBase(query: string, topK: number = VECTOR_CONFIG.topK): Promise<SearchResultDTO[]> {
-    // skip the ai knowledge base search - it requires a collection that doesn't exist
-    // just use the fallback local search which searches through collections directly
-    secureLogger.info('[ai-worker] Using fallback local search (knowledge base not available)');
+    // skip the ai knowledge base search - it requires a collection that doesn't exist    // just use the fallback local search which searches through collections directly    secureLogger.info('[ai-worker] Using fallback local search (knowledge base not available)');
     return fallbackLocalSearch(query, topK);
 }
 
@@ -168,12 +138,10 @@ async function fallbackLocalSearch(query: string, topK: number): Promise<SearchR
                     }
                 }
             } catch {
-                // skip collection on error
-            }
+                // skip collection on error            }
         }
 
-        // keyword scoring
-        const queryWords = query.toLowerCase().split(/\s+/);
+        // keyword scoring        const queryWords = query.toLowerCase().split(/\s+/);
         const queryLower = query.toLowerCase();
         const scored = allChunks.map(chunk => {
             const contentLower = chunk.content.toLowerCase();
@@ -198,10 +166,7 @@ async function fallbackLocalSearch(query: string, topK: number): Promise<SearchR
     }
 }
 
-// ---------------------------------------------------------------------------
-// text chunking
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// text chunking// ---------------------------------------------------------------------------
 function chunkText(text: string, size: number, overlap: number): string[] {
     const chunks: string[] = [];
     let start = 0;
@@ -224,10 +189,7 @@ function chunkText(text: string, size: number, overlap: number): string[] {
     return chunks.filter(c => c.length > 20);
 }
 
-// ---------------------------------------------------------------------------
-// rag context building
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// rag context building// ---------------------------------------------------------------------------
 function formatChunksForPrompt(chunks: SearchResultDTO[]): string {
     return chunks
         .map((result, i) => {
@@ -287,10 +249,7 @@ async function buildRagPrompt(query: string, fronterName: string = 'friend'): Pr
     return { prompt, sources: ragCtx.sources };
 }
 
-// ---------------------------------------------------------------------------
-// llm streaming
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// llm streaming// ---------------------------------------------------------------------------
 async function chatStream(
     prompt: string,
     model: string,
@@ -355,22 +314,17 @@ async function chatStream(
                         return fullContent;
                     }
                 } catch {
-                    // partial json, skip
-                }
+                    // partial json, skip                }
             }
         }
     } finally {
-        // always release the reader to avoid locking the stream
-        reader.releaseLock();
+        // always release the reader to avoid locking the stream        reader.releaseLock();
     }
 
     return fullContent;
 }
 
-// ---------------------------------------------------------------------------
-// multimodal chat streaming (for vision models like qwen2.5vl:3b)
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// multimodal chat streaming (for vision models like qwen2.5vl:3b)// ---------------------------------------------------------------------------
 async function chatStreamMultimodal(
     messages: ChatMessage[],
     model: string,
@@ -383,8 +337,7 @@ async function chatStreamMultimodal(
 
     const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
     if (isGemini) {
-        // flatten the messages into a single prompt for gemini
-        const prompt = messages
+        // flatten the messages into a single prompt for gemini        const prompt = messages
             .map(m => `${m.role}: ${typeof m.content === 'string' ? m.content : JSON.stringify(m.content)}`)
             .join('\n');
         return chatStream(prompt, model, endpoint, onToken);
@@ -431,8 +384,7 @@ async function chatStreamMultimodal(
                         return fullContent;
                     }
                 } catch {
-                    // partial json, skip
-                }
+                    // partial json, skip                }
             }
         }
     } finally {
@@ -442,10 +394,7 @@ async function chatStreamMultimodal(
     return fullContent;
 }
 
-// ---------------------------------------------------------------------------
-// non-streaming generate (legacy fallback)
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// non-streaming generate (legacy fallback)// ---------------------------------------------------------------------------
 async function generateTextLegacy(
     prompt: string,
     model: string,
@@ -478,10 +427,7 @@ async function generateTextLegacy(
     }
 }
 
-// ---------------------------------------------------------------------------
-// composite: full ask-with-rag pipeline
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// composite: full ask-with-rag pipeline// ---------------------------------------------------------------------------
 async function askWithRag(
     query: string,
     fronterName: string,
@@ -491,9 +437,7 @@ async function askWithRag(
 ): Promise<AskWithRagResult> {
     secureLogger.info('[ai-worker] askWithRag called:', { query: query.slice(0, 50), fronterName, model, endpoint: endpoint.slice(0, 100) });
     
-    // vision models need the chat endpoint with messages format
-    // qwen2.5-coder:7b-instruct-q4_k_s is actually the vl model renamed for pieces os compatibility
-    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava') || model.includes('qwen2.5-coder');
+    // vision models need the chat endpoint with messages format    // qwen2.5-coder:7b-instruct-q4_k_s is actually the vl model renamed for pieces os compatibility    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava') || model.includes('qwen2.5-coder');
     
     if (isVisionModel) {
         secureLogger.info('[ai-worker] Detected vision model, using chat endpoint');
@@ -513,17 +457,13 @@ async function askWithRag(
         }
     }
     
-    // non-vision models use the generate endpoint
-    secureLogger.info('[ai-worker] Using generate endpoint');
+    // non-vision models use the generate endpoint    secureLogger.info('[ai-worker] Using generate endpoint');
     const { prompt, sources } = await buildRagPrompt(query, fronterName);
     const response = await chatStream(prompt, model, endpoint, onToken);
     return { response: response.toLowerCase(), sources };
 }
 
-// ---------------------------------------------------------------------------
-// composite: ask-with-rag + attachments (multimodal)
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// composite: ask-with-rag + attachments (multimodal)// ---------------------------------------------------------------------------
 async function askWithRagAndAttachments(
     query: string,
     fronterName: string,
@@ -532,17 +472,13 @@ async function askWithRagAndAttachments(
     onToken: (cumulativeContent: string) => void,
     attachments?: Attachment[],
 ): Promise<AskWithRagResult> {
-    // build rag context for the text query
-    const ragCtx = await buildRagContext(query, 8);
+    // build rag context for the text query    const ragCtx = await buildRagContext(query, 8);
     
-    // build system message with rag context
-    const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
+    // build system message with rag context    const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
     
-    // build user message content parts
-    const userContent: { type: 'text'; text: string; } | Array<{ type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }> = [{ type: 'text', text: query }];
+    // build user message content parts    const userContent: { type: 'text'; text: string; } | Array<{ type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }> = [{ type: 'text', text: query }];
     
-    // add image attachments if provided
-    if (attachments && attachments.length > 0) {
+    // add image attachments if provided    if (attachments && attachments.length > 0) {
         for (const attachment of attachments) {
             if (attachment.dataUrl && (attachment.type === 'image' || attachment.type === 'gif')) {
                 userContent.push({
@@ -553,8 +489,7 @@ async function askWithRagAndAttachments(
         }
     }
     
-    // build messages array for chat api
-    const messages: ChatMessage[] = [
+    // build messages array for chat api    const messages: ChatMessage[] = [
         { role: 'system', content: systemContent },
         { role: 'user', content: userContent }
     ];
@@ -566,25 +501,20 @@ async function askWithRagAndAttachments(
             sources: ragCtx.sources.length
         });
     
-    // use multimodal streaming for vision models
-    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava');
+    // use multimodal streaming for vision models    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava');
     
     let response: string;
     if (isVisionModel && attachments && attachments.length > 0) {
         response = await chatStreamMultimodal(messages, model, endpoint, onToken);
     } else {
-        // fall back to regular streaming for non-vision models or no attachments
-        const { prompt } = await buildRagPrompt(query, fronterName);
+        // fall back to regular streaming for non-vision models or no attachments        const { prompt } = await buildRagPrompt(query, fronterName);
         response = await chatStream(prompt, model, endpoint, onToken);
     }
     
     return { response: response.toLowerCase(), sources: ragCtx.sources };
 }
 
-// ---------------------------------------------------------------------------
-// factory — returns the full api object
-// ---------------------------------------------------------------------------
-
+// ---------------------------------------------------------------------------// factory — returns the full api object// ---------------------------------------------------------------------------
 export type WorkerAPIWithInit = AIWorkerAPI & {
     init(
         apiBaseUrl: string,
@@ -601,28 +531,22 @@ function resolveOllamaEndpointForWorker(endpoint: string, fallbackPath: string =
 
     const stripped = endpoint.replace(/\/+$/, '');
     
-    // if endpoint is already a full url (starts with http:// or https://)
-    if (/^https?:\/\//.test(stripped)) {
-        // check if it ends with /api/generate but we need /api/chat (or vice versa)
-        const generatePattern = /\/api\/generate$/;
+    // if endpoint is already a full url (starts with http:// or https://)    if (/^https?:\/\//.test(stripped)) {
+        // check if it ends with /api/generate but we need /api/chat (or vice versa)        const generatePattern = /\/api\/generate$/;
         const chatPattern = /\/api\/chat$/;
         
         if (fallbackPath === '/api/chat' && generatePattern.test(stripped)) {
-            // replace /api/generate with /api/chat
-            return stripped.replace(generatePattern, '/api/chat');
+            // replace /api/generate with /api/chat            return stripped.replace(generatePattern, '/api/chat');
         }
         if (fallbackPath === '/api/generate' && chatPattern.test(stripped)) {
-            // replace /api/chat with /api/generate
-            return stripped.replace(chatPattern, '/api/generate');
+            // replace /api/chat with /api/generate            return stripped.replace(chatPattern, '/api/generate');
         }
         
-        // only rewrite if it's localhost:11434 pointing to the default
-        const localhostPattern = /^https?:\/\/localhost:11434/;
+        // only rewrite if it's localhost:11434 pointing to the default        const localhostPattern = /^https?:\/\/localhost:11434/;
         if (localhostPattern.test(stripped)) {
             return stripped.replace(localhostPattern, normalizedBase);
         }
-        // otherwise, it's already a resolved url (like the server proxy), return as-is
-        return stripped;
+        // otherwise, it's already a resolved url (like the server proxy), return as-is        return stripped;
     }
 
     if (stripped.startsWith('/')) {
@@ -636,8 +560,7 @@ export function createWorkerAPI(
     fetchImpl?: typeof globalThis.fetch,
     options?: { ollamaBaseUrl?: string },
 ): WorkerAPIWithInit {
-    // set the fetch implementation if provided at creation time
-    if (fetchImpl) _fetch = fetchImpl;
+    // set the fetch implementation if provided at creation time    if (fetchImpl) _fetch = fetchImpl;
     if (options?.ollamaBaseUrl) {
         _ollamaBaseUrl = options.ollamaBaseUrl.replace(/\/+$/, '') || _ollamaBaseUrl;
     }

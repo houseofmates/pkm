@@ -19,8 +19,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   const [showCheatSheet, setShowCheatSheet] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // ctrl+m keyboard shortcut for cheat sheet
-  useEffect(() => {
+  // ctrl+m keyboard shortcut for cheat sheet  useEffect(() => {
   const handleKeyDown = (e: KeyboardEvent) => {
   if (e.ctrlKey && e.key === 'm') {
  e.preventDefault();
@@ -32,16 +31,14 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // handle text selection and context menu
-  const handleContextMenu = (e: React.MouseEvent) => {
+  // handle text selection and context menu  const handleContextMenu = (e: React.MouseEvent) => {
   if (readOnly) return;
 
   e.preventDefault();
   const selection = window.getSelection();
   let selectedText = selection?.toString() || '';
 
-  // if no selection, select the word under cursor
-  if (!selectedText && selection) {
+  // if no selection, select the word under cursor  if (!selectedText && selection) {
   const range = document.caretRangeFromPoint(e.clientX, e.clientY);
   if (range) {
  const textNode = range.startContainer;
@@ -49,16 +46,14 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  const text = textNode.textContent || '';
  const offset = range.startOffset;
 
- // find word boundaries
- let start = offset;
+ // find word boundaries let start = offset;
  let end = offset;
  while (start > 0 && /\w/.test(text[start - 1])) start--;
  while (end < text.length && /\w/.test(text[end])) end++;
 
  selectedText = text.substring(start, end);
 
- // select the word
- const newRange = document.createRange();
+ // select the word const newRange = document.createRange();
  newRange.setStart(textNode, start);
  newRange.setEnd(textNode, end);
  selection.removeAllRanges();
@@ -112,8 +107,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   };
 
   const handleBannerUpload = async (file: File) => {
-  // todo: implement banner upload to backend
-  const formData = new FormData();
+  // todo: implement banner upload to backend  const formData = new FormData();
   formData.append('file', file);
 
   try {

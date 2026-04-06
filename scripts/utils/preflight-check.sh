@@ -1,6 +1,5 @@
 #!/bin/bash
 # pre-migration system check — quick validations before upgrades
-
 echo "╔════════════════════════════════════════════════════════════════╗"
 echo "║        PKM Stack Pre-Migration System Check                    ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
@@ -25,24 +24,21 @@ warn() {
     ((WARN++))
 }
 
-# 1. Check if running as correct user
-echo "[1] User & Permissions"
+# 1. check if running as correct userecho "[1] User & Permissions"
 if [ "$USER" = "house" ]; then
     check "Running as house user"
 else
     warn "Not running as house user (current: $USER)"
 fi
 
-# 2. Check if in correct directory
-if [ "$PWD" = "/home/house/pkm" ]; then
+# 2. check if in correct directoryif [ "$PWD" = "/home/house/pkm" ]; then
     check "In /home/house/pkm directory"
 else
     warn "Not in /home/house/pkm (current: $PWD)"
 fi
 echo ""
 
-# 3. Check required files exist
-echo "[2] Required Files"
+# 3. check required files existecho "[2] Required Files"
 [ -f "/home/house/pkm/packages/backend/server.js" ]
 check "packages/backend/server.js exists"
 
@@ -53,8 +49,7 @@ check "src/api/nocobase-client.ts exists"
 check "package.json exists"
 echo ""
 
-# 4. Check services status
-echo "[3] Service Status"
+# 4. check services statusecho "[3] Service Status"
 if curl -s http://localhost:4100/api/status >/dev/null 2>&1; then
     check "Backend responding on :4100"
 else
@@ -75,8 +70,7 @@ else
 fi
 echo ""
 
-# 5. Check dependencies
-echo "[4] Dependencies"
+# 5. check dependenciesecho "[4] Dependencies"
 if command -v node >/dev/null 2>&1; then
     NODE_VERSION=$(node -v)
     check "Node.js installed ($NODE_VERSION)"
@@ -107,8 +101,7 @@ else
 fi
 echo ""
 
-# 6. Check disk space
-echo "[5] Disk Space"
+# 6. check disk spaceecho "[5] Disk Space"
 DISK_AVAIL=$(df -h /home/house/pkm | awk 'NR==2 {print $4}')
 DISK_AVAIL_MB=$(df -m /home/house/pkm | awk 'NR==2 {print $4}')
 if [ "$DISK_AVAIL_MB" -gt 100 ]; then
@@ -118,8 +111,7 @@ else
 fi
 echo ""
 
-# 7. Check write permissions
-echo "[6] Write Permissions"
+# 7. check write permissionsecho "[6] Write Permissions"
 if [ -w "/home/house/pkm" ]; then
     check "Can write to /home/house/pkm"
 else
@@ -138,8 +130,7 @@ else
 fi
 echo ""
 
-# 8. Check if files will be backed up
-echo "[7] Backups"
+# 8. check if files will be backed upecho "[7] Backups"
 if [ -f "/home/house/pkm/server-data.json.backup" ]; then
     check "server-data.json.backup exists"
 else
@@ -153,8 +144,7 @@ else
 fi
 echo ""
 
-# 9. Check current workflow status
-echo "[8] n8n Workflows"
+# 9. check current workflow statusecho "[8] n8n Workflows"
 if curl -s http://localhost:5678/healthz >/dev/null 2>&1; then
     echo "  ℹ Check manually in n8n UI:"
     echo "    - Are workflows active?"
@@ -164,8 +154,7 @@ else
 fi
 echo ""
 
-# Summary
-echo "╔════════════════════════════════════════════════════════════════╗"
+# summaryecho "╔════════════════════════════════════════════════════════════════╗"
 echo "║                        RESULTS                                 ║"
 echo "╚════════════════════════════════════════════════════════════════╝"
 echo ""

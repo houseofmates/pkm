@@ -11,8 +11,7 @@ interface VoiceChatProps {
   wilsonPersonality?: boolean;
 }
 
-// web speech api types
-interface SpeechRecognition extends EventTarget {
+// web speech api typesinterface SpeechRecognition extends EventTarget {
   continuous: boolean;
   interimResults: boolean;
   lang: string;
@@ -78,14 +77,12 @@ export function VoiceChat({
   const animationFrameRef = useRef<number | null>(null);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // initialize speech recognition
-  useEffect(() => {
+  // initialize speech recognition  useEffect(() => {
     if (typeof window === 'undefined') return;
     
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      // firefox and other unsupported browsers - silently return without error toast
-      return;
+      // firefox and other unsupported browsers - silently return without error toast      return;
     }
 
     const recognition = new SpeechRecognition();
@@ -138,8 +135,7 @@ export function VoiceChat({
     };
   }, [onTranscript]);
 
-  // initialize audio visualizer
-  const initAudioVisualizer = useCallback(async () => {
+  // initialize audio visualizer  const initAudioVisualizer = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const audioContext = new AudioContext();
@@ -159,8 +155,7 @@ export function VoiceChat({
         const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
         analyserRef.current.getByteFrequencyData(dataArray);
         
-        // downsample to 20 bars
-        const bars = 20;
+        // downsample to 20 bars        const bars = 20;
         const step = Math.floor(dataArray.length / bars);
         const newData = [];
         
@@ -204,8 +199,7 @@ export function VoiceChat({
       cancelAnimationFrame(animationFrameRef.current);
     }
     
-    // close audio context
-    if (audioContextRef.current) {
+    // close audio context    if (audioContextRef.current) {
       audioContextRef.current.close();
       audioContextRef.current = null;
     }
@@ -213,24 +207,20 @@ export function VoiceChat({
     setVisualizerData(new Array(20).fill(0));
   }, []);
 
-  // text-to-speech for wilson
-  const speak = useCallback((text: string) => {
+  // text-to-speech for wilson  const speak = useCallback((text: string) => {
     if (!audioEnabled || typeof window === 'undefined') return;
     
-    // cancel any ongoing speech
-    window.speechSynthesis.cancel();
+    // cancel any ongoing speech    window.speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(text);
     
-    // configure voice for wilson personality
-    if (wilsonPersonality) {
+    // configure voice for wilson personality    if (wilsonPersonality) {
       utterance.pitch = 1.1; // slightly higher pitch for friendliness
       utterance.rate = 0.95; // slightly slower for clarity
       utterance.volume = 0.9;
     }
     
-    // try to find a good voice
-    const voices = window.speechSynthesis.getVoices();
+    // try to find a good voice    const voices = window.speechSynthesis.getVoices();
     const preferredVoice = voices.find(v => 
       v.name.includes('Google') || 
       v.name.includes('Samantha') ||
@@ -259,8 +249,7 @@ export function VoiceChat({
     window.speechSynthesis.speak(utterance);
   }, [audioEnabled, wilsonPersonality, onSpeakingStateChange]);
 
-  // stop speaking
-  const stopSpeaking = useCallback(() => {
+  // stop speaking  const stopSpeaking = useCallback(() => {
     if (typeof window !== 'undefined') {
       window.speechSynthesis.cancel();
     }
@@ -268,8 +257,7 @@ export function VoiceChat({
     onSpeakingStateChange?.(false);
   }, [onSpeakingStateChange]);
 
-  // toggle audio
-  const toggleAudio = useCallback(() => {
+  // toggle audio  const toggleAudio = useCallback(() => {
     setAudioEnabled(!audioEnabled);
     if (audioEnabled) {
       stopSpeaking();
@@ -277,10 +265,8 @@ export function VoiceChat({
     toast.success(audioEnabled ? 'Wilson muted' : 'Wilson unmuted');
   }, [audioEnabled, stopSpeaking]);
 
-  // expose speak function via ref pattern
-  useEffect(() => {
-    // add speak function to window for external access
-    (window as any).wilsonSpeak = speak;
+  // expose speak function via ref pattern  useEffect(() => {
+    // add speak function to window for external access    (window as any).wilsonSpeak = speak;
     return () => {
       delete (window as any).wilsonSpeak;
     };
@@ -358,8 +344,7 @@ export function VoiceChat({
   );
 }
 
-// hook for using wilson's voice
-export function useWilsonVoice() {
+// hook for using wilson's voiceexport function useWilsonVoice() {
   const speak = useCallback((text: string) => {
     if (typeof window !== 'undefined' && (window as any).wilsonSpeak) {
       (window as any).wilsonSpeak(text);

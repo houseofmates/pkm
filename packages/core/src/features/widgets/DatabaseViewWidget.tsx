@@ -17,8 +17,7 @@ export function DatabaseViewWidget({ data }: DatabaseViewWidgetProps) {
 
   const handleSelect = (name: string) => {
     setLocalCollection(name);
-    // persist into element data so it survives reload
-    if (data._elementId) {
+    // persist into element data so it survives reload    if (data._elementId) {
       useEdgelessStore.getState().updateElement(data._elementId, {
         data: { ...data, collection: name },
       });

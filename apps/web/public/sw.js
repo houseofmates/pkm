@@ -3,8 +3,7 @@ self.addEventListener('install', (e) => {
 });
 
 self.addEventListener('activate', (e) => {
-  // immediately unregister the service worker
-  self.registration.unregister()
+  // immediately unregister the service worker  self.registration.unregister()
     .then(() => {
       return self.clients.matchAll();
     })

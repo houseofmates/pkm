@@ -39,8 +39,7 @@ interface CollectionDialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   initialTitle?: string;
-  // when csv import is initiated externally we prepopulate data/fields
-  initialCsvData?: any[];
+  // when csv import is initiated externally we prepopulate data/fields  initialCsvData?: any[];
   initialCsvFields?: Array<{
     name: string;
     title: string;
@@ -102,21 +101,18 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
   useEffect(() => {
     if (!open) {
-      // reset to select screen on close if creating
-      if (!isEdit) setTimeout(() => setStep('type-select'), 300);
+      // reset to select screen on close if creating      if (!isEdit) setTimeout(() => setStep('type-select'), 300);
     } else {
       if (isEdit) {
         setStep('database-form');
       } else {
-        // when preloaded from csv, go directly to form
-        if (initialCsvData && initialCsvData.length > 0) {
+        // when preloaded from csv, go directly to form        if (initialCsvData && initialCsvData.length > 0) {
           setCsvData(initialCsvData);
           setCsvFields(initialCsvFields || []);
           setDisplayName(initialTitle || displayName);
           setStep('database-form');
         }
-        // if already open and went to form accidentally without title, return to select
-        else if (step === 'database-form' && !displayName) {
+        // if already open and went to form accidentally without title, return to select        else if (step === 'database-form' && !displayName) {
           setStep('type-select');
         }
       }
@@ -125,8 +121,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
   const handleCreateDocument = (mode: 'edgeless' | 'desktop-8k' | 'iphone-8k') => {
     const id = Math.random().toString(36).substring(7);
-    // stash config
-    storageManager.setItem(`canvas-config-${id}`, JSON.stringify({ title: "untitled document", mode }));
+    // stash config    storageManager.setItem(`canvas-config-${id}`, JSON.stringify({ title: "untitled document", mode }));
     navigate(`/canvas/${id}`);
     if (setOpen) setOpen(false);
   };
@@ -135,15 +130,13 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     if (template) {
       setDisplayName(template.label);
       setColor(template.metadata.color);
-      // map template fields to the internal schema format
-      setCsvFields(template.fields.map(f => ({
+      // map template fields to the internal schema format      setCsvFields(template.fields.map(f => ({
         ...f,
         detectionReason: 'template',
         detectionConfidence: 'high' as const
       })));
     } else {
-      // blank
-      setDisplayName('');
+      // blank      setDisplayName('');
       setCsvFields([]);
     }
     setStep('database-form');
@@ -153,27 +146,20 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
   useEffect(() => {
     if (open) {
-      // fetch collections list for relation targets
-      client.listCollections().then(res => {
-        // normalize response - could be array or { data: [...] }
-        const collectionsData: Collection[] = Array.isArray(res) ? res : ((res as { data?: Collection[] })?.data || []);
-        // filter out system and backend collections
-        const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers', 'site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website'];
+      // fetch collections list for relation targets      client.listCollections().then(res => {
+        // normalize response - could be array or { data: [...] }        const collectionsData: Collection[] = Array.isArray(res) ? res : ((res as { data?: Collection[] })?.data || []);
+        // filter out system and backend collections        const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers', 'site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website'];
         const filteredCollections = collectionsData.filter((col: Collection) => {
           const name = (col.name || '').toLowerCase().trim();
           const title = (col.title || '').toLowerCase().trim();
 
-          // exclude system collections
-          if (systemCollections.includes(name)) return false;
+          // exclude system collections          if (systemCollections.includes(name)) return false;
 
-          // exclude pkm_settings
-          if (name === 'pkm_settings' || title === 'pkm settings') return false;
+          // exclude pkm_settings          if (name === 'pkm_settings' || title === 'pkm settings') return false;
 
-          // hide anything with "backend" in the name or title
-          if (name.includes('backend') || title.includes('backend')) return false;
+          // hide anything with "backend" in the name or title          if (name.includes('backend') || title.includes('backend')) return false;
 
-          // exclude hidden collections
-          if (col.hidden) return false;
+          // exclude hidden collections          if (col.hidden) return false;
 
           return true;
         });
@@ -193,8 +179,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
         setColor('#666666');
         setCsvData([]);
         setCsvFields([]);
-        // auto-focus title on create
-        setTimeout(() => titleInputRef.current?.focus(), 100);
+        // auto-focus title on create        setTimeout(() => titleInputRef.current?.focus(), 100);
       }
     }
   }, [open, isEdit, collection, metadata, client, initialTitle]);
@@ -254,41 +239,33 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     setLoading(true);
 
     try {
-      // only sanitize system name on create, not on edit/rename
-      const finalName = name || displayName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+      // only sanitize system name on create, not on edit/rename      const finalName = name || displayName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
 
       if (isEdit) {
-        // allow spaces in displayname/title when renaming
-        await client.updateCollection(collection.name, {
+        // allow spaces in displayname/title when renaming        await client.updateCollection(collection.name, {
           title: displayName, // can include spaces
         });
       } else {
-        // 1. create collection (system name must be sanitized, display name can have spaces)
-        await client.createCollection({
+        // 1. create collection (system name must be sanitized, display name can have spaces)        await client.createCollection({
           title: displayName, // can include spaces
           name: finalName,   // sanitized, no spaces
         });
 
-        // 2. if csv/templates, create fields
-        if (csvFields.length > 0) {
+        // 2. if csv/templates, create fields        if (csvFields.length > 0) {
           toast.info(`creating ${csvFields.length} fields...`);
-          // we must create fields sequentially or carefully to avoid nocobase race conditions
-          for (const field of csvFields) {
+          // we must create fields sequentially or carefully to avoid nocobase race conditions          for (const field of csvFields) {
             const fieldType = field_types.find(t => t.interface === field.interface);
 
-            // intelligent type/ui management: prevent varchar(255) overflow
-            let dbType: string = fieldType?.type || 'string';
+            // intelligent type/ui management: prevent varchar(255) overflow            let dbType: string = fieldType?.type || 'string';
             let xComponent = 'Input';
 
-            // check if data contains long strings (> 200 chars)
-            const isLong = csvData.some(row => String(row[field.title] || '').length > 200);
+            // check if data contains long strings (> 200 chars)            const isLong = csvData.some(row => String(row[field.title] || '').length > 200);
 
             if (isLong && (dbType === 'string' || field.interface === 'text')) {
               dbType = 'text';
               xComponent = 'Input.TextArea';
             } else {
-              // default component mapping
-              switch (field.interface) {
+              // default component mapping              switch (field.interface) {
                 case 'number': xComponent = 'InputNumber'; break;
                 case 'checkbox': xComponent = 'Checkbox'; break;
                 case 'attachment': xComponent = 'Upload.Attachment'; break;
@@ -302,8 +279,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
               'x-component': xComponent,
             };
 
-            // extract options for select / multi-select (csv only)
-            if (csvData.length > 0 && (field.interface === 'select' || field.interface === 'multipleselect')) {
+            // extract options for select / multi-select (csv only)            if (csvData.length > 0 && (field.interface === 'select' || field.interface === 'multipleselect')) {
               const uniqueValues = new Set<string>();
               csvData.forEach(row => {
                 const val = row[field.title];
@@ -321,8 +297,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
               }
             }
 
-            // use template ui schema if available
-            if (field.uiSchema) {
+            // use template ui schema if available            if (field.uiSchema) {
               uiSchema = {
                 ...uiSchema,
                 ...field.uiSchema
@@ -353,10 +328,8 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
             }
           }
 
-          // 3. batch create records
-          if (csvData.length > 0) {
-            // ensure we at least have a collection name
-            if (!finalName) {
+          // 3. batch create records          if (csvData.length > 0) {
+            // ensure we at least have a collection name            if (!finalName) {
               throw new Error('unable to import csv: database name is empty');
             }
 
@@ -398,8 +371,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
         }
       }
 
-      // save metadata
-      const collectionKey = isEdit ? collection.name : finalName;
+      // save metadata      const collectionKey = isEdit ? collection.name : finalName;
       setMetadata(prev => ({
         ...prev,
         [collectionKey]: {

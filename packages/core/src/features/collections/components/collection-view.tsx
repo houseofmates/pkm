@@ -34,8 +34,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   const [editingRecord, setEditingRecord] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // context stuffing: push current data to llm
-  useEffect(() => {
+  // context stuffing: push current data to llm  useEffect(() => {
     if (!loading && records) {
       setContext({
         type: 'collection',
@@ -66,8 +65,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   const handleUpdate = async (data: any) => {
     if (!editingRecord) return;
     try {
-      // assume 'id' is the primary key for now
-      await client.updateRecord(collection.name, editingRecord.id, data);
+      // assume 'id' is the primary key for now      await client.updateRecord(collection.name, editingRecord.id, data);
       setEditingRecord(null);
       refresh();
       toast.success("record updated successfully");
@@ -91,12 +89,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // basic search on 'title' or 'name' or first field?
-    // nocobase filter: { title: { $includes: searchterm } }
-    // we need to guess a field to search on if schema is generic.
-    // or just search on 'id' if numeric?
-    // for now, let's try searching on 'title' if it exists, or 'name'.
-
+    // basic search on 'title' or 'name' or first field?    // nocobase filter: { title: { $includes: searchterm } }    // we need to guess a field to search on if schema is generic.    // or just search on 'id' if numeric?    // for now, let's try searching on 'title' if it exists, or 'name'.
     const searchField = collection.fields?.find((f: any) => f.name === 'title' || f.name === 'name' || f.type === 'string')?.name || 'id';
 
     const filter = searchTerm ? { [searchField]: { $includes: searchTerm } } : undefined;

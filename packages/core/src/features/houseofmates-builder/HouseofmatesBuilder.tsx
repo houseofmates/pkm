@@ -11,8 +11,7 @@ import { PageRenderer } from './components/PageRenderer';
 import { GlobalContextMenu } from './components/GlobalContextMenu';
 import { ElementContextMenu } from './components/ElementContextMenu';
 
-// --- types ---
-export interface PageData {
+// --- types ---export interface PageData {
   id: string;
   title: string;
   slug: string;
@@ -66,8 +65,7 @@ export interface ElementStyles {
   fitHeight?: boolean;
 }
 
-// --- context ---
-interface BuilderContextType {
+// --- context ---interface BuilderContextType {
   isAdmin: boolean;
   page: PageData | null;
   selectedElementIds: string[];
@@ -100,14 +98,12 @@ export const useBuilder = () => {
   return ctx;
 };
 
-// --- state types ---
-type ContextMenuState =
+// --- state types ---type ContextMenuState =
   | { type: 'global'; x: number; y: number }
   | { type: 'element'; x: number; y: number; elementId: string }
   | null;
 
-// --- main component ---
-export function HouseofmatesBuilder() {
+// --- main component ---export function HouseofmatesBuilder() {
   const { slug = 'home' } = useParams();
   const site_identifier = getSubdomain() || 'home';
 
@@ -133,8 +129,7 @@ export function HouseofmatesBuilder() {
   const [viewWidth, setViewWidth] = useState(window.innerWidth);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile' | 'tablet'>('desktop');
 
-  // --- device detection ---
-  useEffect(() => {
+  // --- device detection ---  useEffect(() => {
     const detectDevice = () => {
       const width = window.innerWidth;
       setViewWidth(width);
@@ -152,23 +147,19 @@ export function HouseofmatesBuilder() {
     return () => window.removeEventListener('resize', detectDevice);
   }, []);
 
-  // --- global deselection ---
-  useEffect(() => {
+  // --- global deselection ---  useEffect(() => {
     const handleGlobalMousedown = (e: MouseEvent) => {
       if (selectedElementIds.length === 0) return;
 
       const target = e.target as HTMLElement;
       const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
 
-      // 1. check if we clicked "canvas background" directly
-      const isBackground = target.id === 'builder-canvas' || target.dataset.canvasBackground === 'true';
+      // 1. check if we clicked "canvas background" directly      const isBackground = target.id === 'builder-canvas' || target.dataset.canvasBackground === 'true';
 
-      // 2. check if we clicked an element or handle
-      const isClickingElement = !!target.closest('[data-element-id]');
+      // 2. check if we clicked an element or handle      const isClickingElement = !!target.closest('[data-element-id]');
       const isClickingHandle = target.classList.contains('resize-handle') || !!target.dataset.handle;
 
-      // 3. check if we clicked any builder ui
-      const isClickingUI = !!(
+      // 3. check if we clicked any builder ui      const isClickingUI = !!(
         target.closest('.builder-toolbox') ||
         target.closest('.builder-context-menu') ||
         target.closest('.widget-property-editor') ||
@@ -176,8 +167,7 @@ export function HouseofmatesBuilder() {
         target.closest('.BubbleMenu')
       );
 
-      // logic: if (on background or (not element and not handle and not ui)) and no modifier
-      if (!isModifier && (isBackground || (!isClickingElement && !isClickingHandle && !isClickingUI))) {
+      // logic: if (on background or (not element and not handle and not ui)) and no modifier      if (!isModifier && (isBackground || (!isClickingElement && !isClickingHandle && !isClickingUI))) {
         secureLogger.info('[HouseofmatesBuilder] Context/Background Deselection');
         setSelectedElementIds([]);
         setContextMenu(null);
@@ -188,15 +178,12 @@ export function HouseofmatesBuilder() {
     return () => window.removeEventListener('mousedown', handleGlobalMousedown, true);
   }, [selectedElementIds]);
 
-  // --- undo history ---
-  const [history, setHistory] = useState<PageData[]>([]);
+  // --- undo history ---  const [history, setHistory] = useState<PageData[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
   const addToHistory = useCallback((newPage: PageData) => {
-    // if we are in the middle of history, discard future
-    const newHistory = [...history.slice(0, historyIndex + 1), newPage];
-    // limit history size (e.g., 50)
-    if (newHistory.length > 50) newHistory.shift();
+    // if we are in the middle of history, discard future    const newHistory = [...history.slice(0, historyIndex + 1), newPage];
+    // limit history size (e.g., 50)    if (newHistory.length > 50) newHistory.shift();
 
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
@@ -210,16 +197,14 @@ export function HouseofmatesBuilder() {
       setHistoryIndex(newIndex);
       toast.info('undo', { duration: 1000 });
 
-      // sync with backend (debounced ideally, but here direct)
-      api.updateRecord(collectionNames.website, previousPage.id, {
+      // sync with backend (debounced ideally, but here direct)      api.updateRecord(collectionNames.website, previousPage.id, {
         ...previousPage,
         elements: JSON.stringify(previousPage.elements)
       }).catch(secureLogger.error);
     }
   }, [history, historyIndex, collectionNames]);
 
-  // --- fetch page ---
-  const fetchPage = useCallback(async () => {
+  // --- fetch page ---  const fetchPage = useCallback(async () => {
     secureLogger.info('[HouseofmatesBuilder] fetchPage called', { slug, site_identifier });
     secureLogger.info('[HouseofmatesBuilder] collectionNames:', collectionNames);
     setLoading(true);
@@ -259,8 +244,7 @@ export function HouseofmatesBuilder() {
       let foundPage = pageResAny?.data?.[0] || pageResAny?.data?.data?.[0];
       secureLogger.info('[HouseofmatesBuilder] foundPage:', foundPage);
 
-      // if no page found and we're looking for home, try is_home and site_identifier
-      if (!foundPage && (slug === 'home' || !slug)) {
+      // if no page found and we're looking for home, try is_home and site_identifier      if (!foundPage && (slug === 'home' || !slug)) {
         secureLogger.info('[HouseofmatesBuilder] No page found with slug, trying is_home filter');
         pageRes = await api.request(collectionNames.website, 'list', {
           params: {
@@ -286,8 +270,7 @@ export function HouseofmatesBuilder() {
         secureLogger.info('[HouseofmatesBuilder] loaded page:', loadedPage);
         setPage(loadedPage);
 
-        // init history
-        setHistory([loadedPage]);
+        // init history        setHistory([loadedPage]);
         setHistoryIndex(0);
       } else {
         secureLogger.error('[HouseofmatesBuilder] ✗ NO PAGE FOUND FOR:', { slug, site_identifier, collection: collectionNames.website });
@@ -303,12 +286,9 @@ export function HouseofmatesBuilder() {
         secureLogger.error('Error response data:', error.response.data);
         secureLogger.error('Error response status:', error.response.status);
 
-        // handle 401 specifically
-        if (error.response.status === 401) {
+        // handle 401 specifically        if (error.response.status === 401) {
           secureLogger.warn('[HouseofmatesBuilder] 401 Unauthorized');
-          // only show login modal on private domains
-          // on public domains, show read-only view without login prompt
-          if (!isPublicDomain()) {
+          // only show login modal on private domains          // on public domains, show read-only view without login prompt          if (!isPublicDomain()) {
             toast.error('you need to log in as admin to create/edit pages');
             setShowLoginModal(true);
           }
@@ -326,13 +306,10 @@ export function HouseofmatesBuilder() {
 
     const init = async () => {
       const key = storageManager.getCachedSecret('hom_api_key');
-      // only set admin mode if we have an api key
-      // on public domains without a key, stay in read-only public mode
-      const shouldBeAdmin = !!key;
+      // only set admin mode if we have an api key      // on public domains without a key, stay in read-only public mode      const shouldBeAdmin = !!key;
       if (!cancelled) setIsAdmin(shouldBeAdmin);
       
-      // run collection ensures only if we might be admin
-      if (shouldBeAdmin) {
+      // run collection ensures only if we might be admin      if (shouldBeAdmin) {
         try {
           await ensureWebsiteCollection();
           await ensureFormsCollection();
@@ -351,19 +328,15 @@ export function HouseofmatesBuilder() {
   }, [slug, site_identifier]);
 
 
-  // --- admin login handler ---
-  const handleAdminLogin = async (apiKey: string) => {
+  // --- admin login handler ---  const handleAdminLogin = async (apiKey: string) => {
     try {
-      // save token directly - it will be validated on first actual api call
-      // this avoids timeout issues during login
-      await storageManager.setEncryptedItem('hom_api_key', apiKey);
+      // save token directly - it will be validated on first actual api call      // this avoids timeout issues during login      await storageManager.setEncryptedItem('hom_api_key', apiKey);
 
       setIsAdmin(true);
       setShowLoginModal(false);
       toast.success('admin mode enabled');
 
-      // run these in the background without blocking login
-      Promise.all([
+      // run these in the background without blocking login      Promise.all([
         ensureWebsiteCollection(),
         ensureFormsCollection(),
         fetchPage()
@@ -377,8 +350,7 @@ export function HouseofmatesBuilder() {
     }
   };
 
-  // --- ensure website collection exists ---
-  const ensureWebsiteCollection = async () => {
+  // --- ensure website collection exists ---  const ensureWebsiteCollection = async () => {
     const colName = collectionNames.website;
     const colTitle = site_identifier === 'dupe' ? 'dupe mates pages' : 'website pages';
 
@@ -411,8 +383,7 @@ export function HouseofmatesBuilder() {
           fields
         });
       } else {
-        // important: check for broken inheritance (often cause of 500 errors)
-        if (col.inherits && col.inherits.length > 0) {
+        // important: check for broken inheritance (often cause of 500 errors)        if (col.inherits && col.inherits.length > 0) {
           const parentRes = await api.listCollections();
           const parentData = Array.isArray(parentRes) ? parentRes : (parentRes as { data?: any[] }).data;
           const parent = parentData?.find((p: any) => col.inherits.includes(p.name));
@@ -426,8 +397,7 @@ export function HouseofmatesBuilder() {
           }
         }
 
-        // ensure metadata (title/hidden) normalized
-        try {
+        // ensure metadata (title/hidden) normalized        try {
           await api.updateCollection(colName, { title: colTitle, hidden: true }).catch((err) => {
             secureLogger.warn(`Primary update metadata failed for ${colName}, trying fallback:`, err.message);
             return api.request('collections', 'update', {
@@ -440,8 +410,7 @@ export function HouseofmatesBuilder() {
           secureLogger.warn(`Failed to normalize collection metadata for ${colName}:`, e);
         }
 
-        // check fields - try to use list if get fails
-        let existingFields = [];
+        // check fields - try to use list if get fails        let existingFields = [];
         try {
           const colDetail = await api.getCollection(colName);
           existingFields = colDetail.data?.fields || [];
@@ -480,8 +449,7 @@ export function HouseofmatesBuilder() {
     }
   };
 
-  // --- ensure forms collection exists ---
-  const ensureFormsCollection = async () => {
+  // --- ensure forms collection exists ---  const ensureFormsCollection = async () => {
     const colName = collectionNames.forms;
     const colTitle = site_identifier === 'dupe' ? 'dupe forms' : 'form submissions';
 
@@ -508,8 +476,7 @@ export function HouseofmatesBuilder() {
           fields
         });
       } else {
-        // check inheritance
-        if (col.inherits && col.inherits.length > 0) {
+        // check inheritance        if (col.inherits && col.inherits.length > 0) {
           const parentRes = await api.listCollections();
           const parentData = Array.isArray(parentRes) ? parentRes : (parentRes as { data?: any[] }).data;
           if (!parentData?.find((p: any) => col.inherits.includes(p.name))) {
@@ -518,8 +485,7 @@ export function HouseofmatesBuilder() {
           }
         }
 
-        // ensure metadata (title/hidden) normalized
-        try {
+        // ensure metadata (title/hidden) normalized        try {
           await api.updateCollection(colName, { title: colTitle, hidden: true }).catch(err => {
             secureLogger.warn(`Metadata update fail for ${colName}:`, err.message);
           });
@@ -527,8 +493,7 @@ export function HouseofmatesBuilder() {
           secureLogger.warn(`Failed to normalize collection metadata for ${colName}:`, e);
         }
 
-        // try to get fields more reliably
-        let existingFields = [];
+        // try to get fields more reliably        let existingFields = [];
         try {
           const colDetail = await api.getCollection(colName);
           existingFields = colDetail.data?.fields || [];
@@ -552,8 +517,7 @@ export function HouseofmatesBuilder() {
     }
   };
 
-  // --- crud operations ---
-  const updateElements = useCallback((batchUpdates: { id: string; updates: Partial<ElementData> }[]) => {
+  // --- crud operations ---  const updateElements = useCallback((batchUpdates: { id: string; updates: Partial<ElementData> }[]) => {
     if (!page) return;
     const newElements = page.elements.map(el => {
       const update = batchUpdates.find(u => u.id === el.id);
@@ -561,8 +525,7 @@ export function HouseofmatesBuilder() {
 
       const mode = previewMode; // desktop, tablet, or mobile
       if (mode === 'desktop') {
-        // deep merge styles to prevent losing existing style properties
-        const mergedUpdates = { ...update.updates };
+        // deep merge styles to prevent losing existing style properties        const mergedUpdates = { ...update.updates };
         if (mergedUpdates.styles) {
           mergedUpdates.styles = { ...el.styles, ...mergedUpdates.styles };
         }
@@ -571,8 +534,7 @@ export function HouseofmatesBuilder() {
         }
         return { ...el, ...mergedUpdates };
       } else {
-        // device-specific layout update
-        const layoutUpdates = {
+        // device-specific layout update        const layoutUpdates = {
           x: update.updates.x ?? (el[mode]?.x ?? el.x),
           y: update.updates.y ?? (el[mode]?.y ?? el.y),
           width: update.updates.width ?? (el[mode]?.width ?? el.width),
@@ -580,11 +542,9 @@ export function HouseofmatesBuilder() {
           fontSize: update.updates.styles?.fontSize ?? el[mode]?.fontSize,
         };
 
-        // merge non-layout updates (content, styles, etc.)
-        const filteredUpdates = { ...update.updates };
+        // merge non-layout updates (content, styles, etc.)        const filteredUpdates = { ...update.updates };
 
-        // redirection logic: if fontsize is in styles, it moves to devicelayout
-        if (filteredUpdates.styles && 'fontSize' in filteredUpdates.styles) {
+        // redirection logic: if fontsize is in styles, it moves to devicelayout        if (filteredUpdates.styles && 'fontSize' in filteredUpdates.styles) {
           const { fontSize, ...otherStyles } = filteredUpdates.styles;
           if (Object.keys(otherStyles).length > 0) {
             filteredUpdates.styles = { ...el.styles, ...otherStyles };
@@ -592,8 +552,7 @@ export function HouseofmatesBuilder() {
             delete filteredUpdates.styles;
           }
         } else if (filteredUpdates.styles) {
-          // just merge other styles
-          filteredUpdates.styles = { ...el.styles, ...filteredUpdates.styles };
+          // just merge other styles          filteredUpdates.styles = { ...el.styles, ...filteredUpdates.styles };
         }
 
         return {
@@ -641,11 +600,9 @@ export function HouseofmatesBuilder() {
     const newElement: ElementData = {
       ...element,
       id: crypto.randomUUID(),
-      // initialize layouts with desktop values
-      tablet: element.tablet || { x: element.x, y: element.y, width: element.width, height: element.height, fontSize: element.styles?.fontSize },
+      // initialize layouts with desktop values      tablet: element.tablet || { x: element.x, y: element.y, width: element.width, height: element.height, fontSize: element.styles?.fontSize },
       mobile: element.mobile || { x: element.x, y: element.y, width: element.width, height: element.height, fontSize: element.styles?.fontSize },
-      // ensure sensible defaults for styles on new elements
-      styles: { ...(element.styles || {}), backgroundColor: (element.styles && element.styles.backgroundColor) || '#03000c', opacity: (element.styles && typeof element.styles.opacity === 'number') ? element.styles.opacity : 0.75 },
+      // ensure sensible defaults for styles on new elements      styles: { ...(element.styles || {}), backgroundColor: (element.styles && element.styles.backgroundColor) || '#03000c', opacity: (element.styles && typeof element.styles.opacity === 'number') ? element.styles.opacity : 0.75 },
       visibility: element.visibility || {
         desktop: previewMode === 'desktop',
         tablet: previewMode === 'tablet' || previewMode === 'desktop',
@@ -677,9 +634,7 @@ export function HouseofmatesBuilder() {
     const newElements = [...page.elements];
     const newIds: string[] = [];
 
-    // if specific coordinates are provided (e.g. from context menu),
-    // we use them as the top-left of the bounding box of the clipboard elements.
-    let offsetX = offset;
+    // if specific coordinates are provided (e.g. from context menu),    // we use them as the top-left of the bounding box of the clipboard elements.    let offsetX = offset;
     let offsetY = offset;
 
     if (pasteX !== undefined && pasteY !== undefined) {
@@ -698,8 +653,7 @@ export function HouseofmatesBuilder() {
         id: newId,
         x: el.x + offsetX,
         y: el.y + offsetY,
-        // update device specific layouts too
-        tablet: el.tablet ? { ...el.tablet, x: el.tablet.x + offsetX, y: el.tablet.y + offsetY } : undefined,
+        // update device specific layouts too        tablet: el.tablet ? { ...el.tablet, x: el.tablet.x + offsetX, y: el.tablet.y + offsetY } : undefined,
         mobile: el.mobile ? { ...el.mobile, x: el.mobile.x + offsetX, y: el.mobile.y + offsetY } : undefined,
         zIndex: (page.elements.length || 0) + 10
       };
@@ -734,8 +688,7 @@ export function HouseofmatesBuilder() {
     addToHistory(newPage);
     setPage(newPage);
 
-    // don't stringify elements if they're already in the page
-    const { elements, ...pageUpdates } = updates;
+    // don't stringify elements if they're already in the page    const { elements, ...pageUpdates } = updates;
     const payload = elements ? { ...pageUpdates, elements: JSON.stringify(elements) } : pageUpdates;
 
     secureLogger.info('[Builder] Updating page:', page.id, 'with payload:', payload);
@@ -757,18 +710,15 @@ export function HouseofmatesBuilder() {
       });
   }, [page, collectionNames, isAdmin]);
 
-  // --- global keyboard listener ---
-  useEffect(() => {
+  // --- global keyboard listener ---  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // undo: ctrl+z
-      if (e.ctrlKey && e.key.toLowerCase() === 'z') {
+      // undo: ctrl+z      if (e.ctrlKey && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         undo();
         return;
       }
 
-      // copy: ctrl+c
-      if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+      // copy: ctrl+c      if (e.ctrlKey && e.key.toLowerCase() === 'c') {
         const target = e.target as HTMLElement;
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
         e.preventDefault();
@@ -776,8 +726,7 @@ export function HouseofmatesBuilder() {
         return;
       }
 
-      // paste: ctrl+v
-      if (e.ctrlKey && e.key.toLowerCase() === 'v') {
+      // paste: ctrl+v      if (e.ctrlKey && e.key.toLowerCase() === 'v') {
         const target = e.target as HTMLElement;
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
         e.preventDefault();
@@ -785,21 +734,16 @@ export function HouseofmatesBuilder() {
         return;
       }
 
-      // ctrl+e: admin login toggle
-      if (e.ctrlKey && e.key.toLowerCase() === 'e') {
-        // only handle if we're already in admin mode (showing modal to update key)
-        // public users use the app-level ctrl+e handler, not this one
-        if (isAdmin) {
+      // ctrl+e: admin login toggle      if (e.ctrlKey && e.key.toLowerCase() === 'e') {
+        // only handle if we're already in admin mode (showing modal to update key)        // public users use the app-level ctrl+e handler, not this one        if (isAdmin) {
           e.preventDefault();
           toast.info('update api key');
           setShowLoginModal(true);
         }
-        // if not admin, let the app.tsx ctrl+e handler deal with it
-        return;
+        // if not admin, let the app.tsx ctrl+e handler deal with it        return;
       }
 
-      // esc: deselect
-      if (e.key === 'Escape') {
+      // esc: deselect      if (e.key === 'Escape') {
         setSelectedElementIds([]);
         setContextMenu(null);
       }
@@ -809,21 +753,17 @@ export function HouseofmatesBuilder() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isAdmin, undo, copySelection, paste]);
 
-  // --- context menu ---
-  const handleContextMenu = (e: React.MouseEvent) => {
-    // toast.success('debug: right click detected'); // removed to avoid spam, uncomment if needed
-    secureLogger.info('Context menu event triggered', { isAdmin, target: e.target });
+  // --- context menu ---  const handleContextMenu = (e: React.MouseEvent) => {
+    // toast.success('debug: right click detected'); // removed to avoid spam, uncomment if needed    secureLogger.info('Context menu event triggered', { isAdmin, target: e.target });
 
-    // always prevent default to take control
-    e.preventDefault();
+    // always prevent default to take control    e.preventDefault();
 
     if (!isAdmin) {
       toast.info('press ctrl+e to enter admin mode');
       return;
     }
 
-    // don't show if clicking interactive elements inside elements
-    if ((e.target as HTMLElement).closest('button, input, select, textarea')) {
+    // don't show if clicking interactive elements inside elements    if ((e.target as HTMLElement).closest('button, input, select, textarea')) {
       secureLogger.info('Context menu suppressed by interactive element');
       return;
     }
@@ -832,16 +772,10 @@ export function HouseofmatesBuilder() {
     setContextMenu({ type: 'global', x: e.clientX, y: e.clientY });
   };
 
-  // --- loading state ---
-  // (rendered in main block)
-
-  // --- no page found ---
-  // (rendered in main block)
-
+  // --- loading state ---  // (rendered in main block)
+  // --- no page found ---  // (rendered in main block)
   // (page not found rendered in main block)
-
-  // --- drag & drop file handler ---
-  const handleDragOver = (e: React.DragEvent) => {
+  // --- drag & drop file handler ---  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
   };
@@ -854,14 +788,12 @@ export function HouseofmatesBuilder() {
     if (files.length === 0) return;
 
     const { clientX, clientY } = e;
-    // simple uuid generator if not imported
-    const genId = () => Math.random().toString(36).substring(2, 9);
+    // simple uuid generator if not imported    const genId = () => Math.random().toString(36).substring(2, 9);
 
     for (const file of files) {
       toast.info(`uploading ${file.name}...`);
       try {
-        // upload file
-        const uploaded = await api.upload(file);
+        // upload file        const uploaded = await api.upload(file);
         const uploadedAny = uploaded as any;
         const fileUrl = uploadedAny?.url || uploadedAny?.data?.url;
 
@@ -876,8 +808,7 @@ export function HouseofmatesBuilder() {
           size: `${(file.size / 1024).toFixed(1)} KB`
         };
 
-        // smart type detection
-        if (file.type.startsWith('image/')) {
+        // smart type detection        if (file.type.startsWith('image/')) {
           type = 'image';
           content = { url: fileUrl, alt: file.name };
         } else if (file.type.startsWith('video/')) {
@@ -900,8 +831,7 @@ export function HouseofmatesBuilder() {
           };
         }
 
-        // add element
-        const newElement: ElementData = {
+        // add element        const newElement: ElementData = {
           id: genId(),
           type,
           x: clientX,
@@ -922,8 +852,7 @@ export function HouseofmatesBuilder() {
     }
   };
 
-  // --- render ---
-  return (
+  // --- render ---  return (
     <BuilderContext.Provider value={{
       isAdmin,
       page,
@@ -998,8 +927,7 @@ export function HouseofmatesBuilder() {
 
           const target = e.target as HTMLElement;
 
-          // do not start selection if clicking interactive builder ui
-          const clickedUI = !!(
+          // do not start selection if clicking interactive builder ui          const clickedUI = !!(
             target.closest('.builder-toolbox') ||
             target.closest('.builder-context-menu') ||
             target.closest('.widget-property-editor') ||
@@ -1066,8 +994,7 @@ export function HouseofmatesBuilder() {
                   </button>
                 </div>
               ) : (
-                /* on public domains, show a friendly message instead of login prompt */
-                <p className="text-white/30 text-sm">
+                /* on public domains, show a friendly message instead of login prompt */                <p className="text-white/30 text-sm">
                   press ctrl+e to enter admin mode
                 </p>
               )}
@@ -1085,11 +1012,9 @@ export function HouseofmatesBuilder() {
                 <div
                   className="preview-sandbox-wrapper relative transition-all duration-500 flex-shrink-0"
                   style={(() => {
-                    // in public view (non-admin), always fill the screen
-                    if (!isAdmin) return { width: '100%', minHeight: '100vh', position: 'relative' as const };
+                    // in public view (non-admin), always fill the screen                    if (!isAdmin) return { width: '100%', minHeight: '100vh', position: 'relative' as const };
 
-                    // in builder view, constrain width for layout context but keep it clean
-                    if (previewMode === 'mobile') return {
+                    // in builder view, constrain width for layout context but keep it clean                    if (previewMode === 'mobile') return {
                       width: 430,
                       height: 932,
                       position: 'relative' as const,
@@ -1163,8 +1088,7 @@ export function HouseofmatesBuilder() {
  animation: bounceUp 0.5s ease-out forwards;
  }
 
- /* preview sandbox overrides */
- .preview-sandbox { display: block; }
+ /* preview sandbox overrides */ .preview-sandbox { display: block; }
  .preview-sandbox .canvas-background { min-height: unset !important; height: 100% !important; }
   `}} />
     </BuilderContext.Provider>

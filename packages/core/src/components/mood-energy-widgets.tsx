@@ -225,8 +225,7 @@ export function EnergyCorrelations() {
   const loadCorrelations = async () => {
     setLoading(true);
     try {
-      // get last 30 days of energy logs
-      const cutoff = new Date();
+      // get last 30 days of energy logs      const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - 30);
       const cutoffStr = cutoff.toISOString().split('T')[0];
 
@@ -244,8 +243,7 @@ export function EnergyCorrelations() {
       const energyLogs = energyRes?.data || [];
       const activityLogs = activityRes?.data || [];
 
-      // group by date
-      const dateMap: Record<string, { energy: any; activities: any[] }> = {};
+      // group by date      const dateMap: Record<string, { energy: any; activities: any[] }> = {};
       
       energyLogs.forEach((log: any) => {
         if (!dateMap[log.date]) dateMap[log.date] = { energy: null, activities: [] };
@@ -257,8 +255,7 @@ export function EnergyCorrelations() {
         dateMap[log.date].activities.push(log);
       });
 
-      // calculate correlations
-      const activityImpact: Record<string, { physical: number[]; mental: number[] }> = {};
+      // calculate correlations      const activityImpact: Record<string, { physical: number[]; mental: number[] }> = {};
 
       Object.values(dateMap).forEach(day => {
         if (!day.energy) return;

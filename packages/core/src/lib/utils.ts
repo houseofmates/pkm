@@ -7,11 +7,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getContrastColor(hex: string): string {
-  // remove hash if present
-  const cleanHex = hex.replace('#', '');
+  // remove hash if present  const cleanHex = hex.replace('#', '');
 
-  // parse input
-  let r = 0, g = 0, b = 0;
+  // parse input  let r = 0, g = 0, b = 0;
 
   if (cleanHex.length === 3) {
   r = parseInt(cleanHex[0] + cleanHex[0], 16);
@@ -29,26 +27,17 @@ export function getContrastColor(hex: string): string {
     return '#ffffff';
   }
 
-  // calculate relative luminance (using rec. 601 for simplicity as requested/analyzed)
-  // formula: 0.299*r + 0.587*g + 0.114*b
-  const title = (r * 299 + g * 587 + b * 114) / 1000;
+  // calculate relative luminance (using rec. 601 for simplicity as requested/analyzed)  // formula: 0.299*r + 0.587*g + 0.114*b  const title = (r * 299 + g * 587 + b * 114) / 1000;
 
-  // threshold ~117 (based on #737679 analysis)
-  // #737679 => 117.4
-  // > 117 means light background => black text
-  // <= 117 means dark background => white text
-  return title > 117 ? '#000000' : '#ffffff';
+  // threshold ~117 (based on #737679 analysis)  // #737679 => 117.4  // > 117 means light background => black text  // <= 117 means dark background => white text  return title > 117 ? '#000000' : '#ffffff';
 }
 
-// basic html sanitizer: remove <script> and on* attributes (not a replacement for a full html sanitizer)
-export function sanitizeHTML(html: string) {
+// basic html sanitizer: remove <script> and on* attributes (not a replacement for a full html sanitizer)export function sanitizeHTML(html: string) {
   if (!html) return '';
   try {
   const doc = new DOMParser().parseFromString(html, 'text/html');
-  // remove scripts/styles
-  doc.querySelectorAll('script,style').forEach(n => n.remove());
-  // remove event handler attributes
-  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, null);
+  // remove scripts/styles  doc.querySelectorAll('script,style').forEach(n => n.remove());
+  // remove event handler attributes  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT, null);
   const toRemoveAttrs: string[] = [];
   while (walker.nextNode()) {
   const el = walker.currentNode as Element;
@@ -57,8 +46,7 @@ export function sanitizeHTML(html: string) {
  toRemoveAttrs.push(`${el.tagName}->${attr.name}`);
  el.removeAttribute(attr.name);
  }
- // disallow javascript: uris
- if (attr.value && attr.value.toLowerCase().includes('javascript:')) {
+ // disallow javascript: uris if (attr.value && attr.value.toLowerCase().includes('javascript:')) {
  el.removeAttribute(attr.name);
  }
   });

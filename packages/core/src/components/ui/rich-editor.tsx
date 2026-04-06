@@ -26,8 +26,7 @@ export function markdownToHtml(md: string) {
   out = out.replace(/^(?:\*|-) +(.*)$/gim, '<li></li>');
   out = out.replace(/(<li>.*<\/li>\s?)+/gms, match => `<ul>${match}</ul>`);
   out = out.replace(/^(?!<h|<ul|<pre|<blockquote|<img|<p)([^\n]+)$/gim, '<p></p>');
-  // widget placeholder regex could be added here for rendering view mode
-  return out;
+  // widget placeholder regex could be added here for rendering view mode  return out;
 }
 
 function SlashMenu({ onSelect, onClose, position }: { onSelect: (cmd: string) => void, onClose: () => void, position: { top: number, left: number } }) {
@@ -84,8 +83,7 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
   }, [value]);
 
   useEffect(() => {
-    // ensure editor is focusable when opened from a click in another component
-    if (ref.current) {
+    // ensure editor is focusable when opened from a click in another component    if (ref.current) {
       ref.current.focus();
     }
   }, []);
@@ -113,8 +111,7 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
   };
 
   const handleSlashSelect = (cmdId: string) => {
-    // delete the slash
-    document.execCommand('delete', false);
+    // delete the slash    document.execCommand('delete', false);
 
     switch (cmdId) {
       case 'h1': exec('formatBlock', 'H1'); break;
@@ -128,26 +125,19 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
   };
 
   const handleWidgetSelect = (type: string, data: any) => {
-    // insert a widget placeholder block
-    // in a real wysiwyg, this would be a react node view (like tiptap)
-    // for contenteditable, we insert an html element with data attributes
-    // that the parent renderer (pagerenderer) can hydrate.
-
+    // insert a widget placeholder block    // in a real wysiwyg, this would be a react node view (like tiptap)    // for contenteditable, we insert an html element with data attributes    // that the parent renderer (pagerenderer) can hydrate.
     const id = Math.random().toString(36).substr(2, 9);
     const widgetHtml = `<div class="widget-embed" data-widget-type="${type}" data-widget-id="${id}" data-widget-props='${JSON.stringify(data)}' contenteditable="false" style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.2); margin: 10px 0;">[Widget: ${type}]</div><p><br/></p>`;
 
-    // we need to insert this html at the cursor position
-    const sel = window.getSelection();
+    // we need to insert this html at the cursor position    const sel = window.getSelection();
     if (sel && sel.rangeCount > 0) {
         const range = sel.getRangeAt(0);
         range.deleteContents();
         const frag = document.createRange().createContextualFragment(widgetHtml);
         range.insertNode(frag);
-        // move cursor after
-        range.collapse(false);
+        // move cursor after        range.collapse(false);
     } else {
-        // fallback append
-        ref.current!.innerHTML += widgetHtml;
+        // fallback append        ref.current!.innerHTML += widgetHtml;
     }
 
     onChange?.(ref.current?.innerHTML || '');

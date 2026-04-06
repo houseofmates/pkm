@@ -15,8 +15,7 @@ export function CalendarPage() {
     pageSize: 500 // fetch a good chunk of events
   });
 
-  // try to load any user-defined view config for events, or fallback to sensible defaults
-  const [viewConfig, setViewConfig] = useAppSetting('events_calendar_config', {
+  // try to load any user-defined view config for events, or fallback to sensible defaults  const [viewConfig, setViewConfig] = useAppSetting('events_calendar_config', {
     titleField: 'title',
     dateField: 'start_time',
     endDateField: 'end_time',
@@ -37,8 +36,7 @@ export function CalendarPage() {
     if (isSyncing) return;
     setIsSyncing(true);
     try {
-      // refresh the local cache and capture a *snapshot* we can search through.
-      const refreshResult = await refresh();
+      // refresh the local cache and capture a *snapshot* we can search through.      const refreshResult = await refresh();
       const freshRecords: Record<string, unknown>[] = extractRecords(refreshResult?.data) ?? [];
 
       const res = await fetch(ICS_PROXY_URL);
@@ -51,22 +49,19 @@ export function CalendarPage() {
         events = parseIcs(text);
       }
 
-      // infer the actual field names in the events collection so we only send valid data
-      const collectionFields: Array<{ name?: string; type?: string }> = Array.isArray(collection.fields) ? collection.fields : [];
+      // infer the actual field names in the events collection so we only send valid data      const collectionFields: Array<{ name?: string; type?: string }> = Array.isArray(collection.fields) ? collection.fields : [];
       const fieldNames = collectionFields.map((f) => f.name).filter(Boolean) as string[];
       const defaultFieldNames = ['title', 'start-time', 'end-time', 'notes', 'location', 'url', 'uid'];
       const allowedFieldNames = fieldNames.length > 0 ? fieldNames : defaultFieldNames;
 
       const normalizeName = (s: string) => String(s || '').toLowerCase().replace(/[-_\s]+/g, '');
       const findField = (candidates: string[]) => {
-        // exact matches first
-        for (const cand of candidates) {
+        // exact matches first        for (const cand of candidates) {
           const normCand = normalizeName(cand);
           const exact = allowedFieldNames.find((field) => normalizeName(field) === normCand);
           if (exact) return exact;
         }
-        // partial match fallback
-        for (const cand of candidates) {
+        // partial match fallback        for (const cand of candidates) {
           const normCand = normalizeName(cand);
           const partial = allowedFieldNames.find((field) => normalizeName(field).includes(normCand));
           if (partial) return partial;
@@ -95,10 +90,7 @@ export function CalendarPage() {
         return iso;
       };
 
-      // build a set of existing event keys for fast lookup.
-      // nocobase may not return `id` on event records, so we can't rely on ids.
-      // we use the title + date as the dedup key to correctly handle recurring events.
-      const existingKeys = new Set<string>();
+      // build a set of existing event keys for fast lookup.      // nocobase may not return `id` on event records, so we can't rely on ids.      // we use the title + date as the dedup key to correctly handle recurring events.      const existingKeys = new Set<string>();
       for (const r of freshRecords) {
         const u = uidField ? r[uidField] : r.uid;
         if (u) {
@@ -160,8 +152,7 @@ export function CalendarPage() {
         existingKeys.add(eventKey);
       }
 
-      // create new events. nocobase collection create endpoint expects a single record object.
-      for (const payload of newEventsPayloads) {
+      // create new events. nocobase collection create endpoint expects a single record object.      for (const payload of newEventsPayloads) {
         try {
           await client.createRecord('events', payload);
           created += 1;
@@ -187,13 +178,11 @@ export function CalendarPage() {
   };
 
   useEffect(() => {
-    // auto-sync once the collection schema is loaded
-    if (!collection) return;
+    // auto-sync once the collection schema is loaded    if (!collection) return;
     let cancelled = false;
     const doSync = async () => { if (!cancelled) await syncIcs(true); };
     doSync();
-    // also auto-refresh every 2 minutes
-    const interval = setInterval(doSync, 120_000);
+    // also auto-refresh every 2 minutes    const interval = setInterval(doSync, 120_000);
     return () => { cancelled = true; clearInterval(interval); };
   }, [collection]);
 
@@ -225,9 +214,7 @@ export function CalendarPage() {
   };
 
   const parseIcsDate = (value: string) => {
-    // if value ends with z, treat as utc, else local
-    // support yyyymmdd or yyyymmddthhmmss
-    if (/^\d{8}T\d{6}Z$/.test(value)) {
+    // if value ends with z, treat as utc, else local    // support yyyymmdd or yyyymmddthhmmss    if (/^\d{8}T\d{6}Z$/.test(value)) {
       return new Date(value).toISOString();
     }
     if (/^\d{8}T\d{6}$/.test(value)) {
@@ -250,8 +237,7 @@ export function CalendarPage() {
 
   const loading = colLoading || (recLoading && !records.length); // don't show loading overlay if we already have records
 
-  // if the api doesn't return the events collection, create a fallback so the calendar still renders
-  const fallbackCollection = !collection ? {
+  // if the api doesn't return the events collection, create a fallback so the calendar still renders  const fallbackCollection = !collection ? {
     name: 'events',
     title: 'events',
     fields: [
@@ -285,16 +271,13 @@ export function CalendarPage() {
     );
   }
 
-  // infer view config securely so we don't end up with field mismatch
-  const collectionFields = Array.isArray(effectiveCollection?.fields) ? effectiveCollection.fields : [];
+  // infer view config securely so we don't end up with field mismatch  const collectionFields = Array.isArray(effectiveCollection?.fields) ? effectiveCollection.fields : [];
   const fieldNames = collectionFields.map((f: any) => f.name);
 
-  // fallback to checking keys on the first record if fieldnames is empty or missing expected fields
-  const sampleKeys = records.length > 0 ? Object.keys(records[0]) : [];
+  // fallback to checking keys on the first record if fieldnames is empty or missing expected fields  const sampleKeys = records.length > 0 ? Object.keys(records[0]) : [];
   const availableKeys = [...new Set([...fieldNames, ...sampleKeys])];
 
-  // overwrite viewconfig properties if they are invalid and we can fix them
-  const finalViewConfig = { ...viewConfig };
+  // overwrite viewconfig properties if they are invalid and we can fix them  const finalViewConfig = { ...viewConfig };
   
   if (!availableKeys.includes(finalViewConfig.titleField)) {
       finalViewConfig.titleField = availableKeys.find((n: string) => ['title', 'name', 'summary'].includes(n)) || 'title';
@@ -306,10 +289,8 @@ export function CalendarPage() {
       finalViewConfig.endDateField = availableKeys.find((n: string) => ['end_time', 'end-time', 'endDate', 'end_date'].includes(n)) || 'end_time';
   }
 
-  // ensure all records have a unique id for react keys and dndkit
-  const mappedRecords = records.map((r, i) => {
-    // strictly prioritize database id, then uid, then fallback to something unique
-    const uniqueId = r.id ? String(r.id) : (r.uid ? `uid-${r.uid}` : `ev-${i}-${r[finalViewConfig.titleField] || 'untitled'}`);
+  // ensure all records have a unique id for react keys and dndkit  const mappedRecords = records.map((r, i) => {
+    // strictly prioritize database id, then uid, then fallback to something unique    const uniqueId = r.id ? String(r.id) : (r.uid ? `uid-${r.uid}` : `ev-${i}-${r[finalViewConfig.titleField] || 'untitled'}`);
     return { ...r, __originalId: r.id, id: uniqueId };
   });
 

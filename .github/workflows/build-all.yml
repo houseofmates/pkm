@@ -40,14 +40,12 @@ jobs:
         env:
           VITE_API_URL: https://pkm.houseofmates.space/api
 
-      # electron-builder for appimage, deb, exe
-      - name: build electron apps (linux)
+      # electron-builder for appimage, deb, exe      - name: build electron apps (linux)
         if: matrix.target == 'linux' || matrix.target == 'deb'
         run: npm run electron:build
         working-directory: apps/desktop-electron
 
-      # capacitor for apk
-      - name: build android apk
+      # capacitor for apk      - name: build android apk
         if: matrix.target == 'apk'
         run: |
           cd apps/mobile

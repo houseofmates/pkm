@@ -1,6 +1,4 @@
-// rag test page - accessible at /rag-test
-// use this to verify the rag implementation works
-
+// rag test page - accessible at /rag-test// use this to verify the rag implementation works
 import { useState, useEffect } from 'react';
 import { buildRagContext, generateWilsonRagPrompt } from '@/services/rag-service';
 import { searchKnowledgeBase, formatChunksForPrompt } from '@/lib/vector-store';
@@ -26,34 +24,29 @@ export default function RagTestPage() {
     addResult('🚀 starting rag tests...\n');
 
     try {
-      // test 1: knowledge base search
-      addResult('1️⃣ testing knowledge base search...');
+      // test 1: knowledge base search      addResult('1️⃣ testing knowledge base search...');
       const searchResults = await searchKnowledgeBase('test query', 3);
       addResult(`   ✅ search returned ${searchResults.length} results`);
       if (searchResults.length > 0) {
         addResult(`   sample: ${searchResults[0].chunk.content.slice(0, 50)}...`);
       }
 
-      // test 2: rag context building
-      addResult('\n2️⃣ testing rag context building...');
+      // test 2: rag context building      addResult('\n2️⃣ testing rag context building...');
       const context = await buildRagContext('what are my priorities?', 5);
       addResult(`   ✅ context built with ${context.retrievedChunks.length} chunks`);
       addResult(`   sources: ${context.sources.join(', ') || 'none'}`);
 
-      // test 3: prompt generation
-      addResult('\n3️⃣ testing wilson prompt generation...');
+      // test 3: prompt generation      addResult('\n3️⃣ testing wilson prompt generation...');
       const prompt = await generateWilsonRagPrompt('how are my projects?', 'friend');
       addResult(`   ✅ prompt generated (${prompt.length} chars)`);
       addResult(`   has context: ${prompt.includes('retrieved context')}`);
       addResult(`   has sources: ${prompt.includes('[source:')}`);
 
-      // test 4: format chunks
-      addResult('\n4️⃣ testing chunk formatting...');
+      // test 4: format chunks      addResult('\n4️⃣ testing chunk formatting...');
       const formatted = formatChunksForPrompt(context.retrievedChunks);
       addResult(`   ✅ formatted ${formatted.length} chars`);
 
-      // test 5: check for sample records
-      addResult('\n5️⃣ checking for sample records...');
+      // test 5: check for sample records      addResult('\n5️⃣ checking for sample records...');
       try {
         const records: { data: any[] } = await api.listRecords('notes', { pageSize: 1 }) as { data: any[] };
         const hasRecords = records.data && records.data.length > 0;
@@ -66,8 +59,7 @@ export default function RagTestPage() {
         addResult(`   ⚠️ could not check notes: ${e}`);
       }
 
-      // test 6: llm store integration
-      addResult('\n6️⃣ testing llm store...');
+      // test 6: llm store integration      addResult('\n6️⃣ testing llm store...');
       const { useRag, toggleRag } = useLLMStore.getState();
       addResult(`   ✅ rag enabled: ${useRag}`);
       addResult(`   ✅ toggle function exists: ${typeof toggleRag === 'function'}`);

@@ -1,6 +1,4 @@
-// auto-suggest service for ai fields
-// provides intelligent suggestions as you type
-
+// auto-suggest service for ai fields// provides intelligent suggestions as you type
 import { searchKnowledgeBase, type SearchResult } from '@/lib/vector-store';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -12,8 +10,7 @@ export interface Suggestion {
   context?: string;
 }
 
-// get auto-suggestions based on current input
-export async function getAutoSuggestions(
+// get auto-suggestions based on current inputexport async function getAutoSuggestions(
   currentText: string,
   collection: string,
   maxSuggestions: number = 5
@@ -23,30 +20,23 @@ export async function getAutoSuggestions(
   }
 
   try {
-    // search for relevant context
-    const results = await searchKnowledgeBase(currentText, 10);
+    // search for relevant context    const results = await searchKnowledgeBase(currentText, 10);
 
-    // generate different types of suggestions
-    const suggestions: Suggestion[] = [];
+    // generate different types of suggestions    const suggestions: Suggestion[] = [];
 
-    // 1. text completions (continue the thought)
-    const completions = generateCompletions(currentText, results);
+    // 1. text completions (continue the thought)    const completions = generateCompletions(currentText, results);
     suggestions.push(...completions);
 
-    // 2. cross-references (link to related items)
-    const references = generateReferences(results, collection);
+    // 2. cross-references (link to related items)    const references = generateReferences(results, collection);
     suggestions.push(...references);
 
-    // 3. follow-up questions
-    const questions = generateQuestions(currentText);
+    // 3. follow-up questions    const questions = generateQuestions(currentText);
     suggestions.push(...questions);
 
-    // 4. suggested actions
-    const actions = generateActions(currentText);
+    // 4. suggested actions    const actions = generateActions(currentText);
     suggestions.push(...actions);
 
-    // sort by confidence and return top n
-    return suggestions
+    // sort by confidence and return top n    return suggestions
       .sort((a, b) => b.confidence - a.confidence)
       .slice(0, maxSuggestions);
   } catch (error) {
@@ -55,8 +45,7 @@ export async function getAutoSuggestions(
   }
 }
 
-// generate text completion suggestions
-function generateCompletions(currentText: string, results: SearchResult[]): Suggestion[] {
+// generate text completion suggestionsfunction generateCompletions(currentText: string, results: SearchResult[]): Suggestion[] {
   const suggestions: Suggestion[] = [];
   const lowerText = currentText.toLowerCase();
 
@@ -67,11 +56,9 @@ function generateCompletions(currentText: string, results: SearchResult[]): Sugg
     for (const sentence of sentences) {
       const lowerSentence = sentence.toLowerCase();
 
-      // check if sentence continues the current thought
-      if (lowerSentence.includes(lowerText.slice(-20)) ||
+      // check if sentence continues the current thought      if (lowerSentence.includes(lowerText.slice(-20)) ||
           sharesKeywords(lowerText, lowerSentence)) {
-        // extract the continuation
-        const continuation = extractContinuation(currentText, sentence);
+        // extract the continuation        const continuation = extractContinuation(currentText, sentence);
 
         if (continuation && continuation.length > 10) {
           suggestions.push({
@@ -89,12 +76,10 @@ function generateCompletions(currentText: string, results: SearchResult[]): Sugg
   return suggestions;
 }
 
-// generate cross-reference suggestions
-function generateReferences(results: SearchResult[], currentCollection: string): Suggestion[] {
+// generate cross-reference suggestionsfunction generateReferences(results: SearchResult[], currentCollection: string): Suggestion[] {
   const suggestions: Suggestion[] = [];
 
-  // group by collection
-  const byCollection = new Map<string, SearchResult[]>();
+  // group by collection  const byCollection = new Map<string, SearchResult[]>();
   for (const result of results) {
     if (result.chunk.collection === currentCollection) continue; // skip same collection
 
@@ -103,8 +88,7 @@ function generateReferences(results: SearchResult[], currentCollection: string):
     byCollection.set(result.chunk.collection, existing);
   }
 
-  // suggest top references from other collections
-  for (const [collection, items] of byCollection) {
+  // suggest top references from other collections  for (const [collection, items] of byCollection) {
     const topItem = items[0];
     if (topItem.score > 0.6) {
       const title = topItem.chunk.metadata?.recordTitle || `record ${topItem.chunk.recordId}`;
@@ -121,13 +105,11 @@ function generateReferences(results: SearchResult[], currentCollection: string):
   return suggestions;
 }
 
-// generate follow-up question suggestions
-function generateQuestions(currentText: string): Suggestion[] {
+// generate follow-up question suggestionsfunction generateQuestions(currentText: string): Suggestion[] {
   const questions: Suggestion[] = [];
   const lowerText = currentText.toLowerCase();
 
-  // question templates based on content type
-  const templates = [
+  // question templates based on content type  const templates = [
     { pattern: /what|how|why/, question: 'what are the implications of this?' },
     { pattern: /problem|issue|challenge/, question: 'what solutions have you considered?' },
     { pattern: /idea|concept|theory/, question: 'how does this connect to other projects?' },
@@ -146,8 +128,7 @@ function generateQuestions(currentText: string): Suggestion[] {
     }
   }
 
-  // add generic questions if few matches
-  if (questions.length < 2) {
+  // add generic questions if few matches  if (questions.length < 2) {
     questions.push(
       { type: 'question', text: 'what are the key insights here?', confidence: 0.6 },
       { type: 'question', text: 'how does this relate to your current priorities?', confidence: 0.5 },
@@ -157,13 +138,11 @@ function generateQuestions(currentText: string): Suggestion[] {
   return questions.slice(0, 3);
 }
 
-// generate action item suggestions
-function generateActions(currentText: string): Suggestion[] {
+// generate action item suggestionsfunction generateActions(currentText: string): Suggestion[] {
   const actions: Suggestion[] = [];
   const lowerText = currentText.toLowerCase();
 
-  // detect intent and suggest actions
-  if (lowerText.includes('need to') || lowerText.includes('should')) {
+  // detect intent and suggest actions  if (lowerText.includes('need to') || lowerText.includes('should')) {
     actions.push({
       type: 'action',
       text: 'create a task for this',
@@ -195,8 +174,7 @@ function generateActions(currentText: string): Suggestion[] {
     });
   }
 
-  // always suggest ai generation for substantial text
-  if (currentText.length > 100) {
+  // always suggest ai generation for substantial text  if (currentText.length > 100) {
     actions.push({
       type: 'action',
       text: 'generate ai synthesis',
@@ -207,8 +185,7 @@ function generateActions(currentText: string): Suggestion[] {
   return actions;
 }
 
-// check if two strings share significant keywords
-function sharesKeywords(a: string, b: string): boolean {
+// check if two strings share significant keywordsfunction sharesKeywords(a: string, b: string): boolean {
   const stopWords = new Set(['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'who', 'boy', 'did', 'she', 'use', 'her', 'way', 'many', 'oil', 'sit', 'set', 'run', 'eat', 'far', 'sea', 'eye', 'ago', 'off', 'too', 'any', 'say', 'man', 'try', 'ask', 'end', 'why', 'let', 'put', 'say', 'she', 'try', 'way', 'own', 'say', 'too', 'old', 'tell', 'very', 'when', 'much', 'would', 'there', 'their', 'what', 'said', 'each', 'which', 'will', 'about', 'could', 'other', 'after', 'first', 'never', 'these', 'think', 'where', 'being', 'every', 'great', 'might', 'shall', 'still', 'those', 'while', 'this', 'that', 'with', 'have', 'from', 'they', 'been', 'were', 'said', 'time', 'than', 'them', 'into', 'just', 'like', 'over', 'also', 'back', 'only', 'know', 'take', 'year', 'good', 'some', 'come', 'make', 'well', 'work', 'life', 'even', 'more', 'want', 'here', 'look', 'down', 'most', 'long', 'last', 'find', 'give', 'does', 'made', 'part', 'such', 'keep', 'call', 'came', 'need', 'feel', 'seem', 'turn', 'hand', 'high', 'sure', 'upon', 'head', 'help', 'home', 'side', 'move', 'both', 'five', 'once', 'same', 'must', 'name', 'left', 'each', 'done', 'open', 'case', 'show', 'live', 'play', 'went', 'told', 'seen', 'hear', 'talk', 'soon', 'read', 'stop', 'face', 'fact', 'land', 'line', 'kind', 'next', 'word']);
 
   const wordsA = a.toLowerCase().split(/\s+/).filter(w => w.length > 3 && !stopWords.has(w));
@@ -220,13 +197,11 @@ function sharesKeywords(a: string, b: string): boolean {
   return common.length >= 2; // at least 2 shared keywords
 }
 
-// extract a natural continuation from a sentence
-function extractContinuation(currentText: string, sentence: string): string | null {
+// extract a natural continuation from a sentencefunction extractContinuation(currentText: string, sentence: string): string | null {
   const currentLower = currentText.toLowerCase();
   const sentenceLower = sentence.toLowerCase();
 
-  // find where current text appears in sentence
-  let matchIndex = -1;
+  // find where current text appears in sentence  let matchIndex = -1;
   for (let i = 0; i <= sentenceLower.length - currentText.length; i++) {
     if (sentenceLower.slice(i, i + currentText.length) === currentLower) {
       matchIndex = i;
@@ -235,8 +210,7 @@ function extractContinuation(currentText: string, sentence: string): string | nu
   }
 
   if (matchIndex === -1) {
-    // partial match - find longest common substring ending
-    for (let len = Math.min(currentText.length, 30); len > 5; len--) {
+    // partial match - find longest common substring ending    for (let len = Math.min(currentText.length, 30); len > 5; len--) {
       const endOfCurrent = currentLower.slice(-len);
       const index = sentenceLower.indexOf(endOfCurrent);
       if (index !== -1) {
@@ -247,13 +221,11 @@ function extractContinuation(currentText: string, sentence: string): string | nu
     return null;
   }
 
-  // return everything after the match
-  const continuation = sentence.slice(matchIndex + currentText.length).trim();
+  // return everything after the match  const continuation = sentence.slice(matchIndex + currentText.length).trim();
   return continuation || null;
 }
 
-// debounced suggestion fetcher for ui
-export function createDebouncedSuggestions(
+// debounced suggestion fetcher for uiexport function createDebouncedSuggestions(
   callback: (suggestions: Suggestion[]) => void,
   delay: number = 300
 ) {
@@ -261,25 +233,21 @@ export function createDebouncedSuggestions(
   let lastQuery: string = '';
 
   return (currentText: string, collection: string) => {
-    // clear previous timeout
-    if (timeoutId) {
+    // clear previous timeout    if (timeoutId) {
       clearTimeout(timeoutId);
     }
 
-    // don't fetch if text hasn't changed meaningfully
-    if (currentText === lastQuery) return;
+    // don't fetch if text hasn't changed meaningfully    if (currentText === lastQuery) return;
     lastQuery = currentText;
 
-    // debounce
-    timeoutId = setTimeout(async () => {
+    // debounce    timeoutId = setTimeout(async () => {
       const suggestions = await getAutoSuggestions(currentText, collection);
       callback(suggestions);
     }, delay);
   };
 }
 
-// get suggestions for empty/new records (starter ideas)
-export async function getStarterSuggestions(collection: string): Promise<Suggestion[]> {
+// get suggestions for empty/new records (starter ideas)export async function getStarterSuggestions(collection: string): Promise<Suggestion[]> {
   const starters: Record<string, Suggestion[]> = {
     notes: [
       { type: 'question', text: 'what are you thinking about today?', confidence: 1 },

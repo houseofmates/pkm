@@ -14,8 +14,7 @@ const SIZES = {
 };
 
 try {
-    // Check ffmpeg
-    execSync('ffmpeg -version');
+    // check ffmpeg    execSync('ffmpeg -version');
     console.log('ffmpeg found. Generating icons...');
 
     Object.entries(SIZES).forEach(([dir, size]) => {
@@ -23,8 +22,7 @@ try {
         if (fs.existsSync(targetDir)) {
             const targetFile = path.join(targetDir, 'ic_launcher.png');
             console.log(`Generating ${size}px icon for ${dir}...`);
-            // ffmpeg -i input.png -vf scale=48:48 output.png
-            execSync(`ffmpeg -f lavfi -i color=black:s=${size}x${size} -f image2 -loop 1 -i "${SOURCE_IMAGE}" -filter_complex "[1:v]scale=${size}:${size}[scaled]; [0:v][scaled]overlay=(W-w)/2:(H-h)/2" -frames:v 1 -y "${targetFile}"`);
+            // ffmpeg -i input.png -vf scale=48:48 output.png            execSync(`ffmpeg -f lavfi -i color=black:s=${size}x${size} -f image2 -loop 1 -i "${SOURCE_IMAGE}" -filter_complex "[1:v]scale=${size}:${size}[scaled]; [0:v][scaled]overlay=(W-w)/2:(H-h)/2" -frames:v 1 -y "${targetFile}"`);
 
             const roundFile = path.join(targetDir, 'ic_launcher_round.png');
             if (fs.existsSync(roundFile)) {

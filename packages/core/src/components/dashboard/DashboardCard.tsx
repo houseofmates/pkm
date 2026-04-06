@@ -14,12 +14,10 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // moved early return check to useeffect to avoid conditional hooks
-  const isValidCollection = Boolean(collectionName);
+  // moved early return check to useeffect to avoid conditional hooks  const isValidCollection = Boolean(collectionName);
 
   const handleClick = useCallback((item: Record<string, unknown>) => {
-    // ideally open a drawer or navigate
-    secureLogger.info('Clicked item', item);
+    // ideally open a drawer or navigate    secureLogger.info('Clicked item', item);
   }, []);
 
   useEffect(() => {
@@ -27,8 +25,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
   if (!isValidCollection) return;
   setLoading(true);
   try {
- // parse filter if it's a string (coming from tiptap attributes)
- let queryFilter = filter;
+ // parse filter if it's a string (coming from tiptap attributes) let queryFilter = filter;
  if (typeof filter === 'string') {
  try {
  queryFilter = JSON.parse(filter);
@@ -55,8 +52,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
 
   fetchData();
 
-  // refresh every minute
-  const interval = setInterval(fetchData, 60000);
+  // refresh every minute  const interval = setInterval(fetchData, 60000);
   return () => clearInterval(interval);
   }, [collectionName, filter, isValidCollection]);
 

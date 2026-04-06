@@ -1,5 +1,4 @@
-/**
- * enhanced security dashboard widget v2
+/** * enhanced security dashboard widget v2
  * 
  * a robust, interactive security monitoring system with:
  * - real-time vulnerability scanning
@@ -72,12 +71,10 @@ interface Vulnerability {
   verified: boolean;
 }
 
-// security scan results based on common pkm vulnerabilities
-const runSecurityScan = (): Vulnerability[] => {
+// security scan results based on common pkm vulnerabilitiesconst runSecurityScan = (): Vulnerability[] => {
   const vulnerabilities: Vulnerability[] = [];
   
-  // check for console logging issues
-  const hasConsoleLogs = true; // simulated - in real implementation, scan source code
+  // check for console logging issues  const hasConsoleLogs = true; // simulated - in real implementation, scan source code
   if (hasConsoleLogs) {
     vulnerabilities.push({
       id: 'console-1',
@@ -93,8 +90,7 @@ const runSecurityScan = (): Vulnerability[] => {
     });
   }
   
-  // check for localstorage token storage
-  vulnerabilities.push({
+  // check for localstorage token storage  vulnerabilities.push({
     id: 'storage-1',
     severity: 'medium',
     category: 'storage',
@@ -107,8 +103,7 @@ const runSecurityScan = (): Vulnerability[] => {
     verified: true
   });
   
-  // check for missing security headers
-  vulnerabilities.push({
+  // check for missing security headers  vulnerabilities.push({
     id: 'headers-1',
     severity: 'medium',
     category: 'headers',
@@ -119,8 +114,7 @@ const runSecurityScan = (): Vulnerability[] => {
     verified: false
   });
   
-  // check for dependency vulnerabilities
-  vulnerabilities.push({
+  // check for dependency vulnerabilities  vulnerabilities.push({
     id: 'deps-1',
     severity: 'low',
     category: 'dependencies',
@@ -170,11 +164,9 @@ export function SecurityWidgetV2() {
     }, 1500);
   }
 
-  // initialize on mount
-  useEffect(() => {
+  // initialize on mount  useEffect(() => {
     updateSecurityStatus();
-    // run initial security scan
-    handleScan();
+    // run initial security scan    handleScan();
 
     const interval = setInterval(updateSecurityStatus, 5000);
     return () => clearInterval(interval);

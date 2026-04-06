@@ -11,8 +11,7 @@ module.exports = {
     '^@pkm/backend/(.*)$': '<rootDir>/packages/backend/$1',
     '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js'
   },
-  // Transform ESM packages in node_modules (like react-leaflet)
-  transformIgnorePatterns: [
+  // transform esm packages in node_modules (like react-leaflet)  transformIgnorePatterns: [
     '/node_modules/(?!(react-leaflet|@react-leaflet|leaflet)/)'
   ]
 };

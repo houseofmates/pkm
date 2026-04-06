@@ -1,5 +1,4 @@
 // gamification engine - xp, levels, achievements, unlocks
-
 export interface GamificationStats {
   activities_logged: number;
   total_streaks: number;
@@ -44,8 +43,7 @@ const ACHIEVEMENTS: Array<{
 ];
 
 function calculateLevel(xp: number) {
-  // ensure xp is a positive number
-  const safeXp = Math.max(0, xp || 0);
+  // ensure xp is a positive number  const safeXp = Math.max(0, xp || 0);
 
   let currentLevel = LEVELS[0];
   for (let i = LEVELS.length - 1; i >= 0; i--) {
@@ -71,8 +69,7 @@ function calculateLevel(xp: number) {
 }
 
 function calculateXpReward(baseXp: number, streakCount: number, isMilestone = false) {
-  // ensure inputs are valid numbers
-  let xp = Math.max(0, baseXp || 0);
+  // ensure inputs are valid numbers  let xp = Math.max(0, baseXp || 0);
   const safeStreak = Math.max(0, streakCount || 0);
 
   if (safeStreak >= 7) {
@@ -85,8 +82,7 @@ function calculateXpReward(baseXp: number, streakCount: number, isMilestone = fa
 }
 
 function checkAchievements(stats: GamificationStats, unlockedIds: string[]) {
-  // ensure stats exist
-  if (!stats) return [];
+  // ensure stats exist  if (!stats) return [];
 
   const newAchievements: typeof ACHIEVEMENTS = [];
   for (const achievement of ACHIEVEMENTS) {

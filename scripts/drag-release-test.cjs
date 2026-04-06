@@ -30,18 +30,15 @@ const playwright = require('playwright');
     await page.evaluate(() => { try { localStorage.setItem('nocobase_token', 'dev-smoke-token'); } catch(e) {} });
     await page.reload({ waitUntil: 'networkidle' });
 
-    // use the page's default template json (already multi-column) and open preview
-    await page.waitForSelector('button:has-text("preview")', { timeout: 5000 });
+    // use the page's default template json (already multi-column) and open preview    await page.waitForSelector('button:has-text("preview")', { timeout: 5000 });
     await page.click('button:has-text("preview")');
     await page.waitForTimeout(200);
     await page.waitForSelector('#preview-canvas-root', { timeout: 5000 });
 
-    // instrument preview cards to count click events
-    await page.evaluate(() => {
+    // instrument preview cards to count click events    await page.evaluate(() => {
       window.__preview_clicks = 0;
       const handler = (e) => { window.__preview_clicks += 1; };
-      // attach to existing preview items and also capture future ones
-      document.querySelectorAll('[data-preview-id]').forEach(el => el.addEventListener('click', handler, true));
+      // attach to existing preview items and also capture future ones      document.querySelectorAll('[data-preview-id]').forEach(el => el.addEventListener('click', handler, true));
       const mo = new MutationObserver(mr => {
         mr.forEach(r => r.addedNodes.forEach(n => { if (n.nodeType === 1 && n.querySelectorAll) { n.querySelectorAll('[data-preview-id]').forEach(el => el.addEventListener('click', handler, true)); } }));
       });
@@ -50,23 +47,19 @@ const playwright = require('playwright');
       window.__preview_click_mo = mo;
     });
 
-    // find a preview card to drag
-    const card = await page.$('[data-preview-id]');
+    // find a preview card to drag    const card = await page.$('[data-preview-id]');
     if (!card) throw new Error('no preview card found to test');
     const box = await card.boundingBox();
     if (!box) throw new Error('could not get card bounding box');
 
-    // simulate press+move — begin drag and inspect overlay position
-    const start = { x: box.x + box.width/2, y: box.y + box.height/2 };
+    // simulate press+move — begin drag and inspect overlay position    const start = { x: box.x + box.width/2, y: box.y + box.height/2 };
     await page.mouse.move(start.x, start.y);
     await page.mouse.down();
 
-    // larger move to ensure dnd-kit activates and shows the dragoverlay
-    const mid = { x: start.x + 160, y: start.y + 8 };
+    // larger move to ensure dnd-kit activates and shows the dragoverlay    const mid = { x: start.x + 160, y: start.y + 8 };
     await page.mouse.move(mid.x, mid.y, { steps: 12 });
 
-    // wait for overlay to appear and measure its bounding box vs pointer
-    await page.waitForTimeout(120);
+    // wait for overlay to appear and measure its bounding box vs pointer    await page.waitForTimeout(120);
     const overlayBox = await page.evaluate(() => {
       const overlay = document.querySelector('[data-dnd-kit-drag-overlay]');
       if (!overlay) return null;
@@ -77,11 +70,9 @@ const playwright = require('playwright');
     });
     console.log('[TEST] overlayBox', overlayBox, 'pointer', mid);
 
-    // finish the drag (release)
-    await page.mouse.up();
+    // finish the drag (release)    await page.mouse.up();
 
-    // wait a moment and check click counter
-    await page.waitForTimeout(200);
+    // wait a moment and check click counter    await page.waitForTimeout(200);
     const clicks = await page.evaluate(() => window.__preview_clicks || 0);
     console.log('[TEST] preview click events counted after drag:', clicks);
 
@@ -92,12 +83,10 @@ const playwright = require('playwright');
       console.log('PASS: no click fired on drag-release');
     }
 
-    // --- new: verify cross-column drop moves the card between columns ---
-    const colCountsBefore = await page.evaluate(() => Array.from(document.querySelectorAll('#preview-canvas-root > .space-y-4')).map(c => c.querySelectorAll('[data-preview-id]').length));
+    // --- new: verify cross-column drop moves the card between columns ---    const colCountsBefore = await page.evaluate(() => Array.from(document.querySelectorAll('#preview-canvas-root > .space-y-4')).map(c => c.querySelectorAll('[data-preview-id]').length));
     console.log('[TEST] column counts before manual cross-column drag:', colCountsBefore);
 
-    // pick a card from any non-empty column and drag it into a different column
-    const srcIndex = colCountsBefore.findIndex(n => n > 0);
+    // pick a card from any non-empty column and drag it into a different column    const srcIndex = colCountsBefore.findIndex(n => n > 0);
     if (srcIndex === -1 || colCountsBefore.length < 2) {
       console.log('[TEST] not enough columns/cards to validate cross-column drag — skipping');
     } else {
@@ -129,8 +118,7 @@ const playwright = require('playwright');
       process.exitCode = 2;
     }
 
-    // cleanup
-    await page.evaluate(() => { try { window.__preview_click_mo?.disconnect(); } catch(e) {} });
+    // cleanup    await page.evaluate(() => { try { window.__preview_click_mo?.disconnect(); } catch(e) {} });
   } catch (err) {
     console.error('drag-release test failed:', err);
     process.exitCode = 3;

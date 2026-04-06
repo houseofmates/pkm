@@ -13,8 +13,7 @@ interface ErrorBoundaryState {
   error?: Error;
 }
 
-/**
- * global error boundary component that catches render errors gracefully.
+/** * global error boundary component that catches render errors gracefully.
  * - shows styled error card with dark bg and gold accent (consistent with app theme)
  * - includes return to dashboard and try again buttons
  * - never exposes file paths, stack traces, or component names in production
@@ -30,8 +29,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    // log to console for debugging, but don't display to user
-    secureLogger.error('[ErrorBoundary] Caught error:', error);
+    // log to console for debugging, but don't display to user    secureLogger.error('[ErrorBoundary] Caught error:', error);
     secureLogger.error('[ErrorBoundary] Component stack:', info.componentStack);
   }
 
@@ -45,8 +43,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   render() {
     if (this.state.hasError) {
-      // if a custom fallback is provided, use it
-      if (this.props.fallback) {
+      // if a custom fallback is provided, use it      if (this.props.fallback) {
         return this.props.fallback;
       }
 
@@ -105,8 +102,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 }
 
-/**
- * page-level error boundary wrapper that preserves the sidebar/shell when a page crashes.
+/** * page-level error boundary wrapper that preserves the sidebar/shell when a page crashes.
  * use this to wrap individual page components so one page crash doesn't nuke the entire app.
  */
 export function PageErrorBoundary({ children }: { children: React.ReactNode }) {

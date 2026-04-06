@@ -16,8 +16,7 @@ import { getOllamaGenerateUrl, DEFAULT_OLLAMA_MODEL } from '@/lib/llm-config';
 import { generateText } from '@/lib/llm-service';
 import { secureLogger } from '@/lib/secure-logger';
 
-// interface for search result
-interface SearchResult {
+// interface for search resultinterface SearchResult {
   id: string;
   collection: string;
   title: string;
@@ -34,9 +33,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
-  // fix: explicitly handle boolean update or function update logic if needed,
-  // but here we just need to route the boolean value to the correct setter.
-  const setOpen = (value: boolean | ((prev: boolean) => boolean)) => {
+  // fix: explicitly handle boolean update or function update logic if needed,  // but here we just need to route the boolean value to the correct setter.  const setOpen = (value: boolean | ((prev: boolean) => boolean)) => {
   const newValue = typeof value === 'function' ? value(open!) : value;
   if (isControlled) {
   onOpenChange?.(newValue);
@@ -51,31 +48,25 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const setChatOpen = useEdgelessStore(state => state.setChatOpen);
   const { activeFronters, members } = useFronter();
 
-  // search state
-  const [query, setQuery] = useState("");
+  // search state  const [query, setQuery] = useState("");
   const [dbResults, setDbResults] = useState<SearchResult[]>([]);
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isReasoning, setIsReasoning] = useState(false);
 
-  // quick capture
-  const [_createDialogOpen, _setCreateDialogOpen] = useState(false);
+  // quick capture  const [_createDialogOpen, _setCreateDialogOpen] = useState(false);
   const [_selectedCollection, _setSelectedCollection] = useState<string | null>(null);
 
-  // keyboard shortcut (` or ~)
-  useEffect(() => {
+  // keyboard shortcut (` or ~)  useEffect(() => {
   const down = (e: KeyboardEvent) => {
-  // toggle on backtick/tilde
-  // ensure we aren't typing in an input
-  const target = e.target as HTMLElement;
+  // toggle on backtick/tilde  // ensure we aren't typing in an input  const target = e.target as HTMLElement;
   const isInput = target.matches('input, textarea, [contenteditable]');
 
   if (!isInput && (e.key === '`' || e.key === '~')) {
  e.preventDefault();
  setOpen((prev) => !prev);
   }
-  // keep cmd+k as fallback
-  if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+  // keep cmd+k as fallback  if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
  e.preventDefault();
  setOpen((prev) => !prev);
   }
@@ -92,8 +83,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   };
   }, [setOpen]);
 
-  // --- search logic ---
-  const handleSearch = useCallback(async (value: string) => {
+  // --- search logic ---  const handleSearch = useCallback(async (value: string) => {
   setQuery(value);
   if (!value || value.length < 2) {
   setDbResults([]);
@@ -104,21 +94,11 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   setIsSearching(true);
   setAiInsight(null); // clear previous insight
 
-  // 1. database retrieval (simulated global search)
-  // ideally we hit a specific endpoint.
-  // for now, let's search 'notes' and 'tasks' or just iterate known collections?
-  // iterating client-side is heavy. do we have a global search endpoint?
-  // checking conversation history: "ai-powered global search" was discussed.
-  // assuming we need to implement the client-side aggregation if no endpoint exists.
-
-  // let's implement a heuristic search: search top 3 text-heavy collections
-  // or specific ones: 'notes', 'tasks', 'journal'.
-  const targets = collections.filter((c: any) => ['notes', 'tasks', 'journal', 'ideas'].includes(c.name) || c.title?.toLowerCase().includes('note'));
+  // 1. database retrieval (simulated global search)  // ideally we hit a specific endpoint.  // for now, let's search 'notes' and 'tasks' or just iterate known collections?  // iterating client-side is heavy. do we have a global search endpoint?  // checking conversation history: "ai-powered global search" was discussed.  // assuming we need to implement the client-side aggregation if no endpoint exists.
+  // let's implement a heuristic search: search top 3 text-heavy collections  // or specific ones: 'notes', 'tasks', 'journal'.  const targets = collections.filter((c: any) => ['notes', 'tasks', 'journal', 'ideas'].includes(c.name) || c.title?.toLowerCase().includes('note'));
 
   try {
-  // prototype: quick parallel fetch for demonstration
-  // in producton: use a backend search index
-  const promises = targets.map(async (col: any) => {
+  // prototype: quick parallel fetch for demonstration  // in producton: use a backend search index  const promises = targets.map(async (col: any) => {
  try {
  const res = await api.listRecords(col.name, {
  filter: {
@@ -147,9 +127,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const flat = fetched.flat();
   setDbResults(flat.slice(0, 10));
 
-  // 2. ai synthesis (background)
-  // if we have an external context or results, generate insight
-  if (flat.length > 0 || externalContext) {
+  // 2. ai synthesis (background)  // if we have an external context or results, generate insight  if (flat.length > 0 || externalContext) {
  setIsReasoning(true);
  generateInsight(value, flat.slice(0, 5));
   }
@@ -163,20 +141,16 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
 
   const generateInsight = async (userQuery: string, contextDocs: SearchResult[]) => {
   try {
-  // build rich context
-  const dbContext = contextDocs.map(d => `[${d.collection}] ${d.title}: ${d.snippet}`).join('\n');
+  // build rich context  const dbContext = contextDocs.map(d => `[${d.collection}] ${d.title}: ${d.snippet}`).join('\n');
   const pageContext = externalContext ? `\n\ncurrent page context:\n${externalContext}\n\n` : '';
 
-  // get current page path
-  const currentPath = location.pathname;
+  // get current page path  const currentPath = location.pathname;
   const currentPageInfo = `current page: ${currentPath}\n`;
 
-  // get available collections
-  const collectionsList = collections.map((c: any) => c.title || c.name).join(', ');
+  // get available collections  const collectionsList = collections.map((c: any) => c.title || c.name).join(', ');
   const collectionsInfo = `available databases/collections: ${collectionsList}\n`;
 
-  // get fronting headmates
-  const frontingHeadmates = activeFronters
+  // get fronting headmates  const frontingHeadmates = activeFronters
  .map(id => members.find(m => m.id === id))
  .filter(Boolean)
  .map((m: any, idx: number) => `${idx + 1}. ${m.name}${m.pronouns ? ` (${m.pronouns})` : ''}`)
@@ -188,8 +162,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const url = getOllamaGenerateUrl();
   const response = await generateText(prompt, DEFAULT_OLLAMA_MODEL, url);
 
-  // ensure response is lowercase
-  setAiInsight(response?.toLowerCase() || '');
+  // ensure response is lowercase  setAiInsight(response?.toLowerCase() || '');
   } catch (e) {
   secureLogger.error("LLM Failed:", e);
   setAiInsight("could not generate insight.");
@@ -200,8 +173,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
 
   const runCommand = useCallback((command: () => unknown) => {
     setOpen(false);
-    // delay command to allow dialog close animation to complete
-    setTimeout(command, 100);
+    // delay command to allow dialog close animation to complete    setTimeout(command, 100);
   }, [setOpen]);
 
   if (!open) return null;

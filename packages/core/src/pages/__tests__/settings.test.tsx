@@ -5,8 +5,7 @@ import { storageManager } from '@/lib/storage-manager';
 import { AuthContext } from '@/contexts/auth-context';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-// stub import widget so we don't need network
-vi.mock('@/components/notion-import-widget', () => ({
+// stub import widget so we don't need networkvi.mock('@/components/notion-import-widget', () => ({
   NotionImportWidget: () => <div data-testid="import-widget">import widget</div>
 }));
 
@@ -29,11 +28,9 @@ describe('Settings page', () => {
     expect(screen.getByLabelText(/dark mode/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/default page size/i)).toBeInTheDocument();
     expect(screen.getByTestId('import-widget')).toBeInTheDocument();
-    // hint should show when api key string is empty
-    expect(screen.getByText(/set your api key above to enable notion import/i)).toBeInTheDocument();
+    // hint should show when api key string is empty    expect(screen.getByText(/set your api key above to enable notion import/i)).toBeInTheDocument();
 
-    // root wrapper should allow scrolling and fill available height
-    const root = container.firstChild as HTMLElement;
+    // root wrapper should allow scrolling and fill available height    const root = container.firstChild as HTMLElement;
     expect(root.className).toMatch(/overflow-auto/);
     expect(root.className).toMatch(/h-full/);
   });
@@ -48,7 +45,6 @@ describe('Settings page', () => {
     expect(checkbox.checked).toBe(false);
     fireEvent.click(checkbox);
     expect(checkbox.checked).toBe(true);
-    // drop into localstorage
-    expect(storageManager.getItem('pkm_setting:darkMode')).toBe('true');
+    // drop into localstorage    expect(storageManager.getItem('pkm_setting:darkMode')).toBe('true');
   });
 });

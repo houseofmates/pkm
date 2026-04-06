@@ -1,19 +1,12 @@
 #!/bin/bash
-# Update Backend API Key Script
-# 1. Get your new API key from NocoBase (Users > root > API keys)
-# 2. Replace PASTE_YOUR_NEW_NOCOBASE_API_KEY_HERE below with the actual key
-# 3. Run: chmod +x update-api-key.sh && ./update-api-key.sh
-
+# update backend api key script# 1. get your new api key from nocobase (users > root > api keys)# 2. replace paste_your_new_nocobase_api_key_here below with the actual key# 3. run: chmod +x update-api-key.sh && ./update-api-key.sh
 set -e
 
-# ===== EDIT THIS LINE =====
-NEW_KEY="${NEW_KEY}"
+# ===== edit this line =====NEW_KEY="${NEW_KEY}"
 # ==========================
-
 OLD_KEY="${OLD_KEY}"
 
-# Validation
-if [ "$NEW_KEY" = "PASTE_YOUR_NEW_NOCOBASE_API_KEY_HERE" ]; then
+# validationif [ "$NEW_KEY" = "PASTE_YOUR_NEW_NOCOBASE_API_KEY_HERE" ]; then
     echo "❌ Error: You need to edit this script and paste your NocoBase API key"
     echo ""
     echo "Steps:"
@@ -32,26 +25,22 @@ fi
 echo "🔄 Updating API key in all files..."
 echo ""
 
-# Update backend/server.js
-if [ -f packages/backend/server.js ]; then
+# update backend/server.jsif [ -f packages/backend/server.js ]; then
     sed -i "s|$OLD_KEY|$NEW_KEY|g" packages/backend/server.js
     echo "✅ Updated packages/backend/server.js"
 fi
 
-# Update pkm-control.sh
-if [ -f pkm-control.sh ]; then
+# update pkm-control.shif [ -f pkm-control.sh ]; then
     sed -i "s|$OLD_KEY|$NEW_KEY|g" pkm-control.sh
     echo "✅ Updated pkm-control.sh"
 fi
 
-# Update N8N_SETUP.md
-if [ -f N8N_SETUP.md ]; then
+# update n8n_setup.mdif [ -f N8N_SETUP.md ]; then
     sed -i "s|$OLD_KEY|$NEW_KEY|g" N8N_SETUP.md
     echo "✅ Updated N8N_SETUP.md"
 fi
 
-# Update SERVICES_READY.md
-if [ -f SERVICES_READY.md ]; then
+# update services_ready.mdif [ -f SERVICES_READY.md ]; then
     sed -i "s|$OLD_KEY|$NEW_KEY|g" SERVICES_READY.md
     echo "✅ Updated SERVICES_READY.md"
 fi

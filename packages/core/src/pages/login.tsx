@@ -14,15 +14,7 @@ export function LoginPage() {
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // performs a quick sanity check against the backend before
-  // actually storing the token. previously we unconditionally saved the
-  // value and relied on the first api call to fail, which would dispatch
-  // an `auth-error` event and drop the token. this caused a confusing
-  // experience where users would paste a *bad* token and then immediately
-  // be asked to paste it again even though nothing looked wrong. instead we
-  // hit a lightweight endpoint and only resolve when the token appears to be
-  // valid.
-  const handleSubmit = async (e: React.FormEvent) => {
+  // performs a quick sanity check against the backend before  // actually storing the token. previously we unconditionally saved the  // value and relied on the first api call to fail, which would dispatch  // an `auth-error` event and drop the token. this caused a confusing  // experience where users would paste a *bad* token and then immediately  // be asked to paste it again even though nothing looked wrong. instead we  // hit a lightweight endpoint and only resolve when the token appears to be  // valid.  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const normalizedToken = normalizeAuthToken(inputToken);
     if (!normalizedToken) return;
@@ -30,20 +22,15 @@ export function LoginPage() {
     setIsValidating(true);
     setError(null);
     try {
-      // validate the token by making a simple collection list request. the
-      // endpoint itself doesn't matter much, it just has to be protected by
-      // nocobase so that an invalid/expired token returns 401/403.
-      const client = new NocoBaseClient();
-      // pass the token directly in headers so we don't rely on storage yet.
-      await client.client.get('/collections:list', {
+      // validate the token by making a simple collection list request. the      // endpoint itself doesn't matter much, it just has to be protected by      // nocobase so that an invalid/expired token returns 401/403.      const client = new NocoBaseClient();
+      // pass the token directly in headers so we don't rely on storage yet.      await client.client.get('/collections:list', {
         headers: {
           Authorization: toAuthorizationHeaderValue(normalizedToken),
         },
         params: { pageSize: 1 },
       });
 
-      // token validated, store & initialize synchronously
-      login(normalizedToken);
+      // token validated, store & initialize synchronously      login(normalizedToken);
     } catch (err: any) {
       secureLogger.error('token validation failed:', err);
       setError(

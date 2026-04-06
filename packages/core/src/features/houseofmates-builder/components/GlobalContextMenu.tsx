@@ -16,8 +16,7 @@ interface Props {
   onClose: () => void;
 }
 
-// slug generator
-const generateSlug = (title: string): string => {
+// slug generatorconst generateSlug = (title: string): string => {
   return title
   .toLowerCase()
   .trim()
@@ -37,8 +36,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   const [newPageTitle, setNewPageTitle] = useState('');
   const [creating, setCreating] = useState(false);
 
-  // position the menu so it doesn't overflow the viewport
-  const menuStyle = {
+  // position the menu so it doesn't overflow the viewport  const menuStyle = {
   left: Math.min(x, window.innerWidth - 280),
   top: Math.min(y, window.innerHeight - 400),
   };
@@ -79,8 +77,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
    const uploadedany = uploaded as any;
  securelogger.info('[globalcontextmenu] upload response:', uploaded);
 
- // try multiple possible response structures
-   const url = uploadedany?.url || uploadedany?.data?.url || uploadedany?.data?.data?.url;
+ // try multiple possible response structures   const url = uploadedany?.url || uploadedany?.data?.url || uploadedany?.data?.data?.url;
  securelogger.info('[globalcontextmenu] extracted url:', url);
 
  if (url) {
@@ -121,8 +118,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
  elements: json.stringify([])
   });
   toast.success(`page "${slug}" created!`);
-  // navigate to new page
-  window.location.href = `/${slug}`;
+  // navigate to new page  window.location.href = `/${slug}`;
   } catch (e: any) {
   toast.error(`failed to create page: ${e.message}`);
   } finally {
@@ -187,8 +183,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   onclose();
   };
 
-  // color picker modal
-  if (showcolorpicker) {
+  // color picker modal  if (showcolorpicker) {
   return (
   <div classname="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onclick={onclose}>
  <div classname="bg-[#050505] border border-white/10 rounded-2xl p-6 w-80" onclick={e => e.stoppropagation()}>
@@ -220,8 +215,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   );
   }
 
-  // page creation modal
-  if (showpagemodal) {
+  // page creation modal  if (showpagemodal) {
   const previewslug = generateslug(newpagetitle);
   return (
   <div classname="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onclick={onclose}>

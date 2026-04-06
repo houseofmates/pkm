@@ -83,8 +83,7 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
 
 
 
-  // calculate time since last shower
-  const getTimeSince = () => {
+  // calculate time since last shower  const getTimeSince = () => {
     if (!lastLog) return null;
     const hours = Math.floor((Date.now() - lastLog.getTime()) / (1000 * 60 * 60));
     if (hours < 1) return 'just now';
@@ -93,8 +92,7 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
     return `${days}d ago`;
   };
 
-  // get status color based on time since last shower
-  const getStatusColor = () => {
+  // get status color based on time since last shower  const getStatusColor = () => {
     if (!lastLog) return '#ef4444';
     const hours = Math.floor((Date.now() - lastLog.getTime()) / (1000 * 60 * 60));
     if (hours < 12) return '#22c55e'; // fresh

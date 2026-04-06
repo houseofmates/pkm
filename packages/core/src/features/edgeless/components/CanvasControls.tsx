@@ -5,13 +5,11 @@ import { Button } from '@/components/ui/button'
 export function CanvasControls() {
   const { undo, redo, history } = useEdgelessStore()
 
-  // oplog-based history
-  const canUndo = history.ops.length > 0
+  // oplog-based history  const canUndo = history.ops.length > 0
   const canRedo = history.undone.length > 0
 
   return (
-    // ensure controls sit above mobile home indicator / nav bar
-    <div className="absolute left-1/2 -translate-x-1/2 z-50 flex gap-2 justify-center items-center w-max bottom-[calc(1rem+env(safe-area-inset-bottom))]">
+    // ensure controls sit above mobile home indicator / nav bar    <div className="absolute left-1/2 -translate-x-1/2 z-50 flex gap-2 justify-center items-center w-max bottom-[calc(1rem+env(safe-area-inset-bottom))]">
       <Button
         variant="outline"
         size="icon"

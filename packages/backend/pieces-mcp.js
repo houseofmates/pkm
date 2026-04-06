@@ -1,13 +1,10 @@
-// pieces mcp client - connects to pieces os mcp server to get recent activity context
-// pieces os mcp url: http://192.168.4.250:39301/model_context_protocol/2025-03-26/mcp
-
+// pieces mcp client - connects to pieces os mcp server to get recent activity context// pieces os mcp url: http://192.168.4.250:39301/model_context_protocol/2025-03-26/mcp
 import axios from 'axios';
 
 const PIECES_MCP_URL = process.env.PIECES_MCP_URL || 'http://192.168.4.250:39301/model_context_protocol/2025-03-26/mcp';
 const CONTEXT_HOURS = parseInt(process.env.PIECES_CONTEXT_HOURS || '2', 10);
 
-// mcp json-rpc request helper
-async function mcpRequest(method, params = {}) {
+// mcp json-rpc request helperasync function mcpRequest(method, params = {}) {
   try {
     const response = await axios.post(PIECES_MCP_URL, {
       jsonrpc: '2.0',
@@ -31,28 +28,24 @@ async function mcpRequest(method, params = {}) {
   }
 }
 
-// get recent activity from pieces os (last n hours)
-export async function getPiecesRecentActivity(hours = CONTEXT_HOURS) {
+// get recent activity from pieces os (last n hours)export async function getPiecesRecentActivity(hours = CONTEXT_HOURS) {
   const result = await mcpRequest('get_recent_activity', { hours });
   
   if (!result) {
-    // try alternative method - get all snippets/activities
-    return await getPiecesSnippets();
+    // try alternative method - get all snippets/activities    return await getPiecesSnippets();
   }
   
   return result;
 }
 
-// get snippets from pieces os
-async function getPiecesSnippets() {
+// get snippets from pieces osasync function getPiecesSnippets() {
   const result = await mcpRequest('list_snippets', { limit: 50 });
   
   if (!result || !result.snippets) {
     return null;
   }
   
-  // filter to recent (last 2 hours)
-  const twoHoursAgo = Date.now() - (CONTEXT_HOURS * 60 * 60 * 1000);
+  // filter to recent (last 2 hours)  const twoHoursAgo = Date.now() - (CONTEXT_HOURS * 60 * 60 * 1000);
   const recentSnippets = result.snippets.filter(s => {
     const timestamp = s.created_at || s.timestamp || 0;
     return timestamp > twoHoursAgo;
@@ -68,8 +61,7 @@ async function getPiecesSnippets() {
   };
 }
 
-// get relevant context based on query
-export async function getPiecesContextForQuery(query) {
+// get relevant context based on queryexport async function getPiecesContextForQuery(query) {
   const result = await mcpRequest('search', { query, limit: 10 });
   
   if (!result || !result.results) {
@@ -86,8 +78,7 @@ export async function getPiecesContextForQuery(query) {
   };
 }
 
-// check if pieces mcp is available
-export async function isPiecesConnected() {
+// check if pieces mcp is availableexport async function isPiecesConnected() {
   try {
     const result = await mcpRequest('ping', {});
     return result !== null;

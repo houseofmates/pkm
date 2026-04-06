@@ -1,7 +1,6 @@
 import type { NotionWorkspace, NotionDatabase } from './parser';
 
-// instructions that can later be executed against nocobase
-export type Instruction =
+// instructions that can later be executed against nocobaseexport type Instruction =
     | { type: 'createCollection'; name: string; fields: Record<string, string> }
     | { type: 'createRecord'; collection: string; data: Record<string, any> }
     | { type: 'addRelation'; collection: string; field: string; targetCollection: string };
@@ -11,8 +10,7 @@ const REL_MIN_SCORE = 0.5;
 const REL_SAMPLE_SIZE = 120; // cap value comparisons for performance
 const REL_KEY_UNIQUENESS_MIN = 0.6; // require keys to be reasonably unique
 
-/**
- * utility to yield control back to the main thread.
+/** * utility to yield control back to the main thread.
  * uses requestanimationframe if in browser, otherwise settimeout.
  */
 const yieldControl = () => new Promise(resolve => {
@@ -23,8 +21,7 @@ const yieldControl = () => new Promise(resolve => {
     }
 });
 
-// enhanced guessing of field types based on sample values
-function guessType(values: any[]): string {
+// enhanced guessing of field types based on sample valuesfunction guessType(values: any[]): string {
     let hasString = false;
     let hasNumber = false;
     let hasBoolean = false;
@@ -43,8 +40,7 @@ function guessType(values: any[]): string {
             hasBoolean = true;
         } else if (typeof v === 'string') {
             const trimmed = v.trim();
-            // treat any string containing newlines or markdown-like syntax as long text
-            if (trimmed.includes('\n') || /[#*_`\-]{2,}/.test(trimmed) || trimmed.length > 200) {
+            // treat any string containing newlines or markdown-like syntax as long text            if (trimmed.includes('\n') || /[#*_`\-]{2,}/.test(trimmed) || trimmed.length > 200) {
                 hasLongText = true;
                 hasString = true; // still count as string for fallback
                 continue;
@@ -55,8 +51,7 @@ function guessType(values: any[]): string {
             } else if (trimmed === 'true' || trimmed === 'false') {
                 hasBoolean = true;
             } else if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) {
-                // simple iso date detection
-                hasDate = true;
+                // simple iso date detection                hasDate = true;
             } else if (trimmed.includes(',') || trimmed.startsWith('[')) {
                 hasArray = true;
             } else {
@@ -75,8 +70,7 @@ function guessType(values: any[]): string {
     return 'string';
 }
 
-// convert notion property type (from metadata) into a nocobase field type
-function notionPropertyToType(type: string): string {
+// convert notion property type (from metadata) into a nocobase field typefunction notionPropertyToType(type: string): string {
     switch (type.toLowerCase()) {
         case 'title':
             return 'string';
@@ -121,16 +115,14 @@ export async function transformWorkspace(
         }
     };
 
-    // helper to pick the likely title/key field of a database
-    const pickKeyField = (db: NotionDatabase, fieldTypes: Record<string, string>) => {
+    // helper to pick the likely title/key field of a database    const pickKeyField = (db: NotionDatabase, fieldTypes: Record<string, string>) => {
         const preferred = db.fields.find(f => /^(name|title)$/i.test(f));
         if (preferred) return preferred;
         const firstString = db.fields.find(f => fieldTypes[f] === 'string' || fieldTypes[f] === 'text');
         return firstString || db.fields[0];
     };
 
-    // infer a relation target by matching values to candidate key fields in other databases
-    const inferRelationTarget = (
+    // infer a relation target by matching values to candidate key fields in other databases    const inferRelationTarget = (
         fieldValues: any[],
         currentDb: string,
         dbFieldTypes: Record<string, Record<string, string>>,
@@ -166,14 +158,11 @@ export async function transformWorkspace(
         return best.target;
     };
 
-    // cache field type guesses per database for reuse during relation inference
-    const dbFieldTypes: Record<string, Record<string, string>> = {};
+    // cache field type guesses per database for reuse during relation inference    const dbFieldTypes: Record<string, Record<string, string>> = {};
 
-    // databases -> collection + createrecords
-    for (const db of ws.databases) {
+    // databases -> collection + createrecords    for (const db of ws.databases) {
         reportProgress(`Analyzing database: ${db.name}`);
-        // build field definitions (try to respect notion props if available)
-        const sampleRows = db.rows.slice(0, 20);
+        // build field definitions (try to respect notion props if available)        const sampleRows = db.rows.slice(0, 20);
         const fields: Record<string, string> = {};
         for (const field of db.fields) {
             let ftype: string;
@@ -196,8 +185,7 @@ export async function transformWorkspace(
             completedSteps++;
             rowCount++;
 
-            // yield every 200 rows to keep ui responsive
-            if (rowCount % 200 === 0) {
+            // yield every 200 rows to keep ui responsive            if (rowCount % 200 === 0) {
                 reportProgress(`Transforming records for ${db.name}...`);
                 await yieldControl();
             }
@@ -205,8 +193,7 @@ export async function transformWorkspace(
         await yieldControl();
     }
 
-    // pages -> pages collection (body should be long text)
-    const pageFields: Record<string, string> = { title: 'string', body: 'text' };
+    // pages -> pages collection (body should be long text)    const pageFields: Record<string, string> = { title: 'string', body: 'text' };
     for (const page of ws.pages) {
         for (const key of Object.keys(page.frontmatter)) {
             if (!(key in pageFields)) {
@@ -231,8 +218,7 @@ export async function transformWorkspace(
         }
     }
 
-    // infer and register relations based on notion metadata or cross-dataset value matching
-    for (const db of ws.databases) {
+    // infer and register relations based on notion metadata or cross-dataset value matching    for (const db of ws.databases) {
         const fieldTypes = dbFieldTypes[db.name] || {};
         for (const field of db.fields) {
             const propType = db.props?.[field]?.type;
@@ -246,8 +232,7 @@ export async function transformWorkspace(
                     field,
                     targetCollection: target,
                 });
-                // make sure schema reflects lookup type
-                dbFieldTypes[db.name][field] = 'lookup';
+                // make sure schema reflects lookup type                dbFieldTypes[db.name][field] = 'lookup';
             }
         }
         await yieldControl();

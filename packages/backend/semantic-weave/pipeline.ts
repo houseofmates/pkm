@@ -7,7 +7,6 @@ import type { VectorStore, IndexedDocument } from './vector-store.js';
 import type { BM25Index } from './bm25.js';
 
 // ── concurrency limiter ──────────────────────────────────────
-
 class Semaphore {
   private queue: Array<() => void> = [];
   private active = 0;
@@ -32,7 +31,6 @@ class Semaphore {
 }
 
 // ── pipeline ─────────────────────────────────────────────────
-
 export class EmbeddingPipeline {
   private semaphore: Semaphore;
 
@@ -44,8 +42,7 @@ export class EmbeddingPipeline {
     this.semaphore = new Semaphore(config.embeddingConcurrency);
   }
 
-  /**
-   * process a single markdown file: parse → embed → store.
+  /**   * process a single markdown file: parse → embed → store.
    * `filepath` is the absolute path; the document id is derived as the
    * relative path from `config.notesdir`.
    */
@@ -59,15 +56,13 @@ export class EmbeddingPipeline {
 
     const id = path.relative(this.config.notesDir, filePath);
 
-    // skip if already indexed and file hasn't changed
-    const existing = this.vectorStore.get(id);
+    // skip if already indexed and file hasn't changed    const existing = this.vectorStore.get(id);
     if (existing && existing.mtime >= stat.mtimeMs) return;
 
     const raw = await fs.promises.readFile(filePath, 'utf-8');
     const parsed = parseMarkdownFile(raw, filePath);
 
-    // generate embedding (rate-limited)
-    await this.semaphore.acquire();
+    // generate embedding (rate-limited)    await this.semaphore.acquire();
     let embedding: number[];
     try {
       const textForEmbedding = `${parsed.title} ${parsed.plainText}`.slice(0, 8192);
@@ -93,8 +88,7 @@ export class EmbeddingPipeline {
     this.bm25Index.addDocument(id, parsed.plainText);
   }
 
-  /**
-   * remove a file from both indexes.
+  /**   * remove a file from both indexes.
    */
   async removeFile(filePath: string): Promise<void> {
     const id = path.relative(this.config.notesDir, filePath);
@@ -102,8 +96,7 @@ export class EmbeddingPipeline {
     this.bm25Index.removeDocument(id);
   }
 
-  /**
-   * full reindex: walk the entire notes directory, process every .md file,
+  /**   * full reindex: walk the entire notes directory, process every .md file,
    * remove stale entries for deleted files.
    */
   async fullReindex(): Promise<{ processed: number; failed: number; removed: number }> {
@@ -113,8 +106,7 @@ export class EmbeddingPipeline {
     let processed = 0;
     let failed = 0;
 
-    // process in batches to avoid overwhelming memory
-    const batchSize = this.config.embeddingConcurrency * 2;
+    // process in batches to avoid overwhelming memory    const batchSize = this.config.embeddingConcurrency * 2;
     for (let i = 0; i < mdFiles.length; i += batchSize) {
       const batch = mdFiles.slice(i, i + batchSize);
       const results = await Promise.allSettled(
@@ -135,8 +127,7 @@ export class EmbeddingPipeline {
       }
     }
 
-    // remove entries for deleted files
-    let removed = 0;
+    // remove entries for deleted files    let removed = 0;
     for (const id of this.vectorStore.allIds()) {
       if (!activePaths.has(id)) {
         await this.vectorStore.remove(id);
@@ -145,16 +136,14 @@ export class EmbeddingPipeline {
       }
     }
 
-    // persist
-    await this.vectorStore.save();
+    // persist    await this.vectorStore.save();
     await this.bm25Index.save();
 
     console.log(`[pipeline] reindex complete: ${processed} processed, ${failed} failed, ${removed} removed`);
     return { processed, failed, removed };
   }
 
-  /**
-   * persist current state to disk.
+  /**   * persist current state to disk.
    */
   async flush(): Promise<void> {
     await this.vectorStore.save();
@@ -163,7 +152,6 @@ export class EmbeddingPipeline {
 }
 
 // ── fs helpers ───────────────────────────────────────────────
-
 async function walkMarkdownFiles(dir: string): Promise<string[]> {
   const results: string[] = [];
 
@@ -178,8 +166,7 @@ async function walkMarkdownFiles(dir: string): Promise<string[]> {
     for (const entry of entries) {
       const full = path.join(d, entry.name);
       if (entry.isDirectory()) {
-        // skip hidden directories and node_modules
-        if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+        // skip hidden directories and node_modules        if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
         await walk(full);
       } else if (entry.isFile() && entry.name.endsWith('.md')) {
         results.push(full);

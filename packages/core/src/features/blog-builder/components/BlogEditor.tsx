@@ -11,20 +11,17 @@ import {
 } from 'lucide-react';
 
 
-// --- main component ---
-export function BlogEditor() {
+// --- main component ---export function BlogEditor() {
   const { slug } = useParams();
 
-  // if no slug, show dashboard
-  if (!slug) {
+  // if no slug, show dashboard  if (!slug) {
   return <BlogDashboard />;
   }
 
   return <BlogEditorParamsWrapper slug={slug} />;
 }
 
-// --- dashboard ---
-function BlogDashboard() {
+// --- dashboard ---function BlogDashboard() {
   const [posts, setPosts] = useState<BlogPostData[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -52,10 +49,7 @@ function BlogDashboard() {
   };
 
   const handleCreate = async () => {
-  // create a draft immediately or redirect to 'new'?
-  // let's redirect to 'new' and handle creation purely client-side until save?
-  // or create draft on server. server draft is safer.
-  try {
+  // create a draft immediately or redirect to 'new'?  // let's redirect to 'new' and handle creation purely client-side until save?  // or create draft on server. server draft is safer.  try {
   const res = await api.createRecord('blog_posts', {
  title: 'Untitled Post',
  slug: `draft-${Date.now()}`,
@@ -149,8 +143,7 @@ function BlogDashboard() {
   );
 }
 
-// --- editor wrapper ---
-function BlogEditorParamsWrapper({ slug }: { slug: string }) {
+// --- editor wrapper ---function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
@@ -159,14 +152,12 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   const [selectionBox, setSelectionBox] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
 
-  // initial fetch
-  useEffect(() => {
+  // initial fetch  useEffect(() => {
   const fetchPost = async () => {
   setLoading(true);
   try {
  if (slug === 'new') {
- // should have been handled by dashboard, but if hit directly:
- setPost({
+ // should have been handled by dashboard, but if hit directly: setPost({
  id: 'temp-new',
  title: 'New Post',
  slug: '',
@@ -183,8 +174,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
  });
  const found = (res.data as any)?.[0];
  if (found) {
- // ensure 'content' is parsed if string, or exists
- let elements = found.content;
+ // ensure 'content' is parsed if string, or exists let elements = found.content;
  if (typeof elements === 'string') elements = JSON.parse(elements);
  if (!Array.isArray(elements)) elements = [];
 
@@ -203,21 +193,18 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   fetchPost();
   }, [slug]);
 
-  // update window width
-  useEffect(() => {
+  // update window width  useEffect(() => {
   const handleResize = () => setViewWidth(window.innerWidth);
   window.addEventListener('resize', handleResize);
   return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // sync 'elements' and 'content'
-  const updatePost = (updates: Partial<BlogPostData>) => {
+  // sync 'elements' and 'content'  const updatePost = (updates: Partial<BlogPostData>) => {
   if (!post) return;
   setPost({ ...post, ...updates });
   };
 
-  // --- context methods ---
-  const updateElements = (batchUpdates: { id: string; updates: Partial<ElementData> }[]) => {
+  // --- context methods ---  const updateElements = (batchUpdates: { id: string; updates: Partial<ElementData> }[]) => {
   if (!post) return;
   const newElements = post.elements?.map(el => {
   const update = batchUpdates.find(u => u.id === el.id);
@@ -273,8 +260,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   }
   };
 
-  // dummy handlers
-  const handleElementContextMenu = (e: React.MouseEvent, _id: string) => { e.preventDefault(); };
+  // dummy handlers  const handleElementContextMenu = (e: React.MouseEvent, _id: string) => { e.preventDefault(); };
   const handleGlobalContextMenu = (e: React.MouseEvent) => { e.preventDefault(); };
 
   const contextValue: BlogBuilderContextType = {

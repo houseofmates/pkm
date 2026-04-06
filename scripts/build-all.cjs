@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-/**
- * build-all.cjs
+/** * build-all.cjs
  * builds appimage, deb, exe, and apk for pkm
  * outputs to /releases folder
  * 
@@ -137,8 +136,7 @@ function copyElectronBuilds(version) {
       } else if (file.endsWith('.dmg')) {
         destName = `pkm-${version.full}.dmg`;
       } else {
-        // skip other files
-        continue;
+        // skip other files        continue;
       }
       
       const dest = path.join(RELEASES_DIR, destName);
@@ -192,8 +190,7 @@ function createVersionJson(version) {
     releases: {}
   };
 
-  // detect what files exist
-  const files = fs.readdirSync(RELEASES_DIR);
+  // detect what files exist  const files = fs.readdirSync(RELEASES_DIR);
   
   for (const file of files) {
     if (file.endsWith('.AppImage')) {
@@ -221,14 +218,10 @@ function createVersionJson(version) {
 async function buildWebAssets() {
   step(1, 'building web assets...');
 
-  // instead of relying on npm workspace scripts (which may not include
-  // the root node_modules/.bin in PATH), invoke vite directly from the
-  // monorepo root. this guarantees the binary is found.
-  const viteBin = path.join(MONOREPO_ROOT, 'node_modules', '.bin', 'vite');
+  // instead of relying on npm workspace scripts (which may not include  // the root node_modules/.bin in path), invoke vite directly from the  // monorepo root. this guarantees the binary is found.  const viteBin = path.join(MONOREPO_ROOT, 'node_modules', '.bin', 'vite');
   if (!fs.existsSync(viteBin)) {
     warn(`vite binary not found at ${viteBin}, attempting npm workspace build`);
-    // fallback to workspace command
-    run('npm run build --workspace=pkm-web', {
+    // fallback to workspace command    run('npm run build --workspace=pkm-web', {
       env: {
         VITE_API_URL: process.env.VITE_API_URL || 'https://pkm.houseofmates.space/api'
       }
@@ -249,18 +242,13 @@ async function buildElectron() {
   step(2, 'building electron apps (appimage, deb, exe)...');
   const electronDir = path.join(MONOREPO_ROOT, 'apps', 'desktop-electron');
 
-  // determine current platform for cross-build logic
-  const { platform } = detectPlatform();
+  // determine current platform for cross-build logic  const { platform } = detectPlatform();
 
-  // install electron-builder if needed
-  info('ensuring electron-builder is available...');
+  // install electron-builder if needed  info('ensuring electron-builder is available...');
 
-  // primary build (will produce linux packages on linux, exe on windows)
-  run('npm run build', { cwd: electronDir });
+  // primary build (will produce linux packages on linux, exe on windows)  run('npm run build', { cwd: electronDir });
 
-  // if we're on a non-Windows host, try to produce a Windows installer via
-  // wine. electron-builder will do nothing if wine is missing or broken.
-  if (platform !== 'win32') {
+  // if we're on a non-windows host, try to produce a windows installer via  // wine. electron-builder will do nothing if wine is missing or broken.  if (platform !== 'win32') {
     try {
       execSync('which wine', { stdio: 'ignore' });
       info('wine detected – running cross‑build for Windows (.exe)');
@@ -277,16 +265,13 @@ async function buildApk() {
   step(3, 'building android apk...');
   const mobileDir = path.join(MONOREPO_ROOT, 'apps', 'mobile');
   
-  // build web for mobile
-  info('building mobile web assets...');
+  // build web for mobile  info('building mobile web assets...');
   run('npm run build', { cwd: mobileDir });
   
-  // sync capacitor
-  info('syncing capacitor...');
+  // sync capacitor  info('syncing capacitor...');
   run('npx cap sync android', { cwd: mobileDir });
   
-  // patch java version if needed
-  const androidDir = path.join(mobileDir, 'android');
+  // patch java version if needed  const androidDir = path.join(mobileDir, 'android');
   const gradleFiles = execSync('find . -name "*.gradle"', { cwd: androidDir })
     .toString()
     .split('\n')
@@ -304,8 +289,7 @@ async function buildApk() {
     }
   }
   
-  // build apk
-  info('building release apk...');
+  // build apk  info('building release apk...');
   run('./gradlew assembleRelease', { cwd: androidDir });
   
   success('apk built');
@@ -337,10 +321,7 @@ async function main() {
     cleanReleasesDir();
   }
 
-  // we can *cross‑build* a Windows installer on non‑Windows hosts if
-  // `wine` is installed. the CI already does this on windows-latest; here
-  // we'll attempt it if wine is available so local developers get an .exe too.
-
+  // we can *cross‑build* a windows installer on non‑windows hosts if  // `wine` is installed. the ci already does this on windows-latest; here  // we'll attempt it if wine is available so local developers get an .exe too.
 
   try {
     if (!skipBuild) {
@@ -359,11 +340,8 @@ async function main() {
     }
 
     if (buildApkFlag) {
-      // check for android sdk
-      try {
-        // we already checked for sdkmanager in the PATH earlier by setting PATH
-        // but let's be safe and just try to build if ANDROID_HOME is set
-        if (process.env.ANDROID_HOME || fs.existsSync(path.join(process.env.HOME, 'Android/Sdk'))) {
+      // check for android sdk      try {
+        // we already checked for sdkmanager in the path earlier by setting path        // but let's be safe and just try to build if android_home is set        if (process.env.ANDROID_HOME || fs.existsSync(path.join(process.env.HOME, 'Android/Sdk'))) {
           await buildApk();
           copyApk(version);
         } else {
@@ -374,12 +352,10 @@ async function main() {
       }
     }
 
-    // create version.json
-    step(4, 'creating version manifest...');
+    // create version.json    step(4, 'creating version manifest...');
     const releases = createVersionJson(version);
 
-    // final summary
-    console.log('');
+    // final summary    console.log('');
     log(colors.green, 'COMPLETE', 'build finished!');
     console.log('');
     console.log('releases folder:');
@@ -402,8 +378,7 @@ async function main() {
   }
 }
 
-// run if called directly
-if (require.main === module) {
+// run if called directlyif (require.main === module) {
   main().catch(err => {
     console.error(err);
     process.exit(1);

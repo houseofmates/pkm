@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-/**
- * bidirectional-git-sync.js
+/** * bidirectional-git-sync.js
  * 24/7 bidirectional sync between local filesystem and github
  * 
  * features:
@@ -22,8 +21,7 @@ const DEBOUNCE_LOCAL_MS = 10000; // 10s debounce for local changes
 const POLL_REMOTE_MS = 30000;    // 30s poll for remote changes
 const MAX_RETRIES = 3;
 
-// paths to ignore (don't trigger sync)
-const IGNORE_PATHS = [
+// paths to ignore (don't trigger sync)const IGNORE_PATHS = [
   '.git',
   'node_modules',
   'dist',
@@ -38,13 +36,11 @@ let hasLocalChanges = false;
 let isSyncing = false;
 let watchHandles = [];
 
-// logging helpers
-const timestamp = () => new Date().toISOString();
+// logging helpersconst timestamp = () => new Date().toISOString();
 const log = (msg) => console.log(`[${timestamp()}] ${msg}`);
 const logError = (msg) => console.error(`[${timestamp()}] ERROR: ${msg}`);
 
-// check if path should be ignored
-function shouldIgnore(filepath) {
+// check if path should be ignoredfunction shouldIgnore(filepath) {
   const relPath = path.relative(REPO_DIR, filepath);
   return IGNORE_PATHS.some(ignore => {
     if (ignore.includes('*')) {
@@ -55,8 +51,7 @@ function shouldIgnore(filepath) {
   });
 }
 
-// execute git command with retry logic
-function gitExec(command, options = {}) {
+// execute git command with retry logicfunction gitExec(command, options = {}) {
   const { retries = 0, cwd = REPO_DIR } = options;
   try {
     const result = execSync(command, { 
@@ -74,8 +69,7 @@ function gitExec(command, options = {}) {
   }
 }
 
-// check if we have a valid git repo
-function validateRepo() {
+// check if we have a valid git repofunction validateRepo() {
   try {
     gitExec('git rev-parse --git-dir');
     return true;
@@ -84,8 +78,7 @@ function validateRepo() {
   }
 }
 
-// get current branch
-function getCurrentBranch() {
+// get current branchfunction getCurrentBranch() {
   try {
     return gitExec('git rev-parse --abbrev-ref HEAD');
   } catch (e) {
@@ -93,8 +86,7 @@ function getCurrentBranch() {
   }
 }
 
-// check for local changes
-function hasLocalModifications() {
+// check for local changesfunction hasLocalModifications() {
   try {
     const status = gitExec('git status --porcelain');
     return status.length > 0;
@@ -103,11 +95,9 @@ function hasLocalModifications() {
   }
 }
 
-// check if remote has changes we don't have
-function checkRemoteChanges() {
+// check if remote has changes we don't havefunction checkRemoteChanges() {
   try {
-    // fetch without merging
-    gitExec('git fetch origin');
+    // fetch without merging    gitExec('git fetch origin');
     
     const local = gitExec('git rev-parse HEAD');
     const remote = gitExec(`git rev-parse origin/${getCurrentBranch()}`);
@@ -128,8 +118,7 @@ function checkRemoteChanges() {
   }
 }
 
-// sync local changes to github
-async function syncToRemote() {
+// sync local changes to githubasync function syncToRemote() {
   if (isSyncing) return;
   isSyncing = true;
   
@@ -142,15 +131,12 @@ async function syncToRemote() {
     
     log('📝 syncing local changes to github...');
     
-    // stage all changes
-    gitExec('git add -A');
+    // stage all changes    gitExec('git add -A');
     
-    // commit with timestamp
-    const commitMsg = `auto-sync: local changes ${new Date().toISOString()}`;
+    // commit with timestamp    const commitMsg = `auto-sync: local changes ${new Date().toISOString()}`;
     gitExec(`git commit -m "${commitMsg}" --no-verify`);
     
-        // push to remote (bypass hooks since npm may not be available in systemd env)
-        gitExec('git push origin HEAD --no-verify');
+        // push to remote (bypass hooks since npm may not be available in systemd env)        gitExec('git push origin HEAD --no-verify');
 
     
     log('✅ local changes pushed to github');
@@ -158,8 +144,7 @@ async function syncToRemote() {
   } catch (error) {
     logError(`failed to push: ${error.message}`);
     
-    // if push failed due to remote changes, we'll handle in next poll
-    if (error.message.includes('rejected') || error.message.includes('behind')) {
+    // if push failed due to remote changes, we'll handle in next poll    if (error.message.includes('rejected') || error.message.includes('behind')) {
       log('remote has changes, will pull and retry...');
     }
   } finally {
@@ -167,8 +152,7 @@ async function syncToRemote() {
   }
 }
 
-// sync remote changes to local (handles jules/pr workflow)
-async function syncFromRemote() {
+// sync remote changes to local (handles jules/pr workflow)async function syncFromRemote() {
   if (isSyncing) return;
   isSyncing = true;
   
@@ -176,33 +160,27 @@ async function syncFromRemote() {
     const remoteStatus = checkRemoteChanges();
     
     if (remoteStatus === 'up-to-date') {
-      // nothing to do
-    } else if (remoteStatus === 'behind') {
+      // nothing to do    } else if (remoteStatus === 'behind') {
       log('📥 remote has new changes, pulling...');
       
-      // if we have local changes, stash them first
-      const hadLocalChanges = hasLocalModifications();
+      // if we have local changes, stash them first      const hadLocalChanges = hasLocalModifications();
       if (hadLocalChanges) {
         log('stashing local changes before pull...');
         gitExec('git stash push -m "auto-stash-before-pull"');
       }
       
-      // pull remote changes
-      gitExec('git pull origin HEAD --no-rebase');
+      // pull remote changes      gitExec('git pull origin HEAD --no-rebase');
       log('✅ pulled remote changes to local filesystem');
       
-      // restore stashed changes if any
-      if (hadLocalChanges) {
+      // restore stashed changes if any      if (hadLocalChanges) {
         try {
           gitExec('git stash pop');
           log('✅ restored local changes');
-          // now try to commit and push these
-          setTimeout(() => syncToRemote(), 5000);
+          // now try to commit and push these          setTimeout(() => syncToRemote(), 5000);
         } catch (stashError) {
           logError('conflict restoring stashed changes - manual resolution needed');
           log('run: git stash list && git stash pop');
-          // notify somehow? write to a file?
-          fs.writeFileSync(
+          // notify somehow? write to a file?          fs.writeFileSync(
             path.join(REPO_DIR, '.sync-conflict'), 
             `conflict detected at ${timestamp()}\nrun: git stash pop\n`
           );
@@ -211,26 +189,22 @@ async function syncFromRemote() {
     } else if (remoteStatus === 'diverged') {
       log('⚠️ branches have diverged, attempting merge...');
       
-      // try to auto-merge
-      try {
+      // try to auto-merge      try {
         gitExec('git pull origin HEAD --no-rebase');
         log('✅ auto-merge successful');
       } catch (mergeError) {
         logError('auto-merge failed, manual resolution needed');
-        // abort the merge to keep repo clean
-        try {
+        // abort the merge to keep repo clean        try {
           gitExec('git merge --abort');
         } catch (e) {
-          // ignore abort errors
-        }
+          // ignore abort errors        }
         fs.writeFileSync(
           path.join(REPO_DIR, '.sync-conflict'),
           `merge conflict at ${timestamp()}\nmanual resolution required\n`
         );
       }
     } else if (remoteStatus === 'ahead') {
-      // we have local commits that need pushing
-      setTimeout(() => syncToRemote(), 1000);
+      // we have local commits that need pushing      setTimeout(() => syncToRemote(), 1000);
     }
   } catch (error) {
     logError(`sync from remote failed: ${error.message}`);
@@ -239,13 +213,11 @@ async function syncFromRemote() {
   }
 }
 
-// handle local file change event
-function onLocalChange(eventType, filename) {
+// handle local file change eventfunction onLocalChange(eventType, filename) {
   if (!filename) return;
   if (shouldIgnore(filename)) return;
   
-  // debounce rapid changes
-  if (localChangeTimer) {
+  // debounce rapid changes  if (localChangeTimer) {
     clearTimeout(localChangeTimer);
   }
   
@@ -257,8 +229,7 @@ function onLocalChange(eventType, filename) {
   log(`📝 detected ${eventType}: ${filename} (will sync in ${DEBOUNCE_LOCAL_MS}ms)`);
 }
 
-// setup recursive file watcher
-function setupWatcher() {
+// setup recursive file watcherfunction setupWatcher() {
   log('👁️ setting up filesystem watcher...');
   
   const watchOptions = {
@@ -272,8 +243,7 @@ function setupWatcher() {
     log('✅ watching for local changes');
   } catch (error) {
     logError(`failed to setup watcher: ${error.message}`);
-    // fallback to polling every 5s
-    log('falling back to polling mode');
+    // fallback to polling every 5s    log('falling back to polling mode');
     setInterval(() => {
       if (hasLocalModifications() && !hasLocalChanges) {
         hasLocalChanges = true;
@@ -283,49 +253,40 @@ function setupWatcher() {
   }
 }
 
-// cleanup on exit
-function cleanup() {
+// cleanup on exitfunction cleanup() {
   log('🛑 shutting down...');
   watchHandles.forEach(handle => {
     try {
       handle.close();
     } catch (e) {
-      // ignore
-    }
+      // ignore    }
   });
   process.exit(0);
 }
 
-// main
-async function main() {
+// mainasync function main() {
   log('🚀 bidirectional git sync starting...');
   log(`📁 repository: ${REPO_DIR}`);
   log(`⏱️  local debounce: ${DEBOUNCE_LOCAL_MS}ms`);
   log(`⏱️  remote poll: ${POLL_REMOTE_MS}ms`);
   
-  // validate repo
-  if (!validateRepo()) {
+  // validate repo  if (!validateRepo()) {
     logError('not a valid git repository');
     process.exit(1);
   }
   
-  // check initial state
-  const branch = getCurrentBranch();
+  // check initial state  const branch = getCurrentBranch();
   log(`🌿 current branch: ${branch}`);
   
-  // do initial sync check
-  await syncFromRemote();
+  // do initial sync check  await syncFromRemote();
   
-  // setup filesystem watcher for local → github
-  setupWatcher();
+  // setup filesystem watcher for local → github  setupWatcher();
   
-  // setup polling for github → local (catches jules/pr changes)
-  setInterval(() => {
+  // setup polling for github → local (catches jules/pr changes)  setInterval(() => {
     syncFromRemote();
   }, POLL_REMOTE_MS);
   
-  // also check for local changes periodically as backup
-  setInterval(() => {
+  // also check for local changes periodically as backup  setInterval(() => {
     if (hasLocalModifications() && !isSyncing) {
       hasLocalChanges = true;
       syncToRemote();
@@ -336,8 +297,7 @@ async function main() {
   log('   local changes → auto-push to github');
   log('   github changes (jules/prs) → auto-pull to local');
   
-  // handle graceful shutdown
-  process.on('SIGINT', cleanup);
+  // handle graceful shutdown  process.on('SIGINT', cleanup);
   process.on('SIGTERM', cleanup);
   process.on('exit', cleanup);
 }

@@ -31,22 +31,18 @@ const getRuntimeLocation = () => {
 };
 
 const resolveBackendBaseUrl = () => {
-    // support older tests and configs that set vite_api_url (nocobase) as well
-    const overrideBackend = globalThis.__HOM_TEST_BACKEND_URL__;
+    // support older tests and configs that set vite_api_url (nocobase) as well    const overrideBackend = globalThis.__HOM_TEST_BACKEND_URL__;
     const rawApiEnv = (typeof process !== 'undefined' && (process as any).env && (process as any).env.VITE_API_URL)
       || (import.meta.env as any).VITE_API_URL;
     const rawBackendEnv = overrideBackend ?? (import.meta.env as any).VITE_BACKEND_URL;
-    // prefer explicit backend override, otherwise fall back to api env for legacy behavior
-    const rawEnv = rawBackendEnv ?? rawApiEnv;
+    // prefer explicit backend override, otherwise fall back to api env for legacy behavior    const rawEnv = rawBackendEnv ?? rawApiEnv;
     let envBase = rawEnv;
     if (envBase && typeof envBase === 'string' && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
 
-    // log the raw value for backwards-compatible tests that expect this message
-    try {
+    // log the raw value for backwards-compatible tests that expect this message    try {
         secureLogger.debug('[NotionImportWidget] raw VITE_API_URL=', rawApiEnv, 'env VITE_API_URL=', envBase ? String(envBase).replace(/\/$/, '') : envBase);
     } catch (e) {
-        // ignore
-    }
+        // ignore    }
 
     if (envBase && typeof envBase === 'string' && envBase.startsWith('http')) {
         const runtimeLoc = getRuntimeLocation();
@@ -61,8 +57,7 @@ const resolveBackendBaseUrl = () => {
         return { baseUrl: envBase, rawEnv, envBase, source: 'backend' as const };
     }
 
-    // default to backend import handler behaviour
-    return { baseUrl: '/api', rawEnv, envBase, source: 'backend' as const };
+    // default to backend import handler behaviour    return { baseUrl: '/api', rawEnv, envBase, source: 'backend' as const };
 };
 
 export function NotionImportWidget() {
@@ -88,20 +83,16 @@ export function NotionImportWidget() {
             appendLog('error: total upload exceeds 230kb');
             return;
         }
-        // reject files that are too small (likely invalid html or truncated)
-        const minSize = 64; // bytes
+        // reject files that are too small (likely invalid html or truncated)        const minSize = 64; // bytes
         if (files.some(f => f.size < minSize)) {
             appendLog('error: one or more files are too small to be valid');
             return;
         }
-        // prefer the pkm app setting but fall back to known localstorage keys
-        let apiKey: string | null | undefined = appApiKey ||
+        // prefer the pkm app setting but fall back to known localstorage keys        let apiKey: string | null | undefined = appApiKey ||
             storageManager.getItem('hom_api_key') ||
             storageManager.getItem('nocobase_token') ||
             storageManager.getItem('nocobase_api_key');
-        // sometimes storage contains the literal string "null" or "undefined";
-        // treat those as empty.
-        if (apiKey === 'null' || apiKey === 'undefined') apiKey = '';
+        // sometimes storage contains the literal string "null" or "undefined";        // treat those as empty.        if (apiKey === 'null' || apiKey === 'undefined') apiKey = '';
         if (import.meta.env.DEV) {
             secureLogger.debug('[NotionImportWidget] using apiKey', apiKey && maskString(apiKey));
         }
@@ -118,8 +109,7 @@ export function NotionImportWidget() {
                 appendLog(`warning: file ${f.name} is not a CSV`);
             }
         });
-        // inspect the first few bytes of each file to warn if it looks like an html error page
-        for (const f of files) {
+        // inspect the first few bytes of each file to warn if it looks like an html error page        for (const f of files) {
             try {
                 const sl = f.slice(0, 32);
                 let hdr = '';
@@ -143,10 +133,7 @@ export function NotionImportWidget() {
         appendLog('uploading...');
         const fd = new FormData();
         files.forEach((f) => fd.append('files', f, f.name));
-        // determine the backend url for handling imports. this is **not** the
-        // nocobase api (vite_api_url) but the pkm backend service. the latter
-        // is exposed via vite_backend_url or proxied under `/api` in dev.
-        const { baseUrl, rawEnv, envBase, source } = resolveBackendBaseUrl() as any;
+        // determine the backend url for handling imports. this is **not** the        // nocobase api (vite_api_url) but the pkm backend service. the latter        // is exposed via vite_backend_url or proxied under `/api` in dev.        const { baseUrl, rawEnv, envBase, source } = resolveBackendBaseUrl() as any;
         const url = (source === 'api') ? `${baseUrl}/nb-import` : `${baseUrl}/nb-import-csv`;
         if (import.meta.env.DEV) {
             secureLogger.debug('[NotionImportWidget] using backend', rawEnv ?? envBase, 'using url', url, `(source=${source})`);
@@ -183,8 +170,7 @@ export function NotionImportWidget() {
                 setPreview(data.databases.map((d: any) => ({ name: d.name, relations: d.relations })));
             }
 
-            // poll for progress lines
-            let pollTimer: any;
+            // poll for progress lines            let pollTimer: any;
             let pollTimeout: any;
             let lastLogCount = 0;
             const pollLogs = async () => {
@@ -221,8 +207,7 @@ export function NotionImportWidget() {
                         }
                         return;
                     }
-                    // backend/csv import behaviour: get logs?id=...
-                    const pollUrl = `${baseUrl}/nb-import/logs?id=${encodeURIComponent(data.taskId)}`;
+                    // backend/csv import behaviour: get logs?id=...                    const pollUrl = `${baseUrl}/nb-import/logs?id=${encodeURIComponent(data.taskId)}`;
                     const pres = await fetch(pollUrl, {
                         headers: { Authorization: `Bearer ${apiKey}` }
                     });
@@ -270,8 +255,7 @@ export function NotionImportWidget() {
         if (!lastTaskId) return;
         appendLog(`retrying poll for task ${lastTaskId}...`);
         setRunning(true);
-        // reuse most recent api key lookup
-        const apiKey = appApiKey ||
+        // reuse most recent api key lookup        const apiKey = appApiKey ||
             storageManager.getItem('hom_api_key') ||
             storageManager.getItem('nocobase_token') ||
             storageManager.getItem('nocobase_api_key');

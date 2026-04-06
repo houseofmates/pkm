@@ -18,8 +18,7 @@ import { updateDrawingMeta } from '@/features/edgeless/storage';
 import { secureLogger } from '@/lib/secure-logger';
 import { useEdgelessStore } from '@/features/edgeless/store';
 
-// wrapper component to fetch full collection details with fields
-function CollectionWidgetWrapper({ collectionName, initialView, viewConfig, onRemove }: { 
+// wrapper component to fetch full collection details with fieldsfunction CollectionWidgetWrapper({ collectionName, initialView, viewConfig, onRemove }: { 
   collectionName: string; 
   initialView: ViewType; 
   viewConfig?: any; 
@@ -79,8 +78,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
     const isChatOpen = useEdgelessStore((s) => s.isChatOpen);
     const setChatOpen = useEdgelessStore((s) => s.setChatOpen);
 
-    // fetch local documents for the widget picker
-    useEffect(() => {
+    // fetch local documents for the widget picker    useEffect(() => {
         if (!addMenuOpen) return;
         const docs: { id: string, title: string }[] = [];
         for (let i = 0; i < localStorage.length; i++) {
@@ -96,8 +94,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
         setLocalDocs(docs);
     }, [addMenuOpen]);
 
-    // initialize home canvas if it doesn't exist
-    useEffect(() => {
+    // initialize home canvas if it doesn't exist    useEffect(() => {
         if (drawingIdLoading || homeDrawingId) return;
         let cancelled = false;
         const ensureDrawingId = async () => {
@@ -219,8 +216,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
 
     const { setNodeRef } = useDroppable({ id: 'dashboard-canvas' });
 
-    // external event listeners for dashboard integration
-    useEffect(() => {
+    // external event listeners for dashboard integration    useEffect(() => {
         const handleAdd = (e: any) => {
             const { id, type, name } = e.detail;
             if (type === 'collection') {

@@ -40,8 +40,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
       try {
         const res = await api.listCollections();
         const data = Array.isArray(res) ? res : (res as { data?: any[] }).data || [];
-        // filter out system collections
-        const userCollections = data.filter((c: any) =>
+        // filter out system collections        const userCollections = data.filter((c: any) =>
           !c.name.startsWith('_') &&
           !['users', 'roles', 'authenticators', 'jobs', 'attachments'].includes(c.name)
         );

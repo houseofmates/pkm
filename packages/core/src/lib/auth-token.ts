@@ -10,8 +10,7 @@ export function normalizeAuthToken(raw: string): string {
 
   token = token.replace(/^bearer\s+/i, '').trim();
 
-  // jwt should never contain whitespace; strip any accidental newlines/spaces
-  if (token.includes('.')) {
+  // jwt should never contain whitespace; strip any accidental newlines/spaces  if (token.includes('.')) {
     token = token.replace(/\s+/g, '');
   } else {
     token = token.replace(/[\r\n\t]/g, '').trim();

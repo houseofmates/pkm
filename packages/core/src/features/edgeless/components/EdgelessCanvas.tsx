@@ -28,8 +28,7 @@ import { buildOverlaySpatialIndex } from '../spatial/spatial-index'
 import { useDrawingTools } from '../hooks/use-drawing-tools'
 import { applyOp, compactOplog, resolveConflicts } from '../storage/oplog'
 
-// --- canvas element pooling (reduces gc and keeps redraws snappy) ---
-const canvasPool: HTMLCanvasElement[] = []
+// --- canvas element pooling (reduces gc and keeps redraws snappy) ---const canvasPool: HTMLCanvasElement[] = []
 
 function borrowCanvas(): HTMLCanvasElement {
   const c = canvasPool.pop() || document.createElement('canvas')
@@ -49,14 +48,9 @@ function releaseCanvas(canvas: HTMLCanvasElement) {
   canvasPool.push(canvas)
 }
 
-// ─── brush / eraser cursor (svg data-url) ───────────────────────────────────────
-// renders a thin circle outline that rings the pointer tip.
-// using a css custom cursor is the only approach that works correctly in electron
-// appimage builds — it bypasses all parent-transform / coordinate-space issues.
-function makeBrushCursor(px: number): string {
+// ─── brush / eraser cursor (svg data-url) ───────────────────────────────────────// renders a thin circle outline that rings the pointer tip.// using a css custom cursor is the only approach that works correctly in electron// appimage builds — it bypasses all parent-transform / coordinate-space issues.function makeBrushCursor(px: number): string {
   const d = Math.max(4, Math.round(px))
-  // add 2px padding on each side so the 1.5px stroke is never clipped
-  const sz = d + 4
+  // add 2px padding on each side so the 1.5px stroke is never clipped  const sz = d + 4
   const c = sz / 2
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${sz}' height='${sz}'>`
     + `<circle cx='${c}' cy='${c}' r='${d / 2}' fill='none' stroke='rgba(255,255,255,0.85)' stroke-width='1.5'/>`
@@ -65,15 +59,10 @@ function makeBrushCursor(px: number): string {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hotspot} ${hotspot}, crosshair`
 }
 
-// ─── custom hand cursor for panning ─────────────────────────────────────────────
-// small white hand cursor (20x20px) with hotspot at center (10,10)
-const HAND_CURSOR_SVG = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 11v6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="m14 10v4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="m10 10.5v6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="m18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-3.3 0-6.4-2.5-7.7-5.6l-1.3-3.1a2 2 0 0 1 3 11.5v9a2 2 0 0 1 2-2v0"/></svg>`)}`;
+// ─── custom hand cursor for panning ─────────────────────────────────────────────// small white hand cursor (20x20px) with hotspot at center (10,10)const HAND_CURSOR_SVG = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 11v6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="m14 10v4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="m10 10.5v6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="m18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-3.3 0-6.4-2.5-7.7-5.6l-1.3-3.1a2 2 0 0 1 3 11.5v9a2 2 0 0 1 2-2v0"/></svg>`)}`;
 const getHandCursor = (grabbing = false) => `url("${HAND_CURSOR_SVG}") 10 10, ${grabbing ? 'grabbing' : 'grab'}`;
 
-// ─── memoized per-element wrapper ─────────────────────────────────────────────
-// each element subscribes to its own data via useelement(id).
-// re-renders only when that specific element object changes in the store.
-
+// ─── memoized per-element wrapper ─────────────────────────────────────────────// each element subscribes to its own data via useelement(id).// re-renders only when that specific element object changes in the store.
 interface CanvasElementProps {
   id: string
   pointerClass: string
@@ -278,41 +267,32 @@ const CanvasElement = memo(function CanvasElement({ id, pointerClass, pdfDoc }: 
 
 
 // ─── visible element list (viewport-culled) ────────────────────────────────────
-
 interface OverlayLayerProps {
   pointerClass: string
   pdfDoc: any
 }
 
-/** renders only elements whose ids are within the current viewport.
- *  the overlay container uses a css transform so pan/zoom is handled by the
+/** renders only elements whose ids are within the current viewport. *  the overlay container uses a css transform so pan/zoom is handled by the
  *  gpu compositor — no react re-renders needed for viewport movement. */
 const OverlayLayer = memo(function OverlayLayer({ pointerClass, pdfDoc }: OverlayLayerProps) {
   const elementIds = useElementIds()
   const elements = useEdgelessStore((s) => s.elements)
   const viewPort = useViewport()
 
-  // build a lightweight spatial index from the current elements for viewport culling.
-  // this recomputes only when the elements array reference changes (add/remove/move).
-  const overlaySpatialIndex = useMemo(() => {
+  // build a lightweight spatial index from the current elements for viewport culling.  // this recomputes only when the elements array reference changes (add/remove/move).  const overlaySpatialIndex = useMemo(() => {
     return buildOverlaySpatialIndex(elements)
   }, [elements])
 
-  // compute visible ids – we use a strict 20% screen buffer for aggressive virtualization.
-  // nodes outside this buffer are completely unmounted from the dom.
-  const visibleIds = useMemo(() => {
+  // compute visible ids – we use a strict 20% screen buffer for aggressive virtualization.  // nodes outside this buffer are completely unmounted from the dom.  const visibleIds = useMemo(() => {
     const screenW = typeof window !== 'undefined' ? window.innerWidth : 1920
     const screenH = typeof window !== 'undefined' ? window.innerHeight : 1080
-    // queryviewportids now handles the 20% buffer calculation internally
-    return overlaySpatialIndex.queryViewportIds(
+    // queryviewportids now handles the 20% buffer calculation internally    return overlaySpatialIndex.queryViewportIds(
       viewPort.x, viewPort.y, viewPort.zoom,
       screenW, screenH, 0.2
     )
   }, [overlaySpatialIndex, viewPort.x, viewPort.y, viewPort.zoom])
 
-  // true virtualization: only render elements that are within the buffered viewport.
-  // this ensures nodes are completely unmounted when off-screen.
-  const idsToRender = useMemo(() => {
+  // true virtualization: only render elements that are within the buffered viewport.  // this ensures nodes are completely unmounted when off-screen.  const idsToRender = useMemo(() => {
     return elementIds.filter((id) => visibleIds.has(id))
   }, [elementIds, visibleIds])
 
@@ -327,7 +307,6 @@ const OverlayLayer = memo(function OverlayLayer({ pointerClass, pdfDoc }: Overla
 
 
 // ─── types ──────────────────────────────────────────────────────────────────────
-
 export type HistoryAction =
   | { type: 'add'; obj: fabric.Object }
   | { type: 'remove'; obj: fabric.Object }
@@ -360,8 +339,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
   
   const viewportRafRef = useRef<number | null>(null)
 
-  // ── undo / redo history (o(1) differential actions) ──
-  const historyRef = useRef<HistoryAction[]>([])
+  // ── undo / redo history (o(1) differential actions) ──  const historyRef = useRef<HistoryAction[]>([])
   const redoRef = useRef<HistoryAction[]>([])
   const isLoadingStateRef = useRef(false)
 
@@ -442,15 +420,13 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     isLoadingStateRef.current = false
   }, [])
 
-  // wire store undo/redo to fabric undo/redo (for gesture taps)
-  useEffect(() => {
+  // wire store undo/redo to fabric undo/redo (for gesture taps)  useEffect(() => {
     const store = useEdgelessStore.getState() as any
     store._fabricUndo = performUndo
     store._fabricRedo = performRedo
   }, [performUndo, performRedo])
 
-  // ── store subscriptions (granular) ──
-  const fabricCanvas = useEdgelessStore((s) => s.fabricCanvas)
+  // ── store subscriptions (granular) ──  const fabricCanvas = useEdgelessStore((s) => s.fabricCanvas)
   const setFabricCanvas = useEdgelessStore((s) => s.setFabricCanvas)
   const viewPort = useViewport()
   const setViewport = useEdgelessStore((s) => s.setViewport)
@@ -464,19 +440,16 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
   const { handleDrop } = useCanvasEvents()
   useCanvasSafe()
   
-  // initialize drawing tools (lasso, transform, custom brush/eraser)
-  useDrawingTools(fabricCanvas, pushHistoryAction)
+  // initialize drawing tools (lasso, transform, custom brush/eraser)  useDrawingTools(fabricCanvas, pushHistoryAction)
 
-  // pen/eraser settings
-  const penWidth = useEdgelessStore((s) => s.penWidth)
+  // pen/eraser settings  const penWidth = useEdgelessStore((s) => s.penWidth)
   const penColor = useEdgelessStore((s) => s.penColor)
   const penOpacity = useEdgelessStore((s) => s.penOpacity)
   const eraserWidth = useEdgelessStore((s) => s.eraserWidth)
   const eraserOpacity = useEdgelessStore((s) => s.eraserOpacity)
   const stabilizerLevel = useEdgelessStore((s) => s.stabilizerLevel)
 
-  // track last stateful action to decide empty-space two-finger undo
-  useEffect(() => {
+  // track last stateful action to decide empty-space two-finger undo  useEffect(() => {
     lastStateChangeRef.current = Date.now()
   }, [viewPort, elementsLength])
 
@@ -525,21 +498,17 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       stopContextMenu: true,
     })
 
-      // configure transform controls on all fabric objects
-      ; (fabric.Object.prototype as any).transparentCorners = false
+      // configure transform controls on all fabric objects      ; (fabric.Object.prototype as any).transparentCorners = false
       ; (fabric.Object.prototype as any).cornerColor = '#f6b012'
       ; (fabric.Object.prototype as any).cornerStyle = 'circle'
       ; (fabric.Object.prototype as any).cornerSize = 10
       ; (fabric.Object.prototype as any).borderColor = '#f6b012'
       ; (fabric.Object.prototype as any).borderScaleFactor = 1.5
       ; (fabric.Object.prototype as any).padding = 4
-      // rotation control: outside dot with connecting line
-      // ensure controls object exists (fabric.js v6+ may not have it initialized yet)
-      if (!(fabric.Object.prototype as any).controls) {
+      // rotation control: outside dot with connecting line      // ensure controls object exists (fabric.js v6+ may not have it initialized yet)      if (!(fabric.Object.prototype as any).controls) {
         (fabric.Object.prototype as any).controls = {}
       }
-      // also ensure controlsutils is available
-      const controlsUtils = (fabric as any).controlsUtils || {}
+      // also ensure controlsutils is available      const controlsUtils = (fabric as any).controlsUtils || {}
       ; (fabric.Object.prototype as any).controls.mtr = new fabric.Control({
         x: 0,
         y: -0.5,
@@ -551,8 +520,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       })
 
     setFabricCanvas(canvas)
-    // save initial empty canvas state as history baseline
-    historyRef.current = [] // o(1) log
+    // save initial empty canvas state as history baseline    historyRef.current = [] // o(1) log
     if (onLoad) onLoad()
 
     const resizeObserver = new ResizeObserver(() => {
@@ -572,12 +540,10 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     }
   }, [])
   
-  // ── global hooks for saving and event listener for loading ──
-  useEffect(() => {
+  // ── global hooks for saving and event listener for loading ──  useEffect(() => {
     if (!fabricCanvas) return;
 
-    // ensure fabric is globally available for oplog utils
-    (window as any).fabric = fabric;
+    // ensure fabric is globally available for oplog utils    (window as any).fabric = fabric;
 
     (window as any).pkmGetCanvasJSON = () => {
       const canvasJson = (fabricCanvas as any).toJSON(['data', 'id', 'name', 'locked', 'selectable', 'evented']);
@@ -602,8 +568,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         const state = checkpoint.state as any;
         if (state && state.canvas) {
           await fabricCanvas.loadFromJSON(state.canvas);
-          // restore overlay elements (widgets, notes, cards, etc.)
-          useEdgelessStore.getState().setElements(state.elements || []);
+          // restore overlay elements (widgets, notes, cards, etc.)          useEdgelessStore.getState().setElements(state.elements || []);
         } else {
           await fabricCanvas.loadFromJSON(state);
         }
@@ -620,8 +585,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         }
         
         fabricCanvas.requestRenderAll();
-        // save initial state to history baseline
-        historyRef.current = [];
+        // save initial state to history baseline        historyRef.current = [];
       } catch (err) {
         secureLogger.error('[canvas] failed to load drawing from oplog:', err);
       } finally {
@@ -631,8 +595,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
 
     window.addEventListener('pkm:load-oplog', handleLoadOplog as EventListener);
     
-    // set current drawing id for recovery
-    (window as any).__pkmCurrentDrawingId = useEdgelessStore.getState().drawingId;
+    // set current drawing id for recovery    (window as any).__pkmCurrentDrawingId = useEdgelessStore.getState().drawingId;
 
     return () => {
       delete (window as any).pkmGetCanvasJSON;
@@ -642,42 +605,35 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     };
   }, [fabricCanvas]);
 
-  // tool configuration (drawing / eraser)
-  useEffect(() => {
+  // tool configuration (drawing / eraser)  useEffect(() => {
     if (!fabricCanvas) return
 
-    // tool logic overrides
-    fabricCanvas.isDrawingMode = false;
+    // tool logic overrides    fabricCanvas.isDrawingMode = false;
     fabricCanvas.selection = false;
     fabricCanvas.defaultCursor = 'default';
 
     if (activeTool === 'pen') {
       fabricCanvas.isDrawingMode = true
-      // apply svg brush cursor immediately (the useeffect also re-applies on size changes)
-      const cursorUrl = makeBrushCursor(penWidth * viewPort.zoom)
+      // apply svg brush cursor immediately (the useeffect also re-applies on size changes)      const cursorUrl = makeBrushCursor(penWidth * viewPort.zoom)
       fabricCanvas.freeDrawingCursor = cursorUrl
       fabricCanvas.defaultCursor = cursorUrl
       fabricCanvas.hoverCursor = cursorUrl
       document.body.style.cursor = ''
       document.body.classList.remove('cursor-none')
-      // disable selection on objects during drawing
-      fabricCanvas.getObjects().forEach((obj: any) => {
-        // allow selecting path objects even in pen mode so they can be 'edited' (resized/moved)
-        if (obj.type === 'path' && obj.globalCompositeOperation !== 'destination-out') {
+      // disable selection on objects during drawing      fabricCanvas.getObjects().forEach((obj: any) => {
+        // allow selecting path objects even in pen mode so they can be 'edited' (resized/moved)        if (obj.type === 'path' && obj.globalCompositeOperation !== 'destination-out') {
           obj.set({ selectable: true, evented: true });
         } else {
           obj.set({ selectable: false, evented: false });
         }
       });
 
-      // custom pressure-sensitive brush
-      class PressureSensitivePencilBrush extends (fabric.PencilBrush as any) {
+      // custom pressure-sensitive brush      class PressureSensitivePencilBrush extends (fabric.PencilBrush as any) {
         private pressures: number[] = []
         private baseWidth: number = penWidth
         private pressureEnabled: boolean = useEdgelessStore.getState().pressureEnabled
 
-        // pressure curve: maps 0-1 pressure to 0-1 output (cubic bezier approximation)
-        private applyPressureCurve(pressure: number): number {
+        // pressure curve: maps 0-1 pressure to 0-1 output (cubic bezier approximation)        private applyPressureCurve(pressure: number): number {
           const [x1, y1, x2, y2] = [0.25, 0.1, 0.25, 1.0]
           const t = Math.max(0, Math.min(1, pressure))
           const mt = 1 - t
@@ -685,8 +641,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         }
 
         onMouseDown(pointer: { x: number; y: number }, options: any) {
-          // capture pressure from the original pointer event
-          const pointerEvent = options?.e as PointerEvent | undefined
+          // capture pressure from the original pointer event          const pointerEvent = options?.e as PointerEvent | undefined
           const pressure = (pointerEvent?.pressure ?? 0.5) || 0.5
           this.pressures = [pressure]
           this.baseWidth = useEdgelessStore.getState().penWidth
@@ -695,8 +650,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         }
 
         onMouseMove(pointer: { x: number; y: number }, options: any) {
-          // capture pressure from the original pointer event
-          const pointerEvent = options?.e as PointerEvent | undefined
+          // capture pressure from the original pointer event          const pointerEvent = options?.e as PointerEvent | undefined
           const pressure = (pointerEvent?.pressure ?? 0.5) || 0.5
           this.pressures.push(pressure)
           super.onMouseMove(pointer, options)
@@ -712,15 +666,13 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
 
           this._saveAndTransform(ctx)
 
-          // draw segments with varying width based on pressure
-          for (let i = 0; i < points.length - 1; i++) {
+          // draw segments with varying width based on pressure          for (let i = 0; i < points.length - 1; i++) {
             const p1 = points[i]
             const p2 = points[i + 1]
             const pressure1 = this.pressureEnabled ? this.applyPressureCurve(this.pressures[i] ?? 0.5) : 0.5
             const pressure2 = this.pressureEnabled ? this.applyPressureCurve(this.pressures[i + 1] ?? 0.5) : 0.5
 
-            // average pressure for this segment
-            const avgPressure = (pressure1 + pressure2) / 2
+            // average pressure for this segment            const avgPressure = (pressure1 + pressure2) / 2
             const dynamicWidth = Math.max(0.5, this.baseWidth * avgPressure)
 
             ctx.beginPath()
@@ -747,8 +699,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       const brush: any = new PressureSensitivePencilBrush()
       brush.canvas = fabricCanvas
       brush.width = penWidth
-      // canvas 2d api doesn't support css variables — resolve to computed color
-      let resolvedColor = penColor
+      // canvas 2d api doesn't support css variables — resolve to computed color      let resolvedColor = penColor
       if (penColor.startsWith('var(')) {
         const temp = document.createElement('div')
         temp.style.color = penColor
@@ -761,12 +712,9 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       brush.decimate = Math.max(1, 8 - (stabilizerLevel || 0))
       fabricCanvas.freeDrawingBrush = brush
     } else if (activeTool === 'eraser') {
-      // eraser uses manual pointer events (use-drawing-tools.ts) for
-      // live pixel-by-pixel erasing — no pencilbrush, no visible stroke.
-      fabricCanvas.isDrawingMode = false
+      // eraser uses manual pointer events (use-drawing-tools.ts) for      // live pixel-by-pixel erasing — no pencilbrush, no visible stroke.      fabricCanvas.isDrawingMode = false
       fabricCanvas.selection = false
-      // svg cursor applied immediately; useeffect re-applies on size changes
-      const cursorUrl = makeBrushCursor(eraserWidth * viewPort.zoom)
+      // svg cursor applied immediately; useeffect re-applies on size changes      const cursorUrl = makeBrushCursor(eraserWidth * viewPort.zoom)
       fabricCanvas.defaultCursor = cursorUrl
       fabricCanvas.hoverCursor = cursorUrl
       document.body.style.cursor = ''
@@ -774,41 +722,31 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       fabricCanvas.getObjects().forEach((obj: any) => {
         obj.set({ selectable: false, evented: false });
       });
-      // clear any residual brush artifacts on contexttop
-      const topCtx = (fabricCanvas as any).contextTop as CanvasRenderingContext2D | null
+      // clear any residual brush artifacts on contexttop      const topCtx = (fabricCanvas as any).contextTop as CanvasRenderingContext2D | null
       if (topCtx) topCtx.clearRect(0, 0, fabricCanvas.width || 0, fabricCanvas.height || 0)
     } else if (activeTool === 'lasso' || activeTool === 'transform' || activeTool === 'hand' || activeTool === 'text' || activeTool === 'smart-text' || activeTool === 'select' || activeTool === 'selection') {
       fabricCanvas.isDrawingMode = false;
 
       if (activeTool === 'lasso') {
-        // lasso: custom overlay for drawing, selection disabled during draw
-        fabricCanvas.selection = false;
+        // lasso: custom overlay for drawing, selection disabled during draw        fabricCanvas.selection = false;
         fabricCanvas.defaultCursor = 'crosshair';
-        // restore body cursor when not in pen/eraser mode
-        document.body.style.cursor = '';
+        // restore body cursor when not in pen/eraser mode        document.body.style.cursor = '';
         document.body.classList.remove('cursor-none');
-        // make objects non-interactive during lasso drawing
-        fabricCanvas.getObjects().forEach((obj: any) => {
+        // make objects non-interactive during lasso drawing        fabricCanvas.getObjects().forEach((obj: any) => {
           obj.set({ selectable: false, evented: false });
         });
       } else if (activeTool === 'selection') {
-        // marquee selection: custom overlay for drawing rect
-        fabricCanvas.selection = false;
+        // marquee selection: custom overlay for drawing rect        fabricCanvas.selection = false;
         fabricCanvas.defaultCursor = 'crosshair';
-        // restore body cursor when not in pen/eraser mode
-        document.body.style.cursor = '';
+        // restore body cursor when not in pen/eraser mode        document.body.style.cursor = '';
         document.body.classList.remove('cursor-none');
         fabricCanvas.getObjects().forEach((obj: any) => {
           obj.set({ selectable: false, evented: false });
         });
       } else if (activeTool === 'transform') {
-        // transform: selection = true so fabric can find targets on click
-        // and start drag. uses bounding-box hit testing (not pixel-level)
-        // so thin strokes are easy to click on.
-        fabricCanvas.selection = true;
+        // transform: selection = true so fabric can find targets on click        // and start drag. uses bounding-box hit testing (not pixel-level)        // so thin strokes are easy to click on.        fabricCanvas.selection = true;
         fabricCanvas.defaultCursor = 'default';
-        // restore body cursor when not in pen/eraser mode
-        document.body.style.cursor = '';
+        // restore body cursor when not in pen/eraser mode        document.body.style.cursor = '';
         document.body.classList.remove('cursor-none');
         fabricCanvas.getObjects().forEach((obj: any) => {
           if (obj.globalCompositeOperation === 'destination-out' || (obj as any)._isEraserPath) {
@@ -831,25 +769,20 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         fabricCanvas.requestRenderAll();
       } else if (activeTool === 'hand') {
         fabricCanvas.selection = false;
-        // use a custom hand cursor for better visibility
-        fabricCanvas.defaultCursor = getHandCursor(false);
-        // restore body cursor when not in pen/eraser mode
-        document.body.style.cursor = '';
+        // use a custom hand cursor for better visibility        fabricCanvas.defaultCursor = getHandCursor(false);
+        // restore body cursor when not in pen/eraser mode        document.body.style.cursor = '';
         document.body.classList.remove('cursor-none');
       } else if (activeTool === 'text' || activeTool === 'smart-text') {
         fabricCanvas.selection = false;
         fabricCanvas.defaultCursor = 'text';
-        // restore body cursor when not in pen/eraser mode
-        document.body.style.cursor = '';
+        // restore body cursor when not in pen/eraser mode        document.body.style.cursor = '';
         document.body.classList.remove('cursor-none');
       } else if (activeTool === 'select') {
         fabricCanvas.selection = true;
         fabricCanvas.defaultCursor = 'default';
-        // restore body cursor when not in pen/eraser mode
-        document.body.style.cursor = '';
+        // restore body cursor when not in pen/eraser mode        document.body.style.cursor = '';
         document.body.classList.remove('cursor-none');
-        // make all non-eraser objects selectable, eraser paths always hidden
-        fabricCanvas.getObjects().forEach((obj: any) => {
+        // make all non-eraser objects selectable, eraser paths always hidden        fabricCanvas.getObjects().forEach((obj: any) => {
           if (obj.globalCompositeOperation === 'destination-out') {
             obj.set({ selectable: false, evented: false });
           } else {
@@ -860,19 +793,16 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     }
   }, [activeTool, fabricCanvas, penWidth, penColor, penOpacity, eraserWidth, eraserOpacity, stabilizerLevel])
 
-  // spacebar pan logic & pointer-based pan/zoom
-  useEffect(() => {
+  // spacebar pan logic & pointer-based pan/zoom  useEffect(() => {
     if (!fabricCanvas) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // undo: ctrl+z / cmd+z
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      // undo: ctrl+z / cmd+z      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault()
         performUndo()
         return
       }
-      // redo: ctrl+shift+z / cmd+shift+z  or  ctrl+y
-      if (((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) ||
+      // redo: ctrl+shift+z / cmd+shift+z  or  ctrl+y      if (((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) ||
           ((e.ctrlKey || e.metaKey) && e.key === 'y')) {
         e.preventDefault()
         performRedo()
@@ -881,8 +811,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
 
       if (e.key === ' ' && !isPanningRef.current) {
         isPanningRef.current = true
-        // use custom hand cursor for spacebar panning (grabbing variant when actively panning)
-        fabricCanvas.defaultCursor = getHandCursor(true)
+        // use custom hand cursor for spacebar panning (grabbing variant when actively panning)        fabricCanvas.defaultCursor = getHandCursor(true)
         fabricCanvas.selection = false
         if (activeTool === 'pen' || activeTool === 'eraser' || activeTool === 'lasso') {
           fabricCanvas.isDrawingMode = false
@@ -894,29 +823,25 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key === ' ') {
         isPanningRef.current = false
-        // restore cursor based on active tool
-        if (activeTool === 'hand') {
+        // restore cursor based on active tool        if (activeTool === 'hand') {
           fabricCanvas.defaultCursor = getHandCursor(false)
         } else {
           fabricCanvas.defaultCursor = 'default'
         }
-        // restore selection state for tools that use it
-        if (activeTool === 'select' || activeTool === 'transform') {
+        // restore selection state for tools that use it        if (activeTool === 'select' || activeTool === 'transform') {
           fabricCanvas.selection = true
         }
         if (activeTool === 'pen' || activeTool === 'eraser') {
           fabricCanvas.isDrawingMode = activeTool === 'pen'
           fabricCanvas.selection = false
-          // svg cursor is applied by the brush-cursor useeffect
-          document.body.style.cursor = ''
+          // svg cursor is applied by the brush-cursor useeffect          document.body.style.cursor = ''
           document.body.classList.remove('cursor-none')
         } else if (activeTool === 'lasso') {
           fabricCanvas.defaultCursor = 'crosshair'
           document.body.style.cursor = ''
           document.body.classList.remove('cursor-none')
         } else {
-          // restore body cursor for other tools
-          document.body.style.cursor = ''
+          // restore body cursor for other tools          document.body.style.cursor = ''
           document.body.classList.remove('cursor-none')
         }
         fabricCanvas.requestRenderAll()
@@ -966,21 +891,16 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     const getDistance = (a: PointerEvent, b: PointerEvent) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
 
     const handlePointerDown = (e: PointerEvent) => {
-      // determine if we should pan: spacebar held, middle-click, alt-click, or hand tool
-      const shouldPan = isPanningRef.current || e.button === 1 || e.altKey || activeTool === 'hand'
+      // determine if we should pan: spacebar held, middle-click, alt-click, or hand tool      const shouldPan = isPanningRef.current || e.button === 1 || e.altKey || activeTool === 'hand'
 
-      // for all tools except hand/panning — let fabric.js and usedrawingtools handle events natively.
-      // we only intercept when panning.
-      if (!shouldPan) {
-        // text tool: create text on click, then let fabric handle it
-        if (activeTool === 'text' || activeTool === 'smart-text') {
+      // for all tools except hand/panning — let fabric.js and usedrawingtools handle events natively.      // we only intercept when panning.      if (!shouldPan) {
+        // text tool: create text on click, then let fabric handle it        if (activeTool === 'text' || activeTool === 'smart-text') {
           const { x: vx, y: vy, zoom } = useEdgelessStore.getState().viewPort;
           const canvasX = (e.clientX - vx) / zoom;
           const canvasY = (e.clientY - vy) / zoom;
 
           if (activeTool === 'text') {
-            // wait for varela round font to load, then create text
-            document.fonts.ready.then(() => {
+            // wait for varela round font to load, then create text            document.fonts.ready.then(() => {
               const textObj = new fabric.Textbox('text', {
                 left: canvasX,
                 top: canvasY,
@@ -1011,16 +931,11 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
             });
           }
           useEdgelessStore.getState().setTool('select');
-          // don't stop propagation — still allow fabric to process
-        }
-        // for pen, eraser, select, lasso, selection, transform, text:
-        // do not call preventdefault, stoppropagation, or setpointercapture.
-        // let fabric.js and usedrawingtools handle everything.
-        return
+          // don't stop propagation — still allow fabric to process        }
+        // for pen, eraser, select, lasso, selection, transform, text:        // do not call preventdefault, stoppropagation, or setpointercapture.        // let fabric.js and usedrawingtools handle everything.        return
       }
 
-      // ── panning mode: we take over ──
-      e.preventDefault()
+      // ── panning mode: we take over ──      e.preventDefault()
       e.stopPropagation()
       upperCanvas?.setPointerCapture?.(e.pointerId)
 
@@ -1040,10 +955,8 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       fabricCanvas.selection = false
     }
 
-    // ── pointer move: panning only (cursor tracking is handled separately via window mousemove) ──
-    const handlePointerMove = (e: PointerEvent) => {
-      // only handle panning — everything else goes to fabric/usedrawingtools
-      const state = pointerStateRef.current
+    // ── pointer move: panning only (cursor tracking is handled separately via window mousemove) ──    const handlePointerMove = (e: PointerEvent) => {
+      // only handle panning — everything else goes to fabric/usedrawingtools      const state = pointerStateRef.current
       if (!state.isPanning) return
       if (!state.pointers.has(e.pointerId)) return
       state.pointers.set(e.pointerId, e)
@@ -1072,8 +985,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     }
 
     const handlePointerUp = (e: PointerEvent) => {
-      // only handle pan cleanup — everything else goes to fabric/usedrawingtools
-      const state = pointerStateRef.current
+      // only handle pan cleanup — everything else goes to fabric/usedrawingtools      const state = pointerStateRef.current
       if (!state.isPanning) return
 
       e.preventDefault()
@@ -1086,8 +998,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
       if (state.pointers.size === 0) {
         state.isPanning = false
-        // restore cursor and selection based on active tool
-        if (activeTool === 'pen' || activeTool === 'eraser') {
+        // restore cursor and selection based on active tool        if (activeTool === 'pen' || activeTool === 'eraser') {
           fabricCanvas.isDrawingMode = true
           if (activeTool === 'eraser') {
             fabricCanvas.selection = false
@@ -1098,14 +1009,12 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
           fabricCanvas.defaultCursor = 'crosshair'
         } else if (activeTool === 'hand') {
           fabricCanvas.selection = false
-          // use custom hand cursor
-          fabricCanvas.defaultCursor = getHandCursor(false)
+          // use custom hand cursor          fabricCanvas.defaultCursor = getHandCursor(false)
         } else if (activeTool === 'select' || activeTool === 'transform') {
           fabricCanvas.selection = true
           fabricCanvas.defaultCursor = 'default'
         } else if (activeTool === 'pen' || activeTool === 'eraser') {
-          // svg cursor applied by brush-cursor useeffect — nothing to do here
-        }
+          // svg cursor applied by brush-cursor useeffect — nothing to do here        }
       }
     }
 
@@ -1124,14 +1033,12 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       upperCanvas?.removeEventListener('pointerup', handlePointerUp)
       upperCanvas?.removeEventListener('pointercancel', handlePointerUp)
       if (viewportRafRef.current) cancelAnimationFrame(viewportRafRef.current)
-      // restore body cursor on cleanup
-      document.body.style.cursor = ''
+      // restore body cursor on cleanup      document.body.style.cursor = ''
       document.body.classList.remove('cursor-none')
     }
   }, [fabricCanvas, activeTool])
 
-  // context menu
-  useEffect(() => {
+  // context menu  useEffect(() => {
     if (!fabricCanvas) return
 
     const handleContextMenu = (e: MouseEvent) => {
@@ -1188,11 +1095,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     )
   }, [activeTool])
 
-  // ── brush / eraser cursor: svg data-url applied directly to the fabric canvas ──
-  // this is the only approach that works correctly in electron appimage builds.
-  // native css cursors are positioned by the browser itself with zero offset,
-  // completely bypassing any parent-transform / containing-block issues.
-  useEffect(() => {
+  // ── brush / eraser cursor: svg data-url applied directly to the fabric canvas ──  // this is the only approach that works correctly in electron appimage builds.  // native css cursors are positioned by the browser itself with zero offset,  // completely bypassing any parent-transform / containing-block issues.  useEffect(() => {
     if (!fabricCanvas) return
     const isPenEraser = activeTool === 'pen' || activeTool === 'eraser'
     if (!isPenEraser) return
@@ -1200,32 +1103,25 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     const brushSize = activeTool === 'pen' ? penWidth : eraserWidth
     const cursorUrl = makeBrushCursor(brushSize * viewPort.zoom)
 
-    // set cursor through fabric.js api — fabric overrides element.style.cursor
-    // on every pointer event, so setting it on the dom directly gets stomped.
-    if (activeTool === 'pen') {
+    // set cursor through fabric.js api — fabric overrides element.style.cursor    // on every pointer event, so setting it on the dom directly gets stomped.    if (activeTool === 'pen') {
       fabricCanvas.freeDrawingCursor = cursorUrl
     }
-    // defaultcursor is used when not drawing (eraser mode uses manual drawing)
-    fabricCanvas.defaultCursor = cursorUrl
+    // defaultcursor is used when not drawing (eraser mode uses manual drawing)    fabricCanvas.defaultCursor = cursorUrl
     fabricCanvas.hoverCursor = cursorUrl
 
-    // also set on elements as a backup for when fabric hasn't rendered yet
-    const upperCanvas = (fabricCanvas as any).upperCanvasEl as HTMLElement | undefined
+    // also set on elements as a backup for when fabric hasn't rendered yet    const upperCanvas = (fabricCanvas as any).upperCanvasEl as HTMLElement | undefined
     const lowerCanvas = (fabricCanvas as any).lowerCanvasEl as HTMLElement | undefined
     if (upperCanvas) upperCanvas.style.cursor = cursorUrl
     if (lowerCanvas) lowerCanvas.style.cursor = cursorUrl
     if (wrapperRef.current) wrapperRef.current.style.cursor = cursorUrl
-    // reset body so the svg cursor shows over the canvas area
-    document.body.style.cursor = ''
+    // reset body so the svg cursor shows over the canvas area    document.body.style.cursor = ''
     document.body.classList.remove('cursor-none')
   }, [activeTool, penWidth, eraserWidth, viewPort.zoom, fabricCanvas])
 
-  // ── make drawn paths selectable/editable + pixel eraser + undo snapshots ──
-  useEffect(() => {
+  // ── make drawn paths selectable/editable + pixel eraser + undo snapshots ──  useEffect(() => {
     if (!fabricCanvas) return
 
-    // ensure eraser paths are always non-selectable, even after undo/redo/load
-    const isEraserObj = (obj: any) =>
+    // ensure eraser paths are always non-selectable, even after undo/redo/load    const isEraserObj = (obj: any) =>
       obj && (obj.globalCompositeOperation === 'destination-out' || obj._isEraserPath)
 
     const enforceEraserPaths = (e: any) => {
@@ -1241,9 +1137,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     }
     fabricCanvas.on('object:added', enforceEraserPaths)
 
-    // strip eraser paths from any selection — belt-and-suspenders guard so
-    // the user can never accidentally select, move, or highlight eraser strokes.
-    const stripEraserFromSelection = (e: any) => {
+    // strip eraser paths from any selection — belt-and-suspenders guard so    // the user can never accidentally select, move, or highlight eraser strokes.    const stripEraserFromSelection = (e: any) => {
       const sel = fabricCanvas.getActiveObject()
       if (!sel) return
       if (sel instanceof fabric.ActiveSelection) {
@@ -1271,10 +1165,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
 
       const currentTool = useEdgelessStore.getState().activeTool
 
-      // eraser mode: bake the erasure into each overlapping object using
-      // native canvas2d rendering (completely bypasses fabric's render pipeline
-      // to avoid caching / viewport / context issues on offscreen canvases).
-      if (currentTool === 'eraser') {
+      // eraser mode: bake the erasure into each overlapping object using      // native canvas2d rendering (completely bypasses fabric's render pipeline      // to avoid caching / viewport / context issues on offscreen canvases).      if (currentTool === 'eraser') {
         path.set({
           globalCompositeOperation: 'destination-out',
           selectable: false,
@@ -1286,8 +1177,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         const panX = vpt[4] || 0
         const panY = vpt[5] || 0
 
-        // convert viewport-pixel bounding rect to fabric coordinates
-        const toFabric = (br: { left: number; top: number; width: number; height: number }) => ({
+        // convert viewport-pixel bounding rect to fabric coordinates        const toFabric = (br: { left: number; top: number; width: number; height: number }) => ({
           left: (br.left - panX) / zoom,
           top: (br.top - panY) / zoom,
           width: br.width / zoom,
@@ -1296,9 +1186,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
 
         const eraserBR = toFabric(path.getBoundingRect())
 
-        // find overlapping objects and pre-compute their fabric-space rects
-        // (must happen before any viewport changes)
-        const objects = fabricCanvas.getObjects()
+        // find overlapping objects and pre-compute their fabric-space rects        // (must happen before any viewport changes)        const objects = fabricCanvas.getObjects()
         const affected: { obj: any; objBR: ReturnType<typeof toFabric> }[] = []
         for (let i = 0; i < objects.length; i++) {
           const obj = objects[i]
@@ -1315,8 +1203,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
           if (overlaps) affected.push({ obj, objBR: r })
         }
 
-        // ── native canvas2d helpers (no fabric render dependency) ──
-        const drawNativePath = (ctx: CanvasRenderingContext2D, cmds: any[]) => {
+        // ── native canvas2d helpers (no fabric render dependency) ──        const drawNativePath = (ctx: CanvasRenderingContext2D, cmds: any[]) => {
           ctx.beginPath()
           for (const c of cmds) {
             switch (c[0]) {
@@ -1329,16 +1216,14 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
           }
         }
 
-        // draw a fabric object using its calctransformmatrix + native 2d calls
-        const drawObjNative = (ctx: CanvasRenderingContext2D, o: any) => {
+        // draw a fabric object using its calctransformmatrix + native 2d calls        const drawObjNative = (ctx: CanvasRenderingContext2D, o: any) => {
           ctx.save()
           ctx.globalAlpha = o.opacity ?? 1
           const m = o.calcTransformMatrix()
           ctx.transform(m[0], m[1], m[2], m[3], m[4], m[5])
 
           if (o.path && Array.isArray(o.path)) {
-            // path object (pen strokes)
-            ctx.translate(-(o.pathOffset?.x || 0), -(o.pathOffset?.y || 0))
+            // path object (pen strokes)            ctx.translate(-(o.pathOffset?.x || 0), -(o.pathOffset?.y || 0))
             if (o.fill && o.fill !== '' && o.fill !== 'transparent') {
               ctx.fillStyle = o.fill
               drawNativePath(ctx, o.path)
@@ -1353,8 +1238,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
               ctx.stroke()
             }
           } else if (typeof o.getElement === 'function') {
-            // image object (e.g. previously rasterized by eraser)
-            const el = o.getElement()
+            // image object (e.g. previously rasterized by eraser)            const el = o.getElement()
             if (el) {
               const w = o.width || el.width
               const h = o.height || el.height
@@ -1364,8 +1248,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
           ctx.restore()
         }
 
-        // suppress intermediate renders during bulk replacement
-        const savedRender = fabricCanvas.renderOnAddRemove
+        // suppress intermediate renders during bulk replacement        const savedRender = fabricCanvas.renderOnAddRemove
         fabricCanvas.renderOnAddRemove = false
 
         const replacements: { obj: any; img: fabric.Image; idx: number }[] = []
@@ -1419,15 +1302,12 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
             offCanvas.height = Math.ceil(h * dpr)
             const offCtx = offCanvas.getContext('2d')!
 
-            // scale for dpr, then shift so fabric coord (ul, ut) → pixel (0, 0)
-            offCtx.scale(dpr, dpr)
+            // scale for dpr, then shift so fabric coord (ul, ut) → pixel (0, 0)            offCtx.scale(dpr, dpr)
             offCtx.translate(-uL, -uT)
 
-            // 1) draw original object with native canvas2d
-            drawObjNative(offCtx, obj)
+            // 1) draw original object with native canvas2d            drawObjNative(offCtx, obj)
 
-            // 2) draw eraser with destination-out
-            offCtx.save()
+            // 2) draw eraser with destination-out            offCtx.save()
             offCtx.globalCompositeOperation = 'destination-out'
             offCtx.globalAlpha = 1
             const em = path.calcTransformMatrix()
@@ -1441,9 +1321,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
             offCtx.stroke()
             offCtx.restore()
 
-            // 3) trim transparent borders so the bounding box only
-            //    covers remaining visible pixels (erased areas vanish).
-            const imgData = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height)
+            // 3) trim transparent borders so the bounding box only            //    covers remaining visible pixels (erased areas vanish).            const imgData = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height)
             const pxData = imgData.data
             let tMinX = offCanvas.width, tMinY = offCanvas.height
             let tMaxX = 0, tMaxY = 0
@@ -1458,8 +1336,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
               }
             }
 
-            // if nothing visible remains the object was fully erased — skip replacement
-            if (tMaxX < tMinX || tMaxY < tMinY) {
+            // if nothing visible remains the object was fully erased — skip replacement            if (tMaxX < tMinX || tMaxY < tMinY) {
               const removeIdx = fabricCanvas._objects.indexOf(obj)
               if (removeIdx >= 0) {
                 recordDelete(obj)
@@ -1469,8 +1346,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
               continue
             }
 
-            // crop to the tight bounding box
-            const trimW = tMaxX - tMinX + 1
+            // crop to the tight bounding box            const trimW = tMaxX - tMinX + 1
             const trimH = tMaxY - tMinY + 1
             const trimCanvas = borrowCanvas()
             trimCanvas.width = trimW
@@ -1481,9 +1357,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
               0, 0,
             )
 
-            // 4) create replacement image with per-pixel hit detection
-            //    so transparent (erased) areas cannot be selected/clicked.
-            const left = uL + tMinX / dpr
+            // 4) create replacement image with per-pixel hit detection            //    so transparent (erased) areas cannot be selected/clicked.            const left = uL + tMinX / dpr
             const top = uT + tMinY / dpr
             const scaleX = 1 / dpr
             const scaleY = 1 / dpr
@@ -1503,12 +1377,9 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
             })
             const dataUrl = trimCanvas.toDataURL('image/png')
             
-            // critical for lag: override getsrc so `fabriccanvas.tojson()` doesn't rebuild the dataurl
-            // from the canvas context on every single stroke/savehistorystate.
-            img.getSrc = () => dataUrl;
+            // critical for lag: override getsrc so `fabriccanvas.tojson()` doesn't rebuild the dataurl            // from the canvas context on every single stroke/savehistorystate.            img.getSrc = () => dataUrl;
             
-            // critical for persistence: preserve data.id so the image can be erased/transformed again later
-            img.set('data', { id: obj.data?.id || obj.name, layerId: obj.data?.layerId || useEdgelessStore.getState().activeLayerId })
+            // critical for persistence: preserve data.id so the image can be erased/transformed again later            img.set('data', { id: obj.data?.id || obj.name, layerId: obj.data?.layerId || useEdgelessStore.getState().activeLayerId })
             img.setCoords()
 
             const idx = fabricCanvas._objects.indexOf(obj)
@@ -1532,15 +1403,13 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
           }
         }
 
-        // apply replacements in reverse z-order so indices stay valid
-        replacements.sort((a, b) => b.idx - a.idx)
+        // apply replacements in reverse z-order so indices stay valid        replacements.sort((a, b) => b.idx - a.idx)
         for (const { obj, img, idx } of replacements) {
           fabricCanvas.remove(obj)
           fabricCanvas.insertAt(idx, img)
         }
 
-        // remove the eraser path — it was only needed for offscreen rasterization
-        fabricCanvas.remove(path)
+        // remove the eraser path — it was only needed for offscreen rasterization        fabricCanvas.remove(path)
 
         fabricCanvas.renderOnAddRemove = savedRender
         pushHistoryAction({ 
@@ -1552,9 +1421,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
 
       // save state after the new pen stroke is on the canvas
-
-      // pen mode: ensure the drawn path is a fully interactive vector object
-      path.set({
+      // pen mode: ensure the drawn path is a fully interactive vector object      path.set({
         selectable: true,
         evented: true,
         hasControls: true,
@@ -1574,17 +1441,14 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         decimate: 1.5,
       })
 
-      // save history after setting properties so the snapshot is complete
-      pushHistoryAction({ type: 'add', obj: path })
+      // save history after setting properties so the snapshot is complete      pushHistoryAction({ type: 'add', obj: path })
 
       fabricCanvas.requestRenderAll()
 
-      // ensure path has a unique id for the oplog
-      const pathId = `path-${Math.random().toString(36).slice(2, 9)}`;
+      // ensure path has a unique id for the oplog      const pathId = `path-${Math.random().toString(36).slice(2, 9)}`;
       path.set({ data: { id: pathId, layerId: useEdgelessStore.getState().activeLayerId } });
 
-      // record op for persistence
-      const op = {
+      // record op for persistence      const op = {
         type: 'path',
         layerId: useEdgelessStore.getState().activeLayerId,
         pathData: (path as any).path || [],
@@ -1595,11 +1459,9 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         targetId: pathId, // although not in interface, good for reference
         data: { id: pathId }
       };
-      // useedgelessstore.getstate().recordop(op as any); // test: commented out to isolate indexeddb lag
-    }
+      // useedgelessstore.getstate().recordop(op as any); // test: commented out to isolate indexeddb lag    }
 
-    // save state after object modifications (move, scale, rotate)
-    const handleObjectModified = (e: any) => {
+    // save state after object modifications (move, scale, rotate)    const handleObjectModified = (e: any) => {
       const target = e.target;
       if (target && e.transform && e.transform.original) {
         const after = {
@@ -1635,13 +1497,11 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     }
   }, [fabricCanvas, pushHistoryAction])
 
-  // ── pointer interaction class ──
-  const isSelectMode = activeTool === 'select' || activeTool === 'hand'
+  // ── pointer interaction class ──  const isSelectMode = activeTool === 'select' || activeTool === 'hand'
   const pointerClass = isSelectMode ? 'pointer-events-auto' : 'pointer-events-none'
   const childrenPointerClass = mode === 'interact' ? 'pointer-events-auto' : 'pointer-events-none'
 
-  // upload
-  const handleUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  // upload  const handleUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()

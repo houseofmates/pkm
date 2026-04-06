@@ -16,7 +16,6 @@ export interface ParsedMarkdown {
 }
 
 // ── frontmatter ──────────────────────────────────────────────
-
 function parseFrontmatter(raw: string): { frontmatter: Record<string, string | string[]>; body: string } {
   const frontmatter: Record<string, string | string[]> = {};
 
@@ -42,14 +41,12 @@ function parseFrontmatter(raw: string): { frontmatter: Record<string, string | s
     const key = trimmed.slice(0, colonIdx).trim();
     let value = trimmed.slice(colonIdx + 1).trim();
 
-    // strip surrounding quotes
-    if ((value.startsWith('"') && value.endsWith('"')) ||
+    // strip surrounding quotes    if ((value.startsWith('"') && value.endsWith('"')) ||
         (value.startsWith("'") && value.endsWith("'"))) {
       value = value.slice(1, -1);
     }
 
-    // inline yaml arrays: [a, b, c]
-    if (value.startsWith('[') && value.endsWith(']')) {
+    // inline yaml arrays: [a, b, c]    if (value.startsWith('[') && value.endsWith(']')) {
       frontmatter[key] = value.slice(1, -1).split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
     } else {
       frontmatter[key] = value;
@@ -60,7 +57,6 @@ function parseFrontmatter(raw: string): { frontmatter: Record<string, string | s
 }
 
 // ── link extraction ──────────────────────────────────────────
-
 const WIKI_LINK_RE = /\[\[([^\]|]+)(?:\|([^\]]*))?\]\]/g;
 const MD_LINK_RE = /\[([^\]]*)\]\(([^)]+)\)/g;
 const BARE_URL_RE = /(?<!\()https?:\/\/[^\s)>\]]+/g;
@@ -82,8 +78,7 @@ function extractLinks(content: string): MarkdownLink[] {
 
     MD_LINK_RE.lastIndex = 0;
     while ((m = MD_LINK_RE.exec(line)) !== null) {
-      // skip images
-      if (line[m.index - 1] === '!') continue;
+      // skip images      if (line[m.index - 1] === '!') continue;
       links.push({ type: 'markdown', target: m[2].trim(), text: m[1].trim(), line: lineNum });
     }
 
@@ -97,7 +92,6 @@ function extractLinks(content: string): MarkdownLink[] {
 }
 
 // ── plain text extraction ────────────────────────────────────
-
 function stripMarkdown(md: string): string {
   return md
     .replace(/^#{1,6}\s+/gm, '')          // headings
@@ -119,12 +113,10 @@ function stripMarkdown(md: string): string {
 }
 
 // ── main parser ──────────────────────────────────────────────
-
 export function parseMarkdownFile(raw: string, filePath: string): ParsedMarkdown {
   const { frontmatter, body } = parseFrontmatter(raw);
 
-  // extract title: prefer frontmatter, then first h1, then filename
-  let title = '';
+  // extract title: prefer frontmatter, then first h1, then filename  let title = '';
   if (typeof frontmatter.title === 'string' && frontmatter.title) {
     title = frontmatter.title;
   } else {
@@ -137,16 +129,14 @@ export function parseMarkdownFile(raw: string, filePath: string): ParsedMarkdown
     }
   }
 
-  // extract tags from frontmatter
-  let tags: string[] = [];
+  // extract tags from frontmatter  let tags: string[] = [];
   if (Array.isArray(frontmatter.tags)) {
     tags = frontmatter.tags.map(t => String(t).trim().toLowerCase());
   } else if (typeof frontmatter.tags === 'string') {
     tags = frontmatter.tags.split(',').map(t => t.trim().toLowerCase());
   }
 
-  // also pick up inline #hashtags from body
-  const hashtagRe = /(?:^|\s)#([a-z0-9_-]+)/gi;
+  // also pick up inline #hashtags from body  const hashtagRe = /(?:^|\s)#([a-z0-9_-]+)/gi;
   let hm: RegExpExecArray | null;
   while ((hm = hashtagRe.exec(body)) !== null) {
     const tag = hm[1].toLowerCase();

@@ -5,8 +5,7 @@ import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
 import { getSubdomain } from '@/utils/subdomain-router';
 
-// --- types ---
-interface FormField {
+// --- types ---interface FormField {
     id: string;
     type: 'text' | 'textarea' | 'number' | 'email' | 'rating' | 'dropdown' | 'checkbox';
     label: string;
@@ -26,16 +25,14 @@ interface FormElementData {
     id: string;
     type: 'form';
     content?: FormContent; // new structure
-    // legacy support: properties might exist at top level
-    formName?: string;
+    // legacy support: properties might exist at top level    formName?: string;
     fields?: FormField[];
     submitButtonText?: string;
     successMessage?: string;
     styles?: Record<string, any>;
 }
 
-// --- form renderer (user-facing) ---
-interface FormRendererProps {
+// --- form renderer (user-facing) ---interface FormRendererProps {
     element: FormElementData;
     isAdmin?: boolean;
 }
@@ -48,8 +45,7 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
     const [hoverRating, setHoverRating] = useState(0);
     const site_identifier = getSubdomain() || 'default';
 
-    // helper to get data from content or top-level (legacy)
-    const getContent = (): FormContent => {
+    // helper to get data from content or top-level (legacy)    const getContent = (): FormContent => {
         const c = element.content;
         return {
             formName: c?.formName || element.formName || 'Untitled Form',
@@ -231,8 +227,7 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
     );
 }
 
-// --- form builder (admin) ---
-interface FormBuilderProps {
+// --- form builder (admin) ---interface FormBuilderProps {
     onSave: (elementUpdates: Partial<FormElementData>) => void;
     onCancel: () => void;
     initialData?: Partial<FormElementData>;
@@ -277,8 +272,7 @@ export function FormBuilder({ onSave, onCancel, initialData }: FormBuilderProps)
     };
 
     const handleSave = () => {
-        // we save to 'content' property to match elementdata structure
-        onSave({
+        // we save to 'content' property to match elementdata structure        onSave({
             content: {
                 formName,
                 fields,
@@ -468,5 +462,4 @@ export function FormBuilder({ onSave, onCancel, initialData }: FormBuilderProps)
     );
 }
 
-// export types
-export type { FormField, FormElementData };
+// export typesexport type { FormField, FormElementData };

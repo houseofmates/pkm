@@ -22,15 +22,12 @@ const PROMPTS = [
 ];
 
 export function JournalView({ data, collection, config = {}, onConfigChange, onUpdateRecord: _onUpdateRecord, onEdit: _onEdit, onCreate }: ViewProps) {
-  // hooks must be called before any early return
-  const [entry, setEntry] = useState('');
+  // hooks must be called before any early return  const [entry, setEntry] = useState('');
   const [prompt, setPrompt] = useState(PROMPTS[0]);
 
-  // moved early return check after hooks to avoid conditional hooks
-  const hasCollection = Boolean(collection);
+  // moved early return check after hooks to avoid conditional hooks  const hasCollection = Boolean(collection);
 
-  // fields - use usememo to avoid conditional hooks
-  const contentField = useMemo(() => {
+  // fields - use usememo to avoid conditional hooks  const contentField = useMemo(() => {
     if (!collection) return { name: 'content' };
     return collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'markdown' || f.interface === 'textarea' || f.name === 'content') || { name: 'content' };
   }, [collection]);
@@ -62,8 +59,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
     }
   };
 
-  // group by date
-  const grouped = useMemo(() => {
+  // group by date  const grouped = useMemo(() => {
     if (!hasCollection) return {};
     const groups: Record<string, any[]> = {};
     const sorted = [...data].sort((a, b) => {
@@ -92,21 +88,17 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
     );
   }
 
-  // helper to extract preview
-  const parseContent = (htmlOrMd: string) => {
+  // helper to extract preview  const parseContent = (htmlOrMd: string) => {
     const text = htmlOrMd || '';
-    // if markdown (starts with **), try to split prompt
-    let promptText = '';
+    // if markdown (starts with **), try to split prompt    let promptText = '';
     let bodyText = text;
 
-    // naive markdown check for our specific format
-    const promptMatch = text.match(/^\*\*(.*?)\*\*\s*\n*(.*)/s);
+    // naive markdown check for our specific format    const promptMatch = text.match(/^\*\*(.*?)\*\*\s*\n*(.*)/s);
     if (promptMatch) {
       promptText = promptMatch[1];
       bodyText = promptMatch[2];
     } else if (text.startsWith('<')) {
-      // html handling if rich editor saved html
-      const div = document.createElement('div');
+      // html handling if rich editor saved html      const div = document.createElement('div');
       div.innerHTML = text;
       const strong = div.querySelector('strong');
       if (strong && div.firstChild === strong) {
@@ -116,8 +108,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
       }
     }
 
-    // preview (first paragraph or truncated)
-    const tempDiv = document.createElement('div');
+    // preview (first paragraph or truncated)    const tempDiv = document.createElement('div');
     tempDiv.innerHTML = bodyText.startsWith('<') ? bodyText : markdownToHtml(bodyText);
     const firstP = tempDiv.querySelector('p');
     const preview = firstP ? firstP.textContent : tempDiv.textContent?.slice(0, 150) + '...';

@@ -1,6 +1,4 @@
-// canvas initialization component
-// handles setup, migration, and health checks
-
+// canvas initialization component// handles setup, migration, and health checks
 import { useEffect, useState } from 'react'
 import { useCanvasSafe } from '../hooks/use-canvas-safe'
 import { hasLegacyDrawings, migrateFromLocalStorage } from '../storage'
@@ -61,8 +59,7 @@ export function CanvasInitializer({ children, onReady, onError }: CanvasInitiali
     runMigration()
     checkHealth()
 
-    // start production monitoring
-    productionGuard.startMonitoring()
+    // start production monitoring    productionGuard.startMonitoring()
 
     return () => {
       productionGuard.stopMonitoring()

@@ -27,8 +27,7 @@ describe('useMedicationLog', () => {
     expect(result.current.log.length).toBeGreaterThan(0);
     expect(result.current.isDoneToday(groupId)).toBe(true);
 
-    // should persist between new hook instance
-    const { result: result2 } = renderHook(() => useMedicationLog());
+    // should persist between new hook instance    const { result: result2 } = renderHook(() => useMedicationLog());
     expect(result2.current.isDoneToday(groupId)).toBe(true);
   });
 

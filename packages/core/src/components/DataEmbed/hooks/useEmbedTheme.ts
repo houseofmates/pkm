@@ -35,11 +35,9 @@ export function useEmbedTheme() {
       });
     };
 
-    // initial load
-    updateTheme();
+    // initial load    updateTheme();
 
-    // observer for changes (e.g. usethemereactor updates)
-    const observer = new MutationObserver(updateTheme);
+    // observer for changes (e.g. usethemereactor updates)    const observer = new MutationObserver(updateTheme);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['style', 'class']

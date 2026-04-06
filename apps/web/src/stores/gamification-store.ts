@@ -1,8 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-// types
-interface Achievement {
+// typesinterface Achievement {
   id: string
   name: string
   description: string
@@ -25,30 +24,22 @@ interface DailyGoal {
 }
 
 interface GamificationState {
-  // xp system
-  currentXp: number
+  // xp system  currentXp: number
   level: number
   xpToNextLevel: number
-  // daily quests 4x4 grid
-  quests: DailyQuest[]
+  // daily quests 4x4 grid  quests: DailyQuest[]
   questProgress: number // % complete
   rowBonuses: boolean[] // per row full
-  // daily goals
-  goals: DailyGoal[]
+  // daily goals  goals: DailyGoal[]
   goalsProgress: number
-  // achievements
-  achievements: Achievement[]
-  // streaks
-  currentStreak: number
+  // achievements  achievements: Achievement[]
+  // streaks  currentStreak: number
   longestStreak: number
-  // timer state
-  timerActive: boolean
+  // timer state  timerActive: boolean
   timerPreset: number
   timerPrompt: string
-  // persistence
-  lastResetDate: string
-  // actions
-  earnXp: (amount: number, reason: string) => void
+  // persistence  lastResetDate: string
+  // actions  earnXp: (amount: number, reason: string) => void
   completeQuest: (questId: string) => void
   toggleGoal: (goalId: string) => void
   checkLevelUp: () => void
@@ -72,23 +63,19 @@ const DEFAULT_ACHIEVEMENTS: Achievement[] = [
 ]
 
 const DEFAULT_QUESTS: DailyQuest[] = [
-  // row 0: journal
-  { id: 'log-mood', name: 'log mood', completed: false, row: 0 },
+  // row 0: journal  { id: 'log-mood', name: 'log mood', completed: false, row: 0 },
   { id: '3-emotions', name: 'add 3 emotions', completed: false, row: 0 },
   { id: '50-note', name: '50+ note chars', completed: false, row: 0 },
   { id: '3-activities', name: 'log 3 activities', completed: false, row: 0 },
-  // row 1: exercise
-  { id: 'chest-row', name: 'chest row clean', completed: false, row: 1 },
+  // row 1: exercise  { id: 'chest-row', name: 'chest row clean', completed: false, row: 1 },
   { id: 'back-row', name: 'back row clean', completed: false, row: 1 },
   { id: 'arms-row', name: 'arms row clean', completed: false, row: 1 },
   { id: 'legs-row', name: 'legs row clean', completed: false, row: 1 },
-  // row 2: finance
-  { id: 'income-cat', name: 'income logged', completed: false, row: 2 },
+  // row 2: finance  { id: 'income-cat', name: 'income logged', completed: false, row: 2 },
   { id: 'essentials-cat', name: 'essentials budgeted', completed: false, row: 2 },
   { id: 'fun-cat', name: 'fun spent tracked', completed: false, row: 2 },
   { id: 'future-cat', name: 'future invested', completed: false, row: 2 },
-  // row 3: sensory/pets
-  { id: 'pet1-feed', name: 'feed pet 1', completed: false, row: 3 },
+  // row 3: sensory/pets  { id: 'pet1-feed', name: 'feed pet 1', completed: false, row: 3 },
   { id: 'pet2-feed', name: 'feed pet 2', completed: false, row: 3 },
   { id: 'breathe-cycle', name: 'breathe cycle', completed: false, row: 3 },
   { id: 'voice-note', name: 'voice journal', completed: false, row: 3 }
@@ -139,8 +126,7 @@ export const useGamificationStore = create<GamificationState>()(
         const quests = state.quests.map(q => q.id === questId ? { ...q, completed: true } : q)
         const completedCount = quests.filter(q => q.completed).length
         const progress = (completedCount / quests.length) * 100
-        // row bonus check
-        const rowCounts = [0,0,0,0]
+        // row bonus check        const rowCounts = [0,0,0,0]
         quests.forEach(q => { if (q.completed) rowCounts[q.row]++ })
         const rowBonuses = rowCounts.map(count => count === 4)
         return { quests, questProgress: progress, rowBonuses }
@@ -181,8 +167,7 @@ export const useGamificationStore = create<GamificationState>()(
       streakProtector: () => {
         const state = get()
         if (state.questProgress >= 80 && state.currentStreak > 0) {
-          // carry over 1 quest
-          set(state => ({
+          // carry over 1 quest          set(state => ({
             quests: state.quests.map((q, i) => i === 0 ? { ...q, completed: true } : q),
             questProgress: 12.5 // 1/8
           }))

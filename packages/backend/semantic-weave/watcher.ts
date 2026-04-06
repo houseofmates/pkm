@@ -4,8 +4,7 @@ import type { EmbeddingPipeline } from './pipeline.js';
 
 type ChangeType = 'add' | 'change' | 'unlink';
 
-/**
- * watches a directory of markdown files for changes and feeds them
+/** * watches a directory of markdown files for changes and feeds them
  * into the embedding pipeline. uses chokidar for reliable cross-platform
  * file system events with debouncing to batch rapid edits.
  */
@@ -24,11 +23,9 @@ export class DirectoryWatcher {
   async start(): Promise<void> {
     if (this.running) return;
 
-    // ensure directory exists
-    fs.mkdirSync(this.notesDir, { recursive: true });
+    // ensure directory exists    fs.mkdirSync(this.notesDir, { recursive: true });
 
-    // dynamic import so chokidar is only loaded when the watcher is started
-    const chokidar = await import('chokidar');
+    // dynamic import so chokidar is only loaded when the watcher is started    const chokidar = await import('chokidar');
 
     this.watcher = chokidar.watch('**/*.md', {
       cwd: this.notesDir,
@@ -61,15 +58,12 @@ export class DirectoryWatcher {
   }
 
   // ── debounce logic ─────────────────────────────────────────
-
   private enqueue(absPath: string, type: ChangeType): void {
-    // for the same file, 'unlink' takes priority, then 'change', then 'add'
-    const existing = this.pendingChanges.get(absPath);
+    // for the same file, 'unlink' takes priority, then 'change', then 'add'    const existing = this.pendingChanges.get(absPath);
     if (type === 'unlink' || !existing) {
       this.pendingChanges.set(absPath, type);
     } else if (type === 'change' && existing === 'add') {
-      // keep as 'add' (file is new + immediately edited)
-    } else {
+      // keep as 'add' (file is new + immediately edited)    } else {
       this.pendingChanges.set(absPath, type);
     }
 
@@ -98,8 +92,7 @@ export class DirectoryWatcher {
       }
     }
 
-    // persist after each batch
-    await this.pipeline.flush();
+    // persist after each batch    await this.pipeline.flush();
   }
 }
 

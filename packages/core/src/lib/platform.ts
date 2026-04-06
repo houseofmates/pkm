@@ -1,11 +1,5 @@
-// platform.ts — environment detection utilities for web vs capacitor native
-//
-// used by the ai worker hook to decide whether to use a web worker
-// or fall back to main-thread execution, and to rewrite endpoints
-// that point to localhost (unreachable from a phone).
-
-/** true when running inside a capacitor native webview (android/ios) */
-interface CapacitorInfo {
+// platform.ts — environment detection utilities for web vs capacitor native//// used by the ai worker hook to decide whether to use a web worker// or fall back to main-thread execution, and to rewrite endpoints// that point to localhost (unreachable from a phone).
+/** true when running inside a capacitor native webview (android/ios) */interface CapacitorInfo {
     isNative?: boolean;
     isNativePlatform?: () => boolean;
     [key: string]: any;
@@ -17,13 +11,10 @@ interface CapacitorWindow extends Window {
 
 export function isCapacitorNative(): boolean {
     try {
-        // capacitor injects this on the window object
-        const cap = (window as CapacitorWindow).Capacitor;
+        // capacitor injects this on the window object        const cap = (window as CapacitorWindow).Capacitor;
         if (!cap) return false;
-        // isnative is set to true by capacitor on native platforms
-        if (cap.isNative === true) return true;
-        // fallback to calling isnativeplatform if available
-        if (typeof cap.isNativePlatform === 'function') {
+        // isnative is set to true by capacitor on native platforms        if (cap.isNative === true) return true;
+        // fallback to calling isnativeplatform if available        if (typeof cap.isNativePlatform === 'function') {
             return cap.isNativePlatform();
         }
         return false;
@@ -32,8 +23,7 @@ export function isCapacitorNative(): boolean {
     }
 }
 
-/** 
- * true when running in a mobile context (native app or mobile browser).
+/**  * true when running in a mobile context (native app or mobile browser).
  * also checks if we're loading from the mobile server origin on a mobile device.
  */
 export function isMobileContext(): boolean {
@@ -43,8 +33,7 @@ export function isMobileContext(): boolean {
     const ua = navigator.userAgent || navigator.vendor || '';
     const isMobileUA = /android|iphone|ipad|ipod|iemobile|mobile/i.test(ua);
     
-    // if we're on mobile ua and loading from our mobile server, treat as mobile context
-    if (isMobileUA && typeof window !== 'undefined') {
+    // if we're on mobile ua and loading from our mobile server, treat as mobile context    if (isMobileUA && typeof window !== 'undefined') {
         const host = window.location.hostname;
         if (host === 'pkm.houseofmates.space' || host.endsWith('.houseofmates.space')) {
             return true;
@@ -54,26 +43,22 @@ export function isMobileContext(): boolean {
     return isMobileUA;
 }
 
-/** 
- * detects if we're in a context where localhost won't be reachable.
+/**  * detects if we're in a context where localhost won't be reachable.
  * this includes:
  * - capacitor native apps
  * - mobile browsers loading from remote origin
  * - any non-localhost origin on mobile
  */
 export function isLocalhostUnreachable(): boolean {
-    // definitely unreachable in native app
-    if (isCapacitorNative()) return true;
+    // definitely unreachable in native app    if (isCapacitorNative()) return true;
     
-    // check if we're on mobile and not on localhost
-    if (typeof navigator === 'undefined') return false;
+    // check if we're on mobile and not on localhost    if (typeof navigator === 'undefined') return false;
     const ua = navigator.userAgent || navigator.vendor || '';
     const isMobile = /android|iphone|ipad|ipod|iemobile|mobile/i.test(ua);
     
     if (isMobile && typeof window !== 'undefined') {
         const host = window.location.hostname;
-        // if not localhost/127.0.0.1, then localhost is unreachable
-        if (host !== 'localhost' && host !== '127.0.0.1') {
+        // if not localhost/127.0.0.1, then localhost is unreachable        if (host !== 'localhost' && host !== '127.0.0.1') {
             return true;
         }
     }
@@ -81,20 +66,13 @@ export function isLocalhostUnreachable(): boolean {
     return false;
 }
 
-/** true when the browser supports module workers and we can actually instantiate one */
-export function isWorkerSupported(): boolean {
+/** true when the browser supports module workers and we can actually instantiate one */export function isWorkerSupported(): boolean {
     if (typeof Worker === 'undefined') return false;
 
-    // some android webviews expose worker but throw on `type: 'module'`
-    // we can't probe without actually creating one, so we check a known
-    // indicator: capacitor native webviews on older android versions
-    // often lack full module-worker support.
-    // the actual try/catch happens at construction time in use-ai-worker.ts.
-    return true;
+    // some android webviews expose worker but throw on `type: 'module'`    // we can't probe without actually creating one, so we check a known    // indicator: capacitor native webviews on older android versions    // often lack full module-worker support.    // the actual try/catch happens at construction time in use-ai-worker.ts.    return true;
 }
 
-/**
- * returns the correct ollama-compatible endpoint for the current platform.
+/** * returns the correct ollama-compatible endpoint for the current platform.
  *
  * - on desktop/browser: `http://localhost:11434` (local ollama)
  * - on mobile/capacitor: proxy through the remote server
@@ -106,13 +84,10 @@ export function resolveOllamaEndpoint(
     localEndpoint: string,
     _serverOrigin?: string,
 ): string {
-    // the wilson/llm client now targets the google gemini public api directly.
-    // we no longer proxy llm traffic through the server mobile endpoint.
-    return localEndpoint;
+    // the wilson/llm client now targets the google gemini public api directly.    // we no longer proxy llm traffic through the server mobile endpoint.    return localEndpoint;
 }
 
-/**
- * the remote server origin for the mobile app.
+/** * the remote server origin for the mobile app.
  * mirrors the value in capacitor.config.ts so the core package can use it
  * without importing capacitor config directly.
  *

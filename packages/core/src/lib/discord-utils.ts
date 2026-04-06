@@ -8,8 +8,7 @@ export function isDiscordLinkExpired(url: string | undefined): boolean {
   const exHex = urlObj.searchParams.get('ex');
   if (exHex) {
   const expiry = parseInt(exHex, 16);
-  // current time in seconds
-  const now = Math.floor(Date.now() / 1000);
+  // current time in seconds  const now = Math.floor(Date.now() / 1000);
   return now > expiry;
   }
   } catch (e) {

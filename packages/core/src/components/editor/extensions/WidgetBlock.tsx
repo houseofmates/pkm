@@ -26,8 +26,7 @@ export const WidgetBlock = Node.create({
     return ReactNodeViewRenderer((props) => {
       const { type, data } = props.node.attrs;
 
-      // map legacy/simple types to widgetrenderer expectations
-      const widgetConfig = {
+      // map legacy/simple types to widgetrenderer expectations      const widgetConfig = {
         view_type: type,
         title: type,
         data: data,

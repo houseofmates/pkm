@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-/**
- * clean-releases.cjs
+/** * clean-releases.cjs
  * removes all files from the releases folder
  */
 
@@ -42,8 +41,7 @@ function main() {
     console.log(`  - ${file} (${size})`);
   }
 
-  // check for --force flag
-  if (process.argv.includes('--force') || process.argv.includes('-f')) {
+  // check for --force flag  if (process.argv.includes('--force') || process.argv.includes('-f')) {
     console.log('');
     for (const file of files) {
       const filePath = path.join(RELEASES_DIR, file);

@@ -33,15 +33,13 @@ import { CaptureDialog } from '@/features/captures/components/CaptureDialog'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
-// tool button helper
-const ToolBtn = ({ tool, icon: Icon, store, activeMenu, openMenu, closeMenu, onClickOverride, specialModeIcon, menuContent }: any) => {
+// tool button helperconst ToolBtn = ({ tool, icon: Icon, store, activeMenu, openMenu, closeMenu, onClickOverride, specialModeIcon, menuContent }: any) => {
   const isActive = store.activeTool === tool
   const showMenu = activeMenu === tool
   const btnRef = useRef<HTMLButtonElement>(null)
   const [menuPos, setMenuPos] = useState({ x: 0, y: 0 })
 
-  // position menu above the button using a portal
-  useEffect(() => {
+  // position menu above the button using a portal  useEffect(() => {
     if (showMenu && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect()
       setMenuPos({
@@ -130,8 +128,7 @@ export function Toolbar() {
   const setActiveLayer = useEdgelessStore(s => s.setActiveLayer)
   const removeLayer = useEdgelessStore(s => s.removeLayer)
 
-  // reconstruct a minimal store-like object for toolbtn to maintain compatibility with minimal changes
-  const store = {
+  // reconstruct a minimal store-like object for toolbtn to maintain compatibility with minimal changes  const store = {
     activeTool,
     setTool,
     setMode,
@@ -172,8 +169,7 @@ export function Toolbar() {
       toast.error('no drawing id found')
       return
     }
-    // dispatch event to add drawing to dashboard
-    window.dispatchEvent(new CustomEvent('pkm:add-widget', {
+    // dispatch event to add drawing to dashboard    window.dispatchEvent(new CustomEvent('pkm:add-widget', {
       detail: { 
         id: `drawing_${drawingId}`, 
         type: 'collection', 
@@ -192,13 +188,11 @@ export function Toolbar() {
   const openMenu = (tool: string) => setActiveMenu(tool)
   const closeMenu = () => setActiveMenu(null)
 
-  // close menu on click outside
-  useEffect(() => {
+  // close menu on click outside  useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (activeMenu) {
         const target = e.target as Element
-        // don't close if clicking inside the portal menu or the toolbar button
-        if (target.closest('.relative.group') || target.closest('[class*="backdrop-blur-xl"]')) return
+        // don't close if clicking inside the portal menu or the toolbar button        if (target.closest('.relative.group') || target.closest('[class*="backdrop-blur-xl"]')) return
         closeMenu()
       }
     }
@@ -207,8 +201,7 @@ export function Toolbar() {
   }, [activeMenu])
 
   const handleAddWidget = (type: string, data: any) => {
-    // calculate center of viewport
-    const { x, y, zoom } = store.viewPort;
+    // calculate center of viewport    const { x, y, zoom } = store.viewPort;
     const centerX = (-x / zoom) + (window.innerWidth / 2 / zoom);
     const centerY = (-y / zoom) + (window.innerHeight / 2 / zoom);
 
@@ -254,8 +247,7 @@ export function Toolbar() {
             closeMenu={closeMenu}
             onClickOverride={() => {
               store.setTool('select')
-              // cycle or default modes
-              if (store.selectionMode === 'rect') store.setSelectionMode('grab')
+              // cycle or default modes              if (store.selectionMode === 'rect') store.setSelectionMode('grab')
               else store.setMode('interact')
             }}
             specialModeIcon={store.selectionMode === 'cursor' ? <MousePointer2 size={24} /> : <Hand size={24} />}

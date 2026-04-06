@@ -13,8 +13,7 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { PushToTalkWidget } from '@/components/push-to-talk-widget';
 
-// override focus/accent for journal buttons so color comes from the element itself
-const journalStyles = `
+// override focus/accent for journal buttons so color comes from the element itselfconst journalStyles = `
   .journal-mood-btn:focus, .journal-emotion-btn:focus {
     outline: none !important;
     box-shadow: 0 0 0 2px currentColor !important;
@@ -24,19 +23,14 @@ const journalStyles = `
 const styleEl = document.createElement('style');
 styleEl.textContent = journalStyles;
 document.head.appendChild(styleEl);
-// cleanup on module hot-reload (dev only)
-if (import.meta.hot) {
+// cleanup on module hot-reload (dev only)if (import.meta.hot) {
   import.meta.hot.dispose(() => { document.head.removeChild(styleEl); });
 }
-// cleanup on module hot-reload (dev only)
-if (import.meta.hot) {
+// cleanup on module hot-reload (dev only)if (import.meta.hot) {
   import.meta.hot.dispose(() => { document.head.removeChild(styleEl); });
 }
 
-// ─────────────────────────────────────────────
-//  constants
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  constants// ─────────────────────────────────────────────
 const Y = '#f5af12';
 const B = '#3c9fdd';
 const G = '#22c55e';
@@ -289,10 +283,7 @@ const STORAGE_KEYS = {
   LONGEST_STREAK: 'pkm:journal:longest_streak',
 };
 
-// ─────────────────────────────────────────────
-//  helpers
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  helpers// ─────────────────────────────────────────────
 function getStoredData<T>(key: string, defaultValue: T): T {
   try {
     const stored = localStorage.getItem(key);
@@ -371,10 +362,7 @@ function calculateAverageMood(entries: JournalRecord[]): number {
   return Number((sum / moodEntries.length).toFixed(1));
 }
 
-// ─────────────────────────────────────────────
-//  color picker component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  color picker component// ─────────────────────────────────────────────
 interface ColorPickerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -555,10 +543,7 @@ function hslColorToHex(h: number, s: number, l: number): string {
   return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-// ─────────────────────────────────────────────
-//  breathing exercise component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  breathing exercise component// ─────────────────────────────────────────────
 function BreathingExerciseModal({ isOpen, onClose, preset }: { isOpen: boolean; onClose: () => void; preset?: string }) {
   const [technique, setTechnique] = useState<'4-7-8' | 'box' | 'quick'>('4-7-8');
   const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale' | 'hold2'>('inhale');
@@ -708,10 +693,7 @@ function BreathingExerciseModal({ isOpen, onClose, preset }: { isOpen: boolean; 
   );
 }
 
-// ─────────────────────────────────────────────
-//  reflection timer component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  reflection timer component// ─────────────────────────────────────────────
 function ReflectionTimer({ isOpen, onClose, prompt }: { isOpen: boolean; onClose: () => void; prompt: string }) {
   const [duration, setDuration] = useState(300);
   const [timeLeft, setTimeLeft] = useState(duration);
@@ -823,10 +805,7 @@ function ReflectionTimer({ isOpen, onClose, prompt }: { isOpen: boolean; onClose
   );
 }
 
-// ─────────────────────────────────────────────
-//  achievement celebration component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  achievement celebration component// ─────────────────────────────────────────────
 function AchievementCelebration({ achievement, onClose }: { achievement: typeof ACHIEVEMENTS[0]; onClose: () => void }) {
   useEffect(() => {
     const timer = setTimeout(onClose, 4000);
@@ -851,10 +830,7 @@ function AchievementCelebration({ achievement, onClose }: { achievement: typeof 
   );
 }
 
-// ─────────────────────────────────────────────
-//  weekly review component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  weekly review component// ─────────────────────────────────────────────
 function WeeklyReviewModal({ isOpen, onClose, entries, onSummaryGenerated }: { isOpen: boolean; onClose: () => void; entries: JournalRecord[]; onSummaryGenerated?: () => void }) {
   const weekStart = getWeekStart();
   const [summary, setSummary] = useState('');
@@ -955,10 +931,7 @@ ${text}`;
   );
 }
 
-// ─────────────────────────────────────────────
-//  template selector component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  template selector component// ─────────────────────────────────────────────
 function TemplateSelector({ isOpen, onClose, onSelect }: { isOpen: boolean; onClose: () => void; onSelect: (template: typeof JOURNAL_TEMPLATES[0]) => void }) {
   const [templatesUsed, setTemplatesUsed] = useState<string[]>(() => 
     getStoredData(STORAGE_KEYS.TEMPLATES_USED, [])
@@ -1008,10 +981,7 @@ function TemplateSelector({ isOpen, onClose, onSelect }: { isOpen: boolean; onCl
 }
 
 
-// ─────────────────────────────────────────────
-//  stats charts component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  stats charts component// ─────────────────────────────────────────────
 interface StatsChartsProps {
   entries: JournalRecord[];
 }
@@ -1281,10 +1251,7 @@ function StatsCharts({ entries }: StatsChartsProps) {
   );
 }
 
-// ─────────────────────────────────────────────
-//  gratitude tracker component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  gratitude tracker component// ─────────────────────────────────────────────
 function GratitudeTracker() {
   const [gratitudes, setGratitudes] = useState<string[]>([]);
   const [input, setInput] = useState('');
@@ -1343,10 +1310,7 @@ function GratitudeTracker() {
 }
 
 
-// ─────────────────────────────────────────────
-//  mood-activity correlation component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  mood-activity correlation component// ─────────────────────────────────────────────
 interface MoodActivityCorrelationProps {
   entries: JournalRecord[];
 }
@@ -1434,10 +1398,7 @@ function MoodActivityCorrelation({ entries }: MoodActivityCorrelationProps) {
   );
 }
 
-// ─────────────────────────────────────────────
-//  privacy lock component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  privacy lock component// ─────────────────────────────────────────────
 function PrivacyLock({ isLocked, onUnlock, onLock }: { isLocked: boolean; onUnlock: () => void; onLock: () => void }) {
   const [pin, setPin] = useState('');
   const [storedPin, setStoredPin] = useState(() => getStoredData('pkm:journal:pin', ''));
@@ -1549,10 +1510,7 @@ function PrivacyLock({ isLocked, onUnlock, onLock }: { isLocked: boolean; onUnlo
   );
 }
 
-// ─────────────────────────────────────────────
-//  mood heatmap component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  mood heatmap component// ─────────────────────────────────────────────
 function MoodHeatmap({ entries }: { entries: JournalRecord[] }) {
   const [year, setYear] = useState(new Date().getFullYear());
 
@@ -1640,10 +1598,7 @@ function MoodHeatmap({ entries }: { entries: JournalRecord[] }) {
   );
 }
 
-// ─────────────────────────────────────────────
-//  habit calendar component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  habit calendar component// ─────────────────────────────────────────────
 function HabitCalendar({
   entries,
   onDateClick,
@@ -1661,8 +1616,7 @@ function HabitCalendar({
     const today = new Date();
     const start = new Date(today);
     start.setFullYear(start.getFullYear() - 1);
-    // roll back to previous sunday so weeks align
-    start.setDate(start.getDate() - start.getDay());
+    // roll back to previous sunday so weeks align    start.setDate(start.getDate() - start.getDay());
 
     const d = new Date(start);
     while (d <= today) {
@@ -1698,10 +1652,7 @@ function HabitCalendar({
   );
 }
 
-// ─────────────────────────────────────────────
-//  word cloud component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  word cloud component// ─────────────────────────────────────────────
 function WordCloud({ entries }: { entries: JournalRecord[] }) {
   const words = useMemo(() => {
     const wordFreq: Record<string, number> = {};
@@ -1753,10 +1704,7 @@ function WordCloud({ entries }: { entries: JournalRecord[] }) {
   );
 }
 
-// ─────────────────────────────────────────────
-//  time insights component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  time insights component// ─────────────────────────────────────────────
 function TimeInsights({ entries }: { entries: JournalRecord[] }) {
   const insights = useMemo(() => {
     const hourMoods: Record<number, number[]> = {};
@@ -1828,13 +1776,9 @@ function TimeInsights({ entries }: { entries: JournalRecord[] }) {
   );
 }
 
-// ─────────────────────────────────────────────
-//  main journal page component
-// ─────────────────────────────────────────────
-
+// ─────────────────────────────────────────────//  main journal page component// ─────────────────────────────────────────────
 export function JournalPage() {
-  // ── state: mood & emotions ──
-  const [mood, setMood] = useState<string | null>(null);
+  // ── state: mood & emotions ──  const [mood, setMood] = useState<string | null>(null);
   const [emotions, setEmotions] = useState<Set<string>>(new Set());
   const [emotionQuery, setEmotionQuery] = useState('');
   const [availableEmotions, setAvailableEmotions] = useState<string[]>(() => {
@@ -1842,27 +1786,23 @@ export function JournalPage() {
     return Array.from(new Set([...INITIAL_EMOTIONS, ...stored]));
   });
 
-  // ── state: activities ──
-  const [activities, setActivities] = useState<Set<string>>(new Set());
+  // ── state: activities ──  const [activities, setActivities] = useState<Set<string>>(new Set());
   const [activityQuery, setActivityQuery] = useState('');
   const [availableActivities] = useState(DEFAULT_ACTIVITIES);
   const [activityFilter, setActivityFilter] = useState<string | null>(null);
   
-  // ── state: notes ──
-  const [body, setBody] = useState('');
+  // ── state: notes ──  const [body, setBody] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [useWysiwyg, setUseWysiwyg] = useState(false);
   const [saving, setSaving] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
 
-  // predictions
-  const [predictedMood, setPredictedMood] = useState<string | null>(null);
+  // predictions  const [predictedMood, setPredictedMood] = useState<string | null>(null);
   const [predictedSentiment, setPredictedSentiment] = useState<string | null>(null);
   const [predictedActivities, setPredictedActivities] = useState<string[]>([]);
   
-  // ── state: gamification ──
-  const [streak, setStreak] = useState(0);
+  // ── state: gamification ──  const [streak, setStreak] = useState(0);
   const [entryCount, setEntryCount] = useState(0);
   const [xp, setXp] = useState(0);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
@@ -1874,8 +1814,7 @@ export function JournalPage() {
   const [quickMood, setQuickMood] = useState<string | null>(null);
   const [longestStreak, setLongestStreak] = useState(0);
   
-  // ── state: daily goals ──
-  const [dailyGoals, setDailyGoals] = useState<{id: string; label: string; completed: boolean; icon: string}[]>([
+  // ── state: daily goals ──  const [dailyGoals, setDailyGoals] = useState<{id: string; label: string; completed: boolean; icon: string}[]>([
     { id: 'log_mood', label: 'log your mood', completed: false, icon: '😊' },
     { id: 'add_emotions', label: 'add 3+ emotions', completed: false, icon: '💭' },
     { id: 'write_note', label: 'write 50+ characters', completed: false, icon: '✍️' },
@@ -1884,8 +1823,7 @@ export function JournalPage() {
   ]);
   const [showGoals, setShowGoals] = useState(false);
   
-  // ── state: tags ──
-  const [tags, setTags] = useState<Set<string>>(new Set());
+  // ── state: tags ──  const [tags, setTags] = useState<Set<string>>(new Set());
   const [tagQuery, setTagQuery] = useState('');
   const [availableTags, setAvailableTags] = useState<string[]>(() => 
     getStoredData(STORAGE_KEYS.TAGS, SUGGESTED_TAGS)
@@ -1894,8 +1832,7 @@ export function JournalPage() {
     getStoredData(STORAGE_KEYS.TAG_COLORS, {})
   );
   
-  // ── state: color customization ──
-  const [emotionColors, setEmotionColors] = useState<Record<string, string>>(() =>
+  // ── state: color customization ──  const [emotionColors, setEmotionColors] = useState<Record<string, string>>(() =>
     getStoredData(STORAGE_KEYS.EMOTION_COLORS, DEFAULT_EMOTION_COLORS)
   );
   const [activityColors, setActivityColors] = useState<Record<string, string>>(() =>
@@ -1909,8 +1846,7 @@ export function JournalPage() {
   );
   const [activeDotIndex, setActiveDotIndex] = useState<number | null>(null);
   
-  // ── state: view toggles ──
-  const [showQuickCheckin, setShowQuickCheckin] = useState(false);
+  // ── state: view toggles ──  const [showQuickCheckin, setShowQuickCheckin] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showHabitCalendar, setShowHabitCalendar] = useState(false);
   const [showPastEntries, setShowPastEntries] = useState(false);
@@ -1920,8 +1856,7 @@ export function JournalPage() {
     if (existing) {
       populateForm(existing);
     } else {
-      // create provisional entry to edit
-      const temp: JournalRecord = { date, timestamp: new Date().toISOString(), mood: null, activities: '[]', body: '' };
+      // create provisional entry to edit      const temp: JournalRecord = { date, timestamp: new Date().toISOString(), mood: null, activities: '[]', body: '' };
       populateForm(temp);
     }
     setShowCalendar(false);
@@ -1939,12 +1874,10 @@ export function JournalPage() {
   const [isLocked, setIsLocked] = useState(() => getStoredData('pkm:journal:locked', false));
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  // ── state: export options ──
-  const [exportFrom, setExportFrom] = useState<string>('');
+  // ── state: export options ──  const [exportFrom, setExportFrom] = useState<string>('');
   const [exportTo, setExportTo] = useState<string>('');
 
-  // ── state: daily reminder ──
-  const [reminderTime, setReminderTime] = useState<string>(() =>
+  // ── state: daily reminder ──  const [reminderTime, setReminderTime] = useState<string>(() =>
     localStorage.getItem('journal_reminder') || ''
   );
   const [reminderEnabled, setReminderEnabled] = useState<boolean>(!!reminderTime);
@@ -1982,26 +1915,22 @@ export function JournalPage() {
 
 
   
-  // ── state: past entries filter ──
-  const [pastEntriesFilter, setPastEntriesFilter] = useState({ search: '', mood: '', tag: '' });
+  // ── state: past entries filter ──  const [pastEntriesFilter, setPastEntriesFilter] = useState({ search: '', mood: '', tag: '' });
   const [nlIds, setNlIds] = useState<string[] | null>(null);            // natural language search results
   const [isNlSearching, setIsNlSearching] = useState(false);            
   
-  // ── state: entry metadata ──
-  const [selectedTemplate, setSelectedTemplate] = useState<typeof JOURNAL_TEMPLATES[0] | null>(null);
+  // ── state: entry metadata ──  const [selectedTemplate, setSelectedTemplate] = useState<typeof JOURNAL_TEMPLATES[0] | null>(null);
   const [entryTime, setEntryTime] = useState<Date | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const [voiceMemos, setVoiceMemos] = useState<string[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   
-  // ── refs ──
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // ── refs ──  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // ── entries & editing ──
-  const [entries, setEntries] = useState<JournalRecord[]>([]);
+  // ── entries & editing ──  const [entries, setEntries] = useState<JournalRecord[]>([]);
   const [editingEntry, setEditingEntry] = useState<JournalRecord | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<JournalRecord | null>(null);
   const [viewingEntry, setViewingEntry] = useState<JournalRecord | null>(null);
@@ -2010,15 +1939,13 @@ export function JournalPage() {
   );
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
 
-  // ── voice transcription states ──
-  const [isTranscribing, setIsTranscribing] = useState(false);
+  // ── voice transcription states ──  const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isSummarizingVoice, setIsSummarizingVoice] = useState(false);
   const [transcriptionSummary, setTranscriptionSummary] = useState('');
   const recognitionRef = useRef<any>(null);
 
-  // ── derived state ──
-  const entriesByDate = useMemo(() => {
+  // ── derived state ──  const entriesByDate = useMemo(() => {
     const map: Record<string, JournalRecord> = {};
     entries.forEach(e => { map[e.date] = e; });
     return map;
@@ -2044,8 +1971,7 @@ export function JournalPage() {
     return days;
   }, [currentMonth]);
 
-  // ── load data ──
-  const loadEntries = useCallback(async () => {
+  // ── load data ──  const loadEntries = useCallback(async () => {
     try {
       const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
       setEntries(res?.data || []);
@@ -2074,15 +2000,13 @@ export function JournalPage() {
 
   useEffect(() => { loadEntries(); }, [loadEntries]);
 
-  // ── update word count ──
-  useEffect(() => {
+  // ── update word count ──  useEffect(() => {
     const words = body.trim().split(/\s+/).filter(w => w.length > 0).length;
     setWordCount(words);
     setCharCount(body.length);
   }, [body]);
 
-  // ── predictions based on body ──
-  useEffect(() => {
+  // ── predictions based on body ──  useEffect(() => {
     if (body.trim().length < 20) {
       setPredictedMood(null);
       setPredictedSentiment(null);
@@ -2109,8 +2033,7 @@ export function JournalPage() {
     return () => clearTimeout(timer);
   }, [body, availableActivities]);
 
-  // ── auto-save draft ──
-  useEffect(() => {
+  // ── auto-save draft ──  useEffect(() => {
     const saveDraft = () => {
       const draft = {
         mood,
@@ -2127,8 +2050,7 @@ export function JournalPage() {
     return () => clearInterval(interval);
   }, [mood, emotions, activities, body, tags]);
 
-  // ── load draft on mount ──
-  useEffect(() => {
+  // ── load draft on mount ──  useEffect(() => {
     const savedDraft = localStorage.getItem('pkm:journal:draft');
     if (savedDraft) {
       try {
@@ -2148,15 +2070,13 @@ export function JournalPage() {
     }
   }, []);
 
-  // ── clear draft on save ──
-  useEffect(() => {
+  // ── clear draft on save ──  useEffect(() => {
     if (!saving && !editingEntry) {
       localStorage.removeItem('pkm:journal:draft');
     }
   }, [saving, editingEntry]);
 
-  // ── helpers ──
-  const saveEmotionColors = useCallback((colors: Record<string, string>) => {
+  // ── helpers ──  const saveEmotionColors = useCallback((colors: Record<string, string>) => {
     setEmotionColors(colors);
     setStoredData(STORAGE_KEYS.EMOTION_COLORS, colors);
   }, []);
@@ -2351,8 +2271,7 @@ export function JournalPage() {
   };
 
   const handlePrint = async () => {
-    // gather past 14 days
-    const cutoff = new Date();
+    // gather past 14 days    const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 14);
     const recent = entries.filter(e => new Date(e.date) >= cutoff);
     let summary = '';
@@ -2365,8 +2284,7 @@ export function JournalPage() {
       const mood = MOODS.find(m => m.id === e.mood)?.label || '';
       return `<div style="margin-bottom:1em;"><strong>${e.date} (${mood})</strong><p>${e.body?.replace(/\n/g,'<br>') || ''}</p></div>`;
     }).join('');
-    // compute simple stats
-    const moods = recent.map(e => getMoodValue(e.mood || ''));
+    // compute simple stats    const moods = recent.map(e => getMoodValue(e.mood || ''));
     const avgMood = moods.length ? (moods.reduce((a,b)=>a+b,0)/moods.length).toFixed(2) : 'n/a';
     const activityCounts: Record<string, number> = {};
     recent.forEach(e => {
@@ -2418,8 +2336,7 @@ ${entriesText}`;
   const checkAchievements = (newXp: number, newStreak: number, newCount: number, wordCount: number, emotionCount: number) => {
     const newUnlocks: string[] = [];
     
-    // voice memo count tracked separately
-    const memoCount = getStoredData(STORAGE_KEYS.VOICE_MEMOS_COUNT, 0);
+    // voice memo count tracked separately    const memoCount = getStoredData(STORAGE_KEYS.VOICE_MEMOS_COUNT, 0);
     if (memoCount >= 10 && !unlockedAchievements.includes('voice_memoir')) newUnlocks.push('voice_memoir');
 
     if (newCount >= 1 && !unlockedAchievements.includes('first_entry')) newUnlocks.push('first_entry');
@@ -2438,14 +2355,12 @@ ${entriesText}`;
     if (wordCount >= 500 && !unlockedAchievements.includes('word_warrior')) newUnlocks.push('word_warrior');
     if (emotionCount >= 10 && !unlockedAchievements.includes('emotion_explorer')) newUnlocks.push('emotion_explorer');
     
-    // check templates
-    const templatesUsed = getStoredData(STORAGE_KEYS.TEMPLATES_USED, []);
+    // check templates    const templatesUsed = getStoredData(STORAGE_KEYS.TEMPLATES_USED, []);
     if (templatesUsed.length >= JOURNAL_TEMPLATES.length && !unlockedAchievements.includes('template_master')) {
       newUnlocks.push('template_master');
     }
     
-    // check breathing
-    const breathingHistory = getStoredData(STORAGE_KEYS.BREATHING_HISTORY, []);
+    // check breathing    const breathingHistory = getStoredData(STORAGE_KEYS.BREATHING_HISTORY, []);
     const totalBreathingSessions = breathingHistory.reduce((acc: number, h: any) => acc + h.sessions, 0);
     if (totalBreathingSessions >= 10 && !unlockedAchievements.includes('breathing_master')) {
       newUnlocks.push('breathing_master');
@@ -2478,8 +2393,7 @@ ${entriesText}`;
       ...(transcript && { transcript }),
     };
 
-    // optional geolocation/weather stamping
-    try {
+    // optional geolocation/weather stamping    try {
       if (navigator.geolocation) {
         const pos: GeolocationPosition = await new Promise((res, rej) =>
           navigator.geolocation.getCurrentPosition(res, rej)
@@ -2505,8 +2419,7 @@ ${entriesText}`;
         toast.success('entry saved ✓');
       }
       
-      // update streak
-      const today = getToday();
+      // update streak      const today = getToday();
       const streakData = getStoredData(STORAGE_KEYS.STREAK_DATA, { current: 0, lastDate: '' });
       let newStreak = streakData.current;
       if (streakData.lastDate !== today) {
@@ -2514,28 +2427,24 @@ ${entriesText}`;
         setStoredData(STORAGE_KEYS.STREAK_DATA, { current: newStreak, lastDate: today });
         setStreak(newStreak);
         
-        // update longest streak
-        if (newStreak > longestStreak) {
+        // update longest streak        if (newStreak > longestStreak) {
           setLongestStreak(newStreak);
           setStoredData(STORAGE_KEYS.LONGEST_STREAK, newStreak);
         }
       }
       
-      // update entry count
-      const newCount = entryCount + (editingEntry ? 0 : 1);
+      // update entry count      const newCount = entryCount + (editingEntry ? 0 : 1);
       if (!editingEntry) {
         setEntryCount(newCount);
         setStoredData(STORAGE_KEYS.ENTRY_COUNT, newCount);
       }
       
-      // award xp
-      const earnedXp = 10 + (streakData.lastDate === getYesterday() ? 5 : 0) + (wordCount >= 100 ? 5 : 0);
+      // award xp      const earnedXp = 10 + (streakData.lastDate === getYesterday() ? 5 : 0) + (wordCount >= 100 ? 5 : 0);
       const newXp = xp + earnedXp;
       setXp(newXp);
       setStoredData(STORAGE_KEYS.XP_DATA, newXp);
       
-      // update daily goals
-      const updatedGoals = dailyGoals.map(g => {
+      // update daily goals      const updatedGoals = dailyGoals.map(g => {
         if (g.id === 'log_mood') return { ...g, completed: !!mood };
         if (g.id === 'add_emotions') return { ...g, completed: emotions.size >= 3 };
         if (g.id === 'write_note') return { ...g, completed: body.trim().length >= 50 };
@@ -2546,11 +2455,9 @@ ${entriesText}`;
       setDailyGoals(updatedGoals);
       setStoredData(STORAGE_KEYS.DAILY_GOALS, { date: today, goals: updatedGoals });
       
-      // check achievements
-      checkAchievements(newXp, newStreak, newCount, wordCount, availableEmotions.length);
+      // check achievements      checkAchievements(newXp, newStreak, newCount, wordCount, availableEmotions.length);
       
-      // reset form
-      setMood(null);
+      // reset form      setMood(null);
       setEmotions(new Set());
       setActivities(new Set());
       setBody('');
@@ -2604,8 +2511,7 @@ ${entriesText}`;
         setStoredData(STORAGE_KEYS.TAGS, [...availableTags, val]);
       }
       if (!tagColors[val]) {
-        // assign a random palette color
-        const color = COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)];
+        // assign a random palette color        const color = COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)];
         const updated = { ...tagColors, [val]: color };
         setTagColors(updated);
         setStoredData(STORAGE_KEYS.TAG_COLORS, updated);
@@ -2649,8 +2555,7 @@ ${entriesText}`;
 
   const handleVoiceRecord = () => {
     if (isRecording) {
-      // stop recording
-      setIsRecording(false);
+      // stop recording      setIsRecording(false);
       if (recordingIntervalRef.current) {
         clearInterval(recordingIntervalRef.current);
       }
@@ -2660,8 +2565,7 @@ ${entriesText}`;
       setRecordingTime(0);
       toast.success('voice memo saved');
     } else {
-      // start recording
-      setIsRecording(true);
+      // start recording      setIsRecording(true);
       setRecordingTime(0);
       recordingIntervalRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
@@ -2683,15 +2587,13 @@ summary:`;
         setTranscriptionSummary(chunk);
       });
       setBody(resp);
-      // unlock achievement
-      if (!unlockedAchievements.includes('audio_transcriber')) {
+      // unlock achievement      if (!unlockedAchievements.includes('audio_transcriber')) {
         const updated = [...unlockedAchievements, 'audio_transcriber'];
         setUnlockedAchievements(updated);
         setStoredData(STORAGE_KEYS.ACHIEVEMENTS, updated);
         setCelebratingAchievement(ACHIEVEMENTS.find(a => a.id === 'audio_transcriber') || null);
       }
-      // mark daily goal
-      setDailyGoals(prev => prev.map(g => g.id === 'voice_summary_goal' ? { ...g, completed: true } : g));
+      // mark daily goal      setDailyGoals(prev => prev.map(g => g.id === 'voice_summary_goal' ? { ...g, completed: true } : g));
       toast.success('voice summary generated');
     } catch (e) {
       secureLogger.error('summary failed', e);
@@ -2739,8 +2641,7 @@ summary:`;
     setTranscript('');
   };
 
-  // ── derived state for ui ──
-  const levelInfo = useMemo(() => getLevelFromXp(xp), [xp]);
+  // ── derived state for ui ──  const levelInfo = useMemo(() => getLevelFromXp(xp), [xp]);
   
   const completedGoals = dailyGoals.filter(g => g.completed).length;
   const goalsProgress = (completedGoals / dailyGoals.length) * 100;
@@ -2748,11 +2649,9 @@ summary:`;
   const filteredPastEntries = useMemo(() => {
     let filtered = [...entries];
 
-    // if semantic search has produced a result set, use that as the primary filter
-    if (nlIds !== null) {
+    // if semantic search has produced a result set, use that as the primary filter    if (nlIds !== null) {
       filtered = filtered.filter(e => nlIds.includes(String(e.id)));
-      // preserve the order returned by the model
-      filtered.sort((a, b) => nlIds.indexOf(String(a.id)) - nlIds.indexOf(String(b.id)));
+      // preserve the order returned by the model      filtered.sort((a, b) => nlIds.indexOf(String(a.id)) - nlIds.indexOf(String(b.id)));
       return filtered;
     }
 
@@ -2902,8 +2801,7 @@ summary:`;
     );
   };
 
-  // ── cleanup ──
-  useEffect(() => {
+  // ── cleanup ──  useEffect(() => {
     return () => {
       if (recordingIntervalRef.current) {
         clearInterval(recordingIntervalRef.current);
@@ -3316,8 +3214,7 @@ summary:`;
                   onContextMenu={e => handleContextMenu(e, 'emotion', emotion)}
                   className="px-3 py-1.5 rounded-full text-xs lowercase transition-all journal-emotion-btn focus:outline-none ring-0 focus:ring-0 focus:ring-offset-0"
                   style={{
-                    // always show border with emotion color
-                    border: `1px solid ${emotionColors[emotion]}`,
+                    // always show border with emotion color                    border: `1px solid ${emotionColors[emotion]}`,
                     color: emotions.has(emotion) ? '#ffffff' : emotionColors[emotion],
                     backgroundColor: emotions.has(emotion) ? `${emotionColors[emotion]}33` : 'transparent',
                   }}

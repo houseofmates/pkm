@@ -2,8 +2,7 @@ import { parse as csvParse } from 'papaparse';
 import yaml from 'js-yaml';
 import { secureLogger } from '@/lib/secure-logger';
 
-/**
- * interface for a file-like object that can be read as a stream or text.
+/** * interface for a file-like object that can be read as a stream or text.
  * this allows the parser to work with both node.js filesystem and web file/blob apis.
  */
 export interface NotionSource {
@@ -14,20 +13,17 @@ export interface NotionSource {
 }
 
 export interface NotionPage {
-    /** filesystem path or identifier for the markdown file */
-    path: string;
+    /** filesystem path or identifier for the markdown file */    path: string;
     title: string;
     frontmatter: Record<string, any>;
     content: string;
 }
 
 export interface NotionDatabase {
-    /** filename of the csv (without extension) */
-    name: string;
+    /** filename of the csv (without extension) */    name: string;
     rows: Record<string, any>[];
     fields: string[];
-    /** optional notion property metadata (if export includes json) */
-    props?: Record<string, any>;
+    /** optional notion property metadata (if export includes json) */    props?: Record<string, any>;
 }
 
 const IMPORT_DEBUG = typeof process !== 'undefined' && process.env.NOTION_IMPORT_DEBUG === 'true';
@@ -38,8 +34,7 @@ export interface NotionWorkspace {
     assets: string[]; // list of file paths under assets folder
 }
 
-/**
- * node.js implementation of notionsource using the filesystem.
+/** * node.js implementation of notionsource using the filesystem.
  */
 export class NodeFsSource implements NotionSource {
     constructor(private filePath: string, private rootRelativePath: string = filePath) { }
@@ -75,8 +70,7 @@ async function parseMarkdownSource(source: NotionSource): Promise<NotionPage> {
     return { path: source.getPath(), title, frontmatter, content };
 }
 
-/**
- * parses a notion export. accept sources instead of a root path to support streaming/web apis.
+/** * parses a notion export. accept sources instead of a root path to support streaming/web apis.
  */
 export async function parseNotionExport(sources: NotionSource[]): Promise<NotionWorkspace> {
     const pages: NotionPage[] = [];
@@ -113,8 +107,7 @@ export async function parseNotionExport(sources: NotionSource[]): Promise<Notion
 
             const fields = rows.length > 0 ? Object.keys(rows[0]) : [];
 
-            // try to find matching metadata json among sources
-            let props: Record<string, any> | undefined;
+            // try to find matching metadata json among sources            let props: Record<string, any> | undefined;
             const jsonName = source.name.replace(/\.csv$/, '.json');
             const jsonSource = sources.find(s => s.name === jsonName);
             if (jsonSource) {

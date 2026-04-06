@@ -86,8 +86,7 @@ export function ShowerLoggerModal({ isOpen, onClose }: ShowerLoggerModalProps) {
       await api.getCollection('products');
       return;
     } catch {
-      // continue to creation
-    }
+      // continue to creation    }
 
     await api.createCollection({
       name: 'products',
@@ -248,8 +247,7 @@ export function ShowerLoggerModal({ isOpen, onClose }: ShowerLoggerModalProps) {
 
       toast.success('Shower log saved successfully!');
       onClose(false);
-      // reset form
-      setFormData({
+      // reset form      setFormData({
         shaved: false,
         used_body_scrub: false,
         used_body_serum: false,

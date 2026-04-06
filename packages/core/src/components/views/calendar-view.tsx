@@ -12,17 +12,13 @@ import { SmartField } from '@/components/fields/smart-field';
 import { Label } from '@/components/ui/label';
 import { format, toZonedTime } from 'date-fns-tz';
 
-// tozonedtime may be missing or non-function in some test environments (see vitest),
-// so we will check before calling it to avoid runtime errors.
-
-// safe date formatting helper - returns null if date is invalid
-function safeDateFormat(date: Date | string | number | null | undefined, formatStr: string, timeZone?: string): string | null {
+// tozonedtime may be missing or non-function in some test environments (see vitest),// so we will check before calling it to avoid runtime errors.
+// safe date formatting helper - returns null if date is invalidfunction safeDateFormat(date: Date | string | number | null | undefined, formatStr: string, timeZone?: string): string | null {
   if (!date) return null;
   const d = typeof date === 'object' ? date : new Date(date);
   if (isNaN(d.getTime())) return null;
   
-  // apply timezone conversion if requested and available
-  let finalDate = d;
+  // apply timezone conversion if requested and available  let finalDate = d;
   if (timeZone && typeof toZonedTime === 'function') {
     finalDate = toZonedTime(d, timeZone);
   }
@@ -34,8 +30,7 @@ function safeDateFormat(date: Date | string | number | null | undefined, formatS
   }
 }
 
-// safe zoned date creation - returns null if input is invalid
-function safeZonedDate(date: Date | string | number | null | undefined, timeZone: string): Date | null {
+// safe zoned date creation - returns null if input is invalidfunction safeZonedDate(date: Date | string | number | null | undefined, timeZone: string): Date | null {
   if (!date) return null;
   const d = typeof date === 'object' ? date : new Date(date);
   if (isNaN(d.getTime())) return null;
@@ -62,8 +57,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
     })
   );
 
-  // moved early return check after hooks to avoid conditional hooks
-  const hasCollection = Boolean(collection);
+  // moved early return check after hooks to avoid conditional hooks  const hasCollection = Boolean(collection);
 
   const titleField = useMemo(() => {
     if (!collection) return { name: 'id' };
@@ -101,8 +95,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
       const rawDate = (dateField && record[dateField]) || record['start-time'] || record['start_time'] || record['date'];
       if (!rawDate) return;
       
-      // validate the date before formatting
-      const dateStr = safeDateFormat(rawDate, 'yyyy-MM-dd', timeZone);
+      // validate the date before formatting      const dateStr = safeDateFormat(rawDate, 'yyyy-MM-dd', timeZone);
       if (!dateStr) return; // skip invalid dates silently
       
       if (!map[dateStr]) map[dateStr] = [];
@@ -141,20 +134,16 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
         if (originalIso && String(originalIso).length >= 10) {
           let newIso;
           if (newDateStr.includes('T')) {
-            // drop target has time info (e.g., from dayview)
-            // preserve seconds/timezone if possible but update hour/min
-            const datePart = newDateStr.split('T')[0];
+            // drop target has time info (e.g., from dayview)            // preserve seconds/timezone if possible but update hour/min            const datePart = newDateStr.split('T')[0];
             const timePart = newDateStr.split('T')[1]; // "hh:mm:ss"
             newIso = datePart + 'T' + timePart + String(originalIso).substring(19);
           } else {
-            // replace yyyy-mm-dd part while preserving time/timezone
-            newIso = newDateStr + String(originalIso).substring(10);
+            // replace yyyy-mm-dd part while preserving time/timezone            newIso = newDateStr + String(originalIso).substring(10);
           }
           onUpdateRecord(recordId, { [dateField]: newIso });
           toast.success(`moved to ${newDateStr.replace('T', ' ')}`);
         } else {
-          // fallback for missing or short date strings
-          const fallbackDate = new Date(newDateStr);
+          // fallback for missing or short date strings          const fallbackDate = new Date(newDateStr);
           onUpdateRecord(recordId, { [dateField]: fallbackDate.toISOString() });
           toast.success(`moved to ${newDateStr}`);
         }
@@ -498,8 +487,7 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
   const startHour = 0;
   const endHour = 24; // midnight to midnight
   
-  // hours array from 0 to 24
-  const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => i + startHour);
+  // hours array from 0 to 24  const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => i + startHour);
 
   const getPosition = (rec: any, isTomorrow: boolean) => {
     const startStr = rec[dateFieldStr] || rec['start-time'] || rec['start_time'];
@@ -537,8 +525,7 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
     ...tomorrowRecords.map((r: any) => ({ rec: r, pos: getPosition(r, true) }))
   ].filter((x: any) => x.pos !== null && x.pos.top + x.pos.height > 0 && x.pos.top < hours.length * rowHeight);
 
-  // group overlapping records to calculate width/left offsets
-  displayRecords.sort((a, b) => a.pos.top - b.pos.top);
+  // group overlapping records to calculate width/left offsets  displayRecords.sort((a, b) => a.pos.top - b.pos.top);
   for (let i = 0; i < displayRecords.length; i++) {
     let overlapCount = 0;
     for (let j = 0; j < i; j++) {

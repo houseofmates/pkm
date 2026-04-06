@@ -47,8 +47,7 @@ export function PropertyContextMenu({
 
     if (!field) return <>{children}</>;
 
-    // try load icon info for display and update functions
-    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+    // try load icon info for display and update functions    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
     const iconInfo = collectionName && metadata[collectionName]?.fieldIcons?.[field.name] || {};
 
     const updateIconColor = (color: string) => {

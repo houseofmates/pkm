@@ -21,8 +21,7 @@ function GalleryItem({ record, collection, onUpdate, onDelete }: { record: any, 
     }
   });
 
-  // color from record or collection
-  const itemColor = record.color || collection.metadata?.color || 'var(--primary)';
+  // color from record or collection  const itemColor = record.color || collection.metadata?.color || 'var(--primary)';
 
   const style = {
     transform: CSS.Translate.toString(transform),
@@ -32,8 +31,7 @@ function GalleryItem({ record, collection, onUpdate, onDelete }: { record: any, 
     boxShadow: isDragging ? `0 0 20px ${itemColor}40` : undefined,
   };
 
-  // extract image if any
-  const imageUrl = record.image || record.url || (record.content && record.content.match(/\.(jpeg|jpg|gif|png|webp)$/) ? record.content : null);
+  // extract image if any  const imageUrl = record.image || record.url || (record.content && record.content.match(/\.(jpeg|jpg|gif|png|webp)$/) ? record.content : null);
 
   return (
     <RecordContextMenu

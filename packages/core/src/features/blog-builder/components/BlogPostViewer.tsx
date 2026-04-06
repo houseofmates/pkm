@@ -31,8 +31,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
   const [showWarnings, setShowWarnings] = useState(true);
 
   useEffect(() => {
-    // increment view count
-    onViewCountUpdate?.(post.id);
+    // increment view count    onViewCountUpdate?.(post.id);
   }, [post.id, onViewCountUpdate]);
 
   return (

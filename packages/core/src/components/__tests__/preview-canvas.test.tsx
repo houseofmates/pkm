@@ -2,8 +2,7 @@ import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import PreviewCanvas, { Widget } from '../preview-canvas';
 
-// smoke test to ensure typing works and component renders without crashing
-describe('PreviewCanvas', () => {
+// smoke test to ensure typing works and component renders without crashingdescribe('PreviewCanvas', () => {
   it('renders basic layout', () => {
     const columns: Widget[][] = [
       [{ id: '1', title: 'A' }],
@@ -18,8 +17,7 @@ describe('PreviewCanvas', () => {
     );
 
     expect(container).toBeTruthy();
-    // should contain widget titles
-    expect(container.textContent).toContain('A');
+    // should contain widget titles    expect(container.textContent).toContain('A');
     expect(container.textContent).toContain('B');
   });
 });

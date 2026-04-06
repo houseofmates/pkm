@@ -6,12 +6,10 @@ import { AuthContext } from '@/contexts/auth-context';
 import { NocoBaseClient } from '@/api/nocobase-client';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-// stub the client to avoid real network calls
-const mockGet = vi.fn();
+// stub the client to avoid real network callsconst mockGet = vi.fn();
 
 vi.mock('@/api/nocobase-client', () => {
-  // return a fake constructor so `new nocobaseclient()` works correctly
-  function FakeClient(this: any) {
+  // return a fake constructor so `new nocobaseclient()` works correctly  function FakeClient(this: any) {
     this.client = { get: mockGet };
   }
   return {

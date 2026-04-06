@@ -1,5 +1,4 @@
-/**
- * secure logger - privacy-first logging system
+/** * secure logger - privacy-first logging system
  *
  * this logger ensures no sensitive data leaks to browser console unless:
  * 1. user is authenticated with valid nocobase api key
@@ -11,8 +10,7 @@
 
 import { storageManager } from './storage-manager';
 
-/**
- * deep sanitization utility for logging objects/arrays
+/** * deep sanitization utility for logging objects/arrays
  */
 export function sanitizeForLogging<T>(input: T): T {
   if (typeof input === 'string') {
@@ -27,8 +25,7 @@ export function sanitizeForLogging<T>(input: T): T {
 
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        // never log keys named token, api_key, password, secret, credential
-        if (/token|api[_-]?key|password|secret|credential/i.test(key)) {
+        // never log keys named token, api_key, password, secret, credential        if (/token|api[_-]?key|password|secret|credential/i.test(key)) {
           sanitized[key] = '[REDACTED]';
         } else {
           sanitized[key] = sanitizeForLogging(obj[key]);
@@ -53,8 +50,7 @@ export interface LogEntry {
 const LOG_HISTORY: LogEntry[] = [];
 const MAX_HISTORY = 100;
 
-// sensitive patterns to detect and redact
-const SENSITIVE_PATTERNS = [
+// sensitive patterns to detect and redactconst SENSITIVE_PATTERNS = [
   { pattern: /[a-zA-Z0-9_-]*token[a-zA-Z0-9_-]*["']?\s*[:=]\s*["']?[^"'\s]{10,}/gi, replacement: '[TOKEN_REDACTED]' },
   { pattern: /[a-zA-Z0-9_-]*api[_-]?key[a-zA-Z0-9_-]*["']?\s*[:=]\s*["']?[^"'\s]{8,}/gi, replacement: '[API_KEY_REDACTED]' },
   { pattern: /[a-zA-Z0-9_-]*password[a-zA-Z0-9_-]*["']?\s*[:=]\s*["']?[^"'\s]{4,}/gi, replacement: '[PASSWORD_REDACTED]' },
@@ -65,8 +61,7 @@ const SENSITIVE_PATTERNS = [
   { pattern: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi, replacement: '[EMAIL_REDACTED]' }, // emails
 ];
 
-// check if user is properly authenticated
-function isAuthenticated(): boolean {
+// check if user is properly authenticatedfunction isAuthenticated(): boolean {
   if (typeof window === 'undefined') return false;
   
   try {
@@ -82,16 +77,14 @@ function isAuthenticated(): boolean {
   }
 }
 
-// check if in development debug mode
-function isDebugMode(): boolean {
+// check if in development debug modefunction isDebugMode(): boolean {
   if (typeof window === 'undefined') return false;
   return import.meta.env.VITE_DEBUG === 'true' || 
          import.meta.env.DEV === true ||
          window.location.search.includes('debug=true');
 }
 
-// check if privacy mode is enabled
-function isPrivacyModeEnabled(): boolean {
+// check if privacy mode is enabledfunction isPrivacyModeEnabled(): boolean {
   if (typeof window === 'undefined') return true;
   try {
     const privacyMode = storageManager.getItem('pkm_privacy_mode');
@@ -101,8 +94,7 @@ function isPrivacyModeEnabled(): boolean {
   }
 }
 
-// sanitize message to remove sensitive data
-function sanitizeMessage(message: string): string {
+// sanitize message to remove sensitive datafunction sanitizeMessage(message: string): string {
   let sanitized = message;
   for (const { pattern, replacement } of SENSITIVE_PATTERNS) {
     sanitized = sanitized.replace(pattern, replacement);
@@ -110,23 +102,20 @@ function sanitizeMessage(message: string): string {
   return sanitized;
 }
 
-// store log entry in history
-function storeLogEntry(entry: LogEntry): void {
+// store log entry in historyfunction storeLogEntry(entry: LogEntry): void {
   LOG_HISTORY.push(entry);
   if (LOG_HISTORY.length > MAX_HISTORY) {
     LOG_HISTORY.shift();
   }
 }
 
-// main logging function
-function createLogger(level: LogLevel) {
+// main logging functionfunction createLogger(level: LogLevel) {
   return function(message: string, ...args: unknown[]) {
     const authenticated = isAuthenticated();
     const privacyMode = isPrivacyModeEnabled();
     const debugMode = isDebugMode();
     
-    // build full message
-    const fullMessage = [message, ...args.map(arg => {
+    // build full message    const fullMessage = [message, ...args.map(arg => {
       if (arg instanceof Error) {
         return `${arg.name}: ${arg.message}${arg.stack ? `\n${arg.stack}` : ''}`;
       }
@@ -140,12 +129,10 @@ function createLogger(level: LogLevel) {
       return String(arg);
     })].join(' ');
     
-    // always sanitize
-    const sanitizedMessage = sanitizeMessage(fullMessage);
+    // always sanitize    const sanitizedMessage = sanitizeMessage(fullMessage);
     const hadSensitiveData = sanitizedMessage !== fullMessage;
     
-    // create log entry
-    const entry: LogEntry = {
+    // create log entry    const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
       message: sanitizedMessage,
@@ -155,8 +142,7 @@ function createLogger(level: LogLevel) {
     
     storeLogEntry(entry);
     
-    // determine if we should actually log to console
-    const shouldLog = debugMode || (authenticated && !privacyMode);
+    // determine if we should actually log to console    const shouldLog = debugMode || (authenticated && !privacyMode);
     
     if (shouldLog) {
       const prefix = authenticated ? '[PKM]' : '[PKM-ANON]';
@@ -180,8 +166,7 @@ function createLogger(level: LogLevel) {
   };
 }
 
-// public api
-export const secureLogger = {
+// public apiexport const secureLogger = {
   debug: createLogger('debug'),
   info: createLogger('info'),
   warn: createLogger('warn'),
@@ -205,8 +190,7 @@ export const secureLogger = {
     try {
       storageManager.setItem('pkm_privacy_mode', String(enabled));
     } catch {
-      // ignore storage errors
-    }
+      // ignore storage errors    }
   },
 };
 

@@ -1,8 +1,4 @@
-// db-bridge.ts
-// main-thread proxy for canvas-db.worker.ts
-// provides promise-based rpc over postmessage
-// falls back to direct `canvas-db` calls in test / non-worker environments
-
+// db-bridge.ts// main-thread proxy for canvas-db.worker.ts// provides promise-based rpc over postmessage// falls back to direct `canvas-db` calls in test / non-worker environments
 import * as directDb from './canvas-db'
 import { secureLogger } from '@/lib/secure-logger'
 import type { DrawOp, OpLogEntry, CanvasCheckpoint } from './oplog'
@@ -13,8 +9,7 @@ const pending = new Map<number, { resolve: (v: any) => void; reject: (e: Error) 
 
 function initWorkerIfNeeded() {
   if (worker) return
-  // avoid creating a worker in test environments (vitest/node)
-  if (typeof process !== 'undefined' && (process.env.VITEST === 'true' || process.env.NODE_ENV === 'test')) {
+  // avoid creating a worker in test environments (vitest/node)  if (typeof process !== 'undefined' && (process.env.VITEST === 'true' || process.env.NODE_ENV === 'test')) {
     worker = null
     return
   }
@@ -32,8 +27,7 @@ function initWorkerIfNeeded() {
       secureLogger.error('canvas-db worker error:', e.message)
     }
   } catch (err) {
-    // fallback to direct db implementation
-    worker = null
+    // fallback to direct db implementation    worker = null
     secureLogger.warn('canvas-db worker unavailable, falling back to direct idb implementation')
   }
 }
@@ -41,8 +35,7 @@ function initWorkerIfNeeded() {
 function callWorkerOrDirect<T>(method: string, ...args: unknown[]): Promise<T> {
   initWorkerIfNeeded()
   if (!worker) {
-    // map lowercased worker method names to camelcase direct exports
-    const mapping: Record<string, string> = {
+    // map lowercased worker method names to camelcase direct exports    const mapping: Record<string, string> = {
       Appendop: 'appendOp',
       Appendops: 'appendOps',
       Getunsyncedops: 'getUnsyncedOps',
@@ -77,8 +70,7 @@ function callWorkerOrDirect<T>(method: string, ...args: unknown[]): Promise<T> {
   })
 }
 
-// public api — matches canvas-db.ts exports and provides lowercase variants
-export function appendOp(drawingid: string, op: DrawOp): Promise<OpLogEntry> {
+// public api — matches canvas-db.ts exports and provides lowercase variantsexport function appendOp(drawingid: string, op: DrawOp): Promise<OpLogEntry> {
   return callWorkerOrDirect<OpLogEntry>('Appendop', drawingid, op)
 }
 
@@ -139,7 +131,6 @@ export function clearToken(key: string): Promise<void> {
 }
 
 export function clearMemoryTokens(): void {
-  // synchronous, no worker needed
-  const fn = (directDb as any).clearMemoryTokens
+  // synchronous, no worker needed  const fn = (directDb as any).clearMemoryTokens
   if (fn) fn()
 }

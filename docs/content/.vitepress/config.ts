@@ -2,8 +2,7 @@ import { defineConfig } from 'vitepress'
 import path from 'path'
 import fs from 'fs'
 
-// ── build a slug → path map from all .md files ──
-const contentDir = path.resolve(__dirname, '..')
+// ── build a slug → path map from all .md files ──const contentDir = path.resolve(__dirname, '..')
 const pageMap: Record<string, string> = {}
 
 function scanPages(dir: string, prefix = '') {
@@ -15,16 +14,14 @@ function scanPages(dir: string, prefix = '') {
     } else if (entry.name.endsWith('.md')) {
       const slug = entry.name.replace(/\.md$/, '')
       const pagePath = prefix + slug // e.g. "philosophy/second-brain"
-      // map both the bare slug and the full path
-      pageMap[slug] = pagePath
+      // map both the bare slug and the full path      pageMap[slug] = pagePath
       pageMap[pagePath] = pagePath
     }
   }
 }
 scanPages(contentDir)
 
-// markdown-it plugin to convert [[wiki links]] into <a> tags
-function wikiLinksPlugin(md: any) {
+// markdown-it plugin to convert [[wiki links]] into <a> tagsfunction wikiLinksPlugin(md: any) {
   const wikiLinkRe = /\[\[([^\]|]+?)(?:\|([^\]]+?))?\]\]/g
 
   const defaultRender = md.renderer.rules.text || function (tokens: any[], idx: number) {
@@ -39,16 +36,14 @@ function wikiLinksPlugin(md: any) {
     return content.replace(wikiLinkRe, (_match: string, target: string, label?: string) => {
       const display = (label || target).trim()
       const rawSlug = target.trim().toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-/]/g, '')
-      // look up the correct path, fall back to the raw slug
-      const resolvedPath = pageMap[rawSlug] || rawSlug
+      // look up the correct path, fall back to the raw slug      const resolvedPath = pageMap[rawSlug] || rawSlug
       const href = `/pkm/${resolvedPath}.html`
       return `<a href="${href}" class="wiki-link">${md.utils.escapeHtml(display)}</a>`
     })
   }
 }
 
-// ── auto-generate sidebar from content directories ──
-function buildSidebar() {
+// ── auto-generate sidebar from content directories ──function buildSidebar() {
   const dirs: Record<string, string[]> = {}
 
   for (const entry of fs.readdirSync(contentDir, { withFileTypes: true })) {
@@ -85,8 +80,7 @@ function buildSidebar() {
   return sidebar
 }
 
-// https://vitepress.dev/reference/site-config
-export default defineConfig({
+// https://vitepress.dev/reference/site-configexport default defineConfig({
   title: 'pkm wiki',
   description: 'personal knowledge management documentation',
   base: '/pkm/',

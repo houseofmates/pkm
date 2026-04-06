@@ -14,14 +14,12 @@ export interface SimplyPluralMember {
   };
 }
 
-/**
- * syncs simplyplural headmates to the nocobase 'headmates' collection
+/** * syncs simplyplural headmates to the nocobase 'headmates' collection
  * creates/updates records to match simplyplural data
  */
 export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   try {
-  // 1. fetch simplyplural members
-  const meRes = await fetch(SimplyPluralClient.url('/me'), {
+  // 1. fetch simplyplural members  const meRes = await fetch(SimplyPluralClient.url('/me'), {
   headers: { 'Authorization': apiKey }
   });
 
@@ -43,8 +41,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   const members: SimplyPluralMember[] = await membersRes.json();
   secureLogger.info(`Found ${members.length} SimplyPlural members to sync`);
 
-  // 2. fetch existing nocobase headmates
-  const existing = await api.listRecords('headmates', { pageSize: 500 });
+  // 2. fetch existing nocobase headmates  const existing = await api.listRecords('headmates', { pageSize: 500 });
   const existingMap = new Map();
   const existingArray = Array.isArray(existing) ? existing : (existing?.data as any[] || []);
   existingArray.forEach((h: any) => {
@@ -55,13 +52,11 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
 
   secureLogger.info(`Found ${existingMap.size} existing headmates in NocoBase`);
 
-  // 3. sync each member
-  let created = 0;
+  // 3. sync each member  let created = 0;
   let updated = 0;
 
   for (const member of members) {
-  // format color
-  let color = member.content?.color;
+  // format color  let color = member.content?.color;
   if (color && !color.startsWith('#')) {
  color = `#${color}`;
   }
@@ -78,8 +73,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   const existing = existingMap.get(member.id);
 
   if (existing) {
- // update if data changed
- const needsUpdate =
+ // update if data changed const needsUpdate =
  existing.name !== headmateData.name ||
  existing.color !== headmateData.color ||
  existing.pronouns !== headmateData.pronouns ||
@@ -92,8 +86,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
  secureLogger.info(`Updated headmate: ${headmateData.name}`);
  }
  } else {
- // create new
- await api.createRecord('headmates', headmateData);
+ // create new await api.createRecord('headmates', headmateData);
  created++;
  secureLogger.info(`Created headmate: ${headmateData.name}`);
  }

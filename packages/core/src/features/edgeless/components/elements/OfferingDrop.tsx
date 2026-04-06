@@ -19,11 +19,9 @@ export const OfferingDrop = React.memo(function OfferingDrop({ element: _element
     if (files.length > 0) {
       setAbsorbing(true);
 
-      // simulate absorption and api call
-      setTimeout(() => {
+      // simulate absorption and api call      setTimeout(() => {
         setAbsorbing(false);
-        // in real app, create new record in 'offerings' collection
-      }, 2000);
+        // in real app, create new record in 'offerings' collection      }, 2000);
     }
   };
 

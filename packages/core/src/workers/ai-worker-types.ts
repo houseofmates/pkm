@@ -1,8 +1,5 @@
-// shared types between the ai worker and the main thread
-// both sides import this file — no runtime dependencies
-
-/** content part for multimodal messages (text, images, etc.) */
-export interface TextContentPart {
+// shared types between the ai worker and the main thread// both sides import this file — no runtime dependencies
+/** content part for multimodal messages (text, images, etc.) */export interface TextContentPart {
     type: 'text';
     text: string;
 }
@@ -16,14 +13,12 @@ export interface ImageContentPart {
 
 export type ContentPart = TextContentPart | ImageContentPart;
 
-/** chat message that can be text-only or multimodal */
-export interface ChatMessage {
+/** chat message that can be text-only or multimodal */export interface ChatMessage {
     role: 'system' | 'user' | 'assistant';
     content: string | ContentPart[];
 }
 
-/** attachment file for multimodal input */
-export interface Attachment {
+/** attachment file for multimodal input */export interface Attachment {
     id: string;
     file: File;
     type: 'image' | 'video' | 'gif' | 'other';
@@ -40,17 +35,13 @@ export interface ChatResponse {
 }
 
 export interface AIWorkerAPI {
-    /** search knowledge base (vector or fallback keyword) */
-    searchKnowledgeBase(query: string, topK?: number): Promise<SearchResultDTO[]>;
+    /** search knowledge base (vector or fallback keyword) */    searchKnowledgeBase(query: string, topK?: number): Promise<SearchResultDTO[]>;
 
-    /** generate an embedding vector for a string */
-    generateEmbedding(text: string): Promise<number[]>;
+    /** generate an embedding vector for a string */    generateEmbedding(text: string): Promise<number[]>;
 
-    /** build rag context and return a formatted prompt */
-    buildRagPrompt(query: string, fronterName?: string): Promise<RagPromptResult>;
+    /** build rag context and return a formatted prompt */    buildRagPrompt(query: string, fronterName?: string): Promise<RagPromptResult>;
 
-    /**
-     * stream a chat completion from ollama.
+    /**     * stream a chat completion from ollama.
      * `ontoken` is called with the cumulative content on each chunk.
      * the comlink caller wraps its callback with `comlink.proxy(cb)`.
      */
@@ -61,8 +52,7 @@ export interface AIWorkerAPI {
         onToken: (cumulativeContent: string) => void,
     ): Promise<string>;
 
-    /**
-     * stream a multimodal chat completion from ollama (for vision models).
+    /**     * stream a multimodal chat completion from ollama (for vision models).
      * supports images/gifs/videos as base64 data urls.
      */
     chatStreamMultimodal(
@@ -72,8 +62,7 @@ export interface AIWorkerAPI {
         onToken: (cumulativeContent: string) => void,
     ): Promise<string>;
 
-    /**
-     * full ask-with-rag pipeline:
+    /**     * full ask-with-rag pipeline:
      * 1. build rag context
      * 2. stream response from ollama
      * returns the final complete response.
@@ -87,8 +76,7 @@ export interface AIWorkerAPI {
         onToken: (cumulativeContent: string) => void,
     ): Promise<AskWithRagResult>;
 
-    /**
-     * ask with rag and optional attachments (multimodal)
+    /**     * ask with rag and optional attachments (multimodal)
      */
     askWithRagAndAttachments(
         query: string,
@@ -99,8 +87,7 @@ export interface AIWorkerAPI {
         attachments?: Attachment[],
     ): Promise<AskWithRagResult>;
 
-    /** non-streaming generate (legacy fallback) */
-    generateText(
+    /** non-streaming generate (legacy fallback) */    generateText(
         prompt: string,
         model: string,
         endpoint: string,

@@ -31,8 +31,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   const [pages, setPages] = useState<PageOption[]>([]);
   const [loadingPages, setLoadingPages] = useState(false);
 
-  // fetch available pages for the internal link dropdown
-  useEffect(() => {
+  // fetch available pages for the internal link dropdown  useEffect(() => {
   const fetchPages = async () => {
   setLoadingPages(true);
   try {
@@ -61,8 +60,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   let link: string | undefined;
 
   if (linkType === 'external' && externalUrl.trim()) {
-  // ensure url has protocol
-  link = externalUrl.startsWith('http') ? externalUrl : `https://${externalurl}`;
+  // ensure url has protocol  link = externalUrl.startsWith('http') ? externalUrl : `https://${externalurl}`;
   } else if (linkType === 'internal' && internalPage) {
   link = `/${internalPage}`;
   } else {

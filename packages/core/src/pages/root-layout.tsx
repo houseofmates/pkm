@@ -33,8 +33,7 @@ import { getSidebarColors } from '@/utils/getSidebarColors';
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { ContextMenu } from '@/components/ui/context-menu-custom';
 
-// declare global window properties to fix ts errors
-declare global {
+// declare global window properties to fix ts errorsdeclare global {
   interface Window {
     accentBg?: string;
   }
@@ -69,8 +68,7 @@ export function RootLayout() {
   const { activeFronters, overrides, members } = useFronter();
   const navigate = useNavigate();
 
-  // map initial path to tab to ensure sidebar highlights correctly on reload
-  const getInitialTab = () => {
+  // map initial path to tab to ensure sidebar highlights correctly on reload  const getInitialTab = () => {
     const path = (typeof window !== 'undefined' && window.location && typeof window.location.pathname === 'string') ? window.location.pathname : '';
     if (path.startsWith('/databases')) return 'databases';
     if (path.startsWith('/headmates')) return 'headmates';
@@ -84,11 +82,9 @@ export function RootLayout() {
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // sync / health state
-  const [walCount, setWalCount] = useState(0);
+  // sync / health state  const [walCount, setWalCount] = useState(0);
   const [syncStatus, setSyncStatus] = useState<'ok' | 'syncing' | 'error'>('ok');
-  // allow disabling the little corner status via env (default off)
-  const showHealthBar = import.meta.env.VITE_SHOW_HEALTH_BAR === 'true';
+  // allow disabling the little corner status via env (default off)  const showHealthBar = import.meta.env.VITE_SHOW_HEALTH_BAR === 'true';
   useEffect(() => {
     const interval = setInterval(async () => {
       const count = await walPendingCount();
@@ -108,8 +104,7 @@ export function RootLayout() {
     getSidebarColors().then(setSidebarColors);
   }, []);
 
-  // listen for chat open event from navigation buttons
-  useEffect(() => {
+  // listen for chat open event from navigation buttons  useEffect(() => {
     const handleOpenChat = () => {
       setChatOpen(true);
     };
@@ -124,8 +119,7 @@ export function RootLayout() {
   }
   if (isAphrodite) accentColor = '#e0a6b5';
 
-  // helper to get low opacity background
-  function getAccentBg(color: string) {
+  // helper to get low opacity background  function getAccentBg(color: string) {
     if (color.startsWith('#')) {
       const hex = color.replace('#', '');
       const r = parseInt(hex.substring(0, 2), 16);
@@ -136,16 +130,12 @@ export function RootLayout() {
     if (color.startsWith('rgb')) {
       return color.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
     }
-    // generic fallback that respects the css variable
-    return `hsl(var(--primary) / 0.15)`;
+    // generic fallback that respects the css variable    return `hsl(var(--primary) / 0.15)`;
   }
   const accentBg = getAccentBg(accentColor);
 
   useEffect(() => {
-    // set favicon based on subdomain; avoid the default pkm bolt when
-    // viewing houseofmates.* sites so that those domains keep their own
-    // branding.
-    const favIcon = document.getElementById('favicon') as HTMLLinkElement;
+    // set favicon based on subdomain; avoid the default pkm bolt when    // viewing houseofmates.* sites so that those domains keep their own    // branding.    const favIcon = document.getElementById('favicon') as HTMLLinkElement;
     if (favIcon) {
       const host = window.location.hostname;
       if (host === 'dupe.houseofmates.space') {
@@ -157,13 +147,11 @@ export function RootLayout() {
       } else if (host === 'houseofmates.space') {
         favIcon.href = '/favicon-houseofmates.png';
       } else {
-        // default pkm logo (transparent database icon)
-        favIcon.href = '/favicon.png';
+        // default pkm logo (transparent database icon)        favIcon.href = '/favicon.png';
       }
     }
 
-    // also adjust document title for the same hosts
-    const host = typeof window !== 'undefined' ? window.location.hostname : '';
+    // also adjust document title for the same hosts    const host = typeof window !== 'undefined' ? window.location.hostname : '';
     if (host) {
       if (host === 'dupe.houseofmates.space') document.title = 'dupemates';
       else if (host === 'home.houseofmates.space') document.title = 'home';
@@ -171,18 +159,15 @@ export function RootLayout() {
       else if (host === 'houseofmates.space') document.title = 'houseofmates';
       else document.title = 'pkm';
 
-      // make absolutely sure that we never end up with an uppercase title
-      document.title = document.title.toLowerCase();
+      // make absolutely sure that we never end up with an uppercase title      document.title = document.title.toLowerCase();
     }
   }, []);
 
   const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', [], { pollIntervalMs: 5000 });
   const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
 
-  // force sidebar refresh when collections change - clear cache for new collections
-  useEffect(() => {
-    // clear deleted collections cache to ensure new collections appear
-    localStorage.removeItem('sidebar_deleted_collections');
+  // force sidebar refresh when collections change - clear cache for new collections  useEffect(() => {
+    // clear deleted collections cache to ensure new collections appear    localStorage.removeItem('sidebar_deleted_collections');
   }, []);
 
   const sensors = useSensors(
@@ -251,9 +236,7 @@ export function RootLayout() {
     if (name.startsWith('doc_')) { navigate(`/page/${name.replace('doc_', '')}`); setActiveTab('databases'); setSelectedCollection(name); return; }
     if (name.startsWith('drawing_')) { navigate(`/drawings/${name.replace('drawing_', '')}`); setActiveTab('databases'); setSelectedCollection(name); return; }
     setSelectedCollection(name);
-    // use the backend collection name (id) for navigation, which may differ from display name
-    // the name parameter here is the item.id which is the actual backend collection name
-    navigate('/databases/' + encodeURIComponent(name), { state: { fromSidebar: true } });
+    // use the backend collection name (id) for navigation, which may differ from display name    // the name parameter here is the item.id which is the actual backend collection name    navigate('/databases/' + encodeURIComponent(name), { state: { fromSidebar: true } });
     setActiveTab('databases');
   };
 

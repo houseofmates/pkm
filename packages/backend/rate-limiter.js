@@ -1,18 +1,14 @@
-// rate limiting middleware for pkm backend
-// implements protection against api abuse and dos attacks
-
+// rate limiting middleware for pkm backend// implements protection against api abuse and dos attacks
 import rateLimit from 'express-rate-limit';
 
-/**
- * creates rate limiting middleware for the pkm api
+/** * creates rate limiting middleware for the pkm api
  */
 export function createRateLimiters() {
     const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10);
     const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10);
     const RATE_LIMIT_AI_MAX = parseInt(process.env.RATE_LIMIT_AI_MAX || '20', 10);
 
-    // general api rate limiter
-    const generalLimiter = rateLimit({
+    // general api rate limiter    const generalLimiter = rateLimit({
         windowMs: RATE_LIMIT_WINDOW_MS,
         max: RATE_LIMIT_MAX_REQUESTS,
         message: { error: 'Too many requests, please try again later' },
@@ -23,8 +19,7 @@ export function createRateLimiters() {
         }
     });
 
-    // stricter rate limit for ai endpoints (expensive operations)
-    const aiLimiter = rateLimit({
+    // stricter rate limit for ai endpoints (expensive operations)    const aiLimiter = rateLimit({
         windowMs: RATE_LIMIT_WINDOW_MS,
         max: RATE_LIMIT_AI_MAX,
         message: { error: 'AI rate limit exceeded, please try again later' },
@@ -35,8 +30,7 @@ export function createRateLimiters() {
         }
     });
 
-    // very strict rate limit for authentication endpoints
-    const authLimiter = rateLimit({
+    // very strict rate limit for authentication endpoints    const authLimiter = rateLimit({
         windowMs: 15 * 60 * 1000, // 15 minutes
         max: 5,
         message: { error: 'Too many authentication attempts, please try again in 15 minutes' },
@@ -48,8 +42,7 @@ export function createRateLimiters() {
         }
     });
 
-    // file upload rate limiter
-    const uploadLimiter = rateLimit({
+    // file upload rate limiter    const uploadLimiter = rateLimit({
         windowMs: 60 * 60 * 1000, // 1 hour
         max: 10,
         message: { error: 'Upload limit exceeded, please try again in an hour' },

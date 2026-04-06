@@ -1,5 +1,4 @@
-/**
- * speech recognition utility with firefox support
+/** * speech recognition utility with firefox support
  * firefox doesn't support web speech api natively, so we provide
  * graceful degradation without error toasts.
  * 
@@ -62,9 +61,7 @@ declare global {
   }
 }
 
-// use type assertions for cross-browser compatibility
-// instead of redeclaring to avoid conflicts with built-in dom types
-
+// use type assertions for cross-browser compatibility// instead of redeclaring to avoid conflicts with built-in dom types
 export function isFirefox(): boolean {
   if (typeof navigator === 'undefined') return false;
   const ua = navigator.userAgent.toLowerCase();
@@ -90,10 +87,7 @@ export function safelyStartSpeechRecognition(onUnsupported?: () => void): boolea
   return true;
 }
 
-// =============================================================================
-// unified transcription hook with whisper fallback
-// =============================================================================
-
+// =============================================================================// unified transcription hook with whisper fallback// =============================================================================
 export interface UnifiedTranscriptionOptions {
   onTranscript?: (text: string) => void;
   onInterimTranscript?: (text: string) => void;
@@ -385,8 +379,7 @@ export function useUnifiedTranscription(options: UnifiedTranscriptionOptions = {
       try {
         recognitionRef.current.stop();
       } catch {
-        // ignore
-      }
+        // ignore      }
       recognitionRef.current = null;
     }
 

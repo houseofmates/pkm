@@ -11,8 +11,7 @@ interface VirtualListProps<T> {
   renderGroupHeader?: (group: string) => ReactNode;
 }
 
-/**
- * virtual scrolling list component
+/** * virtual scrolling list component
  * renders only visible items for performance with large lists
  */
 export function VirtualList<T>({
@@ -28,8 +27,7 @@ export function VirtualList<T>({
   const [scrollTop, setScrollTop] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
 
-  // calculate visible range
-  const visibleRange = useMemo(() => {
+  // calculate visible range  const visibleRange = useMemo(() => {
     const start = Math.floor(scrollTop / itemHeight);
     const visibleCount = Math.ceil(containerHeight / itemHeight);
     const startIndex = Math.max(0, start - overscan);
@@ -37,15 +35,13 @@ export function VirtualList<T>({
     return { startIndex, endIndex };
   }, [scrollTop, containerHeight, itemHeight, overscan, items.length]);
 
-  // handle scroll
-  const handleScroll = useCallback(() => {
+  // handle scroll  const handleScroll = useCallback(() => {
     if (containerRef.current) {
       setScrollTop(containerRef.current.scrollTop);
     }
   }, []);
 
-  // update container height on mount and resize
-  useEffect(() => {
+  // update container height on mount and resize  useEffect(() => {
     const updateHeight = () => {
       if (containerRef.current) {
         setContainerHeight(containerRef.current.clientHeight);
@@ -57,8 +53,7 @@ export function VirtualList<T>({
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
-  // group items if groupby is provided
-  const groupedItems = useMemo(() => {
+  // group items if groupby is provided  const groupedItems = useMemo(() => {
     if (!groupBy) return null;
     
     const groups: Record<string, { items: T[]; startIndex: number }> = {};
@@ -76,25 +71,21 @@ export function VirtualList<T>({
     return groups;
   }, [items, groupBy]);
 
-  // calculate total height
-  const totalHeight = items.length * itemHeight;
+  // calculate total height  const totalHeight = items.length * itemHeight;
 
-  // render visible items
-  const visibleItems = useMemo(() => {
+  // render visible items  const visibleItems = useMemo(() => {
     const { startIndex, endIndex } = visibleRange;
     const result: ReactNode[] = [];
 
     if (groupedItems && renderGroupHeader) {
-      // handle grouped virtual list
-      let currentIndex = 0;
+      // handle grouped virtual list      let currentIndex = 0;
       let currentGroup: string | null = null;
       
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
         const groupKey = groupBy!(item);
         
-        // add group header when group changes
-        if (groupKey !== currentGroup) {
+        // add group header when group changes        if (groupKey !== currentGroup) {
           currentGroup = groupKey;
           if (i >= startIndex && i < endIndex) {
             result.push(
@@ -115,8 +106,7 @@ export function VirtualList<T>({
           currentIndex++;
         }
         
-        // add item if in visible range
-        if (i >= startIndex && i < endIndex) {
+        // add item if in visible range        if (i >= startIndex && i < endIndex) {
           result.push(
             <div
               key={i}
@@ -135,8 +125,7 @@ export function VirtualList<T>({
         currentIndex++;
       }
     } else {
-      // simple virtual list
-      for (let i = startIndex; i < endIndex; i++) {
+      // simple virtual list      for (let i = startIndex; i < endIndex; i++) {
         result.push(
           <div
             key={i}
@@ -171,8 +160,7 @@ export function VirtualList<T>({
   );
 }
 
-/**
- * simplified virtual list without grouping
+/** * simplified virtual list without grouping
  */
 export function SimpleVirtualList<T>({
   items,

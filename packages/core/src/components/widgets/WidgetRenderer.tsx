@@ -28,8 +28,7 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         return data[source] || [];
     };
 
-    // ... existing renders ...
-    const renderTable = (w: any) => {
+    // ... existing renders ...    const renderTable = (w: any) => {
         const rows = findRowsForSource(w.source);
         const headers = w.headers || (rows.length > 0 ? Object.keys(rows[0]) : []);
         return (
@@ -142,8 +141,7 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         </div>
     );
 
-    // new widget types
-    const type = (widget.view_type || widget.type || '').toLowerCase();
+    // new widget types    const type = (widget.view_type || widget.type || '').toLowerCase();
 
     if (type === 'clock') {
         return <ClockWidget data={widget.data || {}} className="h-48" />;
@@ -217,15 +215,12 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         return renderRichText(widget);
     }
 
-    // legacy / other
-    switch (type) {
+    // legacy / other    switch (type) {
         case 'table': return renderTable(widget);
         case 'kanban': return renderKanban(widget);
         case 'chart': return renderChart(widget);
         case 'map': return renderMap(widget);
-        // case 'gallery': return rendergallery(widget);
-        // case 'form': return renderform(widget);
-        case 'iframe':
+        // case 'gallery': return rendergallery(widget);        // case 'form': return renderform(widget);        case 'iframe':
         case 'embed': return (
             <div className="aspect-video bg-muted/20 border border-border/50 rounded-xl flex items-center justify-center overflow-hidden">
                 <iframe src={widget.src || widget.data?.url} className="w-full h-full border-0" />

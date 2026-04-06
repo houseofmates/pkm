@@ -4,8 +4,7 @@ import * as React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { RecordContextMenu } from '../record-context-menu';
 
-// simple collection/record fixtures
-const mockCollection = {
+// simple collection/record fixturesconst mockCollection = {
   name: 'foo',
   fields: [{ name: 'title', interface: 'input' }],
 };
@@ -24,14 +23,12 @@ describe('RecordContextMenu', () => {
     );
 
     const target = screen.getByTestId('target');
-    // simulate right-click/context menu
-    fireEvent.contextMenu(target);
+    // simulate right-click/context menu    fireEvent.contextMenu(target);
 
     const editButton = screen.getByRole('button', { name: /edit/i });
     expect(editButton).toBeTruthy();
 
-    // click the edit button and ensure dialog opens
-    fireEvent.click(editButton);
+    // click the edit button and ensure dialog opens    fireEvent.click(editButton);
     expect(screen.getByText(/edit item/i)).toBeTruthy();
   });
 });

@@ -1,6 +1,4 @@
-// apkupdater.ts
-// utility for checking and downloading new apk versions from server
-
+// apkupdater.ts// utility for checking and downloading new apk versions from server
 import axios from 'axios';
 
 export interface ApkVersionManifest {
@@ -19,29 +17,23 @@ export async function checkForApkUpdate(currentVersion: string, apiKey: string):
     }
     return null;
   } catch {
-    // handle error (network, auth, etc)
-    return null;
+    // handle error (network, auth, etc)    return null;
   }
 }
 
 export async function downloadAndPromptInstall(apkUrl: string) {
-  // only attempt import if running in capacitor environment
-  if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
+  // only attempt import if running in capacitor environment  if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
     try {
-      // dynamic import with proper error handling - avoids eval() security risk
-      // using variable to prevent vite from trying to resolve at build time
-      const moduleName = '@capacitor/browser';
+      // dynamic import with proper error handling - avoids eval() security risk      // using variable to prevent vite from trying to resolve at build time      const moduleName = '@capacitor/browser';
 
       const browserModule = await import(moduleName) as { Browser: any };
       const { Browser } = browserModule;
       await Browser.open({ url: apkUrl });
       return;
     } catch {
-      // fallback if plugin not available
-    }
+      // fallback if plugin not available    }
   }
-  // fallback: trigger web download
-  const link = document.createElement('a');
+  // fallback: trigger web download  const link = document.createElement('a');
   link.href = apkUrl;
   link.download = 'pkm-latest.apk';
   document.body.appendChild(link);

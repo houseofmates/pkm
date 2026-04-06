@@ -1,6 +1,5 @@
 import { AuthProvider, useAuth } from "@/contexts/auth-context"
-// import apkupdater only when needed
-import { LoginPage } from "@/pages/login"
+// import apkupdater only when neededimport { LoginPage } from "@/pages/login"
 import { RootLayout } from "@/pages/root-layout"
 import { Toaster } from "@/components/ui/sonner"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -16,8 +15,7 @@ import { secureLogger } from "@/lib/secure-logger"
 import { isCapacitorNative } from "@/lib/platform"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 
-// lazy load heavy components
-const Spotlight = lazy(() => import("@/components/Spotlight").then(m => ({ default: m.Spotlight })));
+// lazy load heavy componentsconst Spotlight = lazy(() => import("@/components/Spotlight").then(m => ({ default: m.Spotlight })));
 
 const SetupRequired = lazy(() => import("@/components/setup-required").then(m => ({ default: m.SetupRequired })));
 const TodayPage = lazy(() => import("@/pages/today").then(m => ({ default: m.TodayPage })));
@@ -38,8 +36,7 @@ const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ defaul
 const NotionImportPage = lazy(() => import("@/pages/notion-import").then(m => ({ default: m.default })));
 const SettingsPage = lazy(() => import("@/pages/settings").then(m => ({ default: m.default })));
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
-// rechartsmodule uses named exports - import the module directly for lazy loading
-const RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper').then(m => ({ 
+// rechartsmodule uses named exports - import the module directly for lazy loadingconst RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper').then(m => ({ 
   default: () => null // placeholder, actual usage destructures from m directly
 })));
 const RagTestPage = lazy(() => import("@/pages/rag-test").then(m => ({ default: m.default })));
@@ -47,8 +44,7 @@ const JournalPage = lazy(() => import("@/pages/journal"));
 const CalendarPage = lazy(() => import("@/pages/calendar").then(m => ({ default: m.CalendarPage })));
 const AchievementsPage = lazy(() => import("@/pages/achievements").then(m => ({ default: m.AchievementsPage })));
 
-// simple breathe page component that renders the breathing exercise
-function BreathePage() {
+// simple breathe page component that renders the breathing exercisefunction BreathePage() {
   useEffect(() => {
     const ROTATION_PERIOD = 12;
     const BREATH_PERIOD = 12;
@@ -180,12 +176,10 @@ const LoadingFallback = (
 function AppContent() {
   const { token } = useAuth()
   const [updateChecked, setUpdateChecked] = useState(false)
-  // state to track if login was triggered via ctrl+e on public domains
-  const [loginModeForced, setLoginModeForced] = useState(() => {
+  // state to track if login was triggered via ctrl+e on public domains  const [loginModeForced, setLoginModeForced] = useState(() => {
     return sessionStorage.getItem('pkm_force_login') === 'true'
   })
-  // check for apk update only on /apk
-  useEffect(() => {
+  // check for apk update only on /apk  useEffect(() => {
     if (window.location.pathname === "/apk" && !updateChecked && token) {
       const currentVersion = import.meta.env.VITE_APP_VERSION || "0.0.0"
       import("@/utils/apkUpdater")
@@ -204,8 +198,7 @@ function AppContent() {
   }, [updateChecked, token])
   const [setupNeeded, setSetupNeeded] = useState<boolean | null>(null)
 
-  // handle ctrl+e to toggle login mode on public domains
-  useEffect(() => {
+  // handle ctrl+e to toggle login mode on public domains  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === 'e') {
         e.preventDefault()
@@ -216,8 +209,7 @@ function AppContent() {
           return newValue
         })
       }
-      // escape key to exit login mode on public domains
-      if (e.key === 'Escape' && isPublicDomain() && loginModeForced) {
+      // escape key to exit login mode on public domains      if (e.key === 'Escape' && isPublicDomain() && loginModeForced) {
         setLoginModeForced(false)
         sessionStorage.removeItem('pkm_force_login')
         secureLogger.info('[App] Login mode disabled via Escape')
@@ -227,10 +219,8 @@ function AppContent() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [loginModeForced])
 
-  // run link registry migration on mount (non-blocking)
-  useEffect(() => {
-    // skip migration on mobile until after app loads
-    if (isCapacitorNative()) {
+  // run link registry migration on mount (non-blocking)  useEffect(() => {
+    // skip migration on mobile until after app loads    if (isCapacitorNative()) {
       return;
     }
 
@@ -245,26 +235,21 @@ function AppContent() {
         secureLogger.error('link registry migration failed:', error)
       }
     }
-    // run in background, don't block ui
-    setTimeout(runMigration, 1000)
+    // run in background, don't block ui    setTimeout(runMigration, 1000)
   }, [])
 
-  // perform a quick backend health check to decide if configuration is missing
-  useEffect(() => {
-    // on mobile (capacitor), always skip setup check - backend is always remote
-    if (isCapacitorNative()) {
+  // perform a quick backend health check to decide if configuration is missing  useEffect(() => {
+    // on mobile (capacitor), always skip setup check - backend is always remote    if (isCapacitorNative()) {
       setSetupNeeded(false);
       return;
     }
     
-    // if no token, skip setup check - let the login page handle connectivity
-    if (!token) {
+    // if no token, skip setup check - let the login page handle connectivity    if (!token) {
       setSetupNeeded(false);
       return;
     }
     
-    // try to fetch stats from the absolute api url if available, otherwise relative
-    const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || '';
+    // try to fetch stats from the absolute api url if available, otherwise relative    const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || '';
     const statsUrl = `${baseUrl}/api/stats`;
 
     fetch(statsUrl)
@@ -287,11 +272,8 @@ function AppContent() {
     )
   }
 
-  // public domain rendering - always show public content unless explicitly in login mode
-  if (isPublicDomain()) {
-    // when login mode is forced via ctrl+e, show login overlay if not authenticated
-    // otherwise show public content
-    if (!loginModeForced || token) {
+  // public domain rendering - always show public content unless explicitly in login mode  if (isPublicDomain()) {
+    // when login mode is forced via ctrl+e, show login overlay if not authenticated    // otherwise show public content    if (!loginModeForced || token) {
       return (
         <>
           <Suspense fallback={LoadingFallback}>
@@ -306,8 +288,7 @@ function AppContent() {
         </>
       );
     }
-    // loginmodeforced is true and no token - show login page
-    return (
+    // loginmodeforced is true and no token - show login page    return (
       <>
         <LoginPage />
         <Toaster />
@@ -359,12 +340,10 @@ function AppContent() {
 }
 
 function App() {
-  // check if public domain
-  const isPublic = isPublicDomain();
+  // check if public domain  const isPublic = isPublicDomain();
 
   if (isPublic) {
-    // public site doesn't need fronterprovider or llmcontextprovider
-    return (
+    // public site doesn't need fronterprovider or llmcontextprovider    return (
       <BrowserRouter>
         <AuthProvider>
           <QueryClientProvider client={queryClient}>
@@ -375,8 +354,7 @@ function App() {
     );
   }
 
-  // private pkm site needs all providers
-  return (
+  // private pkm site needs all providers  return (
     <BrowserRouter>
       <AuthProvider>
         <QueryClientProvider client={queryClient}>

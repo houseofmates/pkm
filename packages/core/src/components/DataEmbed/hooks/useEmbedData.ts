@@ -15,8 +15,7 @@ export function useEmbedData({ collection, view, limit = 20, filters, enabled = 
   const queryClient = useQueryClient();
   const { socket } = useSocket();
 
-  // unique key for caching
-  const queryKey = useMemo(() => ['embed', collection, view, JSON.stringify(filters)], [collection, view, filters]);
+  // unique key for caching  const queryKey = useMemo(() => ['embed', collection, view, JSON.stringify(filters)], [collection, view, filters]);
 
   const {
     data,
@@ -52,17 +51,14 @@ export function useEmbedData({ collection, view, limit = 20, filters, enabled = 
     staleTime: 1000 * 60 * 5, // 5 min stale time, rely on socket for updates
   });
 
-  // real-time updates via socket.io
-  useEffect(() => {
+  // real-time updates via socket.io  useEffect(() => {
     if (!socket) return;
 
     const handleUpdate = (payload: any) => {
         const type = payload?.type?.toLowerCase();
         const col = collection.toLowerCase();
 
-        // broad matching to ensure updates are caught
-        // 'headmate' update -> 'headmates' collection
-        if (type && (col.includes(type) || type.includes(col.replace(/s$/, '')) || type === 'generic')) {
+        // broad matching to ensure updates are caught        // 'headmate' update -> 'headmates' collection        if (type && (col.includes(type) || type.includes(col.replace(/s$/, '')) || type === 'generic')) {
              queryClient.invalidateQueries({ queryKey });
         }
     };
@@ -74,8 +70,7 @@ export function useEmbedData({ collection, view, limit = 20, filters, enabled = 
     };
   }, [socket, collection, queryClient, queryKey]);
 
-  // flatten pages into a single list
-  const records = data?.pages.flatMap((page: any) => page.data || []) || [];
+  // flatten pages into a single list  const records = data?.pages.flatMap((page: any) => page.data || []) || [];
   const meta = data?.pages?.[0]?.meta;
 
   return {

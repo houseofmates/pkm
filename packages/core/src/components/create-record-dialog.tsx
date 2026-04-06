@@ -25,8 +25,7 @@ export function CreateRecordDialog({ open, onOpenChange, collectionName, onSucce
   const handleSave = async () => {
     setLoading(true);
     try {
-      // dispatch event to create record
-      window.dispatchEvent(new CustomEvent('pkm:create-record', {
+      // dispatch event to create record      window.dispatchEvent(new CustomEvent('pkm:create-record', {
         detail: { collection: collectionName, data }
       }));
       toast.success("record created");

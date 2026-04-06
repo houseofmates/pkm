@@ -1,13 +1,11 @@
-// tests for rate limiter middleware
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+// tests for rate limiter middlewareimport { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createRateLimiters } from '../rate-limiter.js';
 
 describe('Rate Limiter', () => {
     let limiters;
     
     beforeEach(() => {
-        // reset environment variables for testing
-        process.env.RATE_LIMIT_WINDOW_MS = '60000';
+        // reset environment variables for testing        process.env.RATE_LIMIT_WINDOW_MS = '60000';
         process.env.RATE_LIMIT_MAX_REQUESTS = '100';
         process.env.RATE_LIMIT_AI_MAX = '20';
         limiters = createRateLimiters();

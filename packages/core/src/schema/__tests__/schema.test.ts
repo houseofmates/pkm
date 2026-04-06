@@ -1,5 +1,4 @@
-/**
- * schema service tests
+/** * schema service tests
  * 
  * these tests verify that the modular schema service can:
  * - create dynamic tables with various field types
@@ -17,25 +16,21 @@ import { schemaService, fieldRegistry, persistenceService } from '../index';
 import type { TableDefinition, Record } from '../index';
 
 describe('schema service', () => {
-  // initialize before all tests
-  beforeAll(async () => {
+  // initialize before all tests  beforeAll(async () => {
     await schemaService.initialize();
   });
 
-  // clear data before each test
-  beforeEach(async () => {
+  // clear data before each test  beforeEach(async () => {
     await schemaService.clearAll();
   });
 
-  // close database after all tests
-  afterAll(async () => {
+  // close database after all tests  afterAll(async () => {
     await persistenceService.close();
   });
 
   describe('table management', () => {
     it('should create a table with text and number fields', async () => {
-      // create a table with text and number fields
-      const table = await schemaService.createTable(
+      // create a table with text and number fields      const table = await schemaService.createTable(
         'products',
         'products',
         [
@@ -61,8 +56,7 @@ describe('schema service', () => {
         { color: '#3b82f6', icon: 'package', archived: false }
       );
 
-      // verify table was created
-      expect(table).toBeDefined();
+      // verify table was created      expect(table).toBeDefined();
       expect(table.name).toBe('products');
       expect(table.label).toBe('products');
       expect(table.fields).toHaveLength(3);
@@ -70,8 +64,7 @@ describe('schema service', () => {
       expect(table.metadata?.color).toBe('#3b82f6');
       expect(table.metadata?.icon).toBe('package');
 
-      // verify fields
-      const nameField = table.fields.find(f => f.name === 'name');
+      // verify fields      const nameField = table.fields.find(f => f.name === 'name');
       expect(nameField).toBeDefined();
       expect(nameField?.type).toBe('text');
       expect(nameField?.required).toBe(true);
@@ -88,32 +81,27 @@ describe('schema service', () => {
     });
 
     it('should persist table to indexeddb and retrieve it', async () => {
-      // create a table
-      await schemaService.createTable('users', 'users', [
+      // create a table      await schemaService.createTable('users', 'users', [
         { name: 'username', type: 'text', label: 'username', required: true },
         { name: 'age', type: 'number', label: 'age', required: false },
       ]);
 
-      // retrieve the table
-      const retrieved = await schemaService.getTable('users');
+      // retrieve the table      const retrieved = await schemaService.getTable('users');
       expect(retrieved).toBeDefined();
       expect(retrieved?.name).toBe('users');
       expect(retrieved?.fields).toHaveLength(2);
 
-      // get all tables
-      const allTables = await schemaService.getAllTables();
+      // get all tables      const allTables = await schemaService.getAllTables();
       expect(allTables).toHaveLength(1);
       expect(allTables[0].name).toBe('users');
     });
 
     it('should not allow duplicate table names', async () => {
-      // create first table
-      await schemaService.createTable('items', 'items', [
+      // create first table      await schemaService.createTable('items', 'items', [
         { name: 'title', type: 'text', label: 'title' },
       ]);
 
-      // try to create second table with same name
-      await expect(
+      // try to create second table with same name      await expect(
         schemaService.createTable('items', 'items', [
           { name: 'name', type: 'text', label: 'name' },
         ])
@@ -121,13 +109,11 @@ describe('schema service', () => {
     });
 
     it('should update table schema', async () => {
-      // create table
-      await schemaService.createTable('tasks', 'tasks', [
+      // create table      await schemaService.createTable('tasks', 'tasks', [
         { name: 'title', type: 'text', label: 'title' },
       ]);
 
-      // update table
-      const updated = await schemaService.updateTable('tasks', {
+      // update table      const updated = await schemaService.updateTable('tasks', {
         label: 'my tasks',
         metadata: { color: '#ef4444', archived: false },
       });
@@ -138,34 +124,28 @@ describe('schema service', () => {
     });
 
     it('should delete table and all its records', async () => {
-      // create table and add a record
-      await schemaService.createTable('temp', 'temp', [
+      // create table and add a record      await schemaService.createTable('temp', 'temp', [
         { name: 'value', type: 'text', label: 'value' },
       ]);
       await schemaService.createRecord('temp', { value: 'test' });
 
-      // delete table
-      await schemaService.deleteTable('temp');
+      // delete table      await schemaService.deleteTable('temp');
 
-      // verify table is gone
-      const retrieved = await schemaService.getTable('temp');
+      // verify table is gone      const retrieved = await schemaService.getTable('temp');
       expect(retrieved).toBeUndefined();
 
-      // verify records are gone
-      const records = await schemaService.getAllRecords('temp');
+      // verify records are gone      const records = await schemaService.getAllRecords('temp');
       expect(records).toHaveLength(0);
     });
   });
 
   describe('field management', () => {
     it('should add field to existing table', async () => {
-      // create table
-      await schemaService.createTable('projects', 'projects', [
+      // create table      await schemaService.createTable('projects', 'projects', [
         { name: 'name', type: 'text', label: 'project name' },
       ]);
 
-      // add field
-      const updated = await schemaService.addField('projects', {
+      // add field      const updated = await schemaService.addField('projects', {
         name: 'deadline',
         type: 'date',
         label: 'deadline',
@@ -178,18 +158,15 @@ describe('schema service', () => {
     });
 
     it('should remove field from table', async () => {
-      // create table
-      const table = await schemaService.createTable('notes', 'notes', [
+      // create table      const table = await schemaService.createTable('notes', 'notes', [
         { name: 'title', type: 'text', label: 'title' },
         { name: 'content', type: 'text', label: 'content' },
       ]);
 
-      // get content field id
-      const contentField = table.fields.find(f => f.name === 'content');
+      // get content field id      const contentField = table.fields.find(f => f.name === 'content');
       expect(contentField).toBeDefined();
 
-      // remove field
-      const updated = await schemaService.removeField('notes', contentField!.id);
+      // remove field      const updated = await schemaService.removeField('notes', contentField!.id);
       expect(updated.fields).toHaveLength(1);
       expect(updated.fields[0].name).toBe('title');
     });
@@ -205,8 +182,7 @@ describe('schema service', () => {
 
   describe('record operations', () => {
     beforeEach(async () => {
-      // create test table before each record test
-      await schemaService.createTable('test_records', 'test records', [
+      // create test table before each record test      await schemaService.createTable('test_records', 'test records', [
         { name: 'title', type: 'text', label: 'title', required: true },
         { name: 'count', type: 'number', label: 'count', required: false },
         { name: 'active', type: 'boolean', label: 'active', required: false },
@@ -214,15 +190,13 @@ describe('schema service', () => {
     });
 
     it('should create and retrieve a record', async () => {
-      // create record
-      const record = await schemaService.createRecord('test_records', {
+      // create record      const record = await schemaService.createRecord('test_records', {
         title: 'test item',
         count: 42,
         active: true,
       });
 
-      // verify record structure
-      expect(record).toBeDefined();
+      // verify record structure      expect(record).toBeDefined();
       expect(record.id).toBeDefined();
       expect(record.createdAt).toBeDefined();
       expect(record.updatedAt).toBeDefined();
@@ -230,28 +204,24 @@ describe('schema service', () => {
       expect(record.count).toBe(42);
       expect(record.active).toBe(true);
 
-      // retrieve record
-      const retrieved = await schemaService.getRecord(record.id);
+      // retrieve record      const retrieved = await schemaService.getRecord(record.id);
       expect(retrieved).toBeDefined();
       expect(retrieved?.title).toBe('test item');
       expect(retrieved?.count).toBe(42);
     });
 
     it('should apply default values for missing fields', async () => {
-      // create record with only required field
-      const record = await schemaService.createRecord('test_records', {
+      // create record with only required field      const record = await schemaService.createRecord('test_records', {
         title: 'minimal record',
       });
 
-      // verify defaults applied
-      expect(record.title).toBe('minimal record');
+      // verify defaults applied      expect(record.title).toBe('minimal record');
       expect(record.count).toBe(0); // number default
       expect(record.active).toBe(false); // boolean default
     });
 
     it('should validate records against schema', async () => {
-      // try to create record without required field
-      await expect(
+      // try to create record without required field      await expect(
         schemaService.createRecord('test_records', {
           count: 10,
         })
@@ -259,14 +229,12 @@ describe('schema service', () => {
     });
 
     it('should update a record', async () => {
-      // create record
-      const record = await schemaService.createRecord('test_records', {
+      // create record      const record = await schemaService.createRecord('test_records', {
         title: 'original',
         count: 1,
       });
 
-      // update record
-      const updated = await schemaService.updateRecord('test_records', record.id, {
+      // update record      const updated = await schemaService.updateRecord('test_records', record.id, {
         title: 'updated',
         count: 100,
       });
@@ -279,42 +247,35 @@ describe('schema service', () => {
     });
 
     it('should delete a record', async () => {
-      // create record
-      const record = await schemaService.createRecord('test_records', {
+      // create record      const record = await schemaService.createRecord('test_records', {
         title: 'to delete',
       });
 
-      // delete record
-      await schemaService.deleteRecord(record.id);
+      // delete record      await schemaService.deleteRecord(record.id);
 
-      // verify record is gone
-      const retrieved = await schemaService.getRecord(record.id);
+      // verify record is gone      const retrieved = await schemaService.getRecord(record.id);
       expect(retrieved).toBeUndefined();
     });
 
     it('should get all records from a table', async () => {
-      // create multiple records
-      await schemaService.createRecord('test_records', { title: 'first' });
+      // create multiple records      await schemaService.createRecord('test_records', { title: 'first' });
       await schemaService.createRecord('test_records', { title: 'second' });
       await schemaService.createRecord('test_records', { title: 'third' });
 
-      // get all records
-      const records = await schemaService.getAllRecords('test_records');
+      // get all records      const records = await schemaService.getAllRecords('test_records');
       expect(records).toHaveLength(3);
     });
   });
 
   describe('query operations', () => {
     beforeEach(async () => {
-      // create test table with sample data
-      await schemaService.createTable('inventory', 'inventory', [
+      // create test table with sample data      await schemaService.createTable('inventory', 'inventory', [
         { name: 'name', type: 'text', label: 'name' },
         { name: 'quantity', type: 'number', label: 'quantity' },
         { name: 'category', type: 'text', label: 'category' },
       ]);
 
-      // add sample records
-      await schemaService.createRecord('inventory', {
+      // add sample records      await schemaService.createRecord('inventory', {
         name: 'apple',
         quantity: 10,
         category: 'fruit',
@@ -359,8 +320,7 @@ describe('schema service', () => {
         filter: { field: 'name', operator: 'contains', value: 'a' },
       });
 
-      // apple, banana, carrot all contain 'a'
-      expect(result.records.length).toBeGreaterThanOrEqual(3);
+      // apple, banana, carrot all contain 'a'      expect(result.records.length).toBeGreaterThanOrEqual(3);
     });
 
     it('should sort records', async () => {
@@ -368,8 +328,7 @@ describe('schema service', () => {
         sort: [{ field: 'quantity', direction: 'asc' }],
       });
 
-      // check ascending order
-      const quantities = result.records.map((r: any) => r.quantity);
+      // check ascending order      const quantities = result.records.map((r: any) => r.quantity);
       for (let i = 1; i < quantities.length; i++) {
         expect(quantities[i]).toBeGreaterThanOrEqual(quantities[i - 1]);
       }
@@ -416,8 +375,7 @@ describe('schema service', () => {
     });
 
       it('should allow registering custom field types', () => {
-  // register a custom field type
-  fieldRegistry.register({
+  // register a custom field type  fieldRegistry.register({
     typeName: 'percentage',
     label: 'percentage',
     schema: z.number().min(0).max(100),
@@ -428,8 +386,7 @@ describe('schema service', () => {
 
   expect(fieldRegistry.has('percentage')).toBe(true);
 
-  // clean up
-  fieldRegistry.unregister('percentage');
+  // clean up  fieldRegistry.unregister('percentage');
 });
 
 
@@ -446,30 +403,24 @@ describe('schema service', () => {
 
   describe('data export and import', () => {
     it('should export and import all data', async () => {
-      // create table and records
-      await schemaService.createTable('export_test', 'export test', [
+      // create table and records      await schemaService.createTable('export_test', 'export test', [
         { name: 'data', type: 'text', label: 'data' },
       ]);
       await schemaService.createRecord('export_test', { data: 'record 1' });
       await schemaService.createRecord('export_test', { data: 'record 2' });
 
-      // export all data
-      const exported = await schemaService.exportAll();
+      // export all data      const exported = await schemaService.exportAll();
       expect(exported.tables).toHaveLength(1);
       expect(exported.records).toHaveLength(2);
 
-      // clear all data
-      await schemaService.clearAll();
+      // clear all data      await schemaService.clearAll();
 
-      // verify data is cleared
-      const tables = await schemaService.getAllTables();
+      // verify data is cleared      const tables = await schemaService.getAllTables();
       expect(tables).toHaveLength(0);
 
-      // import data back
-      await schemaService.importAll(exported);
+      // import data back      await schemaService.importAll(exported);
 
-      // verify data is restored
-      const restoredTables = await schemaService.getAllTables();
+      // verify data is restored      const restoredTables = await schemaService.getAllTables();
       expect(restoredTables).toHaveLength(1);
       const restoredRecords = await schemaService.getAllRecords('export_test');
       expect(restoredRecords).toHaveLength(2);

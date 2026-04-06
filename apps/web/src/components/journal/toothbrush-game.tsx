@@ -6,16 +6,14 @@ import { Progress } from '../ui/progress'
 import { Sparkles, Trophy, Zap, Flame, Shield, Star } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
 
-// quadrant positions for 2-minute brushing
-const QUADRANTS = [
+// quadrant positions for 2-minute brushingconst QUADRANTS = [
   { id: 'q1', name: 'top-left', position: 'top-0 left-0', targetTime: 30, icon: '🦷' },
   { id: 'q2', name: 'top-right', position: 'top-0 right-0', targetTime: 30, icon: '🦷' },
   { id: 'q3', name: 'bottom-left', position: 'bottom-0 left-0', targetTime: 30, icon: '🦷' },
   { id: 'q4', name: 'bottom-right', position: 'bottom-0 right-0', targetTime: 30, icon: '🦷' }
 ]
 
-// tooth grid positions
-const UPPER_TEETH = [
+// tooth grid positionsconst UPPER_TEETH = [
   { id: 'u1', row: 0, col: 0 }, { id: 'u2', row: 0, col: 1 }, { id: 'u3', row: 0, col: 2 }, { id: 'u4', row: 0, col: 3 }, { id: 'u5', row: 0, col: 4 },
   { id: 'u6', row: 0, col: 5 }, { id: 'u7', row: 0, col: 6 }, { id: 'u8', row: 0, col: 7 }
 ]
@@ -24,8 +22,7 @@ const LOWER_TEETH = [
   { id: 'l6', row: 1, col: 5 }, { id: 'l7', row: 1, col: 6 }, { id: 'l8', row: 1, col: 7 }
 ]
 
-// sparkle effect component
-const Sparkle: React.FC<{ x: number; y: number; active: boolean }> = ({ x, y, active }) => (
+// sparkle effect componentconst Sparkle: React.FC<{ x: number; y: number; active: boolean }> = ({ x, y, active }) => (
   <div
     className={`absolute pointer-events-none transition-all duration-500 ${active ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}
     style={{ left: x, top: y }}
@@ -57,8 +54,7 @@ const ToothbrushGame: React.FC = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const { earnXp } = useGamificationStore()
 
-  // sound effects using web audio api
-  const playSound = useCallback((type: 'brush' | 'sparkle' | 'complete' | 'quadrant') => {
+  // sound effects using web audio api  const playSound = useCallback((type: 'brush' | 'sparkle' | 'complete' | 'quadrant') => {
     try {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
       const oscillator = audioContext.createOscillator()
@@ -108,8 +104,7 @@ const ToothbrushGame: React.FC = () => {
     }
   }, [])
 
-  // load streak from localstorage
-  useEffect(() => {
+  // load streak from localstorage  useEffect(() => {
     const saved = localStorage.getItem('pkm:toothbrush:streak')
     if (saved) setStreak(parseInt(saved))
     const savedSessions = localStorage.getItem('pkm:toothbrush:sessions')
@@ -122,14 +117,12 @@ const ToothbrushGame: React.FC = () => {
     }
   }, [])
 
-  // timer logic
-  useEffect(() => {
+  // timer logic  useEffect(() => {
     if (isPlaying && timeRemaining > 0) {
       timerRef.current = setTimeout(() => {
         setTimeRemaining(prev => prev - 1)
         
-        // auto-advance quadrant every 30 seconds
-        const elapsed = 120 - timeRemaining + 1
+        // auto-advance quadrant every 30 seconds        const elapsed = 120 - timeRemaining + 1
         const newQuadrant = Math.min(Math.floor(elapsed / 30), 3)
         if (newQuadrant > currentQuadrant) {
           setCurrentQuadrant(newQuadrant)
@@ -164,8 +157,7 @@ const ToothbrushGame: React.FC = () => {
       setCleanedTeeth(prev => new Set([...prev, toothId]))
       playSound('sparkle')
       
-      // add sparkle effect
-      setSparkles(prev => [...prev, { x, y, id: `${toothId}-${Date.now()}` }])
+      // add sparkle effect      setSparkles(prev => [...prev, { x, y, id: `${toothId}-${Date.now()}` }])
       setTimeout(() => {
         setSparkles(prev => prev.filter(s => s.id !== `${toothId}-${Date.now()}`))
       }, 500)
@@ -190,8 +182,7 @@ const ToothbrushGame: React.FC = () => {
       return updated
     })
     
-    // update streak
-    const today = new Date().toDateString()
+    // update streak    const today = new Date().toDateString()
     const lastSession = sessions[sessions.length - 1]
     let newStreak = streak
     
@@ -209,8 +200,7 @@ const ToothbrushGame: React.FC = () => {
     setStreak(newStreak)
     localStorage.setItem('pkm:toothbrush:streak', newStreak.toString())
     
-    // award xp
-    setTotalXp(prev => {
+    // award xp    setTotalXp(prev => {
       const newXp = prev + xpEarned
       localStorage.setItem('pkm:toothbrush:xp', newXp.toString())
       setLevel(Math.floor(newXp / 100) + 1)

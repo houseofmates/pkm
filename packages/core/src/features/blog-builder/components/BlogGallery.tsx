@@ -38,8 +38,7 @@ export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDir
     setContextMenu(null);
   };
 
-  // close context menu on click outside
-  useEffect(() => {
+  // close context menu on click outside  useEffect(() => {
     const handleClick = () => setContextMenu(null);
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);

@@ -33,8 +33,7 @@ for (let i = 0; i < files.length; i++) {
   const content = readFileSync(file, 'utf8')
   const slug = file.replace(contentDir, '').replace(/^\//, '').replace(/\.md$/, '').replace(/\/index$/, '').replace(/\//g, '-')
   
-  // extract title, headings, content
-  const titleMatch = content.match(/^# (.+)$/m)
+  // extract title, headings, content  const titleMatch = content.match(/^# (.+)$/m)
   const title = titleMatch ? titleMatch[1] : slug
   
   const headings = [...content.matchAll(/^##? (.+)$/gm)].map(m => m[1])

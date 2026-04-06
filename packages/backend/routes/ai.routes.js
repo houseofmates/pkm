@@ -1,6 +1,4 @@
-// ai routes module for pkm backend
-// handles all ai-related endpoints
-
+// ai routes module for pkm backend// handles all ai-related endpoints
 import express from 'express';
 import { asyncHandler } from '../error-handler.js';
 import { validateBody } from '../request-validator.js';
@@ -9,18 +7,15 @@ import { apiLogger } from '../logger.js';
 
 const router = express.Router();
 
-// apply api logger to all routes
-router.use(apiLogger);
+// apply api logger to all routesrouter.use(apiLogger);
 
-/**
- * post /api/ai/chat
+/** * post /api/ai/chat
  * send chat message to ai
  */
 router.post('/chat', validateBody(aiSchemas.chatMessage), asyncHandler(async (req, res) => {
     const { message, context, model } = req.body;
     
-    // todo: implement actual ai chat logic
-    res.json({
+    // todo: implement actual ai chat logic    res.json({
         success: true,
         data: {
             response: 'AI response placeholder',
@@ -29,15 +24,13 @@ router.post('/chat', validateBody(aiSchemas.chatMessage), asyncHandler(async (re
     });
 }));
 
-/**
- * post /api/ai/describe
+/** * post /api/ai/describe
  * describe an image using ai
  */
 router.post('/describe', validateBody(aiSchemas.describeImage), asyncHandler(async (req, res) => {
     const { image_url, prompt } = req.body;
     
-    // todo: implement actual image description logic
-    res.json({
+    // todo: implement actual image description logic    res.json({
         success: true,
         data: {
             description: 'Image description placeholder'
@@ -45,15 +38,13 @@ router.post('/describe', validateBody(aiSchemas.describeImage), asyncHandler(asy
     });
 }));
 
-/**
- * post /api/ai/habits
+/** * post /api/ai/habits
  * generate habit suggestions
  */
 router.post('/habits', validateBody(aiSchemas.generateHabits), asyncHandler(async (req, res) => {
     const { user_data, preferences } = req.body;
     
-    // todo: implement actual habit generation logic
-    res.json({
+    // todo: implement actual habit generation logic    res.json({
         success: true,
         data: {
             habits: []
@@ -61,13 +52,11 @@ router.post('/habits', validateBody(aiSchemas.generateHabits), asyncHandler(asyn
     });
 }));
 
-/**
- * get /api/ai/models
+/** * get /api/ai/models
  * list available ai models
  */
 router.get('/models', asyncHandler(async (req, res) => {
-    // todo: implement actual model listing
-    res.json({
+    // todo: implement actual model listing    res.json({
         success: true,
         data: {
             models: []
@@ -75,13 +64,11 @@ router.get('/models', asyncHandler(async (req, res) => {
     });
 }));
 
-/**
- * get /api/ai/memory
+/** * get /api/ai/memory
  * get ai memory for user
  */
 router.get('/memory', asyncHandler(async (req, res) => {
-    // todo: implement actual memory retrieval
-    res.json({
+    // todo: implement actual memory retrieval    res.json({
         success: true,
         data: {
             memories: []
@@ -89,8 +76,7 @@ router.get('/memory', asyncHandler(async (req, res) => {
     });
 }));
 
-/**
- * post /api/ai/remember
+/** * post /api/ai/remember
  * store memory for user
  */
 router.post('/remember', validateBody(z.object({
@@ -99,8 +85,7 @@ router.post('/remember', validateBody(z.object({
 })), asyncHandler(async (req, res) => {
     const { memory, metadata } = req.body;
     
-    // todo: implement actual memory storage
-    res.json({
+    // todo: implement actual memory storage    res.json({
         success: true,
         data: {
             id: 'memory-id'
@@ -108,25 +93,21 @@ router.post('/remember', validateBody(z.object({
     });
 }));
 
-/**
- * delete /api/ai/memory
+/** * delete /api/ai/memory
  * delete ai memory
  */
 router.delete('/memory', asyncHandler(async (req, res) => {
-    // todo: implement actual memory deletion
-    res.json({
+    // todo: implement actual memory deletion    res.json({
         success: true,
         message: 'Memory deleted'
     });
 }));
 
-/**
- * get /api/ai/pieces/status
+/** * get /api/ai/pieces/status
  * get pieces mcp connection status
  */
 router.get('/pieces/status', asyncHandler(async (req, res) => {
-    // todo: implement actual status check
-    res.json({
+    // todo: implement actual status check    res.json({
         success: true,
         data: {
             connected: false
@@ -134,13 +115,11 @@ router.get('/pieces/status', asyncHandler(async (req, res) => {
     });
 }));
 
-/**
- * get /api/ai/pieces/recent
+/** * get /api/ai/pieces/recent
  * get recent pieces activity
  */
 router.get('/pieces/recent', asyncHandler(async (req, res) => {
-    // todo: implement actual activity retrieval
-    res.json({
+    // todo: implement actual activity retrieval    res.json({
         success: true,
         data: {
             activities: []

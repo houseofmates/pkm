@@ -28,8 +28,7 @@ export function usePetHealthTracker() {
   
   const today = new Date().toISOString().split('T')[0]
 
-  // load today's pet interactions
-  useEffect(() => {
+  // load today's pet interactions  useEffect(() => {
     const loadPetData = async () => {
       setLoading(true)
       try {
@@ -48,8 +47,7 @@ export function usePetHealthTracker() {
           }))
           setInteractions(todayInteractions)
           
-          // determine which needs are met
-          const hasFed = todayInteractions.some((i: PetInteraction) => i.type === 'feed')
+          // determine which needs are met          const hasFed = todayInteractions.some((i: PetInteraction) => i.type === 'feed')
           const hasPlayed = todayInteractions.some((i: PetInteraction) => i.type === 'play')
           const hasRested = todayInteractions.some((i: PetInteraction) => i.type === 'rest')
           
@@ -60,8 +58,7 @@ export function usePetHealthTracker() {
             return need
           }))
         } else {
-          // check localstorage fallback
-          const local = localStorage.getItem(`pkm:pets:${today}`)
+          // check localstorage fallback          const local = localStorage.getItem(`pkm:pets:${today}`)
           if (local) {
             const parsed = JSON.parse(local)
             setNeeds(parsed.needs || needs)
@@ -80,8 +77,7 @@ export function usePetHealthTracker() {
   const logInteraction = useCallback(async (type: 'feed' | 'play' | 'rest', petId: string = 'all', note?: string) => {
     const timestamp = new Date().toISOString()
     
-    // update local state
-    const newInteraction: PetInteraction = {
+    // update local state    const newInteraction: PetInteraction = {
       id: `local-${Date.now()}`,
       petId,
       type,
@@ -90,16 +86,14 @@ export function usePetHealthTracker() {
     }
     setInteractions(prev => [...prev, newInteraction])
     
-    // update needs
-    setNeeds(prev => prev.map(need => {
+    // update needs    setNeeds(prev => prev.map(need => {
       if (type === 'feed' && need.id === 'fed') return { ...need, completed: true }
       if (type === 'play' && need.id === 'played') return { ...need, completed: true }
       if (type === 'rest' && need.id === 'rested') return { ...need, completed: true }
       return need
     }))
     
-    // save to localstorage
-    const currentNeeds = needs.map(n => {
+    // save to localstorage    const currentNeeds = needs.map(n => {
       if (type === 'feed' && n.id === 'fed') return { ...n, completed: true }
       if (type === 'play' && n.id === 'played') return { ...n, completed: true }
       if (type === 'rest' && n.id === 'rested') return { ...n, completed: true }
@@ -111,8 +105,7 @@ export function usePetHealthTracker() {
       timestamp
     }))
     
-    // try to save to server
-    try {
+    // try to save to server    try {
       await api.createRecord('pet_interactions', {
         date: today,
         pet_id: petId,
@@ -130,8 +123,7 @@ export function usePetHealthTracker() {
       need.id === needId ? { ...need, completed: !need.completed } : need
     ))
     
-    // map need to interaction type
-    const needToType: Record<string, 'feed' | 'play' | 'rest'> = {
+    // map need to interaction type    const needToType: Record<string, 'feed' | 'play' | 'rest'> = {
       fed: 'feed',
       played: 'play',
       rested: 'rest'

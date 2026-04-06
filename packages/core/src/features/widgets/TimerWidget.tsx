@@ -24,8 +24,7 @@ export function TimerWidget({ data, onUpdate }: TimerWidgetProps) {
   const [elapsed, setElapsed] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
 
-  // timer effect
-  useEffect(() => {
+  // timer effect  useEffect(() => {
     if (!isRunning) return;
 
     const interval = setInterval(() => {
@@ -33,8 +32,7 @@ export function TimerWidget({ data, onUpdate }: TimerWidgetProps) {
         const newElapsed = Math.floor((Date.now() - startTime) / 1000);
         setElapsed(newElapsed);
         
-        // check if target reached
-        if (newElapsed >= targetDuration && !isComplete) {
+        // check if target reached        if (newElapsed >= targetDuration && !isComplete) {
           setIsComplete(true);
           toast.success(`${activityName} target reached!`, {
             icon: <Check className="w-4 h-4 text-[#22c55e]" />,
@@ -68,8 +66,7 @@ export function TimerWidget({ data, onUpdate }: TimerWidgetProps) {
   const stopTimer = () => {
     setIsRunning(false);
     
-    // emit completion if ran for meaningful duration
-    if (elapsed > 60) {
+    // emit completion if ran for meaningful duration    if (elapsed > 60) {
       dataService.emitDataUpdate('timer_completed', {
         activity_name: activityName,
         duration: elapsed,

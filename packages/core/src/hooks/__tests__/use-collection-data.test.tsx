@@ -5,8 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useCollectionData } from '../use-collection-data';
 import type { Record as SchemaRecord, TableDefinition } from '../../schema/types';
 
-// simple fake implementations
-const makeClient = () => {
+// simple fake implementationsconst makeClient = () => {
   const collections: TableDefinition[] = [];
   const records: SchemaRecord[] = [];
 

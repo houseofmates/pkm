@@ -1,7 +1,5 @@
-// popup.js - handles the capture popup UI
-
-// Configuration is now loaded from storage
-let CONFIG = {
+// popup.js - handles the capture popup ui
+// configuration is now loaded from storagelet CONFIG = {
     apiBase: 'https://db.houseofmates.space/api',
     collectionName: 'captures'
 };
@@ -16,8 +14,7 @@ function storageGet(area, key) {
         const res = storageArea.get(key);
         if (res && typeof res.then === 'function') return res;
     } catch (_) {
-        // fall through to callback form
-    }
+        // fall through to callback form    }
 
     return new Promise((resolve, reject) => {
         try {
@@ -40,8 +37,7 @@ function storageSet(area, items) {
         const res = storageArea.set(items);
         if (res && typeof res.then === 'function') return res;
     } catch (_) {
-        // fall through to callback form
-    }
+        // fall through to callback form    }
 
     return new Promise((resolve, reject) => {
         try {
@@ -73,8 +69,7 @@ async function setApiToken(token) {
     await storageSet('sync', { apiToken: token }).catch(() => undefined);
 }
 
-// UI Elements
-const views = {
+// ui elementsconst views = {
     capture: document.getElementById('capture-view'),
     settings: document.getElementById('settings-view')
 };
@@ -86,8 +81,7 @@ const inputs = {
     tags: document.getElementById('tags')
 };
 
-// Load config and init
-document.addEventListener('DOMContentLoaded', async () => {
+// load config and initdocument.addEventListener('DOMContentLoaded', async () => {
     const apiBase = await getApiBaseUrl();
     CONFIG.apiBase = apiBase;
     
@@ -110,14 +104,12 @@ function showCapture() {
     views.capture.classList.remove('hidden');
 }
 
-// Load Data from Content Script
-async function loadCurrentPageData() {
+// load data from content scriptasync function loadCurrentPageData() {
     try {
         const tabs = await browser.tabs.query({ active: true, currentWindow: true });
         const tab = tabs[0];
 
-        // Try to get selection from content script
-        try {
+        // try to get selection from content script        try {
             const response = await browser.tabs.sendMessage(tab.id, { action: 'get_selection' });
             if (response) {
                 inputs.title.value = response.title || tab.title;
@@ -125,8 +117,7 @@ async function loadCurrentPageData() {
                 inputs.content.value = response.selection || '';
             }
         } catch (e) {
-            // Content script might not be running (e.g. strict page), fallback to tab info
-            inputs.title.value = tab.title;
+            // content script might not be running (e.g. strict page), fallback to tab info            inputs.title.value = tab.title;
             inputs.url.value = tab.url;
         }
     } catch (e) {
@@ -134,8 +125,7 @@ async function loadCurrentPageData() {
     }
 }
 
-// Save Token
-document.getElementById('save-token').addEventListener('click', async () => {
+// save tokendocument.getElementById('save-token').addEventListener('click', async () => {
     const token = inputs.token.value.trim();
     if (token) {
         await setApiToken(token);
@@ -156,8 +146,7 @@ document.getElementById('toggle-settings').addEventListener('click', () => {
     }
 });
 
-// Save Capture
-document.getElementById('save-capture').addEventListener('click', async () => {
+// save capturedocument.getElementById('save-capture').addEventListener('click', async () => {
     const btn = document.getElementById('save-capture');
     btn.disabled = true;
     btn.textContent = 'saving...';

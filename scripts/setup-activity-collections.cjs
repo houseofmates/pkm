@@ -18,8 +18,7 @@ function findWorkingBase() {
       const code = execSync(`curl -s -o /dev/null -w '%{http_code}' ${b}/collections:list`, { encoding: 'utf8' }).trim()
       if (code === '200') return b
     } catch (e) {
-      // ignore
-    }
+      // ignore    }
   }
   return null
 }
@@ -34,8 +33,7 @@ console.log('creating activity collections via', working)
 
 const headers = ADMIN_API_KEY ? `-H "Authorization: ${ADMIN_API_KEY.startsWith('Bearer') ? ADMIN_API_KEY : 'Bearer ' + ADMIN_API_KEY}"` : ''
 
-// activities collection
-const metaEndpoint = working.includes('/api') ? `${working}/meta/collections` : `${working}/api/v1/meta/collections`
+// activities collectionconst metaEndpoint = working.includes('/api') ? `${working}/meta/collections` : `${working}/api/v1/meta/collections`
 
 execSync(`
 curl -sS -X POST ${metaEndpoint} \
@@ -55,8 +53,7 @@ curl -sS -X POST ${metaEndpoint} \
   }'
 `, { stdio: 'inherit' })
 
-// activity_logs collection
-execSync(`
+// activity_logs collectionexecSync(`
 curl -sS -X POST ${metaEndpoint} \
   -H "Content-Type: application/json" \
   ${headers} \

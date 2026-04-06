@@ -1,7 +1,4 @@
-// isolated fabric.js configuration
-// eliminates global prototype pollution
-// each canvas instance receives explicit configuration
-
+// isolated fabric.js configuration// eliminates global prototype pollution// each canvas instance receives explicit configuration
 import type { Canvas } from 'fabric'
 
 export interface FabricConfig {
@@ -36,23 +33,17 @@ export const DEFAULT_DARK_CONFIG: FabricConfig = {
   transparentCorners: false,
 }
 
-// apply config to a specific canvas instance only
-export function applyFabricConfig(canvas: Canvas, config: FabricConfig = DEFAULT_DARK_CONFIG): void {
-  // set selection defaults on canvas
-  canvas.selectionColor = config.selectionColor
+// apply config to a specific canvas instance onlyexport function applyFabricConfig(canvas: Canvas, config: FabricConfig = DEFAULT_DARK_CONFIG): void {
+  // set selection defaults on canvas  canvas.selectionColor = config.selectionColor
   canvas.selectionBorderColor = config.selectionBorderColor
   canvas.selectionDashArray = config.selectionDashArray
   canvas.selectionLineWidth = config.selectionLineWidth
 
-  // set object defaults - applied to new objects only on this canvas
-  // note: fabric.js doesn't support per-instance defaults natively
-  // we hook into object:added to apply config to each new object
-  canvas.on('object:added', (e: any) => {
+  // set object defaults - applied to new objects only on this canvas  // note: fabric.js doesn't support per-instance defaults natively  // we hook into object:added to apply config to each new object  canvas.on('object:added', (e: any) => {
     const obj = e.target
     if (!obj) return
 
-    // apply corner/selection styles
-    obj.set({
+    // apply corner/selection styles    obj.set({
       cornerColor: config.cornerColor,
       cornerStrokeColor: config.cornerStrokeColor,
       borderColor: config.borderColor,
@@ -64,8 +55,7 @@ export function applyFabricConfig(canvas: Canvas, config: FabricConfig = DEFAULT
       transparentCorners: config.transparentCorners,
     })
 
-    // ensure all objects have data.id for spatial indexing
-    if (!obj.data?.id) {
+    // ensure all objects have data.id for spatial indexing    if (!obj.data?.id) {
       obj.set('data', {
         ...(obj.data || {}),
         id: `obj-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -74,13 +64,11 @@ export function applyFabricConfig(canvas: Canvas, config: FabricConfig = DEFAULT
   })
 }
 
-// cleanup config hooks when canvas disposed
-export function cleanupFabricConfig(canvas: Canvas): void {
+// cleanup config hooks when canvas disposedexport function cleanupFabricConfig(canvas: Canvas): void {
   canvas.off('object:added')
 }
 
-// canvas initialization with isolated config
-export async function createConfiguredCanvas(
+// canvas initialization with isolated configexport async function createConfiguredCanvas(
   canvasEl: HTMLCanvasElement,
   width: number,
   height: number,

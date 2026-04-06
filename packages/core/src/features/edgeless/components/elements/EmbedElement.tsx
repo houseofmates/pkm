@@ -6,8 +6,7 @@ interface EmbedElementProps {
 }
 
 export const EmbedElement = React.memo(function EmbedElement({ element }: EmbedElementProps) {
-  // nocobase collection embed
-  if (element.data.subType === 'nocobase' || element.data.collection) {
+  // nocobase collection embed  if (element.data.subType === 'nocobase' || element.data.collection) {
     const colName = element.data.collection || element.data.id; // fallback
     const viewType = element.data.view || 'gallery';
 
@@ -39,8 +38,7 @@ export const EmbedElement = React.memo(function EmbedElement({ element }: EmbedE
     );
   }
 
-  // web embed (iframe)
-  if (element.data.subType === 'web' || element.data.url) {
+  // web embed (iframe)  if (element.data.subType === 'web' || element.data.url) {
     return (
       <div className="w-full h-full bg-black/40 border border-white/10 rounded-xl overflow-hidden flex flex-col backdrop-blur-sm shadow-xl">
         <div className="h-7 bg-black/40 border-b border-white/5 flex items-center px-2 space-x-1.5 shrink-0">

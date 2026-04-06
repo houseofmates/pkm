@@ -1,12 +1,9 @@
-// nocobase rag quick-start script
-// auto-configures collections, ai employee, and knowledge base via api
-
+// nocobase rag quick-start script// auto-configures collections, ai employee, and knowledge base via api
 import { api } from '../packages/core/src/api/nocobase-client';
 import { secureLogger } from '../packages/core/src/lib/secure-logger';
 import { reindexCollection } from '../packages/core/src/lib/vector-store';
 
-// configuration
-const CONFIG = {
+// configurationconst CONFIG = {
   llmService: {
     name: 'ollama-local',
     type: 'ollama',
@@ -51,8 +48,7 @@ each chunk starts with [source: collection:id] so you can reference where inform
   ],
 };
 
-// main setup function
-export async function setupNocoBaseRag(): Promise<{
+// main setup functionexport async function setupNocoBaseRag(): Promise<{
   success: boolean;
   steps: { name: string; success: boolean; error?: string }[];
 }> {
@@ -60,44 +56,35 @@ export async function setupNocoBaseRag(): Promise<{
 
   console.log('🚀 setting up nocobase rag integration...\n');
 
-  // step 1: create llm service
-  steps.push(await createLlmService());
+  // step 1: create llm service  steps.push(await createLlmService());
 
-  // step 2: create ai employee
-  steps.push(await createAiEmployee());
+  // step 2: create ai employee  steps.push(await createAiEmployee());
 
-  // step 3: create knowledge base
-  steps.push(await createKnowledgeBase());
+  // step 3: create knowledge base  steps.push(await createKnowledgeBase());
 
-  // step 4: add collections to knowledge base
-  for (const collection of CONFIG.collectionsToIndex) {
+  // step 4: add collections to knowledge base  for (const collection of CONFIG.collectionsToIndex) {
     steps.push(await addCollectionToKnowledgeBase(collection));
   }
 
-  // step 5: create ai fields on collections
-  for (const collection of CONFIG.collectionsToIndex) {
+  // step 5: create ai fields on collections  for (const collection of CONFIG.collectionsToIndex) {
     steps.push(await createAiField(collection.name));
   }
 
-  // step 6: trigger initial indexing
-  for (const collection of CONFIG.collectionsToIndex) {
+  // step 6: trigger initial indexing  for (const collection of CONFIG.collectionsToIndex) {
     steps.push(await indexCollection(collection.name));
   }
 
-  // print summary
-  const allSuccess = steps.every(s => s.success);
+  // print summary  const allSuccess = steps.every(s => s.success);
   printSetupSummary(steps);
 
   return { success: allSuccess, steps };
 }
 
-// create llm service
-async function createLlmService() {
+// create llm serviceasync function createLlmService() {
   const name = 'create llm service';
 
   try {
-    // check if service already exists
-    const existing: any = await api.client.get('/ai-services:list', {
+    // check if service already exists    const existing: any = await api.client.get('/ai-services:list', {
       params: { 'filter[name]': CONFIG.llmService.name },
     });
 
@@ -110,8 +97,7 @@ async function createLlmService() {
       return { name, success: true };
     }
 
-    // create new service
-    await api.client.post('/ai-services:create', {
+    // create new service    await api.client.post('/ai-services:create', {
       name: CONFIG.llmService.name,
       type: CONFIG.llmService.type,
       baseUrl: CONFIG.llmService.baseUrl,
@@ -131,13 +117,11 @@ async function createLlmService() {
   }
 }
 
-// create ai employee
-async function createAiEmployee() {
+// create ai employeeasync function createAiEmployee() {
   const name = 'create ai employee';
 
   try {
-    // check if employee already exists
-    const existing: any = await api.client.get('/ai-employees:list', {
+    // check if employee already exists    const existing: any = await api.client.get('/ai-employees:list', {
       params: { 'filter[name]': CONFIG.aiEmployee.name },
     });
 
@@ -150,8 +134,7 @@ async function createAiEmployee() {
       return { name, success: true };
     }
 
-    // get llm service id
-    const servicesRes: any = await api.client.get('/ai-services:list', {
+    // get llm service id    const servicesRes: any = await api.client.get('/ai-services:list', {
       params: { 'filter[name]': CONFIG.llmService.name },
     });
 
@@ -163,8 +146,7 @@ async function createAiEmployee() {
       throw new Error('llm service not found');
     }
 
-    // create employee
-    await api.client.post('/ai-employees:create', {
+    // create employee    await api.client.post('/ai-employees:create', {
       name: CONFIG.aiEmployee.name,
       displayName: CONFIG.aiEmployee.displayName,
       llmServiceId: services[0].id,
@@ -187,13 +169,11 @@ async function createAiEmployee() {
   }
 }
 
-// create knowledge base
-async function createKnowledgeBase() {
+// create knowledge baseasync function createKnowledgeBase() {
   const name = 'create knowledge base';
 
   try {
-    // check if kb already exists
-    const existing: any = await api.client.get('/ai-knowledge-bases:list', {
+    // check if kb already exists    const existing: any = await api.client.get('/ai-knowledge-bases:list', {
       params: { 'filter[name]': CONFIG.knowledgeBase.name },
     });
 
@@ -206,8 +186,7 @@ async function createKnowledgeBase() {
       return { name, success: true };
     }
 
-    // create knowledge base
-    await api.client.post('/ai-knowledge-bases:create', {
+    // create knowledge base    await api.client.post('/ai-knowledge-bases:create', {
       name: CONFIG.knowledgeBase.name,
       title: CONFIG.knowledgeBase.title,
       description: CONFIG.knowledgeBase.description,
@@ -231,13 +210,11 @@ async function createKnowledgeBase() {
   }
 }
 
-// add collection to knowledge base
-async function addCollectionToKnowledgeBase(collection: { name: string; fields: string[] }) {
+// add collection to knowledge baseasync function addCollectionToKnowledgeBase(collection: { name: string; fields: string[] }) {
   const stepName = `add ${collection.name} to knowledge base`;
 
   try {
-    // get knowledge base id
-    const kbRes: any = await api.client.get('/ai-knowledge-bases:list', {
+    // get knowledge base id    const kbRes: any = await api.client.get('/ai-knowledge-bases:list', {
       params: { 'filter[name]': CONFIG.knowledgeBase.name },
     });
 
@@ -248,8 +225,7 @@ async function addCollectionToKnowledgeBase(collection: { name: string; fields: 
 
     const kbId = kbs[0].id;
 
-    // add collection to kb
-    await api.client.post('/ai-knowledge-base-collections:create', {
+    // add collection to kb    await api.client.post('/ai-knowledge-base-collections:create', {
       knowledgeBaseId: kbId,
       collection: collection.name,
       fields: collection.fields,
@@ -269,13 +245,11 @@ async function addCollectionToKnowledgeBase(collection: { name: string; fields: 
   }
 }
 
-// create ai field on collection
-async function createAiField(collectionName: string) {
+// create ai field on collectionasync function createAiField(collectionName: string) {
   const name = `create ai field on ${collectionName}`;
 
   try {
-    // check if field already exists
-    const colRes: any = await api.getCollection(collectionName);
+    // check if field already exists    const colRes: any = await api.getCollection(collectionName);
     const fields = colRes.data?.fields || colRes.fields || [];
 
     if (fields.some((f: any) => f.name === 'ai')) {
@@ -283,8 +257,7 @@ async function createAiField(collectionName: string) {
       return { name, success: true };
     }
 
-    // create the field
-    await api.createField(collectionName, {
+    // create the field    await api.createField(collectionName, {
       name: 'ai',
       type: 'text',
       interface: 'markdown',
@@ -305,8 +278,7 @@ async function createAiField(collectionName: string) {
   }
 }
 
-// index collection
-async function indexCollection(collectionName: string) {
+// index collectionasync function indexCollection(collectionName: string) {
   const name = `index ${collectionName}`;
 
   try {
@@ -321,8 +293,7 @@ async function indexCollection(collectionName: string) {
   }
 }
 
-// print setup summary
-function printSetupSummary(steps: { name: string; success: boolean; error?: string }[]) {
+// print setup summaryfunction printSetupSummary(steps: { name: string; success: boolean; error?: string }[]) {
   console.log('\n📊 setup summary:\n');
 
   const passed = steps.filter(s => s.success).length;
@@ -349,8 +320,7 @@ function printSetupSummary(steps: { name: string; success: boolean; error?: stri
   }
 }
 
-// run if called directly
-if (require.main === module) {
+// run if called directlyif (require.main === module) {
   setupNocoBaseRag().then(result => {
     process.exit(result.success ? 0 : 1);
   });

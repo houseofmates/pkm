@@ -110,8 +110,7 @@ async function showNotification(title: string, body: string): Promise<void> {
         await LocalNotifications.requestPermissions();
       }
 
-      // capacitor typings omit platform keys; runtime plugin accepts this shape
-      const notifications = [
+      // capacitor typings omit platform keys; runtime plugin accepts this shape      const notifications = [
         {
           id: Math.floor(Math.random() * 100000),
           title,
@@ -125,8 +124,7 @@ async function showNotification(title: string, body: string): Promise<void> {
       await LocalNotifications.schedule({ notifications });
       return;
     } catch (e) {
-      // fallback to web notification when plugin is unavailable
-      secureLogger.warn('local notification fallback:', e);
+      // fallback to web notification when plugin is unavailable      secureLogger.warn('local notification fallback:', e);
     }
   }
 
@@ -228,15 +226,13 @@ export function useMedicationLog() {
                 },
               })),
             });
-            // allow plugin to handle notifications and avoid duplicate local timers
-            return;
+            // allow plugin to handle notifications and avoid duplicate local timers            return;
           } catch (err) {
             secureLogger.warn('failed to schedule capacitor local reminder', err);
           }
         }
 
-        // web path: schedule in runtime
-        scheduleOne(reminder);
+        // web path: schedule in runtime        scheduleOne(reminder);
       }
     };
 

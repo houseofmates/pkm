@@ -5,8 +5,7 @@ import { secureLogger } from '@/lib/secure-logger';
 import { storageManager } from '@/lib/storage-manager';
 
 export const MemberService = {
-  /**
- * uploads an avatar to nocobase, syncs it to simplyplural, and updates the local override.
+  /** * uploads an avatar to nocobase, syncs it to simplyplural, and updates the local override.
  * @param memberid simplyplural member id
  * @param file file object to upload
  * @param updatelocalcallback callback to update local frontercontext state
@@ -19,12 +18,10 @@ export const MemberService = {
   const toastId = toast.loading("Uploading avatar...");
 
   try {
-  // 1. upload to nocobase
-  secureLogger.info("MemberService: Uploading file to NocoBase...");
+  // 1. upload to nocobase  secureLogger.info("MemberService: Uploading file to NocoBase...");
   const uploadRes = await api.upload(file);
 
-  // extract url (nocobase returns { data: { url: ... } })
-  const fileData = (uploadRes as any).data || uploadRes;
+  // extract url (nocobase returns { data: { url: ... } })  const fileData = (uploadRes as any).data || uploadRes;
   const fileUrl = (fileData as any).url;
 
   if (!fileUrl) {
@@ -33,23 +30,17 @@ export const MemberService = {
 
   secureLogger.info("MemberService: File uploaded, URL:", fileUrl);
 
-  // construct full url for simplyplural (needs public/absolute)
-  // but keep relative for local use (so headmatecard can auth it)
-  let absoluteUrl = fileUrl;
+  // construct full url for simplyplural (needs public/absolute)  // but keep relative for local use (so headmatecard can auth it)  let absoluteUrl = fileUrl;
   if (fileUrl.startsWith('/')) {
  const baseUrl = window.location.origin;
  absoluteUrl = `${baseUrl}${fileUrl}`;
   }
 
-  // 2. patch simplyplural
-  const apiKey = storageManager.getItem('pk_api_key');
+  // 2. patch simplyplural  const apiKey = storageManager.getItem('pk_api_key');
   if (apiKey) {
  secureLogger.info("MemberService: Patching SimplyPlural...");
 
- // try flattened structure first (common alternative if 'content' wrapper fails)
- // if previous error was "error at content", then 'content' key is likely forbidden at root of patch.
- // we also set avataruuid to "" to ensure the system prioritizes the new url over any existing internal image.
- const payload = {
+ // try flattened structure first (common alternative if 'content' wrapper fails) // if previous error was "error at content", then 'content' key is likely forbidden at root of patch. // we also set avataruuid to "" to ensure the system prioritizes the new url over any existing internal image. const payload = {
  avatarUrl: absoluteUrl,
  avatarUuid: ""
  };
@@ -77,9 +68,7 @@ export const MemberService = {
  toast.success("avatar saved locally (no api key)", { id: toastId });
   }
 
-  // 3. update local override
-  // use relative url so headmatecard uses its authenticated proxy strategy
-  updateLocalCallback(memberId, { avatarUrl: fileUrl });
+  // 3. update local override  // use relative url so headmatecard uses its authenticated proxy strategy  updateLocalCallback(memberId, { avatarUrl: fileUrl });
 
   return fileUrl;
 

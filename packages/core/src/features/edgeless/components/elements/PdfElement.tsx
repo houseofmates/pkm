@@ -35,15 +35,10 @@ export const PdfElement = React.memo(function PdfElement({ element, pdfDocument 
 
         setRendered(true)
 
-        // render annotation layer
-        if (annotationLayerRef.current) {
+        // render annotation layer        if (annotationLayerRef.current) {
           annotationLayerRef.current.innerHTML = '' // clear
-          // simplified annotation layer for links
-          // const annotations = await page.getannotations()
-
-          // custom simplified renderer for links
-          // ... we will implement this more fully in the next step
-        }
+          // simplified annotation layer for links          // const annotations = await page.getannotations()
+          // custom simplified renderer for links          // ... we will implement this more fully in the next step        }
       }
     }
 
@@ -70,8 +65,7 @@ export const PdfElement = React.memo(function PdfElement({ element, pdfDocument 
         ref={annotationLayerRef}
         className="annotationLayer absolute top-0 left-0 w-full h-full"
         style={{
-          // we need to scale this effectively to match the canvas
-        }}
+          // we need to scale this effectively to match the canvas        }}
       >
       </div>
     </div>

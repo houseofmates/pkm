@@ -1,7 +1,4 @@
-// write-ahead-log.ts
-// ensures zero data loss by journaling all writes before they happen
-// incomplete writes are replayed on app startup via walrecover()
-
+// write-ahead-log.ts// ensures zero data loss by journaling all writes before they happen// incomplete writes are replayed on app startup via walrecover()
 import { openDB } from 'idb'
 import type { IDBPDatabase, DBSchema } from 'idb'
 
@@ -61,8 +58,7 @@ export async function walCommit(id: string): Promise<void> {
         entry.status = 'committed'
         await db.put('wal', entry)
     }
-    // cleanup: remove committed entries older than 1 hour
-    const all = await db.getAll('wal')
+    // cleanup: remove committed entries older than 1 hour    const all = await db.getAll('wal')
     const cutoff = Date.now() - 60 * 60 * 1000
     const tx = db.transaction('wal', 'readwrite')
     for (const e of all) {

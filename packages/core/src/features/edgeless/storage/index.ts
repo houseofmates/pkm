@@ -1,6 +1,4 @@
-// storage layer exports
-// centralized access to oplog, indexeddb, and checkpoint operations
-
+// storage layer exports// centralized access to oplog, indexeddb, and checkpoint operations
 export { getCanvasDB } from './canvas-db'
 export {
   appendOp,

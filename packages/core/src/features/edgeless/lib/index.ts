@@ -1,5 +1,4 @@
 // utility exports for edgeless canvas
-
 export {
   productionGuard,
   perfMonitor,

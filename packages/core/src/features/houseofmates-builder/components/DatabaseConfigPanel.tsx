@@ -16,17 +16,14 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
 
   const [fields, setFields] = useState<any[]>([]);
 
-  // visible fields
-  const [visibleFields, setVisibleFields] = useState<string[]>(element?.content?.visibleFields || []);
+  // visible fields  const [visibleFields, setVisibleFields] = useState<string[]>(element?.content?.visibleFields || []);
 
-  // sort state
-  const [sortField, setSortField] = useState(element?.content?.sort?.[0]?.replace('-', '') || '');
+  // sort state  const [sortField, setSortField] = useState(element?.content?.sort?.[0]?.replace('-', '') || '');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(
   element?.content?.sort?.[0]?.startsWith('-') ? 'desc' : 'asc'
   );
 
-  // filter state (simple single filter for now)
-  const [filterField, setFilterField] = useState('');
+  // filter state (simple single filter for now)  const [filterField, setFilterField] = useState('');
   const [filterOp, setFilterOp] = useState('$eq');
   const [filterValue, setFilterValue] = useState('');
 
@@ -39,8 +36,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
  const validFields = colFields.filter((f: any) => !f.hidden && !f.name.startsWith('_'));
  setFields(validFields);
 
- // if no visible fields set, default to first 5
- if (!element?.content?.visibleFields || element.content.visibleFields.length === 0) {
+ // if no visible fields set, default to first 5 if (!element?.content?.visibleFields || element.content.visibleFields.length === 0) {
  setVisibleFields(validFields.slice(0, 5).map((f: any) => f.name));
  }
   } catch (e) {
@@ -50,8 +46,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
   fetchFields();
   }, [element?.content?.collectionName]);
 
-  // initial filter load (naive)
-  useEffect(() => {
+  // initial filter load (naive)  useEffect(() => {
   const f = element?.content?.filter;
   if (f && typeof f === 'object') {
   const firstKey = Object.keys(f)[0];

@@ -23,8 +23,7 @@ export function OptimizationDashboard({ data, onUpdate }: { data?: any; onUpdate
   const { data: collection, loading: collectionLoading } = useCollection(collectionName);
   const { records, loading: recordsLoading } = useRecords(collectionName, { sort: '-createdAt', pageSize: 30 });
 
-  // ensure we persist the chosen collection name in the widget config when available
-  useEffect(() => {
+  // ensure we persist the chosen collection name in the widget config when available  useEffect(() => {
     if (!data?.collectionName && collections?.[0]?.name) {
       onUpdate?.({ collectionName: collections[0].name });
     }

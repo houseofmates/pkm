@@ -1,5 +1,4 @@
-/**
- * habits system - component index
+/** * habits system - component index
  * 
  * export all habit tracking components for easy imports.
  * 

@@ -1,6 +1,4 @@
-// migration utility: localstorage/lzstring -> indexeddb/oplog
-// one-time migration for existing drawings
-
+// migration utility: localstorage/lzstring -> indexeddb/oplog// one-time migration for existing drawings
 import { updateDrawingMeta, saveCheckpoint } from './canvas-db'
 import { secureLogger } from '@/lib/secure-logger'
 import { storageManager } from '@/lib/storage-manager'
@@ -22,8 +20,7 @@ export interface MigrationResult {
 export async function migrateFromLocalStorage(): Promise<MigrationResult> {
   const result: MigrationResult = { migrated: 0, failed: 0, skipped: 0, details: [] }
 
-  // find all drawing keys in localstorage
-  const keys: string[] = []
+  // find all drawing keys in localstorage  const keys: string[] = []
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i)
     if (key?.startsWith('drawing-')) {
@@ -35,15 +32,13 @@ export async function migrateFromLocalStorage(): Promise<MigrationResult> {
 
   for (const key of keys) {
     try {
-      // parse key: drawing-config-{id} or drawing-content-{id}
-      const match = key.match(/^drawing-(config|content)-(.+)$/)
+      // parse key: drawing-config-{id} or drawing-content-{id}      const match = key.match(/^drawing-(config|content)-(.+)$/)
       if (!match) continue
 
       const [, type, id] = match
 
       if (type === 'config') {
-        // migrate config
-        const configStr = storageManager.getItem(key)
+        // migrate config        const configStr = storageManager.getItem(key)
         if (!configStr) continue
 
         const config = JSON.parse(configStr)
@@ -54,15 +49,12 @@ export async function migrateFromLocalStorage(): Promise<MigrationResult> {
         })
 
         secureLogger.info('[migrate] migrated config for', id)
-        // drop legacy config
-        storageManager.removeItem(key)
+        // drop legacy config        storageManager.removeItem(key)
       } else if (type === 'content') {
-        // migrate content as checkpoint
-        const contentStr = storageManager.getItem(key)
+        // migrate content as checkpoint        const contentStr = storageManager.getItem(key)
         if (!contentStr) continue
 
-        // decompress
-        const LZString = await import('lz-string')
+        // decompress        const LZString = await import('lz-string')
         const decompressed = LZString.decompressFromUTF16(contentStr)
 
         if (decompressed) {
@@ -72,8 +64,7 @@ export async function migrateFromLocalStorage(): Promise<MigrationResult> {
           secureLogger.info('[migrate] migrated content for', id, '-', data.objects?.length || 0, 'objects')
           result.migrated++
           result.details.push({ id, status: 'migrated' })
-          // drop legacy content
-          storageManager.removeItem(key)
+          // drop legacy content          storageManager.removeItem(key)
         } else {
           secureLogger.warn('[migrate] failed to decompress', id)
           result.failed++

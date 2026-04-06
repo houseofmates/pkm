@@ -35,8 +35,7 @@ const LogsTable: React.FC = () => {
 
   useEffect(() => {
     refresh()
-    // load server maps
-    try {
+    // load server maps    try {
       const m = JSON.parse(localStorage.getItem('pkm_activity_server_map') || '{}')
       setActivityServerMap(m.byName || m)
       const lm = JSON.parse(localStorage.getItem('pkm_activity_log_server_map') || '{}')

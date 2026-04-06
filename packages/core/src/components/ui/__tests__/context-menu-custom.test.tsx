@@ -7,8 +7,7 @@ import { useEdgelessStore } from '@/features/edgeless/store';
 import { AuthProvider } from '@/contexts/auth-context';
 import { FronterProvider } from '@/contexts/fronter-context';
 
-// helper to open tool menu with given tool
-function openToolMenu(tool: 'pen' | 'eraser') {
+// helper to open tool menu with given toolfunction openToolMenu(tool: 'pen' | 'eraser') {
   useContextMenuStore.setState({
     isOpen: true,
     x: 100,

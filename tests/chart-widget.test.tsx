@@ -13,15 +13,12 @@ describe('ChartWidget legend & ordering', () => {
   it('renders legend in seriesOrder when provided', () => {
     render(<ChartWidget type="bar" data={mockData as any} seriesKeys={["s1", "s2"]} seriesOrder={["s2", "s1"]} />);
 
-    // legend buttons should render in order s2, s1
-    const buttons = screen.getAllByRole('button');
-    // find first two legend-like buttons by text
-    const first = screen.getByText('s2');
+    // legend buttons should render in order s2, s1    const buttons = screen.getAllByRole('button');
+    // find first two legend-like buttons by text    const first = screen.getByText('s2');
     const second = screen.getByText('s1');
     expect(first).toBeTruthy();
     expect(second).toBeTruthy();
-    // ensure order in dom: s2 comes before s1
-    expect(buttons.map(b => b.textContent).join(' ')).toContain('s2');
+    // ensure order in dom: s2 comes before s1    expect(buttons.map(b => b.textContent).join(' ')).toContain('s2');
   });
 
   it('toggles series visibility when legend button clicked', () => {
@@ -30,8 +27,7 @@ describe('ChartWidget legend & ordering', () => {
     const btn = screen.getByText('s1');
     fireEvent.click(btn);
 
-    // clicking should add line-through class to the label span (or apply equivalent)
-    const span = btn;
+    // clicking should add line-through class to the label span (or apply equivalent)    const span = btn;
     expect(span.className.includes('line-through') || span.querySelector('.line-through')).toBeTruthy();
   });
 });

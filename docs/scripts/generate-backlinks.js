@@ -5,14 +5,12 @@ import matter from 'gray-matter'
 const contentDir = join(process.cwd(), 'content')
 const backlinksDir = join(process.cwd(), '.vitepress', 'backlinks')
 
-// clear old backlinks
-import { rmSync } from 'fs'
+// clear old backlinksimport { rmSync } from 'fs'
 rmSync(backlinksDir, { recursive: true, force: true })
 import { mkdirSync } from 'fs'
 mkdirSync(backlinksDir, { recursive: true })
 
-// scan all md files
-const pages = new Map()
+// scan all md filesconst pages = new Map()
 const files = scanDir(contentDir)
 
 for (const file of files) {
@@ -22,8 +20,7 @@ for (const file of files) {
   const titleSlug = file.replace(contentDir, '').replace(/^\//, '').replace(/\.md$/, '').replace(/\/index$/, '').replace(/\//g, '-')
   pages.set(titleSlug, { path: `/${titleSlug}`, title: data.title || titleSlug, file })
 
-  // extract [[links]]
-  const links = [...body.matchAll(/\[\[([^\]]+?)\]\]/g)].map(match => match[1].toLowerCase().trim().replace(/ /g, '-').replace(/[^a-z0-9-]/g, ''))
+  // extract [[links]]  const links = [...body.matchAll(/\[\[([^\]]+?)\]\]/g)].map(match => match[1].toLowerCase().trim().replace(/ /g, '-').replace(/[^a-z0-9-]/g, ''))
   for (const link of links) {
     if (!pages.has(link)) continue
     const target = pages.get(link)
@@ -32,8 +29,7 @@ for (const file of files) {
   }
 }
 
-// write backlinks json
-for (const [slug, page] of pages) {
+// write backlinks jsonfor (const [slug, page] of pages) {
   writeFileSync(join(backlinksDir, `${slug}.json`), JSON.stringify(page.backlinks || [], null, 2))
 }
 

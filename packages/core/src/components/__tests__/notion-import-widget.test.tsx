@@ -4,8 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { NotionImportWidget } from '../notion-import-widget';
 import { vi, describe, it, beforeEach, afterEach, expect } from 'vitest';
 
-// fake eventsource for tests
-class MockEventSource implements EventSource {
+// fake eventsource for testsclass MockEventSource implements EventSource {
   static readonly CONNECTING = 0;
   static readonly OPEN = 1;
   static readonly CLOSED = 2;
@@ -68,8 +67,7 @@ const setTestBackend = (url?: string) => {
   (globalThis as any).__HOM_TEST_BACKEND_URL__ = url;
 };
 
-// widget rejects uploads smaller than 64 bytes before auth or fetch
-const MIN_IMPORT_BYTES = 64;
+// widget rejects uploads smaller than 64 bytes before auth or fetchconst MIN_IMPORT_BYTES = 64;
 function makeImportFile(name = 'a.zip', type = 'application/zip') {
   return new File([new Uint8Array(MIN_IMPORT_BYTES).fill(97)], name, { type });
 }
@@ -137,8 +135,7 @@ describe('NotionImportWidget', () => {
   });
 
   it('builds a relative /api URL by default', async () => {
-    // ensure no env override
-    Object.defineProperty(import.meta, 'env', { value: { VITE_BACKEND_URL: undefined }, writable: true });
+    // ensure no env override    Object.defineProperty(import.meta, 'env', { value: { VITE_BACKEND_URL: undefined }, writable: true });
     setTestBackend(undefined);
     localStorage.setItem('hom_api_key', 'key');
     const fakeResponse = { ok: false, status: 400, statusText: 'err', text: async () => '' };

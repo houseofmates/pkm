@@ -17,8 +17,7 @@ export const RecordNodeElement = React.memo<RecordNodeElementProps>(({ element }
   const { data: collection } = useCollection(element.data.collectionName);
   const { data: record, updateRecord } = useRecord(element.data.collectionName, element.data.recordId);
 
-  // local state for expansion (or use element.data.mode)
-  const isExpanded = element.data.mode === 'card';
+  // local state for expansion (or use element.data.mode)  const isExpanded = element.data.mode === 'card';
 
   const toggleExpand = (_e: React.MouseEvent) => {
     _e.stopPropagation();
@@ -40,16 +39,7 @@ export const RecordNodeElement = React.memo<RecordNodeElementProps>(({ element }
       {/* header (node view) */}
       <div className="h-[60px] flex items-center justify-between px-3 border-b border-primary/20 shrink-0 cursor-move"
         onMouseDown={(_e) => {
-          // allow dragging via header? fabric handles dragging usually.
-          // but since we are an overlay "pointer-events-auto", we might steal drag.
-          // if we want fabric to drag, we need to pass event?
-          // or we just let this be the drag handle if we implemented html dragging logic?
-          // actually, for edgelesscanvas, dragging is handled by fabric selection.
-          // so we should usually let clicks pass through unless it's a button.
-          // but `pointer-events-auto` blocks fabric.
-          // solution: header should be draggable handle?
-          // for now, let's assume the user selects via the "select tool" box or clicking edges.
-        }}
+          // allow dragging via header? fabric handles dragging usually.          // but since we are an overlay "pointer-events-auto", we might steal drag.          // if we want fabric to drag, we need to pass event?          // or we just let this be the drag handle if we implemented html dragging logic?          // actually, for edgelesscanvas, dragging is handled by fabric selection.          // so we should usually let clicks pass through unless it's a button.          // but `pointer-events-auto` blocks fabric.          // solution: header should be draggable handle?          // for now, let's assume the user selects via the "select tool" box or clicking edges.        }}
       >
         <div className="flex items-center gap-2 overflow-hidden">
           <div className="w-8 h-8 rounded-full border border-primary/50 flex items-center justify-center bg-primary/10">
@@ -76,8 +66,7 @@ export const RecordNodeElement = React.memo<RecordNodeElementProps>(({ element }
             initialData={record}
             onSubmit={async (data) => {
               await updateRecord(data);
-              // visual feedback?
-            }}
+              // visual feedback?            }}
             onCancel={() => { }} // hide cancel button?
           />
         </div>

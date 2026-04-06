@@ -8,16 +8,13 @@ export const FloatingReminder = React.memo(function FloatingReminder({ element }
   const velocityRef = useRef({ dx: 0.5, dy: 0.5 });
   const updateElement = useEdgelessStore(state => state.updateElement);
 
-  // calculate urgency
-  const now = new Date().getTime();
+  // calculate urgency  const now = new Date().getTime();
   const due = deadline ? new Date(deadline).getTime() : now + 86400000;
   const hoursLeft = (due - now) / 3600000;
 
-  // speed increases as deadline approaches
-  const speed = Math.max(0.2, 5 - Math.max(0, hoursLeft / 24)); // max speed 5, min 0.2
+  // speed increases as deadline approaches  const speed = Math.max(0.2, 5 - Math.max(0, hoursLeft / 24)); // max speed 5, min 0.2
 
-  // initialize velocity with random start direction (only once on mount)
-  useEffect(() => {
+  // initialize velocity with random start direction (only once on mount)  useEffect(() => {
     velocityRef.current = {
       dx: (Math.random() - 0.5) * speed,
       dy: (Math.random() - 0.5) * speed
@@ -30,8 +27,7 @@ export const FloatingReminder = React.memo(function FloatingReminder({ element }
         const nextX = prev.x + velocityRef.current.dx;
         const nextY = prev.y + velocityRef.current.dy;
 
-        // bounce locally within its "box" (which is the element size on canvas)
-        const bound = 50;
+        // bounce locally within its "box" (which is the element size on canvas)        const bound = 50;
         if (Math.abs(nextX) > bound) {
           velocityRef.current = { ...velocityRef.current, dx: -velocityRef.current.dx };
         }
@@ -48,10 +44,8 @@ export const FloatingReminder = React.memo(function FloatingReminder({ element }
   }, []);
 
   const handleDismiss = () => {
-    // pop animation then delete
-    updateElement(element.id, { data: { ...element.data, done: true } });
-    // in real app, remove from list or mark done
-  };
+    // pop animation then delete    updateElement(element.id, { data: { ...element.data, done: true } });
+    // in real app, remove from list or mark done  };
 
   if (element.data.done) return null;
 

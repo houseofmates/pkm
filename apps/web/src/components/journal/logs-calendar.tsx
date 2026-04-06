@@ -24,8 +24,7 @@ const LogsCalendar: React.FC = () => {
 
   useEffect(() => { setLogs(loadLogs()) }, [])
 
-  // group by date (yyyy-mm-dd)
-  const byDate: Record<string, LogItem[]> = {}
+  // group by date (yyyy-mm-dd)  const byDate: Record<string, LogItem[]> = {}
   logs.forEach(l => {
     const d = new Date(l.createdAt).toISOString().slice(0,10)
     if (!byDate[d]) byDate[d] = []

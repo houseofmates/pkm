@@ -31,13 +31,11 @@ export function StatusSummary({ data }: StatusSummaryProps) {
     setMounted(true);
   }, []);
 
-  // fetch records for each collection
-  const { records: hygieneRecords } = useRecords('hygiene_logs');
+  // fetch records for each collection  const { records: hygieneRecords } = useRecords('hygiene_logs');
   const { records: medicationRecords } = useRecords('medication_logs');
   const { records: catCareRecords } = useRecords('cat_care_logs');
 
-  // calculate streaks
-  const streaks = useMemo(() => {
+  // calculate streaks  const streaks = useMemo(() => {
     const calculateStreak = (records: any[] | null, type?: string): StreakData => {
       if (!records || records.length === 0) {
         return {
@@ -50,28 +48,24 @@ export function StatusSummary({ data }: StatusSummaryProps) {
         };
       }
 
-      // sort by date descending
-      const sorted = [...records].sort((a, b) => {
+      // sort by date descending      const sorted = [...records].sort((a, b) => {
         const dateA = new Date(a.timestamp || a.created_at || 0);
         const dateB = new Date(b.timestamp || b.created_at || 0);
         return dateB.getTime() - dateA.getTime();
       });
 
-      // get unique dates
-      const uniqueDates = new Set<string>();
+      // get unique dates      const uniqueDates = new Set<string>();
       sorted.forEach(r => {
         const date = (r.timestamp || r.created_at || '').split('T')[0];
         if (date) uniqueDates.add(date);
       });
       const dates = Array.from(uniqueDates).sort().reverse();
 
-      // calculate current streak
-      let current = 0;
+      // calculate current streak      let current = 0;
       const today = new Date().toISOString().split('T')[0];
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
       
-      // check if active today or yesterday
-      if (dates[0] === today || dates[0] === yesterday) {
+      // check if active today or yesterday      if (dates[0] === today || dates[0] === yesterday) {
         current = 1;
         for (let i = 1; i < dates.length; i++) {
           const prevDate = new Date(dates[i - 1]);
@@ -86,8 +80,7 @@ export function StatusSummary({ data }: StatusSummaryProps) {
         }
       }
 
-      // calculate max streak
-      let max = 0;
+      // calculate max streak      let max = 0;
       let tempMax = 1;
       const sortedDates = Array.from(uniqueDates).sort();
       

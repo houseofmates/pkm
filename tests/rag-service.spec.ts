@@ -5,8 +5,7 @@ import { buildRagContext } from '@/services/rag-service';
 
 describe('RAG service', () => {
   it('buildRagContext formats retrieved chunks correctly', async () => {
-    // mock searchKnowledgeBase to return two chunks
-    const fakeChunks: vectorStore.SearchResult[] = [
+    // mock searchknowledgebase to return two chunks    const fakeChunks: vectorStore.SearchResult[] = [
       {
         chunk: {
           id: '1',
@@ -56,8 +55,7 @@ describe('RAG service', () => {
     const { WILSON_RAG_SYSTEM_PROMPT, CROSS_REFERENCE_PROMPT } = await import('@/lib/rag-prompts');
     expect(WILSON_RAG_SYSTEM_PROMPT).toMatch(/warm, thoughtful/);
     expect(WILSON_RAG_SYSTEM_PROMPT).toMatch(/retrieved context format/);
-    // cross-reference prompt should reference collection:id pattern
-    expect(CROSS_REFERENCE_PROMPT).toContain('[[collection:id]]');
+    // cross-reference prompt should reference collection:id pattern    expect(CROSS_REFERENCE_PROMPT).toContain('[[collection:id]]');
   });
 
   it('returns fallback message when nothing is found', async () => {

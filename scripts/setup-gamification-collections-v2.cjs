@@ -2,8 +2,7 @@ const { execSync } = require('child_process')
 
 console.log('setting up enhanced gamification nocobase collections v2 on port 8091...')
 
-// daily_goals
-execSync(`
+// daily_goalsexecSync(`
 curl -X POST http://localhost:8091/api/v1/meta/collections \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -20,8 +19,7 @@ curl -X POST http://localhost:8091/api/v1/meta/collections \\
   }'
 `, { stdio: 'inherit' })
 
-// reflection_sessions
-execSync(`
+// reflection_sessionsexecSync(`
 curl -X POST http://localhost:8091/api/v1/meta/collections \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -39,8 +37,7 @@ curl -X POST http://localhost:8091/api/v1/meta/collections \\
   }'
 `, { stdio: 'inherit' })
 
-// custom_fixations (user obsessions → quests)
-execSync(`
+// custom_fixations (user obsessions → quests)execSync(`
 curl -X POST http://localhost:8091/api/v1/meta/collections \\
   -H "Content-Type: application/json" \\
   -d '{

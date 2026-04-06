@@ -1,36 +1,23 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-// prevent canvas storage code from running (avoids window errors in jest)
-vi.mock('@/features/edgeless/storage', () => ({
+// prevent canvas storage code from running (avoids window errors in jest)vi.mock('@/features/edgeless/storage', () => ({
   listPendingDrawings: async () => [],
   updateDrawingMeta: vi.fn(),
   deleteDrawing: vi.fn(),
 }));
 
-// some components in the tree rely on the classic JSX runtime and
-// therefore refer to the global `React` variable.  Vitest/app-bundler
-// sometimes compiles them without injecting an import, which causes
-// `ReferenceError: React is not defined` during tests.  Exposing React
-// globally prevents us from having to fix every component file in the
-// repo just for the tests.
-;(globalThis as any).React = React;
+// some components in the tree rely on the classic jsx runtime and// therefore refer to the global `react` variable.  vitest/app-bundler// sometimes compiles them without injecting an import, which causes// `referenceerror: react is not defined` during tests.  exposing react// globally prevents us from having to fix every component file in the// repo just for the tests.;(globalThis as any).React = React;
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-// We'll dynamically import AuthProvider, FronterProvider and other modules after resetModules
+// we'll dynamically import authprovider, fronterprovider and other modules after resetmodules
 
+// avoid hitting real wal code during rendervi.mock('@/lib/write-ahead-log', () => ({ walPendingCount: async () => 0 }));
 
-// avoid hitting real WAL code during render
-vi.mock('@/lib/write-ahead-log', () => ({ walPendingCount: async () => 0 }));
-
-// helper to render layout and get providers after setting env
-// accepts an optional envOverrides object which will be merged into import.meta.env
-async function loadLayoutAndProviders(envOverrides: Record<string, string> = {}) {
-  // force module reload so env value is re-read and modules are consistent
-  vi.resetModules();
-  // apply overrides after reset so they aren't wiped out
-  (import.meta as any).env = { ...(import.meta as any).env || {}, ...envOverrides };
+// helper to render layout and get providers after setting env// accepts an optional envoverrides object which will be merged into import.meta.envasync function loadLayoutAndProviders(envOverrides: Record<string, string> = {}) {
+  // force module reload so env value is re-read and modules are consistent  vi.resetModules();
+  // apply overrides after reset so they aren't wiped out  (import.meta as any).env = { ...(import.meta as any).env || {}, ...envOverrides };
 
   const [layoutModule, authModule, fronModule, llmModule] = await Promise.all([
     import('@/pages/root-layout'),
@@ -48,12 +35,10 @@ async function loadLayoutAndProviders(envOverrides: Record<string, string> = {})
 
 describe('RootLayout', () => {
   beforeEach(() => {
-    // ensure env object exists and isn't frozen
-    if (!(import.meta as any).env) {
+    // ensure env object exists and isn't frozen    if (!(import.meta as any).env) {
       (import.meta as any).env = {};
     }
-    // allow controlling the hostname for title tests
-    Object.defineProperty(window, 'location', {
+    // allow controlling the hostname for title tests    Object.defineProperty(window, 'location', {
       value: { hostname: 'dupe.houseofmates.space' },
       writable: true,
       configurable: true,
@@ -61,11 +46,9 @@ describe('RootLayout', () => {
   });
 
   it('does not render health bar by default', async () => {
-    // ensure env default state has no flag
-    delete (import.meta as any).env.VITE_SHOW_HEALTH_BAR;
+    // ensure env default state has no flag    delete (import.meta as any).env.VITE_SHOW_HEALTH_BAR;
     const { RootLayout, AuthProvider, FronterProvider, LLMContextProvider } = await loadLayoutAndProviders();
-    // ensure a <link id="favicon"/> exists in the DOM for our later assertion
-    const linkEl = document.createElement('link');
+    // ensure a <link id="favicon"/> exists in the dom for our later assertion    const linkEl = document.createElement('link');
     linkEl.id = 'favicon';
     linkEl.rel = 'icon';
     document.head.appendChild(linkEl);
@@ -84,10 +67,8 @@ describe('RootLayout', () => {
     );
     expect(screen.queryByText('connected')).toBeNull();
 
-    // title should map according to our host rules
-    expect(document.title).toBe('dupemates');
-    // favicon file should match dupe image
-    const link = document.getElementById('favicon') as HTMLLinkElement | null;
+    // title should map according to our host rules    expect(document.title).toBe('dupemates');
+    // favicon file should match dupe image    const link = document.getElementById('favicon') as HTMLLinkElement | null;
     expect(link).not.toBeNull();
     if (link) {
       expect(link.href).toContain('/favicon-dupe.png');
@@ -96,16 +77,11 @@ describe('RootLayout', () => {
 
   it('can load with health bar env variable set', async () => {
     const { RootLayout, AuthProvider, FronterProvider, LLMContextProvider } = await loadLayoutAndProviders({ VITE_SHOW_HEALTH_BAR: 'true' });
-    // confirm that our override actually landed in the env object
-    expect((import.meta as any).env.VITE_SHOW_HEALTH_BAR).toBe('true');
-    // we don't assert on DOM since rendering with providers is already covered
-    // by the first test and the conditional itself is simple. This avoids
-    // flaky failures caused by testing UI structure.
-  });
+    // confirm that our override actually landed in the env object    expect((import.meta as any).env.VITE_SHOW_HEALTH_BAR).toBe('true');
+    // we don't assert on dom since rendering with providers is already covered    // by the first test and the conditional itself is simple. this avoids    // flaky failures caused by testing ui structure.  });
 
   it('always lowercases the document title', async () => {
-    // start with an uppercase hostname to simulate a weird environment
-    Object.defineProperty(window, 'location', {
+    // start with an uppercase hostname to simulate a weird environment    Object.defineProperty(window, 'location', {
       value: { hostname: 'HOME.HOUSEOFMATES.SPACE' },
       writable: true,
       configurable: true,
@@ -128,7 +104,6 @@ describe('RootLayout', () => {
         </QueryClientProvider>
       </AuthProvider>
     );
-    // even though the original host was uppercase, the title must still be lowercase
-    expect(document.title).toBe('home');
+    // even though the original host was uppercase, the title must still be lowercase    expect(document.title).toBe('home');
   });
 });

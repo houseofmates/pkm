@@ -1,5 +1,4 @@
-/**
- * security dashboard widget
+/** * security dashboard widget
  * 
  * a creative addition to the pkm system that provides:
  * - real-time authentication status
@@ -51,8 +50,7 @@ export function SecurityWidget() {
     setMounted(true);
     updateSecurityStatus();
     
-    // poll for updates every 5 seconds
-    const interval = setInterval(updateSecurityStatus, 5000);
+    // poll for updates every 5 seconds    const interval = setInterval(updateSecurityStatus, 5000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
@@ -61,8 +59,7 @@ export function SecurityWidget() {
     setPrivacyMode(status.privacyMode);
     setLogs(secureLogger.getHistory());
     
-    // calculate risk level
-    if (!isAuthenticated) {
+    // calculate risk level    if (!isAuthenticated) {
       setRiskLevel('high');
     } else if (!status.privacyMode) {
       setRiskLevel('medium');

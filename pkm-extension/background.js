@@ -1,15 +1,12 @@
 // background.js - service worker for pkm capture extension
-
-// Configuration - will be loaded from storage
-let CONFIG = {
+// configuration - will be loaded from storagelet CONFIG = {
     ollamaEndpoint: 'http://localhost:11434/api/generate',
     model: 'qwen2.5vl:7b-q4_K_M',
     nocobaseApi: 'https://db.houseofmates.space/api',
     collectionName: 'ai-convos'
 };
 
-// Load config from storage on startup
-async function loadConfig() {
+// load config from storage on startupasync function loadConfig() {
     try {
         const data = await browser.storage.sync.get(['apiBaseUrl', 'ollamaUrl']);
         if (data.apiBaseUrl) {
@@ -24,8 +21,7 @@ async function loadConfig() {
     }
 }
 
-// supported ai platforms for context menu
-const AI_PLATFORMS = [
+// supported ai platforms for context menuconst AI_PLATFORMS = [
     'gemini.google.com',
     'jules.google.com',
     'perplexity.ai',
@@ -40,16 +36,13 @@ const AI_PLATFORMS = [
     'grok.com'
 ];
 
-// function to create context menus
-function createContextMenus() {
+// function to create context menusfunction createContextMenus() {
     console.log('[pkm] creating context menus...');
     
-    // remove existing menu items first
-    browser.contextMenus.removeAll().then(() => {
+    // remove existing menu items first    browser.contextMenus.removeAll().then(() => {
         console.log('[pkm] removed existing menus');
         
-        // create "save to pkm" menu for all pages
-        browser.contextMenus.create({
+        // create "save to pkm" menu for all pages        browser.contextMenus.create({
             id: 'save-to-pkm',
             title: 'save to pkm',
             contexts: ['page', 'selection', 'link', 'image'],
@@ -62,8 +55,7 @@ function createContextMenus() {
             }
         });
         
-        // create "summarize" menu for ai platforms only
-        const aiPatterns = AI_PLATFORMS.map(host => `https://${host}/*`);
+        // create "summarize" menu for ai platforms only        const aiPatterns = AI_PLATFORMS.map(host => `https://${host}/*`);
         console.log('[pkm] ai patterns:', aiPatterns);
         
         browser.contextMenus.create({
@@ -81,25 +73,21 @@ function createContextMenus() {
     });
 }
 
-// create menus on install
-browser.runtime.onInstalled.addListener(() => {
+// create menus on installbrowser.runtime.onInstalled.addListener(() => {
     console.log('[pkm] extension installed/updated');
     loadConfig();
     createContextMenus();
 });
 
-// also create menus on startup (browser restart)
-browser.runtime.onStartup.addListener(() => {
+// also create menus on startup (browser restart)browser.runtime.onStartup.addListener(() => {
     console.log('[pkm] browser started');
     loadConfig();
     createContextMenus();
 });
 
-// immediate creation for when background script loads
-loadConfig().then(() => createContextMenus());
+// immediate creation for when background script loadsloadConfig().then(() => createContextMenus());
 
-// handle context menu clicks
-browser.contextMenus.onClicked.addListener(async (info, tab) => {
+// handle context menu clicksbrowser.contextMenus.onClicked.addListener(async (info, tab) => {
     if (info.menuItemId === 'save-to-pkm') {
         handleSaveToPKM(info, tab);
     } else if (info.menuItemId === 'summarize-conversation') {
@@ -107,22 +95,18 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     }
 });
 
-// handle save to pkm - saves to captures collection
-async function handleSaveToPKM(info, tab) {
+// handle save to pkm - saves to captures collectionasync function handleSaveToPKM(info, tab) {
     try {
-        // ensure config is loaded
-        await loadConfig();
+        // ensure config is loaded        await loadConfig();
         
-        // get selection from content script
-        const results = await browser.tabs.sendMessage(tab.id, { action: 'get_selection' });
+        // get selection from content script        const results = await browser.tabs.sendMessage(tab.id, { action: 'get_selection' });
         
         if (!results || !results.selection) {
             showToast(tab.id, 'no content selected', true);
             return;
         }
         
-        // get api token and base url
-        const { apiToken, apiBaseUrl } = await browser.storage.sync.get(['apiToken', 'apiBaseUrl']);
+        // get api token and base url        const { apiToken, apiBaseUrl } = await browser.storage.sync.get(['apiToken', 'apiBaseUrl']);
         if (!apiToken) {
             showToast(tab.id, 'no api token configured', true);
             return;
@@ -130,8 +114,7 @@ async function handleSaveToPKM(info, tab) {
         
         const apiBase = apiBaseUrl || CONFIG.nocobaseApi;
         
-        // prepare payload
-        const payload = {
+        // prepare payload        const payload = {
             title: results.title || 'captured content',
             content: results.selection,
             url: results.url,
@@ -140,8 +123,7 @@ async function handleSaveToPKM(info, tab) {
             domain: new URL(results.url).hostname
         };
         
-        // send to nocobase captures collection
-        const response = await fetch(`${apiBase}/captures`, {
+        // send to nocobase captures collection        const response = await fetch(`${apiBase}/captures`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -162,20 +144,17 @@ async function handleSaveToPKM(info, tab) {
     }
 }
 
-// handle summarize conversation
-async function handleSummarize(tab) {
+// handle summarize conversationasync function handleSummarize(tab) {
     try {
         showToast(tab.id, '🤖 extracting conversation...');
         
-        // inject ai-summarizer.js to extract and summarize
-        await browser.tabs.executeScript(tab.id, {
+        // inject ai-summarizer.js to extract and summarize        await browser.tabs.executeScript(tab.id, {
             file: 'ai-summarizer.js'
         });
         
         console.log('[pkm] summarizer injected, triggering...');
         
-        // send message to trigger the summarization
-        await browser.tabs.sendMessage(tab.id, { action: 'trigger_summarize' });
+        // send message to trigger the summarization        await browser.tabs.sendMessage(tab.id, { action: 'trigger_summarize' });
         
     } catch (error) {
         console.error('[pkm] summarize error:', error);
@@ -183,20 +162,17 @@ async function handleSummarize(tab) {
     }
 }
 
-// show toast notification in tab
-function showToast(tabId, message, isError = false) {
+// show toast notification in tabfunction showToast(tabId, message, isError = false) {
     browser.tabs.sendMessage(tabId, {
         action: 'show_toast',
         message: message,
         isError: isError
     }).catch(err => {
-        // content script might not be loaded, ignore
-        console.log('[pkm] toast failed (content script not ready):', err);
+        // content script might not be loaded, ignore        console.log('[pkm] toast failed (content script not ready):', err);
     });
 }
 
-// listen for messages from content scripts
-browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+// listen for messages from content scriptsbrowser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'show_toast' && sender.tab) {
         showToast(sender.tab.id, request.message, request.isError);
     }
@@ -208,8 +184,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
-// system prompt for summarization
-function getSystemPrompt() {
+// system prompt for summarizationfunction getSystemPrompt() {
     return `you are a conversation analysis expert. your task is to create a comprehensive, detailed summary of the provided ai conversation.
 
 requirements:

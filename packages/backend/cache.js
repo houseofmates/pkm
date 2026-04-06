@@ -1,14 +1,11 @@
-// redis caching layer for pkm backend
-// provides high-performance caching for frequently accessed data
-
+// redis caching layer for pkm backend// provides high-performance caching for frequently accessed data
 import { createClient } from 'redis';
 
 let redisClient = null;
 const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 const CACHE_TTL = parseInt(process.env.CACHE_TTL || '3600', 10); // 1 hour default
 
-/**
- * initialize redis connection
+/** * initialize redis connection
  */
 export async function initializeCache() {
     if (redisClient) {
@@ -46,8 +43,7 @@ export async function initializeCache() {
     }
 }
 
-/**
- * get value from cache
+/** * get value from cache
  */
 export async function cacheGet(key) {
     if (!redisClient) {
@@ -64,8 +60,7 @@ export async function cacheGet(key) {
     }
 }
 
-/**
- * set value in cache
+/** * set value in cache
  */
 export async function cacheSet(key, value, ttl = CACHE_TTL) {
     if (!redisClient) {
@@ -83,8 +78,7 @@ export async function cacheSet(key, value, ttl = CACHE_TTL) {
     }
 }
 
-/**
- * delete value from cache
+/** * delete value from cache
  */
 export async function cacheDelete(key) {
     if (!redisClient) {
@@ -101,8 +95,7 @@ export async function cacheDelete(key) {
     }
 }
 
-/**
- * delete multiple keys by pattern
+/** * delete multiple keys by pattern
  */
 export async function cacheDeletePattern(pattern) {
     if (!redisClient) {
@@ -122,18 +115,15 @@ export async function cacheDeletePattern(pattern) {
     }
 }
 
-/**
- * cache middleware for api routes
+/** * cache middleware for api routes
  */
 export function cacheMiddleware(ttl = CACHE_TTL) {
     return async (req, res, next) => {
-        // only cache get requests
-        if (req.method !== 'GET') {
+        // only cache get requests        if (req.method !== 'GET') {
             return next();
         }
         
-        // skip if user is authenticated (personalized data)
-        if (req.user) {
+        // skip if user is authenticated (personalized data)        if (req.user) {
             return next();
         }
         
@@ -149,13 +139,10 @@ export function cacheMiddleware(ttl = CACHE_TTL) {
             console.error('[Cache] Middleware error:', error.message);
         }
         
-        // store original json method
-        const originalJson = res.json.bind(res);
+        // store original json method        const originalJson = res.json.bind(res);
         
-        // override json to cache response
-        res.json = (body) => {
-            // only cache successful responses
-            if (res.statusCode === 200) {
+        // override json to cache response        res.json = (body) => {
+            // only cache successful responses            if (res.statusCode === 200) {
                 cacheSet(cacheKey, body, ttl).catch(err => {
                     console.error('[Cache] Failed to cache response:', err.message);
                 });
@@ -167,15 +154,13 @@ export function cacheMiddleware(ttl = CACHE_TTL) {
     };
 }
 
-/**
- * invalidate cache for a collection
+/** * invalidate cache for a collection
  */
 export async function invalidateCollection(collectionName) {
     return cacheDeletePattern(`api:*${collectionName}*`);
 }
 
-/**
- * get cache statistics
+/** * get cache statistics
  */
 export async function getCacheStats() {
     if (!redisClient) {
@@ -197,8 +182,7 @@ export async function getCacheStats() {
     }
 }
 
-/**
- * clear all cache
+/** * clear all cache
  */
 export async function clearCache() {
     if (!redisClient) {

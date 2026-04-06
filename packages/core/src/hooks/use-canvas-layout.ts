@@ -25,17 +25,13 @@ export function useCanvasLayout(tableName: string) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // fetch layout
-  useEffect(() => {
+  // fetch layout  useEffect(() => {
   if (!tableName || !isAuthenticated) return;
 
   const fetchLayout = async () => {
   setIsLoading(true);
   try {
- // determine layout id based on tablename
- // we store layouts in a 'canvas_layouts' table
- // schema: id, name (unique), layout_data (json)
-
+ // determine layout id based on tablename // we store layouts in a 'canvas_layouts' table // schema: id, name (unique), layout_data (json)
  const res = await apiClient.get('/canvas_layouts', {
  params: {
  filter: {
@@ -64,13 +60,11 @@ export function useCanvasLayout(tableName: string) {
   fetchLayout();
   }, [tableName, isAuthenticated]);
 
-  // save layout (debounced)
-  const saveLayout = useCallback(async (currentLayoutMs: CanvasLayoutData) => {
+  // save layout (debounced)  const saveLayout = useCallback(async (currentLayoutMs: CanvasLayoutData) => {
   if (!tableName) return;
 
   try {
-  // check if exists first
-  const res = await apiClient.get('/canvas_layouts', {
+  // check if exists first  const res = await apiClient.get('/canvas_layouts', {
  params: {
  filter: { name: tableName }
  }
@@ -95,8 +89,7 @@ export function useCanvasLayout(tableName: string) {
   }
   }, [tableName]);
 
-  // debounce on mount and keep stable across updates
-  const debouncedSaveRef = useRef<ReturnType<typeof debounce> | null>(null);
+  // debounce on mount and keep stable across updates  const debouncedSaveRef = useRef<ReturnType<typeof debounce> | null>(null);
 
   useEffect(() => {
     debouncedSaveRef.current = debounce((layout: CanvasLayoutData) => {

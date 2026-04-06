@@ -24,14 +24,12 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   setLoading(true);
   setError(null);
   try {
-  // fetch collection schema for field info
-  const colRes = await api.getCollection(collectionName);
+  // fetch collection schema for field info  const colRes = await api.getCollection(collectionName);
   const colData = Array.isArray(colRes) ? undefined : (colRes as { data?: { fields?: any[] } }).data;
   const colFields = colData?.fields || [];
   setFields(colFields.filter((f: any) => !f.hidden && !f.name.startsWith('_')));
 
-  // fetch records with sort and filter
-  const res = await api.listRecords(collectionName, {
+  // fetch records with sort and filter  const res = await api.listRecords(collectionName, {
  pageSize: 50,
  sort,
  filter
@@ -56,8 +54,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   fetchData();
   }, [collectionName, JSON.stringify(sort), JSON.stringify(filter)]);
 
-  // error state
-  if (error) {
+  // error state  if (error) {
   return (
   <div
  className="flex flex-col items-center justify-center bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 p-6"
@@ -76,8 +73,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   );
   }
 
-  // loading state
-  if (loading) {
+  // loading state  if (loading) {
   return (
   <div
  className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-xl text-white/60"
@@ -89,8 +85,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   );
   }
 
-  // render based on view type
-  const renderView = () => {
+  // render based on view type  const renderView = () => {
   switch (viewType) {
   case 'table':
  return <TableView data={data} fields={fields} visibleFields={visibleFields} />;
@@ -140,7 +135,6 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
 
 
 // --- views ---
-
 function TableView({ data, fields, visibleFields }: { data: any[], fields: any[], visibleFields?: string[] }) {
   const displayFields = visibleFields && visibleFields.length > 0
     ? fields.filter(f => visibleFields.includes(f.name))
@@ -154,10 +148,7 @@ function TableView({ data, fields, visibleFields }: { data: any[], fields: any[]
     );
   }
 
-  // always render the table header even when there are no records, otherwise
-  // the consumer cannot see which properties exist. show a single placeholder
-  // row if the dataset is empty.
-  return (
+  // always render the table header even when there are no records, otherwise  // the consumer cannot see which properties exist. show a single placeholder  // row if the dataset is empty.  return (
     <div className="w-full overflow-x-auto custom-scrollbar">
       <table className="w-full text-sm border-collapse">
         <thead>
@@ -330,8 +321,7 @@ function formatValue(value: any): ReactNode {
   if (typeof value === 'boolean') return value ? '✓' : '✗';
 
   const textValue = String(value);
-  // render urls as full clickable links
-  try {
+  // render urls as full clickable links  try {
     const url = new URL(textValue);
     if (url.protocol === 'http:' || url.protocol === 'https:') {
       return (
@@ -347,8 +337,7 @@ function formatValue(value: any): ReactNode {
       );
     }
   } catch {
-    // not a valid url
-  }
+    // not a valid url  }
 
   return <span className="break-words">{textValue}</span>;
 }

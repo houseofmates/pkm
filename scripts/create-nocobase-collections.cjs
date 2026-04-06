@@ -28,8 +28,7 @@ async function apiCall(endpoint, method = 'GET', body = null) {
   }
 }
 
-// Create collection
-async function createCollection(name, title) {
+// create collectionasync function createCollection(name, title) {
   console.log(`Creating collection: ${name}...`);
   return await apiCall('/collections:create', 'POST', {
     name,
@@ -43,8 +42,7 @@ async function createCollection(name, title) {
   });
 }
 
-// Create field
-async function createField(collectionName, fieldConfig) {
+// create fieldasync function createField(collectionName, fieldConfig) {
   console.log(`  Creating field: ${fieldConfig.name} (${fieldConfig.interface})`);
   return await apiCall('/fields:create', 'POST', {
     collectionName,
@@ -52,8 +50,7 @@ async function createField(collectionName, fieldConfig) {
   });
 }
 
-// Exercise Collection
-async function createExerciseCollection() {
+// exercise collectionasync function createExerciseCollection() {
   const collection = await createCollection('exercise', 'exercise');
   if (!collection) return;
 
@@ -85,8 +82,7 @@ async function createExerciseCollection() {
   console.log('Exercise collection created!\n');
 }
 
-// Sleep Collection
-async function createSleepCollection() {
+// sleep collectionasync function createSleepCollection() {
   const collection = await createCollection('sleep', 'sleep');
   if (!collection) return;
 
@@ -126,8 +122,7 @@ async function createSleepCollection() {
   console.log('Sleep collection created!\n');
 }
 
-// Finances Collection
-async function createFinancesCollection() {
+// finances collectionasync function createFinancesCollection() {
   const collection = await createCollection('finances', 'finances');
   if (!collection) return;
 
@@ -166,8 +161,7 @@ async function createFinancesCollection() {
   console.log('Finances collection created!\n');
 }
 
-// Habits Collection
-async function createHabitsCollection() {
+// habits collectionasync function createHabitsCollection() {
   const collection = await createCollection('habits', 'habits');
   if (!collection) return;
 
@@ -212,8 +206,7 @@ async function createHabitsCollection() {
   console.log('Habits collection created!\n');
 }
 
-// Media Collection
-async function createMediaCollection() {
+// media collectionasync function createMediaCollection() {
   const collection = await createCollection('media', 'media');
   if (!collection) return;
 
@@ -262,8 +255,7 @@ async function createMediaCollection() {
   console.log('Media collection created!\n');
 }
 
-// Main execution
-async function main() {
+// main executionasync function main() {
   console.log('Creating NocoBase collections...\n');
   
   await createExerciseCollection();

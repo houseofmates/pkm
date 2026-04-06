@@ -1,8 +1,5 @@
-// gamification api routes
-// add to packages/backend/server.js after activity logger routes
-
-// award xp and update user stats
-app.post('/api/gamification/award-xp', requireAuth, async (req, res) => {
+// gamification api routes// add to packages/backend/server.js after activity logger routes
+// award xp and update user statsapp.post('/api/gamification/award-xp', requireAuth, async (req, res) => {
   const { user_id, amount, source, source_id, description } = req.body;
   
   if (!user_id || !amount) {
@@ -19,8 +16,7 @@ app.post('/api/gamification/award-xp', requireAuth, async (req, res) => {
       }
     });
 
-    // record xp transaction
-    await client.post('/xp_transactions:create', {
+    // record xp transaction    await client.post('/xp_transactions:create', {
       user_id,
       amount,
       source: source || 'manual',
@@ -29,8 +25,7 @@ app.post('/api/gamification/award-xp', requireAuth, async (req, res) => {
       description: description || ''
     });
 
-    // get or create user stats
-    const statsRes = await client.get(`/user_stats:list?filter[user_id]=${user_id}`);
+    // get or create user stats    const statsRes = await client.get(`/user_stats:list?filter[user_id]=${user_id}`);
     let stats = statsRes.data?.data?.[0];
 
     if (!stats) {
@@ -71,8 +66,7 @@ app.post('/api/gamification/award-xp', requireAuth, async (req, res) => {
   }
 });
 
-// get user stats
-app.get('/api/gamification/stats/:user_id', requireAuth, async (req, res) => {
+// get user statsapp.get('/api/gamification/stats/:user_id', requireAuth, async (req, res) => {
   const { user_id } = req.params;
   
   try {
@@ -102,8 +96,7 @@ app.get('/api/gamification/stats/:user_id', requireAuth, async (req, res) => {
   }
 });
 
-// unlock achievement
-app.post('/api/gamification/unlock-achievement', requireAuth, async (req, res) => {
+// unlock achievementapp.post('/api/gamification/unlock-achievement', requireAuth, async (req, res) => {
   const { user_id, achievement_id, achievement_name, xp_reward } = req.body;
   
   if (!user_id || !achievement_id) {
@@ -120,8 +113,7 @@ app.post('/api/gamification/unlock-achievement', requireAuth, async (req, res) =
       }
     });
 
-    // check if already unlocked
-    const existingRes = await client.get(
+    // check if already unlocked    const existingRes = await client.get(
       `/achievements:list?filter[user_id]=${user_id}&filter[achievement_id]=${achievement_id}`
     );
     
@@ -129,8 +121,7 @@ app.post('/api/gamification/unlock-achievement', requireAuth, async (req, res) =
       return res.json({ already_unlocked: true });
     }
 
-    // create achievement record
-    await client.post('/achievements:create', {
+    // create achievement record    await client.post('/achievements:create', {
       user_id,
       achievement_id,
       achievement_name: achievement_name || achievement_id,
@@ -138,8 +129,7 @@ app.post('/api/gamification/unlock-achievement', requireAuth, async (req, res) =
       xp_reward: xp_reward || 0
     });
 
-    // award xp if specified
-    if (xp_reward > 0) {
+    // award xp if specified    if (xp_reward > 0) {
       await client.post('/xp_transactions:create', {
         user_id,
         amount: xp_reward,
@@ -149,8 +139,7 @@ app.post('/api/gamification/unlock-achievement', requireAuth, async (req, res) =
         description: `achievement: ${achievement_name || achievement_id}`
       });
 
-      // update user stats
-      const statsRes = await client.get(`/user_stats:list?filter[user_id]=${user_id}`);
+      // update user stats      const statsRes = await client.get(`/user_stats:list?filter[user_id]=${user_id}`);
       const stats = statsRes.data?.data?.[0];
       if (stats) {
         await client.post(`/user_stats:update?filterByTk=${stats.id}`, {
@@ -167,8 +156,7 @@ app.post('/api/gamification/unlock-achievement', requireAuth, async (req, res) =
   }
 });
 
-// helper function
-function calculateLevelFromXp(xp) {
+// helper functionfunction calculateLevelFromXp(xp) {
   const levels = [
     { level: 1, xp: 0 },
     { level: 2, xp: 100 },

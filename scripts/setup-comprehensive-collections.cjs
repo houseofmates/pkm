@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 // comprehensive setup for phases 2-4: gamification, financial hub, mood/energy tracking
-
 const axios = require('axios');
 
 const NOCOBASE_URL = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
@@ -35,8 +34,7 @@ async function createCollection(name, fields) {
 async function setup() {
   console.log('setting up comprehensive pkm collections...\n');
 
-  // ── gamification ──
-  console.log('[gamification]');
+  // ── gamification ──  console.log('[gamification]');
   
   await createCollection('user_stats', [
     { name: 'user_id', type: 'string', required: true },
@@ -66,8 +64,7 @@ async function setup() {
     { name: 'description', type: 'text' }
   ]);
 
-  // ── financial hub ──
-  console.log('\n[financial hub]');
+  // ── financial hub ──  console.log('\n[financial hub]');
   
   await createCollection('accounts', [
     { name: 'name', type: 'string', required: true },
@@ -99,8 +96,7 @@ async function setup() {
     { name: 'alert_threshold', type: 'float', defaultValue: 0.8 } // 80%
   ]);
 
-  // ── mood & energy tracking ──
-  console.log('\n[mood & energy]');
+  // ── mood & energy tracking ──  console.log('\n[mood & energy]');
   
   await createCollection('mood_logs', [
     { name: 'mood', type: 'integer', required: true }, // 1-5 (terrible to amazing)
@@ -118,8 +114,7 @@ async function setup() {
     { name: 'notes', type: 'text' }
   ]);
 
-  // ── routines ──
-  console.log('\n[routines]');
+  // ── routines ──  console.log('\n[routines]');
   
   await createCollection('routine_templates', [
     { name: 'name', type: 'string', required: true },

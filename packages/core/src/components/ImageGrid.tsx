@@ -1,13 +1,9 @@
-// used pure css columns instead of mui masonry for lightweight implementation
-// user requested "masonry layout (like pinterest)".
-// css columns are the easiest.
-
+// used pure css columns instead of mui masonry for lightweight implementation// user requested "masonry layout (like pinterest)".// css columns are the easiest.
 interface ImageGridProps {
   images?: Array<{ src: string; alt?: string; aspectRatio?: number }>;
 }
 
-// mock data
-const mockImages = [
+// mock dataconst mockImages = [
   { src: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba', alt: 'mountain', aspectratio: 1.5 },
   { src: 'https://images.unsplash.com/photo-1682686581854-5e71f58e7e3f', alt: 'dessert', aspectratio: 0.8 },
   { src: 'https://images.unsplash.com/photo-1682687220063-4742bd7fd538', alt: 'sea', aspectratio: 1.2 },

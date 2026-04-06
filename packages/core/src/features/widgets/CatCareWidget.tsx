@@ -64,8 +64,7 @@ export function CatCareWidget({ data, onUpdate }: CatCareWidgetProps) {
         }));
       setLogs(todayLogs);
 
-      // update task last done based on logs
-      setTasks(prev => prev.map(task => {
+      // update task last done based on logs      setTasks(prev => prev.map(task => {
         const taskLogs = records.filter((r: any) => r.task_id === task.id);
         const lastLog = taskLogs.sort((a: any, b: any) => 
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -93,8 +92,7 @@ export function CatCareWidget({ data, onUpdate }: CatCareWidgetProps) {
 
       await createRecord(payload);
 
-      // emit sync event
-      dataService.emitDataUpdate('cat_care_completed', {
+      // emit sync event      dataService.emitDataUpdate('cat_care_completed', {
         task_id: task.id,
         task_name: task.name
       });

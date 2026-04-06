@@ -20,18 +20,15 @@ interface PKMAuthConfig {
 }
 
 apiClient.interceptors.request.use(async (config) => {
-  // sanitize request data before logging
-  if (config.data) {
+  // sanitize request data before logging  if (config.data) {
     config.data = sanitizeForLogging(config.data);
   }
 
-  // consistently fetch latest tokens using encrypted storage manager
-  const nt = await storageManager.getEncryptedItem('nocobase_token');
+  // consistently fetch latest tokens using encrypted storage manager  const nt = await storageManager.getEncryptedItem('nocobase_token');
   const ht = await storageManager.getEncryptedItem('hom_api_key');
   const gt = await storageManager.getEncryptedItem('hom_guest_key');
 
-  // pick the best token we have: admin > nocobase jwt > guest (trim common placeholders)
-  let token: string | null = null;
+  // pick the best token we have: admin > nocobase jwt > guest (trim common placeholders)  let token: string | null = null;
   let tokenKind: TokenKind | null = null;
 
   if (ht && ht.trim() !== '') {
@@ -52,11 +49,9 @@ apiClient.interceptors.request.use(async (config) => {
     config.headers['Authorization'] = bearerToken;
     config.headers['X-Hostname'] = hostname;
 
-    // extra metadata for error handling in response interceptor
-    (config as any)._pkmAuth = { tokenKind } as PKMAuthConfig;
+    // extra metadata for error handling in response interceptor    (config as any)._pkmAuth = { tokenKind } as PKMAuthConfig;
   } else {
-    // nocobase rejects anonymous requests; use a read-only public token if configured
-    const PUBLIC_ACCESS_TOKEN = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN || '';
+    // nocobase rejects anonymous requests; use a read-only public token if configured    const PUBLIC_ACCESS_TOKEN = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN || '';
     if (PUBLIC_ACCESS_TOKEN) {
       token = normalizeAuthToken(PUBLIC_ACCESS_TOKEN);
       const bearerToken = toAuthorizationHeaderValue(token);
@@ -102,8 +97,7 @@ apiClient.interceptors.response.use(
   } else if (error.code === 'ECONNABORTED') {
     secureLogger.error('[api] request timeout', error.config?.url);
   } else {
-    // silently log other errors to prevent ui crashes while maintaining traceability
-    secureLogger.debug('[api] unexpected error', {
+    // silently log other errors to prevent ui crashes while maintaining traceability    secureLogger.debug('[api] unexpected error', {
       status: error.response?.status,
       url: error.config?.url,
       message: error.message

@@ -18,33 +18,25 @@ class ContextServer {
         this.app.use(express.json());
         this.app.use(sidebarColorsRouter); // <-- add this line
 
-        // middleware to validate the api key (lightweight check)
-        this.app.use((req, res, next) => {
-            // allow health check without key
-            if (req.path === '/health') return next();
+        // middleware to validate the api key (lightweight check)        this.app.use((req, res, next) => {
+            // allow health check without key            if (req.path === '/health') return next();
 
             const authHeader = req.headers.authorization;
             const key = process.env.PKM_LLM_KEY || 'default-dev-key'; // Fallback for dev
 
             if (!authHeader || !authHeader.includes(key)) {
-                // relaxed check for now: just check if header exists or if dev mode
-                // ideally: const token = authheader.split(' ')[1]; if (token !== key) ...
-                // for now, let's just log and proceed or fail if strict.
-                // user requested "read-only api key".
-                if (process.env.NODE_ENV !== 'development' && (!authHeader || !authHeader.includes(key))) {
+                // relaxed check for now: just check if header exists or if dev mode                // ideally: const token = authheader.split(' ')[1]; if (token !== key) ...                // for now, let's just log and proceed or fail if strict.                // user requested "read-only api key".                if (process.env.NODE_ENV !== 'development' && (!authHeader || !authHeader.includes(key))) {
                     return res.status(401).json({ error: 'Unauthorized' });
                 }
             }
             next();
         });
 
-        // get /context - the main endpoint for llm
-        this.app.get('/context', (req, res) => {
+        // get /context - the main endpoint for llm        this.app.get('/context', (req, res) => {
             res.json(this.currentContext);
         });
 
-        // get /health
-        this.app.get('/health', (req, res) => {
+        // get /health        this.app.get('/health', (req, res) => {
             res.json({ status: 'ok', uptime: process.uptime() });
         });
 

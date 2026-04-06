@@ -3,8 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { JournalView } from '../journal-view';
 import * as React from 'react';
 
-// mocks
-vi.mock('@/components/ui/rich-editor', () => ({
+// mocksvi.mock('@/components/ui/rich-editor', () => ({
   default: ({ onChange, value }: any) => (
     <input
       data-testid="rich-editor"
@@ -56,8 +55,7 @@ describe('JournalView', () => {
         onCreate={vi.fn()}
       />
     );
-    // button text contains "post entry" and icon
-    expect(screen.getByRole('button', { name: /post entry/i })).toBeInTheDocument();
+    // button text contains "post entry" and icon    expect(screen.getByRole('button', { name: /post entry/i })).toBeInTheDocument();
   });
 
   it('calls onCreate when submitting entry', async () => {

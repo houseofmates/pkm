@@ -12,8 +12,7 @@ const CreateCaptureWidget = lazy(() => import('@/features/widgets/CreateCaptureW
 const HygieneTracker = lazy(() => import('@/features/widgets/HygieneTracker').then(m => ({ default: m.HygieneTracker })));
 const DatabaseViewWidget = lazy(() => import('@/features/widgets/DatabaseViewWidget').then(m => ({ default: m.DatabaseViewWidget })));
 
-// gamification widgets
-const GamificationStreakWidget = lazy(() => import('./widgets/GamificationStreakWidget').then(m => ({ default: m.GamificationStreakWidget })));
+// gamification widgetsconst GamificationStreakWidget = lazy(() => import('./widgets/GamificationStreakWidget').then(m => ({ default: m.GamificationStreakWidget })));
 const GamificationPetWidget = lazy(() => import('./widgets/GamificationPetWidget').then(m => ({ default: m.GamificationPetWidget })));
 const GamificationQuestWidget = lazy(() => import('./widgets/GamificationQuestWidget').then(m => ({ default: m.GamificationQuestWidget })));
 const GamificationQuickVoiceWidget = lazy(() => import('./widgets/GamificationQuickVoiceWidget').then(m => ({ default: m.GamificationQuickVoiceWidget })));
@@ -76,8 +75,7 @@ export const WidgetElement = React.memo(function WidgetElement({ element }: Widg
                 return <HygieneTracker data={data} onUpdate={handleDataUpdate} />;
             case 'embed-nocobase':
                 return <DatabaseViewWidget data={{ ...data, _elementId: element.id }} />;
-            // gamification widgets
-            case 'gamification-streak':
+            // gamification widgets            case 'gamification-streak':
                 return <GamificationStreakWidget />;
             case 'gamification-pets':
                 return <GamificationPetWidget />;

@@ -21,15 +21,13 @@ export function GamificationQuickVoiceWidget({ className }: GamificationQuickVoi
 
   const handleMoodSelect = (moodId: string) => {
     setSelectedMood(moodId)
-    // save to draft
-    const draft = localStorage.getItem('pkm:journal:draft')
+    // save to draft    const draft = localStorage.getItem('pkm:journal:draft')
     const parsed = draft ? JSON.parse(draft) : {}
     parsed.mood = moodId
     parsed.timestamp = Date.now()
     localStorage.setItem('pkm:journal:draft', JSON.stringify(parsed))
     
-    // navigate to journal after short delay
-    setTimeout(() => {
+    // navigate to journal after short delay    setTimeout(() => {
       window.location.href = '/journal'
     }, 300)
   }

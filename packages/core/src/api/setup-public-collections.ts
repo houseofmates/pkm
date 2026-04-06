@@ -33,8 +33,7 @@ async function setupPublicCollections() {
  }
   ]
   },
-  // core collections
-  {
+  // core collections  {
   name: 'headmates',
   title: 'Headmates',
   fields: [
@@ -59,8 +58,7 @@ async function setupPublicCollections() {
 
   for (const colReq of collectionsToCreate) {
 
-  // 1. check physical table existence via list
-  let tableExists = false;
+  // 1. check physical table existence via list  let tableExists = false;
   try {
   await api.request(colReq.name, 'list', { params: { pageSize: 1 } });
   tableExists = true;
@@ -70,22 +68,18 @@ async function setupPublicCollections() {
   secureLogger.warn(`[Setup] Table ${colReq.name} check failed (Status: ${err.response?.status}). Assuming missing/broken.`);
   }
 
-  // 2. if table missing, destroy metadata first (scorched earth)
-  if (!tableExists) {
+  // 2. if table missing, destroy metadata first (scorched earth)  if (!tableExists) {
   secureLogger.info(`[Setup] Nuking metadata for ${colReq.name}...`);
   try {
  await api.request('collections', 'destroy', {
  params: { filterByTk: colReq.name }
  });
  secureLogger.info(`[Setup] Metadata destroyed for ${colReq.name}.`);
- // wait a moment for nocobase to process
- await new Promise(r => setTimeout(r, 1000));
+ // wait a moment for nocobase to process await new Promise(r => setTimeout(r, 1000));
   } catch {
- // validation error usually means it didn't exist, which is good
-  }
+ // validation error usually means it didn't exist, which is good  }
 
-  // 3. create collection fresh
-  secureLogger.info(`[Setup] Creating fresh collection ${colReq.name}...`);
+  // 3. create collection fresh  secureLogger.info(`[Setup] Creating fresh collection ${colReq.name}...`);
  try {
  await api.request('collections', 'create', {
  method: 'POST',
@@ -102,8 +96,7 @@ async function setupPublicCollections() {
   }
   }
 
-  // 4. ensure fields exist (idempotent)
-  if (colReq.fields) {
+  // 4. ensure fields exist (idempotent)  if (colReq.fields) {
   secureLogger.info(`[Setup] Ensuring fields for ${colReq.name}...`);
   for (const field of colReq.fields) {
  try {
@@ -111,10 +104,8 @@ async function setupPublicCollections() {
  method: 'POST',
  data: field
  });
- // success = created
- } catch {
- // 400 = already exists, usually
- }
+ // success = created } catch {
+ // 400 = already exists, usually }
   }
   }
   }

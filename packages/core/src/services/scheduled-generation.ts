@@ -1,6 +1,4 @@
-// scheduled generation service for ai fields
-// runs periodic updates for stale or empty ai content
-
+// scheduled generation service for ai fields// runs periodic updates for stale or empty ai content
 import { batchGenerateAiFields } from './ai-field-generator';
 import { api } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
@@ -25,8 +23,7 @@ export interface JobRunResult {
   errors: string[];
 }
 
-// default job configurations
-export const DEFAULT_JOBS: ScheduledJobConfig[] = [
+// default job configurationsexport const DEFAULT_JOBS: ScheduledJobConfig[] = [
   {
     collection: 'notes',
     fieldName: 'ai',
@@ -56,8 +53,7 @@ export const DEFAULT_JOBS: ScheduledJobConfig[] = [
   },
 ];
 
-// find records that need ai field generation
-export async function findRecordsNeedingGeneration(
+// find records that need ai field generationexport async function findRecordsNeedingGeneration(
   collection: string,
   fieldName: string,
   staleThresholdDays: number,
@@ -67,8 +63,7 @@ export async function findRecordsNeedingGeneration(
     const staleDate = new Date();
     staleDate.setDate(staleDate.getDate() - staleThresholdDays);
 
-    // find records where ai field is empty or stale
-    const response: any = await api.client.post(`/${collection}:list`, {
+    // find records where ai field is empty or stale    const response: any = await api.client.post(`/${collection}:list`, {
       filter: {
         $or: [
           { [fieldName]: { $empty: true } },
@@ -95,8 +90,7 @@ export async function findRecordsNeedingGeneration(
   }
 }
 
-// run a single scheduled job
-export async function runScheduledJob(
+// run a single scheduled jobexport async function runScheduledJob(
   config: ScheduledJobConfig
 ): Promise<JobRunResult> {
   const jobId = `scheduled-${config.collection}-${Date.now()}`;
@@ -106,8 +100,7 @@ export async function runScheduledJob(
   secureLogger.info(`[ScheduledGen] starting job ${jobId} for ${config.collection}`);
 
   try {
-    // find records needing generation
-    const recordIds = await findRecordsNeedingGeneration(
+    // find records needing generation    const recordIds = await findRecordsNeedingGeneration(
       config.collection,
       config.fieldName,
       config.staleThresholdDays,
@@ -127,8 +120,7 @@ export async function runScheduledJob(
       };
     }
 
-    // run batch generation
-    const results = await batchGenerateAiFields(
+    // run batch generation    const results = await batchGenerateAiFields(
       config.collection,
       recordIds,
       config.fieldName,
@@ -142,12 +134,10 @@ export async function runScheduledJob(
       }
     );
 
-    // calculate results
-    const successful = results.filter(r => r.success).length;
+    // calculate results    const successful = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success).length;
 
-    // collect errors
-    for (const result of results) {
+    // collect errors    for (const result of results) {
       if (result.error) {
         errors.push(result.error);
       }
@@ -182,27 +172,23 @@ export async function runScheduledJob(
   }
 }
 
-// job scheduler (simple interval-based, can be replaced with node-cron)
-class JobScheduler {
+// job scheduler (simple interval-based, can be replaced with node-cron)class JobScheduler {
   private jobs: Map<string, ScheduledJobConfig> = new Map();
   private intervals: Map<string, ReturnType<typeof setInterval>> = new Map();
   private jobHistory: JobRunResult[] = [];
 
-  // add a job to the scheduler
-  addJob(config: ScheduledJobConfig): void {
+  // add a job to the scheduler  addJob(config: ScheduledJobConfig): void {
     this.jobs.set(config.collection, config);
     secureLogger.info(`[Scheduler] added job for ${config.collection}`);
   }
 
-  // remove a job
-  removeJob(collection: string): void {
+  // remove a job  removeJob(collection: string): void {
     this.stopJob(collection);
     this.jobs.delete(collection);
     secureLogger.info(`[Scheduler] removed job for ${collection}`);
   }
 
-  // start a specific job
-  startJob(collection: string): void {
+  // start a specific job  startJob(collection: string): void {
     const config = this.jobs.get(collection);
     if (!config) {
       secureLogger.warn(`[Scheduler] no job found for ${collection}`);
@@ -214,19 +200,15 @@ class JobScheduler {
       return;
     }
 
-    // stop existing if running
-    this.stopJob(collection);
+    // stop existing if running    this.stopJob(collection);
 
-    // parse cron-like expression (simplified: just minutes for demo)
-    // full cron support would use node-cron
-    const intervalMs = parseCronToMs(config.cronExpression);
+    // parse cron-like expression (simplified: just minutes for demo)    // full cron support would use node-cron    const intervalMs = parseCronToMs(config.cronExpression);
 
     const interval = setInterval(async () => {
       const result = await runScheduledJob(config);
       this.jobHistory.push(result);
 
-      // keep history manageable
-      if (this.jobHistory.length > 100) {
+      // keep history manageable      if (this.jobHistory.length > 100) {
         this.jobHistory = this.jobHistory.slice(-50);
       }
     }, intervalMs);
@@ -235,8 +217,7 @@ class JobScheduler {
     secureLogger.info(`[Scheduler] started job for ${collection} (interval: ${intervalMs}ms)`);
   }
 
-  // stop a specific job
-  stopJob(collection: string): void {
+  // stop a specific job  stopJob(collection: string): void {
     const interval = this.intervals.get(collection);
     if (interval) {
       clearInterval(interval);
@@ -245,8 +226,7 @@ class JobScheduler {
     }
   }
 
-  // start all enabled jobs
-  startAll(): void {
+  // start all enabled jobs  startAll(): void {
     for (const [collection, config] of this.jobs) {
       if (config.enabled) {
         this.startJob(collection);
@@ -254,15 +234,13 @@ class JobScheduler {
     }
   }
 
-  // stop all jobs
-  stopAll(): void {
+  // stop all jobs  stopAll(): void {
     for (const collection of this.intervals.keys()) {
       this.stopJob(collection);
     }
   }
 
-  // get job status
-  getStatus(): {
+  // get job status  getStatus(): {
     jobs: ScheduledJobConfig[];
     running: string[];
     history: JobRunResult[];
@@ -274,8 +252,7 @@ class JobScheduler {
     };
   }
 
-  // run a job immediately (manual trigger)
-  async runNow(collection: string): Promise<JobRunResult | null> {
+  // run a job immediately (manual trigger)  async runNow(collection: string): Promise<JobRunResult | null> {
     const config = this.jobs.get(collection);
     if (!config) return null;
 
@@ -283,14 +260,10 @@ class JobScheduler {
   }
 }
 
-// simplified cron parser (returns ms for demo - use node-cron in production)
-function parseCronToMs(cron: string): number {
-  // for demo purposes, return 1 hour default
-  // in production, use node-cron or similar
-  const hourMs = 60 * 60 * 1000;
+// simplified cron parser (returns ms for demo - use node-cron in production)function parseCronToMs(cron: string): number {
+  // for demo purposes, return 1 hour default  // in production, use node-cron or similar  const hourMs = 60 * 60 * 1000;
 
-  // simple patterns
-  if (cron.includes('* * * * *')) return 60 * 1000; // every minute
+  // simple patterns  if (cron.includes('* * * * *')) return 60 * 1000; // every minute
   if (cron.includes('0 * * * *')) return hourMs; // every hour
   if (cron.includes('0 */6 * * *')) return 6 * hourMs; // every 6 hours
   if (cron.includes('0 2 * * *')) return 24 * hourMs; // daily at 2am
@@ -298,19 +271,16 @@ function parseCronToMs(cron: string): number {
   return hourMs; // default
 }
 
-// singleton instance
-export const scheduler = new JobScheduler();
+// singleton instanceexport const scheduler = new JobScheduler();
 
-// initialize with default jobs
-export function initializeScheduledGeneration(): void {
+// initialize with default jobsexport function initializeScheduledGeneration(): void {
   for (const job of DEFAULT_JOBS) {
     scheduler.addJob(job);
   }
   secureLogger.info('[ScheduledGen] initialized with default jobs');
 }
 
-// manual trigger for a collection
-export async function triggerManualGeneration(
+// manual trigger for a collectionexport async function triggerManualGeneration(
   collection: string,
   fieldName: string = 'ai',
   instruction?: string
@@ -328,8 +298,7 @@ export async function triggerManualGeneration(
   return runScheduledJob(config);
 }
 
-// get records that will be processed next
-export async function previewScheduledRecords(
+// get records that will be processed nextexport async function previewScheduledRecords(
   collection: string,
   fieldName: string = 'ai',
   staleThresholdDays: number = 7
@@ -343,8 +312,7 @@ export async function previewScheduledRecords(
 
   if (recordIds.length === 0) return [];
 
-  // fetch record details
-  try {
+  // fetch record details  try {
     const response: any = await api.client.post(`/${collection}:list`, {
       filter: { id: { $in: recordIds } },
       fields: ['id', 'title', 'name', 'updatedAt'],

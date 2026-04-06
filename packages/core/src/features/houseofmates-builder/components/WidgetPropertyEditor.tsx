@@ -260,8 +260,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: WidgetPrope
   );
 }
 
-// helper components
-const Input = ({ label, value, onChange, type = 'text', textarea, placeholder }: any) => (
+// helper componentsconst Input = ({ label, value, onChange, type = 'text', textarea, placeholder }: any) => (
   <div className="flex flex-col gap-1.5">
     <label className="text-white/70 text-xs  font-bold">{label}</label>
     {textarea ? (

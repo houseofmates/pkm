@@ -1,14 +1,12 @@
 #!/bin/bash
-# Create NocoBase collections - run this with your actual NocoBase URL
-
+# create nocobase collections - run this with your actual nocobase url
 API_URL="${NOCOBASE_URL:-http://localhost:8091}/api"
 TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGVOYW1lIjoicm9vdCIsImlhdCI6MTc3NDY0NTY5MiwiZXhwIjoxNzc0NzMyMDkyfQ.ktX5jcezmLhxZISaBqqHS_eg45FIIogkW8NQb-EL7n4"
 
 echo "Creating collections on: $API_URL"
 echo ""
 
-# Function to create collection
-create_collection() {
+# function to create collectioncreate_collection() {
   local name=$1
   local title=$2
   
@@ -28,8 +26,7 @@ create_collection() {
     }" | jq -r '.data.name // .errors[0].message // "created"'
 }
 
-# Function to create field
-create_field() {
+# function to create fieldcreate_field() {
   local collection=$1
   local name=$2
   local interface=$3

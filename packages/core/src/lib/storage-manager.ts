@@ -1,5 +1,4 @@
-/**
- * storage-manager - centralized localstorage access with optional encryption
+/** * storage-manager - centralized localstorage access with optional encryption
  *
  * provides a single api layer that wraps safestorage (sanitization warnings) and
  * adds aes-gcm encryption via the web crypto api so that values stored for
@@ -10,8 +9,7 @@ import { safeStorage } from './sanitize-utils';
 
 let cachedKey: CryptoKey | null = null;
 
-// derive a stable aes-gcm key from the browser's origin
-async function getEncryptionKey(): Promise<CryptoKey> {
+// derive a stable aes-gcm key from the browser's originasync function getEncryptionKey(): Promise<CryptoKey> {
   if (cachedKey) return cachedKey;
 
   const encoder = new TextEncoder();
@@ -36,8 +34,7 @@ async function getEncryptionKey(): Promise<CryptoKey> {
   return cachedKey;
 }
 
-// pack iv + ciphertext into a single base64 string for storage
-async function encrypt(str: string): Promise<string> {
+// pack iv + ciphertext into a single base64 string for storageasync function encrypt(str: string): Promise<string> {
   try {
     const key = await getEncryptionKey();
     const encoder = new TextEncoder();
@@ -47,8 +44,7 @@ async function encrypt(str: string): Promise<string> {
       key,
       encoder.encode(str)
     );
-    // pack: iv (12 bytes) + ciphertext
-    const packed = new Uint8Array(iv.length + encrypted.byteLength);
+    // pack: iv (12 bytes) + ciphertext    const packed = new Uint8Array(iv.length + encrypted.byteLength);
     packed.set(iv);
     packed.set(new Uint8Array(encrypted), iv.length);
     return btoa(String.fromCharCode(...packed));
@@ -60,9 +56,7 @@ async function encrypt(str: string): Promise<string> {
 
 async function decrypt(encStr: string): Promise<string> {
   try {
-    // fast check if it's even worth trying to decrypt
-    // base64 encoded packed data should at least be longer than iv (12 bytes)
-    if (!encStr || encStr.length < 16) return encStr;
+    // fast check if it's even worth trying to decrypt    // base64 encoded packed data should at least be longer than iv (12 bytes)    if (!encStr || encStr.length < 16) return encStr;
 
     const key = await getEncryptionKey();
     let packed: Uint8Array;
@@ -82,13 +76,11 @@ async function decrypt(encStr: string): Promise<string> {
     );
     return new TextDecoder().decode(decrypted);
   } catch {
-    // if decryption fails (e.g. it was stored as plain text), return as is
-    return encStr;
+    // if decryption fails (e.g. it was stored as plain text), return as is    return encStr;
   }
 }
 
-// in-memory cache for decrypted secrets to avoid repeated async calls
-const secretCache: Record<string, string | null> = {};
+// in-memory cache for decrypted secrets to avoid repeated async callsconst secretCache: Record<string, string | null> = {};
 
 export const storageManager = {
   getItem(key: string): string | null {
@@ -96,8 +88,7 @@ export const storageManager = {
   },
   setItem(key: string, value: string): void {
     safeStorage.setItem(key, value);
-    // if this key was in secret cache, update it (though setitem shouldn't really be used for secrets anymore)
-    if (key in secretCache) {
+    // if this key was in secret cache, update it (though setitem shouldn't really be used for secrets anymore)    if (key in secretCache) {
       secretCache[key] = value;
     }
   },
@@ -108,15 +99,12 @@ export const storageManager = {
   clear(): void {
     try {
       localStorage.clear();
-      // clear secret cache
-      for (const key in secretCache) delete secretCache[key];
+      // clear secret cache      for (const key in secretCache) delete secretCache[key];
     } catch {
-      // ignore
-    }
+      // ignore    }
   },
 
-  /**
-   * stores a value encrypted in localstorage
+  /**   * stores a value encrypted in localstorage
    */
   async setEncryptedItem(key: string, value: string): Promise<void> {
     secretCache[key] = value;
@@ -124,8 +112,7 @@ export const storageManager = {
     safeStorage.setItem(key, encoded);
   },
 
-  /**
-   * retrieves and decrypts a value from localstorage.
+  /**   * retrieves and decrypts a value from localstorage.
    * uses an in-memory cache for performance.
    */
   async getEncryptedItem(key: string): Promise<string | null> {
@@ -142,8 +129,7 @@ export const storageManager = {
     return decrypted;
   },
 
-  /**
-   * synchronous version that only works if the item was already loaded
+  /**   * synchronous version that only works if the item was already loaded
    * into cache via getencrypteditem or setencrypteditem.
    */
   getCachedSecret(key: string): string | null {

@@ -23,16 +23,13 @@ export function InfiniteCanvasWrapper({
     const [offset, setOffset] = useState({ x: 0, y: 0 });
     const [scale, setScale] = useState(initialScale);
 
-    // prevent default browser behaviors
-    useEffect(() => {
+    // prevent default browser behaviors    useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
 
         const preventDefault = (e: Event) => e.preventDefault();
-        // prevent standard scroll
-        container.addEventListener('wheel', preventDefault, { passive: false });
-        // prevent touch defaults if needed
-        container.addEventListener('touchstart', preventDefault, { passive: false });
+        // prevent standard scroll        container.addEventListener('wheel', preventDefault, { passive: false });
+        // prevent touch defaults if needed        container.addEventListener('touchstart', preventDefault, { passive: false });
 
         return () => {
             container.removeEventListener('wheel', preventDefault);
@@ -40,8 +37,7 @@ export function InfiniteCanvasWrapper({
         };
     }, []);
 
-    // gesture handling
-    useGesture(
+    // gesture handling    useGesture(
         {
             onDrag: ({ offset: [ox, oy], down, event }) => {
                 const target = event.target as HTMLElement;
@@ -53,27 +49,21 @@ export function InfiniteCanvasWrapper({
                 document.body.style.cursor = down ? 'grabbing' : 'grab';
             },
             onWheel: ({ event }: { event: WheelEvent }) => {
-                // zoom handled separately usually, but usegesture combines?
-                // let's separate zoom logic manually for control.
-                if (event.ctrlKey || event.metaKey) {
-                    // zoom
-                    const newScale = Math.min(Math.max(scale - event.deltaY * 0.001, minScale), maxScale);
+                // zoom handled separately usually, but usegesture combines?                // let's separate zoom logic manually for control.                if (event.ctrlKey || event.metaKey) {
+                    // zoom                    const newScale = Math.min(Math.max(scale - event.deltaY * 0.001, minScale), maxScale);
                     setScale(newScale);
                 } else {
-                    // pan (scroll wheel)
-                    setOffset(prev => ({ x: prev.x - event.deltaX, y: prev.y - event.deltaY }));
+                    // pan (scroll wheel)                    setOffset(prev => ({ x: prev.x - event.deltaX, y: prev.y - event.deltaY }));
                 }
             },
             onPinch: ({ offset: [s] }: { offset: [number, number] }) => {
-                // touchpad zoom
-                setScale(s);
+                // touchpad zoom                setScale(s);
             }
         },
         {
             target: containerRef,
             drag: {
-                // filtertaps: true, 
-                from: () => [offset.x, offset.y],
+                // filtertaps: true,                 from: () => [offset.x, offset.y],
                 pointer: { buttons: [1, 2, 4] } // allow left(1), right(2), middle(4). re-evaluate right usually context menu.
             },
             wheel: {
@@ -84,8 +74,7 @@ export function InfiniteCanvasWrapper({
         }
     );
 
-    // manual wheel/zoom handler for precision if usegesture fails on 'wheel'
-    useEffect(() => {
+    // manual wheel/zoom handler for precision if usegesture fails on 'wheel'    useEffect(() => {
         const handleWheel = (event: WheelEvent) => {
             event.preventDefault();
             if (event.ctrlKey || event.metaKey) {
@@ -111,9 +100,7 @@ export function InfiniteCanvasWrapper({
             ref={containerRef}
             className={cn("w-full h-full overflow-hidden relative bg-[#050505] cursor-grab active:cursor-grabbing select-none", className)}
             onContextMenu={() => {
-                // prevent default context menu on background to allow custom or just clean usage
-                // but allow if shift key pressed?
-            }}
+                // prevent default context menu on background to allow custom or just clean usage                // but allow if shift key pressed?            }}
         >
             {/* fixed header layer for alignment */}
             {header && (

@@ -32,8 +32,7 @@ export function LiveServerWidget() {
   const [playerData, setPlayerData] = useState<PlayerDataMap>({});
 
   useEffect(() => {
-  // initial stats fetch from local backend (fast)
-  const fetchInitialStats = async () => {
+  // initial stats fetch from local backend (fast)  const fetchInitialStats = async () => {
   try {
  const res = await fetch('/api/stats');
  if (res.ok) {
@@ -54,23 +53,19 @@ export function LiveServerWidget() {
   }
   };
 
-  // initial chat fetch from local backend (in-memory)
-  const fetchChatHistory = async () => {
+  // initial chat fetch from local backend (in-memory)  const fetchChatHistory = async () => {
   try {
  const res = await fetch('/api/chat');
  if (res.ok) {
  const history = await res.json();
- // history comes as oldest -> newest. widget displays list.
- // we want latest at the bottom.
- setChatMessages(history);
+ // history comes as oldest -> newest. widget displays list. // we want latest at the bottom. setChatMessages(history);
  }
   } catch (e) {
  secureLogger.warn("Failed to fetch chat history", e);
   }
   };
 
-  // fetch player data (nicknames and colors)
-  const fetchPlayerData = async () => {
+  // fetch player data (nicknames and colors)  const fetchPlayerData = async () => {
   try {
  const res = await fetch('/api/players');
  if (res.ok) {
@@ -86,9 +81,7 @@ export function LiveServerWidget() {
   fetchChatHistory();
   fetchPlayerData();
 
-  // socket connection for live updates
-  // allow overriding via vite env: vite_socket_url (e.g. https://example.com:4100)
-  const SOCKET_URL = (import.meta as any).env?.VITE_SOCKET_URL || `${location.protocol}//${location.hostname}:4100`;
+  // socket connection for live updates  // allow overriding via vite env: vite_socket_url (e.g. https://example.com:4100)  const SOCKET_URL = (import.meta as any).env?.VITE_SOCKET_URL || `${location.protocol}//${location.hostname}:4100`;
   const socket = io(SOCKET_URL, { path: '/socket.io' });
 
   socket.on('connect', () => {
@@ -96,8 +89,7 @@ export function LiveServerWidget() {
   });
 
   socket.on('minecraft_update', (data: any) => {
-  // handle chat separately
-  if (data.type === 'chat') {
+  // handle chat separately  if (data.type === 'chat') {
  setChatMessages(prev => {
  const newMsg = { player: data.player, message: data.message, timestamp: data.timestamp };
  const updated = [...prev, newMsg];
@@ -105,8 +97,7 @@ export function LiveServerWidget() {
  return updated;
  });
   } else {
- // update stats (ping/join/quit)
- setStats(prev => ({
+ // update stats (ping/join/quit) setStats(prev => ({
  ...(prev || { maxPlayers: 20, tps: 20, uptime: '0h' }),
  online: data.online,
  players: data.count,
@@ -120,8 +111,7 @@ export function LiveServerWidget() {
   };
   }, []);
 
-  // helper function to get player display name and color
-  const getPlayerDisplay = (username: string) => {
+  // helper function to get player display name and color  const getPlayerDisplay = (username: string) => {
   const data = playerData[username];
   if (!data) {
   return {
@@ -134,8 +124,7 @@ export function LiveServerWidget() {
   const displayName = data.nickname || username;
   const color = data.color || '#ffaa00';
 
-  // apply text shadow for black outline
-  const style: React.CSSProperties = {
+  // apply text shadow for black outline  const style: React.CSSProperties = {
   color: color,
   textShadow: `
  -1px -1px 0 #000,
@@ -217,8 +206,7 @@ export function LiveServerWidget() {
    ? { name: msg.player, color: '#a855f7', style: { color: '#a855f7' } }
    : getPlayerDisplay(msg.player);
 
-   // format timestamp in user's local timezone (date + time)
-   const timestamp = msg.timestamp
+   // format timestamp in user's local timezone (date + time)   const timestamp = msg.timestamp
    ? new Date(msg.timestamp).toLocaleString()
    : '';
 

@@ -5,24 +5,20 @@ export class LassoTool extends BaseTool {
   private points: { x: number; y: number }[] = [];
   private isDrawing = false;
   private isClosed = false;
-  // indicator when pointer is close to start
-  private nearStart = false;
+  // indicator when pointer is close to start  private nearStart = false;
   private SNAP_RADIUS = 10; // pixels
 
   onStart(ctx: ToolContext, x: number, y: number, pressure: number) {
-    // if already closed, start a brand new selection
-    if (this.isClosed) {
+    // if already closed, start a brand new selection    if (this.isClosed) {
       this.reset();
     }
 
     this.isDrawing = true;
 
-    // allow multi-stroke lasso: if points already exist and selection not closed, resume
-    if (this.points.length === 0) {
+    // allow multi-stroke lasso: if points already exist and selection not closed, resume    if (this.points.length === 0) {
       this.points = [{ x, y }];
     } else {
-      // check if tapping/clicking near the start point → close the lasso
-      const start = this.points[0];
+      // check if tapping/clicking near the start point → close the lasso      const start = this.points[0];
       if (start && this.points.length >= 3) {
         const distToStart = Math.hypot(x - start.x, y - start.y);
         if (distToStart <= this.SNAP_RADIUS) {
@@ -32,8 +28,7 @@ export class LassoTool extends BaseTool {
         }
       }
       const last = this.points[this.points.length - 1];
-      // if the new start is far from the last point, append a new anchor to continue
-      if (!last || Math.hypot(last.x - x, last.y - y) > 1) {
+      // if the new start is far from the last point, append a new anchor to continue      if (!last || Math.hypot(last.x - x, last.y - y) > 1) {
         this.points.push({ x, y });
       }
     }
@@ -42,8 +37,7 @@ export class LassoTool extends BaseTool {
   onMove(ctx: ToolContext, x: number, y: number, pressure: number) {
     if (!this.isDrawing || this.isClosed) return;
 
-    // throttle point addition to avoid excessive points
-    const last = this.points[this.points.length - 1];
+    // throttle point addition to avoid excessive points    const last = this.points[this.points.length - 1];
     if (last) {
       const dist = Math.hypot(x - last.x, y - last.y);
       if (dist < 2) return; // decreased threshold for smoother capture
@@ -51,33 +45,28 @@ export class LassoTool extends BaseTool {
 
     this.points.push({ x, y });
 
-    // detect proximity to starting point and mark for snap/auto-close
-    const start = this.points[0];
+    // detect proximity to starting point and mark for snap/auto-close    const start = this.points[0];
     if (start && this.points.length > 8) {
       const distToStart = Math.hypot(x - start.x, y - start.y);
       this.nearStart = distToStart <= this.SNAP_RADIUS;
-      // if user moves over the start while still drawing, auto-confirm to close
-      if (this.nearStart) {
+      // if user moves over the start while still drawing, auto-confirm to close      if (this.nearStart) {
         this.confirm();
       }
     }
   }
 
   onEnd(ctx: ToolContext) {
-    // keep the points (allow user to resume later). auto-close if pointer ended near the start.
-    this.isDrawing = false;
+    // keep the points (allow user to resume later). auto-close if pointer ended near the start.    this.isDrawing = false;
     if (this.nearStart && this.points.length >= 3) {
       this.confirm();
     }
   }
 
-  /** call this when user presses enter or taps confirm */
-  confirm(): { x: number; y: number }[] | null {
+  /** call this when user presses enter or taps confirm */  confirm(): { x: number; y: number }[] | null {
     if (this.points.length < 3) return null;
     if (!this.isClosed) {
       this.isClosed = true;
-      // close the path by appending the first point
-      this.points.push({ ...this.points[0] });
+      // close the path by appending the first point      this.points.push({ ...this.points[0] });
     }
     return this.points;
   }
@@ -120,8 +109,7 @@ export class LassoTool extends BaseTool {
 
     overlayCtx.stroke();
 
-    // draw small snap indicator at the start point so user can easily close selection
-    const start = this.points[0];
+    // draw small snap indicator at the start point so user can easily close selection    const start = this.points[0];
     if (start) {
       overlayCtx.beginPath();
       overlayCtx.arc(start.x, start.y, Math.max(4, Math.min(8, this.SNAP_RADIUS / 1.6)), 0, Math.PI * 2);

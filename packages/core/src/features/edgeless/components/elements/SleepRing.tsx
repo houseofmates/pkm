@@ -3,8 +3,7 @@ import React from 'react';
 export const SleepRing = React.memo(function SleepRing({ element }: { element: any }) {
   const { start = "23:00", end = "07:00" } = element.data;
 
-  // convert time string to angle
-  const timeToAngle = (time: string) => {
+  // convert time string to angle  const timeToAngle = (time: string) => {
     const [h, m] = time.split(':').map(Number);
     return ((h + m / 60) / 24) * 360; // 0-360 degrees
   };
@@ -17,8 +16,7 @@ export const SleepRing = React.memo(function SleepRing({ element }: { element: a
     };
   };
 
-  // calculate arc path
-  const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
+  // calculate arc path  const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
     const start = polarToCartesian(x, y, radius, endAngle - 90);
     const end = polarToCartesian(x, y, radius, startAngle - 90);
     const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
@@ -30,8 +28,7 @@ export const SleepRing = React.memo(function SleepRing({ element }: { element: a
 
   const sAngle = timeToAngle(start);
   const eAngle = timeToAngle(end);
-  // handle crossing midnight
-  const adjustedEnd = eAngle < sAngle ? eAngle + 360 : eAngle;
+  // handle crossing midnight  const adjustedEnd = eAngle < sAngle ? eAngle + 360 : eAngle;
 
   return (
     <div className="w-full h-full relative flex items-center justify-center select-none bg-black/60 rounded-full border border-white/10 backdrop-blur-md">

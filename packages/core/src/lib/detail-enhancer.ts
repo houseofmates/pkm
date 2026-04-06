@@ -1,8 +1,7 @@
 import { secureLogger } from '@/lib/secure-logger';
 import { getOllamaBase } from '@/lib/llm-config';
 
-// hardcoded ollama endpoint for detail enhancement
-const OLLAMA_URL = 'http://192.168.4.250:11434/api/generate';
+// hardcoded ollama endpoint for detail enhancementconst OLLAMA_URL = 'http://192.168.4.250:11434/api/generate';
 const DETAIL_ENHANCER_MODEL = 'qwen2.5-coder:7b-instruct-q4_K_S';
 
 export interface DetailEnhancerOptions {
@@ -19,8 +18,7 @@ export interface DetailEnhancerResult {
   processingTime: number;
 }
 
-/**
- * detail enhancer - transforms messy speech into dense professional documentation
+/** * detail enhancer - transforms messy speech into dense professional documentation
  * 
  * core principles:
  * - never omits data from original transcript
@@ -38,8 +36,7 @@ export class DetailEnhancer {
     this.ollamaUrl = getOllamaBase() + '/api/generate';
   }
 
-  /**
-   * build the enhancement prompt that enforces data preservation
+  /**   * build the enhancement prompt that enforces data preservation
    */
   private buildPrompt(
     transcript: string,
@@ -78,8 +75,7 @@ OUTPUT FORMAT:
     return { system: systemPrompt, prompt };
   }
 
-  /**
-   * extract added context references from enhanced text
+  /**   * extract added context references from enhanced text
    */
   private extractAddedContext(enhanced: string): string[] {
     const refs: string[] = [];
@@ -90,8 +86,7 @@ OUTPUT FORMAT:
     return [...new Set(refs)];
   }
 
-  /**
-   * process transcript through detail enhancer
+  /**   * process transcript through detail enhancer
    * returns enhanced documentation with metadata
    */
   async enhance(
@@ -137,8 +132,7 @@ OUTPUT FORMAT:
       };
     } catch (error) {
       secureLogger.error('Detail enhancement failed:', error);
-      // fallback: return original transcript with minimal formatting
-      return {
+      // fallback: return original transcript with minimal formatting      return {
         enhanced: this.fallbackEnhance(transcript),
         raw: transcript,
         addedContext: [],
@@ -147,8 +141,7 @@ OUTPUT FORMAT:
     }
   }
 
-  /**
-   * fallback enhancement when ollama is unavailable
+  /**   * fallback enhancement when ollama is unavailable
    * applies basic formatting without llm
    */
   private fallbackEnhance(transcript: string): string {
@@ -173,8 +166,7 @@ OUTPUT FORMAT:
       .join('\n\n---\n\n');
   }
 
-  /**
-   * stream enhancement for real-time ui updates
+  /**   * stream enhancement for real-time ui updates
    */
   async enhanceStream(
     transcript: string,
@@ -224,8 +216,7 @@ OUTPUT FORMAT:
               onChunk(fullResponse);
             }
           } catch {
-            // ignore malformed json lines in stream
-          }
+            // ignore malformed json lines in stream          }
         }
       }
 
@@ -252,5 +243,4 @@ OUTPUT FORMAT:
   }
 }
 
-// export singleton instance
-export const detailEnhancer = new DetailEnhancer();
+// export singleton instanceexport const detailEnhancer = new DetailEnhancer();

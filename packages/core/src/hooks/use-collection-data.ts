@@ -6,16 +6,14 @@ import { toast } from 'sonner';
 import { extractRecords } from '@/lib/nocobase-utils';
 import { generateAndSaveAiField } from '@/services/ai-field-generator';
 
-/**
- * encapsulates the data loading / mutation logic previously found
+/** * encapsulates the data loading / mutation logic previously found
  * in collectiondetailpage.  the hook is intentionally fairly
  * "dumb"; it takes an api client and the collection name as
  * arguments and returns state and callbacks.  calling components
  * deal only with rendering.
  */
 
-// minimal shape of the api client used by the hook
-interface CollectionClient {
+// minimal shape of the api client used by the hookinterface CollectionClient {
   getCollection(name: string): Promise<any>;
   listRecords(name: string, opts?: any): Promise<any>;
   createRecord(name: string, data: any): Promise<any>;
@@ -39,9 +37,7 @@ export function useCollectionData(
   const [, setDeletedStack] = useState<SchemaRecord[]>([]);
   const fetchCounterRef = useRef(0);
 
-  // we reuse availablecollections from usecollections so that fetchdata
-  // can try a preloaded copy before hitting the api
-  const { collections: availableCollections, loading: collectionsLoading } = useCollections();
+  // we reuse availablecollections from usecollections so that fetchdata  // can try a preloaded copy before hitting the api  const { collections: availableCollections, loading: collectionsLoading } = useCollections();
   const availableCollectionsRef = useRef(availableCollections);
   availableCollectionsRef.current = availableCollections;
 
@@ -82,8 +78,7 @@ export function useCollectionData(
 
       if (colData && fetchId === fetchCounterRef.current) {
         setCollection(colData);
-        // check for fronter field and auto-create if missing for pkm consistency
-        let hasFronter = colData.fields?.some((f: FieldDefinition) => f.name === 'fronter');
+        // check for fronter field and auto-create if missing for pkm consistency        let hasFronter = colData.fields?.some((f: FieldDefinition) => f.name === 'fronter');
 
         if (!hasFronter) {
           try {

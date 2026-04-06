@@ -1,6 +1,4 @@
-// edgeless canvas feature exports
-// main entry point for the drawing/edgeless system
-
+// edgeless canvas feature exports// main entry point for the drawing/edgeless system
 export { useEdgelessStore } from './store'
 export type {
   ElementType,
@@ -31,8 +29,7 @@ export {
 } from './sync/canvas-sync'
 
 export {
-  // storage operations
-  appendOp,
+  // storage operations  appendOp,
   getUnsyncedOps,
   markOpsSynced,
   getRecentOps,
@@ -47,16 +44,13 @@ export {
   clearToken,
   clearMemoryTokens,
 
-  // oplog operations
-  applyOp,
+  // oplog operations  applyOp,
   replayOplog,
 
-  // migration
-  migrateFromLocalStorage,
+  // migration  migrateFromLocalStorage,
   hasLegacyDrawings,
 
-  // types
-  type DrawOp,
+  // types  type DrawOp,
   type OpLogEntry,
   type CanvasCheckpoint,
   type PathOp,
@@ -65,15 +59,12 @@ export {
   type DeleteOp,
 } from './storage'
 
-// re-export components
-export { EdgelessCanvas } from './components/EdgelessCanvas'
+// re-export componentsexport { EdgelessCanvas } from './components/EdgelessCanvas'
 export { DrawingCanvas } from './components/DrawingCanvas'
 export { Toolbar } from './components/Toolbar'
 export { CanvasControls } from './components/CanvasControls'
 export { CanvasErrorBoundary } from './components/canvas-error-boundary'
 
-// production guards
-export { productionGuard, perfMonitor, checkStorageHealth } from './lib/production-guards'
+// production guardsexport { productionGuard, perfMonitor, checkStorageHealth } from './lib/production-guards'
 
-// hooks
-export { useCanvasSafe } from './hooks/use-canvas-safe'
+// hooksexport { useCanvasSafe } from './hooks/use-canvas-safe'

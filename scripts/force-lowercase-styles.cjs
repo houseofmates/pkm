@@ -26,15 +26,12 @@ for(const root of roots){
     try{
       let s = fs.readFileSync(file,'utf8');
       let orig = s;
-      // css text-transform replacements for css contexts
-      // replace text-transform: <value>; where <value> is not none or lowercase
-      s = s.replace(/text-transform\s*:\s*([a-zA-Z-]+)\s*;?/g, (m, val) => {
+      // css text-transform replacements for css contexts      // replace text-transform: <value>; where <value> is not none or lowercase      s = s.replace(/text-transform\s*:\s*([a-zA-Z-]+)\s*;?/g, (m, val) => {
         const v = String(val).toLowerCase();
         if(v === 'none' || v === 'lowercase') return `text-transform: lowercase !important;`;
         return `text-transform: lowercase !important;`;
       });
-      // replace js style object texttransform: 'uppercase' or "uppercase" or texttransform: uppercase
-      s = s.replace(/textTransform\s*:\s*(['\"]?)([A-Za-z-]+)\1/g, (m, q, val) => {
+      // replace js style object texttransform: 'uppercase' or "uppercase" or texttransform: uppercase      s = s.replace(/textTransform\s*:\s*(['\"]?)([A-Za-z-]+)\1/g, (m, q, val) => {
         const v = String(val).toLowerCase();
         return `textTransform: ${q}${v}${q}`;
       });

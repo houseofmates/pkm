@@ -9,8 +9,7 @@ interface PortalElementProps {
 export const PortalElement = React.memo(function PortalElement({ element }: PortalElementProps) {
   const navigate = useNavigate();
   
-  // compute target name directly without state
-  const targetName = useMemo(() => {
+  // compute target name directly without state  const targetName = useMemo(() => {
     const id = element.data?.targetId;
     if (id === 'aphrodite-altar') return 'The Altar';
     else if (id) return `Canvas: ${id}`;
@@ -20,9 +19,7 @@ export const PortalElement = React.memo(function PortalElement({ element }: Port
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (element.data?.targetId) {
-      // in a real implementation this would animate the viewport first
-      // for now, we perform the "jump"
-      navigate(`/canvas/${element.data.targetId}`);
+      // in a real implementation this would animate the viewport first      // for now, we perform the "jump"      navigate(`/canvas/${element.data.targetId}`);
     }
   };
 

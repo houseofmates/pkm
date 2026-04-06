@@ -1,6 +1,4 @@
-// rag service for wilson chat and ai field generation
-// orchestrates retrieval, context building, and prompt assembly
-
+// rag service for wilson chat and ai field generation// orchestrates retrieval, context building, and prompt assembly
 import { searchKnowledgeBase, formatChunksForPrompt, type SearchResult } from '@/lib/vector-store';
 import { getWilsonRagPrompt, getAiFieldPrompt } from '@/lib/rag-prompts';
 import { api } from '@/api/nocobase-client';
@@ -20,14 +18,12 @@ export interface RowContext {
   relatedRecords: Record<string, Record<string, string | number | boolean | null | undefined>[]>;
 }
 
-// build rag context for a user query
-export async function buildRagContext(
+// build rag context for a user queryexport async function buildRagContext(
   query: string,
   topK: number = 8
 ): Promise<RagContext> {
   try {
-    // search knowledge base
-    const chunks = await searchKnowledgeBase(query, topK);
+    // search knowledge base    const chunks = await searchKnowledgeBase(query, topK);
 
     if (chunks.length === 0) {
       return {
@@ -38,11 +34,9 @@ export async function buildRagContext(
       };
     }
 
-    // format for prompt
-    const formattedContext = formatChunksForPrompt(chunks);
+    // format for prompt    const formattedContext = formatChunksForPrompt(chunks);
 
-    // extract unique sources
-    const sources = [...new Set(chunks.map(c => `${c.chunk.collection}:${c.chunk.recordId}`))];
+    // extract unique sources    const sources = [...new Set(chunks.map(c => `${c.chunk.collection}:${c.chunk.recordId}`))];
 
     return {
       query,
@@ -61,27 +55,21 @@ export async function buildRagContext(
   }
 }
 
-// build context for a specific row/record
-export async function buildRowContext(
+// build context for a specific row/recordexport async function buildRowContext(
   collection: string,
   recordId: string | number
 ): Promise<RowContext> {
   try {
-    // fetch the record
-    const recordRes = await api.getRecord(collection, recordId);
+    // fetch the record    const recordRes = await api.getRecord(collection, recordId);
     const record: Record<string, string | number | boolean | null | undefined> = (recordRes as { data?: unknown }).data as any || (recordRes as any);
 
-    // fetch related records if relations exist
-    const relatedRecords: Record<string, Record<string, string | number | boolean | null | undefined>[]> = {};
+    // fetch related records if relations exist    const relatedRecords: Record<string, Record<string, string | number | boolean | null | undefined>[]> = {};
 
-    // look for relation fields in the record
-    for (const [key, value] of Object.entries(record)) {
+    // look for relation fields in the record    for (const [key, value] of Object.entries(record)) {
       if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object' && value[0] !== null && 'id' in value[0]) {
-        // likely a has-many relation
-        relatedRecords[key] = value as Record<string, string | number | boolean | null | undefined>[];
+        // likely a has-many relation        relatedRecords[key] = value as Record<string, string | number | boolean | null | undefined>[];
       } else if (value && typeof value === 'object' && value !== null && 'id' in value) {
-        // likely a belongs-to relation
-        relatedRecords[key] = [value as Record<string, string | number | boolean | null | undefined>];
+        // likely a belongs-to relation        relatedRecords[key] = [value as Record<string, string | number | boolean | null | undefined>];
       }
     }
 
@@ -102,24 +90,20 @@ export async function buildRowContext(
   }
 }
 
-// generate wilson prompt with rag context
-export async function generateWilsonRagPrompt(
+// generate wilson prompt with rag contextexport async function generateWilsonRagPrompt(
   userQuery: string,
   fronterName: string = 'friend'
 ): Promise<string> {
   const ragContext = await buildRagContext(userQuery, 8);
 
-  // build the full prompt
-  const prompt = getWilsonRagPrompt(fronterName, ragContext.formattedContext, userQuery);
+  // build the full prompt  const prompt = getWilsonRagPrompt(fronterName, ragContext.formattedContext, userQuery);
 
-  // log for debugging
-  secureLogger.info(`[RAG] wilson query: "${userQuery}" | sources: ${ragContext.sources.length}`);
+  // log for debugging  secureLogger.info(`[RAG] wilson query: "${userQuery}" | sources: ${ragContext.sources.length}`);
 
   return prompt;
 }
 
-// generate ai field content
-export async function generateAiFieldContent(
+// generate ai field contentexport async function generateAiFieldContent(
   collection: string,
   recordId: string | number,
   instruction: string,
@@ -131,23 +115,18 @@ export async function generateAiFieldContent(
   const { includeRelated = true, topK = 5 } = options;
 
   try {
-    // 1. build row context
-    const rowContext = await buildRowContext(collection, recordId);
+    // 1. build row context    const rowContext = await buildRowContext(collection, recordId);
 
-    // 2. build search query from row data + instruction
-    const searchQuery = buildSearchQuery(rowContext.data, instruction);
+    // 2. build search query from row data + instruction    const searchQuery = buildSearchQuery(rowContext.data, instruction);
 
-    // 3. retrieve relevant chunks
-    const ragContext = await buildRagContext(searchQuery, topK);
+    // 3. retrieve relevant chunks    const ragContext = await buildRagContext(searchQuery, topK);
 
-    // 4. include related records if requested
-    let relatedContext = '';
+    // 4. include related records if requested    let relatedContext = '';
     if (includeRelated && Object.keys(rowContext.relatedRecords).length > 0) {
       relatedContext = formatRelatedRecords(rowContext.relatedRecords);
     }
 
-    // 5. build the prompt
-    const rowDataWithRelated = {
+    // 5. build the prompt    const rowDataWithRelated = {
       ...rowContext.data,
       _related: includeRelated ? rowContext.relatedRecords : undefined,
     };
@@ -161,27 +140,22 @@ export async function generateAiFieldContent(
   }
 }
 
-// build an effective search query from row data
-function buildSearchQuery(rowData: Record<string, string | number | boolean | null | undefined>, instruction: string): string {
-  // extract key terms from the row
-  const keyFields = ['title', 'name', 'description', 'content', 'body', 'text', 'summary', 'tags', 'category'];
+// build an effective search query from row datafunction buildSearchQuery(rowData: Record<string, string | number | boolean | null | undefined>, instruction: string): string {
+  // extract key terms from the row  const keyFields = ['title', 'name', 'description', 'content', 'body', 'text', 'summary', 'tags', 'category'];
   const terms: string[] = [];
 
   for (const field of keyFields) {
     const value = rowData[field];
     if (typeof value === 'string' && value.length > 0) {
-      // take first 100 chars of each key field
-      terms.push(value.slice(0, 100));
+      // take first 100 chars of each key field      terms.push(value.slice(0, 100));
     }
   }
 
-  // combine with instruction
-  const query = `${instruction} ${terms.join(' ')}`.slice(0, 500);
+  // combine with instruction  const query = `${instruction} ${terms.join(' ')}`.slice(0, 500);
   return query;
 }
 
-// format related records for context
-function formatRelatedRecords(related: Record<string, Record<string, string | number | boolean | null | undefined>[]>): string {
+// format related records for contextfunction formatRelatedRecords(related: Record<string, Record<string, string | number | boolean | null | undefined>[]>): string {
   const parts: string[] = ['\n## related records'];
 
   for (const [relationName, records] of Object.entries(related)) {
@@ -195,8 +169,7 @@ function formatRelatedRecords(related: Record<string, Record<string, string | nu
   return parts.join('\n');
 }
 
-// create a brief summary of a record
-function summarizeRecord(record: Record<string, string | number | boolean | null | undefined>): string {
+// create a brief summary of a recordfunction summarizeRecord(record: Record<string, string | number | boolean | null | undefined>): string {
   const titleFields = ['title', 'name', 'subject', 'headline', 'summary'];
   for (const field of titleFields) {
     if (record[field] && typeof record[field] === 'string') {
@@ -204,8 +177,7 @@ function summarizeRecord(record: Record<string, string | number | boolean | null
     }
   }
 
-  // fallback: use first string field
-  for (const [key, value] of Object.entries(record)) {
+  // fallback: use first string field  for (const [key, value] of Object.entries(record)) {
     if (typeof value === 'string' && value.length > 10 && !key.includes('id')) {
       return `${key}: ${value.slice(0, 80)}`;
     }
@@ -214,37 +186,30 @@ function summarizeRecord(record: Record<string, string | number | boolean | null
   return 'record';
 }
 
-// smart query expansion for better retrieval
-export function expandQuery(query: string): string[] {
+// smart query expansion for better retrievalexport function expandQuery(query: string): string[] {
   const expansions: string[] = [query];
 
-  // add variations
-  const lower = query.toLowerCase();
+  // add variations  const lower = query.toLowerCase();
 
-  // temporal expansions
-  if (lower.includes('recent') || lower.includes('latest')) {
+  // temporal expansions  if (lower.includes('recent') || lower.includes('latest')) {
     expansions.push(query.replace(/recent|latest/gi, 'new'));
     expansions.push(query.replace(/recent|latest/gi, 'last week'));
   }
 
-  // task/project expansions
-  if (lower.includes('task') || lower.includes('todo')) {
+  // task/project expansions  if (lower.includes('task') || lower.includes('todo')) {
     expansions.push(query.replace(/task|todo/gi, 'action item'));
     expansions.push(query.replace(/task|todo/gi, 'next step'));
   }
 
-  // note/document expansions
-  if (lower.includes('note') || lower.includes('document')) {
+  // note/document expansions  if (lower.includes('note') || lower.includes('document')) {
     expansions.push(query.replace(/note|document/gi, 'page'));
     expansions.push(query.replace(/note|document/gi, 'entry'));
   }
 
-  // deduplicate
-  return [...new Set(expansions)];
+  // deduplicate  return [...new Set(expansions)];
 }
 
-// batch retrieve context for multiple queries
-export async function batchRetrieveContext(
+// batch retrieve context for multiple queriesexport async function batchRetrieveContext(
   queries: string[],
   topK: number = 5
 ): Promise<Map<string, RagContext>> {
@@ -258,8 +223,7 @@ export async function batchRetrieveContext(
   return results;
 }
 
-// get suggested follow-up questions based on retrieved context
-export async function getSuggestedQuestions(context: RagContext): Promise<string[]> {
+// get suggested follow-up questions based on retrieved contextexport async function getSuggestedQuestions(context: RagContext): Promise<string[]> {
   if (context.retrievedChunks.length === 0) {
     return [
       'what would you like to know about?',
@@ -267,8 +231,7 @@ export async function getSuggestedQuestions(context: RagContext): Promise<string
     ];
   }
 
-  // extract key topics from chunks
-  const topics = new Set<string>();
+  // extract key topics from chunks  const topics = new Set<string>();
   for (const chunk of context.retrievedChunks) {
     const words = chunk.chunk.content.toLowerCase().split(/\s+/);
     for (const word of words) {
@@ -278,8 +241,7 @@ export async function getSuggestedQuestions(context: RagContext): Promise<string
     }
   }
 
-  // generate questions based on topics
-  const topicList = Array.from(topics).slice(0, 5);
+  // generate questions based on topics  const topicList = Array.from(topics).slice(0, 5);
   const suggestions: string[] = [];
 
   if (topicList.length > 0) {
@@ -295,8 +257,7 @@ export async function getSuggestedQuestions(context: RagContext): Promise<string
   return suggestions.slice(0, 3);
 }
 
-// simple stop word check
-function isStopWord(word: string): boolean {
+// simple stop word checkfunction isStopWord(word: string): boolean {
   const stopWords = new Set([
     'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'who', 'boy', 'did', 'she', 'use', 'her', 'way', 'many', 'oil', 'sit', 'set', 'run', 'eat', 'far', 'sea', 'eye', 'ago', 'off', 'too', 'any', 'say', 'man', 'try', 'ask', 'end', 'why', 'let', 'put', 'say', 'she', 'try', 'way', 'own', 'say', 'too', 'old', 'tell', 'very', 'when', 'much', 'would', 'there', 'their', 'what', 'said', 'each', 'which', 'will', 'about', 'could', 'other', 'after', 'first', 'never', 'these', 'think', 'where', 'being', 'every', 'great', 'might', 'shall', 'still', 'those', 'while', 'this', 'that', 'with', 'have', 'from', 'they', 'been', 'were', 'said', 'time', 'than', 'them', 'into', 'just', 'like', 'over', 'also', 'back', 'only', 'know', 'take', 'year', 'good', 'some', 'come', 'make', 'well', 'work', 'life', 'even', 'more', 'want', 'here', 'look', 'down', 'most', 'long', 'last', 'find', 'give', 'does', 'made', 'part', 'such', 'keep', 'call', 'came', 'need', 'feel', 'seem', 'turn', 'hand', 'high', 'sure', 'upon', 'head', 'help', 'home', 'side', 'move', 'both', 'five', 'once', 'same', 'must', 'name', 'left', 'each', 'done', 'open', 'case', 'show', 'live', 'play', 'went', 'told', 'seen', 'hear', 'talk', 'soon', 'read', 'stop', 'face', 'fact', 'land', 'line', 'kind', 'next', 'word', 'came', 'went', 'told', 'seen', 'hear', 'talk', 'soon', 'read', 'stop', 'face', 'fact', 'land', 'line', 'kind', 'next', 'word',
   ]);

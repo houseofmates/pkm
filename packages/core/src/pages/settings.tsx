@@ -18,8 +18,7 @@ export default function SettingsPage() {
     const [pageSize, setPageSize] = useAppSetting('defaultPageSize', 20);
     const [showApiKey, setShowApiKey] = useState(false);
 
-    // apply dark mode class to document based on setting
-    useEffect(() => {
+    // apply dark mode class to document based on setting    useEffect(() => {
         if (darkMode) {
             document.documentElement.classList.add('dark');
         } else {
@@ -28,8 +27,7 @@ export default function SettingsPage() {
     }, [darkMode]);
 
     return (
-        // container must occupy full height of parent so scrolling works
-        <div className="h-full flex flex-col overflow-auto p-4 min-h-0">
+        // container must occupy full height of parent so scrolling works        <div className="h-full flex flex-col overflow-auto p-4 min-h-0">
             <h1 className="text-xl font-bold lowercase">settings</h1>
 
             <section className="mt-6 space-y-4">

@@ -1,6 +1,4 @@
-// vector store client for rag retrieval
-// supports nocobase ai knowledge base or local lancedb
-
+// vector store client for rag retrieval// supports nocobase ai knowledge base or local lancedb
 import { api } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 import { normalizeListResponse, extractRecords } from '@/lib/nocobase-utils';
@@ -33,20 +31,16 @@ export interface NocoBaseRecord extends Record<string, unknown> {
   updatedAt?: string | number;
 }
 
-// configuration for vector store
-const VECTOR_CONFIG = {
-  // nocobase ai knowledge base endpoints
-  knowledgeBaseId: 'pkm-global-kb',
+// configuration for vector storeconst VECTOR_CONFIG = {
+  // nocobase ai knowledge base endpoints  knowledgeBaseId: 'pkm-global-kb',
   chunkSize: Number(import.meta.env.VITE_VECTOR_CHUNK_SIZE || 512),
   chunkOverlap: Number(import.meta.env.VITE_VECTOR_CHUNK_OVERLAP || 128),
   topK: Number(import.meta.env.VITE_VECTOR_TOP_K || 8),
-  // local ollama embedding endpoint (fallback)
-  embeddingModel: import.meta.env.VITE_VECTOR_EMBEDDING_MODEL || 'nomic-embed-text',
+  // local ollama embedding endpoint (fallback)  embeddingModel: import.meta.env.VITE_VECTOR_EMBEDDING_MODEL || 'nomic-embed-text',
   embeddingEndpoint: import.meta.env.VITE_VECTOR_EMBEDDING_ENDPOINT || 'http://localhost:11434/api/embeddings',
 };
 
-// generate embeddings using ollama
-export async function generateEmbedding(text: string): Promise<number[]> {
+// generate embeddings using ollamaexport async function generateEmbedding(text: string): Promise<number[]> {
   try {
     const response = await fetch(VECTOR_CONFIG.embeddingEndpoint, {
       method: 'POST',
@@ -73,8 +67,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   }
 }
 
-// search nocobase ai knowledge base
-export interface KnowledgeBaseSearchItem {
+// search nocobase ai knowledge baseexport interface KnowledgeBaseSearchItem {
   id: string;
   collection: string;
   recordId: string | number;
@@ -100,8 +93,7 @@ export async function searchKnowledgeBase(
   topK: number = VECTOR_CONFIG.topK
 ): Promise<SearchResult[]> {
   try {
-    // try nocobase native ai knowledge base first
-    const response = await api.client.post('/ai-knowledge-base:search', {
+    // try nocobase native ai knowledge base first    const response = await api.client.post('/ai-knowledge-base:search', {
       knowledgeBaseId: VECTOR_CONFIG.knowledgeBaseId,
       query,
       topK,
@@ -129,11 +121,9 @@ export async function searchKnowledgeBase(
   }
 }
 
-// fallback: search using local collection data with simple similarity
-async function fallbackLocalSearch(query: string, topK: number): Promise<SearchResult[]> {
+// fallback: search using local collection data with simple similarityasync function fallbackLocalSearch(query: string, topK: number): Promise<SearchResult[]> {
   try {
-    // fetch all collections from nocobase and normalize the response
-    const collectionsRes = await api.listCollections();
+    // fetch all collections from nocobase and normalize the response    const collectionsRes = await api.listCollections();
     const normalizedCollections = normalizeListResponse(collectionsRes);
     const collections: NocoBaseCollectionSummary[] = (normalizedCollections.data ?? [])
       .filter((c): c is NocoBaseCollectionSummary => typeof c === 'object' && c !== null);
@@ -146,8 +136,7 @@ async function fallbackLocalSearch(query: string, topK: number): Promise<SearchR
 
     const allChunks: VectorChunk[] = [];
 
-    // fetch records from each collection
-    for (const col of userCollections.slice(0, 5)) {
+    // fetch records from each collection    for (const col of userCollections.slice(0, 5)) {
       const colName = String(col.name || '').trim();
       if (!colName) continue;
 
@@ -161,8 +150,7 @@ try {
         const records: NocoBaseRecord[] = extractRecords(normalizedRecords) as NocoBaseRecord[];
 
         for (const record of records) {
-          // extract text fields as chunks
-          const textFields = Object.entries(record).filter(([key, value]) => {
+          // extract text fields as chunks          const textFields = Object.entries(record).filter(([key, value]) => {
             return typeof value === 'string' &&
                    value.length > 50 &&
                    !key.includes('id') &&
@@ -171,8 +159,7 @@ try {
           });
 
           for (const [field, value] of textFields) {
-            // simple chunking
-            const chunks = chunkText(String(value), VECTOR_CONFIG.chunkSize, VECTOR_CONFIG.chunkOverlap);
+            // simple chunking            const chunks = chunkText(String(value), VECTOR_CONFIG.chunkSize, VECTOR_CONFIG.chunkOverlap);
             for (let i = 0; i < chunks.length; i++) {
               allChunks.push({
                 id: `${col.name}:${record.id}:${field}:${i}`,
@@ -193,19 +180,16 @@ try {
       }
     }
 
-    // simple keyword-based scoring (fallback when no embeddings)
-    const queryWords = query.toLowerCase().split(/\s+/);
+    // simple keyword-based scoring (fallback when no embeddings)    const queryWords = query.toLowerCase().split(/\s+/);
     const queryLower = query.toLowerCase();
     const scored = allChunks.map(chunk => {
       const contentLower = chunk.content.toLowerCase();
       let score = 0;
       for (const word of queryWords) {
         if (contentLower.includes(word)) score += 1;
-        // bonus for exact phrase match
-        if (contentLower.includes(queryLower)) score += 5;
+        // bonus for exact phrase match        if (contentLower.includes(queryLower)) score += 5;
       }
-      // recency boost
-      const daysSinceUpdate = chunk.metadata?.updatedAt
+      // recency boost      const daysSinceUpdate = chunk.metadata?.updatedAt
         ? (Date.now() - new Date(String(chunk.metadata.updatedAt)).getTime()) / (1000 * 60 * 60 * 24)
         : 365;
       score *= Math.max(0.5, 1 - (daysSinceUpdate / 30)); // decay over 30 days
@@ -213,8 +197,7 @@ try {
       return { chunk, score };
     });
 
-    // sort by score and return top k
-    return scored
+    // sort by score and return top k    return scored
       .filter(s => s.score > 0)
       .sort((a, b) => b.score - a.score)
       .slice(0, topK);
@@ -224,23 +207,19 @@ try {
   }
 }
 
-// chunk text into overlapping segments
-function chunkText(text: string, size: number, overlap: number): string[] {
+// chunk text into overlapping segmentsfunction chunkText(text: string, size: number, overlap: number): string[] {
   const chunks: string[] = [];
   let start = 0;
 
   while (start < text.length) {
     const end = Math.min(start + size, text.length);
-    // try to break at sentence or word boundary
-    let breakPoint = end;
+    // try to break at sentence or word boundary    let breakPoint = end;
     if (end < text.length) {
-      // look for sentence end
-      const sentenceEnd = text.lastIndexOf('.', end);
+      // look for sentence end      const sentenceEnd = text.lastIndexOf('.', end);
       if (sentenceEnd > start && sentenceEnd > end - 50) {
         breakPoint = sentenceEnd + 1;
       } else {
-        // look for word boundary
-        const spaceIndex = text.lastIndexOf(' ', end);
+        // look for word boundary        const spaceIndex = text.lastIndexOf(' ', end);
         if (spaceIndex > start) {
           breakPoint = spaceIndex;
         }
@@ -255,8 +234,7 @@ function chunkText(text: string, size: number, overlap: number): string[] {
   return chunks.filter(c => c.length > 20);
 }
 
-// format chunks for prompt injection
-export function formatChunksForPrompt(chunks: SearchResult[]): string {
+// format chunks for prompt injectionexport function formatChunksForPrompt(chunks: SearchResult[]): string {
   return chunks
     .map((result, i) => {
       const chunk = result.chunk;
@@ -267,8 +245,7 @@ export function formatChunksForPrompt(chunks: SearchResult[]): string {
     .join('\n');
 }
 
-// index a single record to knowledge base
-export async function indexRecord(
+// index a single record to knowledge baseexport async function indexRecord(
   collection: string,
   recordId: string | number,
   fields: Record<string, string>
@@ -294,8 +271,7 @@ export async function indexRecord(
       }
     }
 
-    // send to nocobase for indexing
-    await api.client.post('/ai-knowledge-base:index', {
+    // send to nocobase for indexing    await api.client.post('/ai-knowledge-base:index', {
       knowledgeBaseId: VECTOR_CONFIG.knowledgeBaseId,
       chunks: chunks.map(c => ({
         ...c,
@@ -310,8 +286,7 @@ export async function indexRecord(
   }
 }
 
-// delete record from knowledge base
-export async function deleteRecordFromIndex(
+// delete record from knowledge baseexport async function deleteRecordFromIndex(
   collection: string,
   recordId: string | number
 ): Promise<boolean> {
@@ -330,8 +305,7 @@ export async function deleteRecordFromIndex(
   }
 }
 
-// reindex entire collection
-export async function reindexCollection(collection: string): Promise<{ indexed: number; failed: number }> {
+// reindex entire collectionexport async function reindexCollection(collection: string): Promise<{ indexed: number; failed: number }> {
   const result = { indexed: 0, failed: 0 };
 
   try {
@@ -381,8 +355,7 @@ async function cursorPaginate(collection: string, pageSize = 200): Promise<NocoB
   return records;
 }
 
-// index every user collection in the database
-export async function indexAllCollections(): Promise<Record<string, { indexed: number; failed: number }>> {
+// index every user collection in the databaseexport async function indexAllCollections(): Promise<Record<string, { indexed: number; failed: number }>> {
   const results: Record<string, { indexed: number; failed: number }> = {};
 
   try {

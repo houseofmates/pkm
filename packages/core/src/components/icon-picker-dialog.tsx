@@ -8,13 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { type LucideIcon } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
-// pull a handful of frequently-used icons out of the namespace so that the
-// bundler doesn't tree-shake them away when they are only ever referenced via
-// string names later on.  this mirrors what we do in the rich-resource menu.
-// we also include the helper icons used in the picker ui itself ( upload,
-// sparkles, loader, etc ) – this allows us to drop the second destructure
-// block further down which was accidentally redeclaring `check`.
-const {
+// pull a handful of frequently-used icons out of the namespace so that the// bundler doesn't tree-shake them away when they are only ever referenced via// string names later on.  this mirrors what we do in the rich-resource menu.// we also include the helper icons used in the picker ui itself ( upload,// sparkles, loader, etc ) – this allows us to drop the second destructure// block further down which was accidentally redeclaring `check`.const {
   Folder, File, Database, /* layout removed, rarely used and caused test mocks to fail */ User, Users,
   Home, Search, Menu, MoreVertical, MoreHorizontal, Plus, Minus,
   X, Check, ChevronRight, ChevronDown, ArrowRight, ArrowLeft,
@@ -42,8 +36,7 @@ const common_icons = [
 
 
 
-// helper to safely get lucide icon by name
-function getLucideIcon(name: string): LucideIcon | undefined {
+// helper to safely get lucide icon by namefunction getLucideIcon(name: string): LucideIcon | undefined {
   return (Icons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
 }
 

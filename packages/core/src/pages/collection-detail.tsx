@@ -14,8 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { humanizeFieldName } from '@/features/records/components/record-table';
 
-// bring in shared schema types so we can stop using `any`
-import type { Record as SchemaRecord, TableDefinition, FieldDefinition } from '@/schema/types';
+// bring in shared schema types so we can stop using `any`import type { Record as SchemaRecord, TableDefinition, FieldDefinition } from '@/schema/types';
 
 interface CollectionDetailPageProps {
   collectionName?: string;
@@ -50,11 +49,9 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     const [fieldDialogOpen, setFieldDialogOpen] = useState(false);
     const { activeFronters } = useFronter();
 
-    // metadata for cosmetics and defaults
-    const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+    // metadata for cosmetics and defaults    const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {}, { pollIntervalMs: 3000 });
 
-    // data-layer hook replaces the old manual state and handlers
-    const {
+    // data-layer hook replaces the old manual state and handlers    const {
       collection,
       records,
       loading,
@@ -68,33 +65,28 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
       setCollection,
       setRecords
     } = useCollectionData(client, collectionName, activeFronters);
-    // get collection color for header using metadata (source of truth)
-    const collectionColor = metadata[collectionName]?.color;
+    // get collection color for header using metadata (source of truth)    const collectionColor = metadata[collectionName]?.color;
     const defaultView = metadata[collectionName]?.default_view;
     const [defaultPickerOpen, setDefaultPickerOpen] = useState(false);
 
     const [currentView, setCurrentView] = useState<ViewType>('table');
     const [viewConfig, setViewConfig] = useState<Record<string, unknown>>({});
 
-    // sync currentview with url, state, or defaultview
-    useEffect(() => {
+    // sync currentview with url, state, or defaultview    useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         const viewFromUrl = queryParams.get('view');
         const viewFromState = (location.state as unknown as { view?: string })?.view;
 
-        // priority: url param > location state > user default > 'table'
-        const targetView = viewFromUrl || viewFromState || defaultView || 'table';
+        // priority: url param > location state > user default > 'table'        const targetView = viewFromUrl || viewFromState || defaultView || 'table';
 
         if (targetView && targetView in VIEW_REGISTRY) {
             setCurrentView(targetView as ViewType);
         }
     }, [location.search, location.state, defaultView, collectionName]);
 
-    // keyboard shortcut 'v' and right-click for default view picker
-    useEffect(() => {
+    // keyboard shortcut 'v' and right-click for default view picker    useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // lowercase 'v' only, no modifiers
-            if (e.key.toLowerCase() === 'v' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+            // lowercase 'v' only, no modifiers            if (e.key.toLowerCase() === 'v' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
                 const target = e.target as HTMLElement;
                 const isInput = target.tagName === 'INPUT' ||
                     target.tagName === 'TEXTAREA' ||
@@ -110,8 +102,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
         const handleContextMenu = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            // detect if right-clicked on our view switcher component
-            if (target.closest('[data-view-switcher="true"]')) {
+            // detect if right-clicked on our view switcher component            if (target.closest('[data-view-switcher="true"]')) {
                 e.preventDefault();
                 e.stopPropagation();
                 setDefaultPickerOpen(true);
@@ -144,8 +135,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         toast.success("nocobase api key saved");
     };
 
-    // load view config on view change or collection load
-    useEffect(() => {
+    // load view config on view change or collection load    useEffect(() => {
         const key = `view_config_${collectionName}_${currentView}`;
         try {
             const saved = storageManager.getItem(key);
@@ -164,8 +154,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     };
 
 
-    // if the user isn't authenticated we short-circuit before rendering the main collection ui
-    if (!isAuthenticated) {
+    // if the user isn't authenticated we short-circuit before rendering the main collection ui    if (!isAuthenticated) {
         return (
             <div className="p-4 md:p-8 h-full flex items-center justify-center">
                 <Card className="max-w-md w-full">
@@ -210,9 +199,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         );
     }
 
-    // fix "no fields" flash: if we rescued a collection object but it has no fields (and we are loading),
-    // we should wait. the rescued object from sidebar list often lacks 'fields'.
-    if (!collection.fields && loading) {
+    // fix "no fields" flash: if we rescued a collection object but it has no fields (and we are loading),    // we should wait. the rescued object from sidebar list often lacks 'fields'.    if (!collection.fields && loading) {
         return <div className="p-10 text-center animate-pulse lowercase">loading schema for {humanizeFieldName(collectionName)}...</div>;
     }
 

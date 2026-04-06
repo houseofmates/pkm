@@ -1,5 +1,4 @@
-// import global error handlers first to catch websocket/hmr errors during app startup
-import '@/lib/error-handlers';
+// import global error handlers first to catch websocket/hmr errors during app startupimport '@/lib/error-handlers';
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -52,10 +51,8 @@ if ("serviceWorker" in navigator) {
   }
 }
 
-// initialize app and mount to dom
-async function init() {
-  // pre-populate token for mobile builds
-  if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
+// initialize app and mount to domasync function init() {
+  // pre-populate token for mobile builds  if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
     const builtInToken = import.meta.env.VITE_NOCOBASE_API_TOKEN;
     if (builtInToken && !storageManager.getItem('nocobase_token')) {
       secureLogger.info('[mobile] pre-populating nocobase_token from build env');
@@ -63,8 +60,7 @@ async function init() {
     }
   }
 
-  // pre-load encrypted secrets into cache for synchronous use (e.g. logger)
-  await Promise.all([
+  // pre-load encrypted secrets into cache for synchronous use (e.g. logger)  await Promise.all([
     storageManager.getEncryptedItem('nocobase_token'),
     storageManager.getEncryptedItem('hom_api_key'),
     storageManager.getEncryptedItem('pk_api_key'),

@@ -1,6 +1,4 @@
-// jwt authentication middleware for pkm backend
-// implements secure token-based authentication
-
+// jwt authentication middleware for pkm backend// implements secure token-based authentication
 import jwt from 'jsonwebtoken';
 import { APIError } from './error-handler.js';
 
@@ -13,8 +11,7 @@ if (!JWT_SECRET) {
     process.exit(1);
 }
 
-/**
- * generate access token
+/** * generate access token
  */
 export function generateAccessToken(user) {
     const payload = {
@@ -28,8 +25,7 @@ export function generateAccessToken(user) {
     return jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256' });
 }
 
-/**
- * generate refresh token
+/** * generate refresh token
  */
 export function generateRefreshToken(user) {
     const payload = {
@@ -42,8 +38,7 @@ export function generateRefreshToken(user) {
     return jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256' });
 }
 
-/**
- * verify and decode token
+/** * verify and decode token
  */
 export function verifyToken(token) {
     try {
@@ -59,8 +54,7 @@ export function verifyToken(token) {
     }
 }
 
-/**
- * authentication middleware
+/** * authentication middleware
  */
 export function authenticate(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -84,8 +78,7 @@ export function authenticate(req, res, next) {
     }
 }
 
-/**
- * role-based authorization middleware
+/** * role-based authorization middleware
  */
 export function authorize(...roles) {
     return (req, res, next) => {
@@ -101,8 +94,7 @@ export function authorize(...roles) {
     };
 }
 
-/**
- * optional authentication (doesn't fail if no token)
+/** * optional authentication (doesn't fail if no token)
  */
 export function optionalAuth(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -128,8 +120,7 @@ export function optionalAuth(req, res, next) {
     next();
 }
 
-/**
- * generate csrf token
+/** * generate csrf token
  */
 export function generateCsrfToken(sessionId) {
     return jwt.sign(
@@ -139,8 +130,7 @@ export function generateCsrfToken(sessionId) {
     );
 }
 
-/**
- * verify csrf token
+/** * verify csrf token
  */
 export function verifyCsrfToken(token, sessionId) {
     try {

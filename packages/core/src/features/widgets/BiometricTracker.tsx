@@ -19,8 +19,7 @@ export function BiometricTracker({ data, onUpdate }: BiometricTrackerProps) {
   const [focus, setFocus] = useState(data.focus ?? 50);
 
   useEffect(() => {
-    // keep state in sync if widget data is updated externally
-    if (typeof data.energy === 'number') setEnergy(data.energy);
+    // keep state in sync if widget data is updated externally    if (typeof data.energy === 'number') setEnergy(data.energy);
     if (typeof data.friction === 'number') setFriction(data.friction);
     if (typeof data.focus === 'number') setFocus(data.focus);
   }, [data.energy, data.friction, data.focus]);

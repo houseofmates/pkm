@@ -1,10 +1,7 @@
 #!/bin/bash
 set -e
 
-# Script to remove a header bar with a "View" button from an AppImage and rebuild a new AppImage.
-# Usage: ./remove-view-bar-from-appimage.sh <path-to-AppImage>
-# The new AppImage will be named <original-name>-no-view-bar.AppImage in the same directory.
-
+# script to remove a header bar with a "view" button from an appimage and rebuild a new appimage.# usage: ./remove-view-bar-from-appimage.sh <path-to-appimage># the new appimage will be named <original-name>-no-view-bar.appimage in the same directory.
 if [ $# -ne 1 ]; then
   echo "Usage: $0 <path-to-AppImage>"
   exit 1
@@ -16,8 +13,7 @@ if [ ! -f "$ORIGINAL_APPIMAGE" ]; then
   exit 1
 fi
 
-# Extract the AppImage
-APP_DIR="squashfs-root"
+# extract the appimageAPP_DIR="squashfs-root"
 if [ -d "$APP_DIR" ]; then
   echo "Warning: $APP_DIR already exists, removing it"
   rm -rf "$APP_DIR"
@@ -32,22 +28,18 @@ fi
 
 cd "$APP_DIR"
 
-# Detect the UI framework
-echo "Detecting UI framework..."
+# detect the ui frameworkecho "Detecting UI framework..."
 FRAMEWORK="unknown"
-# Check for Electron: look for the electron binary (often named after the app) or resources/app.asar
-if [ -f "pkm-desktop-electron" ] || [ -f "electron" ] || [ -f "electron.exe" ]; then
+# check for electron: look for the electron binary (often named after the app) or resources/app.asarif [ -f "pkm-desktop-electron" ] || [ -f "electron" ] || [ -f "electron.exe" ]; then
   FRAMEWORK="electron"
-  # Determine the electron binary name
-  if [ -f "pkm-desktop-electron" ]; then
+  # determine the electron binary name  if [ -f "pkm-desktop-electron" ]; then
     ELECTRON_BINARY="./pkm-desktop-electron"
   elif [ -f "electron" ]; then
     ELECTRON_BINARY="./electron"
   else
     ELECTRON_BINARY="./electron.exe"
   fi
-  # Determine the app resources directory
-  if [ -d "resources" ]; then
+  # determine the app resources directory  if [ -d "resources" ]; then
     APP_DIR_RESOURCE="resources"
   elif [ -d "app" ]; then
     APP_DIR_RESOURCE="app"
@@ -63,68 +55,53 @@ elif [ -d "app" ] && [ -f "app/package.json" ]; then
   ELECTRON_BINARY="../electron"
   APP_DIR_RESOURCE="app"
 else
-  # Check for package.json with electron dependency
-  FOUND_PACKAGE_JSON=$(find . -name "package.json" -type f | head -1)
+  # check for package.json with electron dependency  FOUND_PACKAGE_JSON=$(find . -name "package.json" -type f | head -1)
   if [ -n "$FOUND_PACKAGE_JSON" ]; then
     if grep -q "\"electron\"" "$FOUND_PACKAGE_JSON" || grep -q "electron" "$FOUND_PACKAGE_JSON"; then
       FRAMEWORK="electron"
-      # Try to locate the electron binary relative to the package.json
-      # We'll assume it's in the parent directory of the AppDir (but we are inside the AppDir)
-      # For simplicity, we'll look for an electron binary in the current directory or parent.
-      if [ -f "../electron" ]; then
+      # try to locate the electron binary relative to the package.json      # we'll assume it's in the parent directory of the appdir (but we are inside the appdir)      # for simplicity, we'll look for an electron binary in the current directory or parent.      if [ -f "../electron" ]; then
         ELECTRON_BINARY="../electron"
       elif [ -f "./electron" ]; then
         ELECTRON_BINARY="./electron"
       else
-        # Default to electron (will be resolved from PATH)
-        ELECTRON_BINARY="electron"
+        # default to electron (will be resolved from path)        ELECTRON_BINARY="electron"
       fi
       APP_DIR_RESOURCE=$(dirname "$FOUND_PACKAGE_JSON")
-      # Adjust path to be relative to current directory
-      APP_DIR_RESOURCE="./$(realpath --relative-to="$PWD" "$APP_DIR_RESOURCE")"
+      # adjust path to be relative to current directory      APP_DIR_RESOURCE="./$(realpath --relative-to="$PWD" "$APP_DIR_RESOURCE")"
     fi
   fi
 fi
 
 if [ "$FRAMEWORK" = "unknown" ]; then
   echo "Warning: Could not detect Electron framework. Attempting to modify common UI resources."
-  # We'll try to modify common UI files as a fallback
-  # But for now, we'll exit and let the user know we only handle Electron in this script.
-  echo "Error: This script currently only supports Electron AppImages."
+  # we'll try to modify common ui files as a fallback  # but for now, we'll exit and let the user know we only handle electron in this script.  echo "Error: This script currently only supports Electron AppImages."
   echo "Please modify the script to add support for your framework (Qt, GTK, WebUI)."
   exit 1
 fi
 
 echo "Detected framework: $FRAMEWORK"
 
-# For Electron, we need to handle the application menu
-if [ "$FRAMEWORK" = "electron" ]; then
+# for electron, we need to handle the application menuif [ "$FRAMEWORK" = "electron" ]; then
   echo "Processing Electron AppImage..."
   
-  # Determine the app directory
-  if [ -z "$APP_DIR_RESOURCE" ]; then
-    # If we found the electron binary directly, look for resources/app or app
-    if [ -d "resources/app" ] && [ -f "resources/app/package.json" ]; then
+  # determine the app directory  if [ -z "$APP_DIR_RESOURCE" ]; then
+    # if we found the electron binary directly, look for resources/app or app    if [ -d "resources/app" ] && [ -f "resources/app/package.json" ]; then
       APP_DIR_RESOURCE="resources/app"
     elif [ -d "app" ] && [ -f "app/package.json" ]; then
       APP_DIR_RESOURCE="app"
     else
-      # Fallback: look for any package.json
-      APP_DIR_RESOURCE=$(find . -name "package.json" -type f | head -1 | xargs dirname)
+      # fallback: look for any package.json      APP_DIR_RESOURCE=$(find . -name "package.json" -type f | head -1 | xargs dirname)
       APP_DIR_RESOURCE="./$(realpath --relative-to="$PWD" "$APP_DIR_RESOURCE")"
     fi
   fi
   
   echo "App directory: $APP_DIR_RESOURCE"
   
-  # Check if the app is packaged in an ASAR archive
-  if [ -f "$APP_DIR_RESOURCE/app.asar" ]; then
+  # check if the app is packaged in an asar archive  if [ -f "$APP_DIR_RESOURCE/app.asar" ]; then
     echo "Found ASAR archive: $APP_DIR_RESOURCE/app.asar"
-    # Extract the ASAR archive
-    ASAR_EXTRACT_DIR="$APP_DIR_RESOURCE/app.asar.unpacked"
+    # extract the asar archive    ASAR_EXTRACT_DIR="$APP_DIR_RESOURCE/app.asar.unpacked"
     if [ -d "$ASAR_EXTRACT_DIR" ]; then
-      # We'll try to use the existing unpacked directory if it seems valid
-      if [ -f "$ASAR_EXTRACT_DIR/package.json" ] && ( [ -f "$ASAR_EXTRACT_DIR/main.js" ] || [ -f "$ASAR_EXTRACT_DIR/index.js" ] ); then
+      # we'll try to use the existing unpacked directory if it seems valid      if [ -f "$ASAR_EXTRACT_DIR/package.json" ] && ( [ -f "$ASAR_EXTRACT_DIR/main.js" ] || [ -f "$ASAR_EXTRACT_DIR/index.js" ] ); then
         echo "Using existing ASAR unpacked directory (seems valid)."
       else
         echo "Existing unpacked directory seems invalid. Removing and trying to extract again."
@@ -134,14 +111,11 @@ if [ "$FRAMEWORK" = "electron" ]; then
     
     if [ ! -d "$ASAR_EXTRACT_DIR" ]; then
       echo "Extracting ASAR archive..."
-      # Try to extract, but don't exit on failure; we'll check the result
-      if npx asar extract "$APP_DIR_RESOURCE/app.asar" "$ASAR_EXTRACT_DIR" 2>/dev/null; then
+      # try to extract, but don't exit on failure; we'll check the result      if npx asar extract "$APP_DIR_RESOURCE/app.asar" "$ASAR_EXTRACT_DIR" 2>/dev/null; then
         echo "ASAR extracted successfully."
       else
         echo "Warning: ASAR extraction had errors. Checking if unpacked directory is usable anyway."
-        # If the extraction failed, we might still have a partially extracted directory that is usable.
-        # We'll check for the presence of main.js or index.js.
-        if [ ! -f "$ASAR_EXTRACT_DIR/main.js" ] && [ ! -f "$ASAR_EXTRACT_DIR/index.js" ]; then
+        # if the extraction failed, we might still have a partially extracted directory that is usable.        # we'll check for the presence of main.js or index.js.        if [ ! -f "$ASAR_EXTRACT_DIR/main.js" ] && [ ! -f "$ASAR_EXTRACT_DIR/index.js" ]; then
           echo "Error: ASAR extraction failed and unpacked directory does not contain main.js or index.js."
           echo "Cannot proceed without the main script."
           exit 1
@@ -149,16 +123,13 @@ if [ "$FRAMEWORK" = "electron" ]; then
       fi
     fi
     
-    # Now we modify the source in the extracted directory
-    APP_SOURCE_DIR="$ASAR_EXTRACT_DIR"
+    # now we modify the source in the extracted directory    APP_SOURCE_DIR="$ASAR_EXTRACT_DIR"
     NEED_TO_REPACK_ASAR=true
   elif [ -f "$APP_DIR_RESOURCE/main.js" ] || [ -f "$APP_DIR_RESOURCE/index.js" ]; then
-    # Loose source
-    APP_SOURCE_DIR="$APP_DIR_RESOURCE"
+    # loose source    APP_SOURCE_DIR="$APP_DIR_RESOURCE"
     NEED_TO_REPACK_ASAR=false
   else
-    # Look for main.js in common locations
-    MAIN_JS=$(find "$APP_DIR_RESOURCE" -name "main.js" -type f | head -1)
+    # look for main.js in common locations    MAIN_JS=$(find "$APP_DIR_RESOURCE" -name "main.js" -type f | head -1)
     if [ -n "$MAIN_JS" ]; then
       APP_SOURCE_DIR=$(dirname "$MAIN_JS")
       NEED_TO_REPACK_ASAR=false
@@ -170,9 +141,7 @@ if [ "$FRAMEWORK" = "electron" ]; then
   
   echo "Source directory: $APP_SOURCE_DIR"
   
-  # Now we look for the menu setting code in the source
-  # We'll search for files containing Menu.setApplicationMenu or Menu.buildFromTemplate
-  echo "Searching for menu code..."
+  # now we look for the menu setting code in the source  # we'll search for files containing menu.setapplicationmenu or menu.buildfromtemplate  echo "Searching for menu code..."
   MENU_FILES=$(grep -r "Menu\.setApplicationMenu\|Menu\.buildFromTemplate" "$APP_SOURCE_DIR" --include="*.js" 2>/dev/null | cut -d: -f1 | sort -u)
   
   if [ -z "$MENU_FILES" ]; then
@@ -187,37 +156,20 @@ if [ "$FRAMEWORK" = "electron" ]; then
   
   echo "Found menu code in: $MENU_FILES"
   
-  # For each file, we'll attempt to replace the menu setting with Menu.setApplicationMenu(null)
-  # We'll do a simple replacement: look for a line that sets the menu and replace it.
-  # We'll also look for the construction of the menu template and replace that block if possible.
-  # But for simplicity, we'll just replace any Menu.setApplicationMenu(call) with Menu.setApplicationMenu(null)
-  # unless the argument is already null.
-  
+  # for each file, we'll attempt to replace the menu setting with menu.setapplicationmenu(null)  # we'll do a simple replacement: look for a line that sets the menu and replace it.  # we'll also look for the construction of the menu template and replace that block if possible.  # but for simplicity, we'll just replace any menu.setapplicationmenu(call) with menu.setapplicationmenu(null)  # unless the argument is already null.  
   for file in $MENU_FILES; do
     echo "Processing $file"
-    # Backup the file
-    cp "$file" "$file.bak"
+    # backup the file    cp "$file" "$file.bak"
     
-    # Replace any Menu.setApplicationMenu(something) that is not already null
-    # We use sed to replace the line, but we want to be careful not to break multi-line statements.
-    # We'll look for the pattern: Menu.setApplicationMenu( ... );
-    # and replace the argument with null, but keep the rest.
+    # replace any menu.setapplicationmenu(something) that is not already null    # we use sed to replace the line, but we want to be careful not to break multi-line statements.    # we'll look for the pattern: menu.setapplicationmenu( ... );    # and replace the argument with null, but keep the rest.    
+    # first, try to replace the argument if it's a simple variable or function call.    # this is a best-effort approach.    sed -i 's/Menu\.setApplicationMenu\s*([^)]*)/Menu.setApplicationMenu(null)/g' "$file"
     
-    # First, try to replace the argument if it's a simple variable or function call.
-    # This is a best-effort approach.
-    sed -i 's/Menu\.setApplicationMenu\s*([^)]*)/Menu.setApplicationMenu(null)/g' "$file"
-    
-    # Also, if we find a Menu.buildFromTemplate that is assigned to a variable and then used,
-    # we might want to remove the template construction. But we leave it for now.
-    # Setting the menu to null should override any previous menu.
-    
-    # Verify the change
-    if ! grep -q "Menu\.setApplicationMenu\s*(null)" "$file"; then
+    # also, if we find a menu.buildfromtemplate that is assigned to a variable and then used,    # we might want to remove the template construction. but we leave it for now.    # setting the menu to null should override any previous menu.    
+    # verify the change    if ! grep -q "Menu\.setApplicationMenu\s*(null)" "$file"; then
       echo "Warning: Failed to replace menu setting in $file. Checking if it was already null."
       if ! grep -q "Menu\.setApplicationMenu\s*(null)" "$file.bak"; then
         echo "Error: Could not modify $file to set menu to null."
-        # Restore backup
-        mv "$file.bak" "$file"
+        # restore backup        mv "$file.bak" "$file"
         exit 1
       fi
     else
@@ -226,23 +178,16 @@ if [ "$FRAMEWORK" = "electron" ]; then
     fi
   done
   
-  # If we extracted an ASAR, we need to repack it
-  if [ "$NEED_TO_REPACK_ASAR" = true ]; then
+  # if we extracted an asar, we need to repack it  if [ "$NEED_TO_REPACK_ASAR" = true ]; then
     echo "Repacking ASAR archive..."
     npx asar pack "$APP_SOURCE_DIR" "$APP_DIR_RESOURCE/app.asar"
-    # Clean up the extracted directory
-    rm -rf "$ASAR_EXTRACT_DIR"
+    # clean up the extracted directory    rm -rf "$ASAR_EXTRACT_DIR"
   fi
   
-  # Now we have modified the AppDir. We'll try to run the app to verify (optional)
-  echo "Verifying the modified AppImage runs (this may take a moment)..."
-  # We run the electron binary with the app directory, but we need to set the app directory correctly.
-  # For electron-builder packaged apps, the app is in the resources directory.
-  # We'll try to run the app in the background and kill it after a few seconds.
-  TIMEOUT=10
+  # now we have modified the appdir. we'll try to run the app to verify (optional)  echo "Verifying the modified AppImage runs (this may take a moment)..."
+  # we run the electron binary with the app directory, but we need to set the app directory correctly.  # for electron-builder packaged apps, the app is in the resources directory.  # we'll try to run the app in the background and kill it after a few seconds.  TIMEOUT=10
   if [ -x "$ELECTRON_BINARY" ]; then
-    # Set the app directory based on how we found it
-    if [ -d "resources/app" ]; then
+    # set the app directory based on how we found it    if [ -d "resources/app" ]; then
       APP_PATH="resources/app"
     elif [ -d "app" ]; then
       APP_PATH="app"
@@ -261,27 +206,21 @@ if [ "$FRAMEWORK" = "electron" ]; then
   fi
 fi
 
-# Go back to the original directory
-cd ..
+# go back to the original directorycd ..
 
-# Now repackage the AppDir into a new AppImage using appimagetool
-echo "Repacking AppImage..."
-# We use appimagetool from the system or path
-if ! command -v appimagetool &> /dev/null; then
+# now repackage the appdir into a new appimage using appimagetoolecho "Repacking AppImage..."
+# we use appimagetool from the system or pathif ! command -v appimagetool &> /dev/null; then
   echo "Error: appimagetool not found. Please install it (e.g., download from https://github.com/AppImage/AppImageKit/releases)"
   exit 1
 fi
 
-# Determine the output name
-ORIGINAL_NAME=$(basename "$ORIGINAL_APPIMAGE" .AppImage)
+# determine the output nameORIGINAL_NAME=$(basename "$ORIGINAL_APPIMAGE" .AppImage)
 OUTPUT_APPIMAGE="${ORIGINAL_NAME}-no-view-bar.AppImage"
-# If the original didn't end with .AppImage, we still use the base name
-if [ "$OUTPUT_APPIMAGE" = "$ORIGINAL_APPIMAGE" ]; then
+# if the original didn't end with .appimage, we still use the base nameif [ "$OUTPUT_APPIMAGE" = "$ORIGINAL_APPIMAGE" ]; then
   OUTPUT_APPIMAGE="${ORIGINAL_NAME}-no-view-bar.AppImage"
 fi
 
-# Remove any existing output
-if [ -f "$OUTPUT_APPIMAGE" ]; then
+# remove any existing outputif [ -f "$OUTPUT_APPIMAGE" ]; then
   rm "$OUTPUT_APPIMAGE"
 fi
 
@@ -291,17 +230,14 @@ if [ ! -f "$OUTPUT_APPIMAGE" ]; then
   exit 1
 fi
 
-# Make the new AppImage executable
-chmod +x "$OUTPUT_APPIMAGE"
+# make the new appimage executablechmod +x "$OUTPUT_APPIMAGE"
 
 echo "New AppImage created: $OUTPUT_APPIMAGE"
 
-# Clean up the extracted AppDir
-echo "Cleaning up..."
+# clean up the extracted appdirecho "Cleaning up..."
 rm -rf "$APP_DIR"
 
-# Create a changelog file
-CHANGELOG="${OUTPUT_APPIMAGE}.changelog"
+# create a changelog fileCHANGELOG="${OUTPUT_APPIMAGE}.changelog"
 echo "AppImage modification changelog" > "$CHANGELOG"
 echo "===============================" >> "$CHANGELOG"
 echo "Date: $(date)" >> "$CHANGELOG"

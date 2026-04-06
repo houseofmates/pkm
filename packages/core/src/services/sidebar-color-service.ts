@@ -1,7 +1,4 @@
-// sidebar-color-service.ts
-// service for syncing sidebar item colors with nocobase
-// enables cross-platform color persistence (web, electron, apk, exe)
-
+// sidebar-color-service.ts// service for syncing sidebar item colors with nocobase// enables cross-platform color persistence (web, electron, apk, exe)
 import { api } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -26,25 +23,21 @@ export interface SidebarItemMetadata {
 
 const COLLECTION_NAME = 'sidebar_item_colors';
 
-/**
- * ensure the sidebar_item_colors collection exists in nocobase
+/** * ensure the sidebar_item_colors collection exists in nocobase
  * should be called on app initialization
  */
 export async function ensureSidebarColorsCollection(): Promise<boolean> {
   try {
-    // check if collection exists by attempting to list
-    try {
+    // check if collection exists by attempting to list    try {
       await api.listRecords(COLLECTION_NAME, { pageSize: 1 });
       return true;
     } catch (e: any) {
       if (e?.response?.status !== 404) {
-        // exists but some other error
-        return true;
+        // exists but some other error        return true;
       }
     }
 
-    // collection doesn't exist, create it
-    secureLogger.info('[sidebar-color-service] creating sidebar_item_colors collection...');
+    // collection doesn't exist, create it    secureLogger.info('[sidebar-color-service] creating sidebar_item_colors collection...');
     
     await api.createCollection({
       name: COLLECTION_NAME,
@@ -59,22 +52,19 @@ export async function ensureSidebarColorsCollection(): Promise<boolean> {
       hidden: true
     });
 
-    // wait for collection to be ready
-    await new Promise(r => setTimeout(r, 1000));
+    // wait for collection to be ready    await new Promise(r => setTimeout(r, 1000));
     secureLogger.info('[sidebar-color-service] collection created successfully');
     return true;
   } catch (error: any) {
     if (error?.response?.status === 400) {
-      // already exists (race condition)
-      return true;
+      // already exists (race condition)      return true;
     }
     secureLogger.error('[sidebar-color-service] failed to create collection:', error);
     return false;
   }
 }
 
-/**
- * fetch all sidebar color records
+/** * fetch all sidebar color records
  */
 export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
   try {
@@ -99,8 +89,7 @@ export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
   }
 }
 
-/**
- * get color for a specific sidebar item
+/** * get color for a specific sidebar item
  */
 export async function getSidebarColor(itemId: string): Promise<SidebarColorRecord | null> {
   try {
@@ -130,8 +119,7 @@ export async function getSidebarColor(itemId: string): Promise<SidebarColorRecor
   }
 }
 
-/**
- * save or update a sidebar item's color and metadata
+/** * save or update a sidebar item's color and metadata
  */
 export async function saveSidebarColor(
   itemId: string,
@@ -139,8 +127,7 @@ export async function saveSidebarColor(
   metadata: SidebarItemMetadata
 ): Promise<boolean> {
   try {
-    // check if record exists
-    const existing = await getSidebarColor(itemId);
+    // check if record exists    const existing = await getSidebarColor(itemId);
     
     const payload = {
       item_id: itemId,
@@ -151,11 +138,9 @@ export async function saveSidebarColor(
     };
 
     if (existing?.id) {
-      // update existing
-      await api.updateRecord(COLLECTION_NAME, existing.id, payload);
+      // update existing      await api.updateRecord(COLLECTION_NAME, existing.id, payload);
     } else {
-      // create new
-      await api.createRecord(COLLECTION_NAME, payload);
+      // create new      await api.createRecord(COLLECTION_NAME, payload);
     }
     
     return true;
@@ -165,8 +150,7 @@ export async function saveSidebarColor(
   }
 }
 
-/**
- * update just the color for an item
+/** * update just the color for an item
  */
 export async function updateSidebarItemColor(
   itemId: string,
@@ -186,8 +170,7 @@ export async function updateSidebarItemColor(
       });
     }
     
-    // broadcast change to other tabs/windows
-    broadcastColorChange(itemId, color);
+    // broadcast change to other tabs/windows    broadcastColorChange(itemId, color);
     
     return true;
   } catch (error) {
@@ -196,8 +179,7 @@ export async function updateSidebarItemColor(
   }
 }
 
-/**
- * delete a sidebar item's color record
+/** * delete a sidebar item's color record
  */
 export async function deleteSidebarColor(itemId: string): Promise<boolean> {
   try {
@@ -212,16 +194,14 @@ export async function deleteSidebarColor(itemId: string): Promise<boolean> {
   }
 }
 
-/**
- * batch save multiple sidebar item colors
+/** * batch save multiple sidebar item colors
  * useful for initial sync or bulk updates
  */
 export async function batchSaveSidebarColors(
   items: Array<{ itemId: string; itemType: SidebarItemType; metadata: SidebarItemMetadata }>
 ): Promise<boolean> {
   try {
-    // process sequentially to avoid overwhelming the server
-    for (const item of items) {
+    // process sequentially to avoid overwhelming the server    for (const item of items) {
       await saveSidebarColor(item.itemId, item.itemType, item.metadata);
     }
     return true;
@@ -231,8 +211,7 @@ export async function batchSaveSidebarColors(
   }
 }
 
-/**
- * convert nav item to item type
+/** * convert nav item to item type
  */
 export function getItemTypeFromId(itemId: string): SidebarItemType {
   if (itemId.startsWith('folder_')) return 'folder';
@@ -241,8 +220,7 @@ export function getItemTypeFromId(itemId: string): SidebarItemType {
   return 'collection';
 }
 
-/**
- * broadcast color change to other tabs/windows via storage event
+/** * broadcast color change to other tabs/windows via storage event
  */
 function broadcastColorChange(itemId: string, color: string) {
   if (typeof window !== 'undefined') {
@@ -254,18 +232,15 @@ function broadcastColorChange(itemId: string, color: string) {
     
     try {
       localStorage.setItem('pkm_sidebar_color_broadcast', JSON.stringify(eventData));
-      // remove immediately to allow future broadcasts
-      setTimeout(() => {
+      // remove immediately to allow future broadcasts      setTimeout(() => {
         localStorage.removeItem('pkm_sidebar_color_broadcast');
       }, 100);
     } catch {
-      // ignore storage errors
-    }
+      // ignore storage errors    }
   }
 }
 
-/**
- * subscribe to color changes from other tabs/windows
+/** * subscribe to color changes from other tabs/windows
  */
 export function subscribeToColorChanges(
   callback: (itemId: string, color: string) => void
@@ -282,8 +257,7 @@ export function subscribeToColorChanges(
           callback(data.itemId, data.color);
         }
       } catch {
-        // ignore parse errors
-      }
+        // ignore parse errors      }
     }
   };
   

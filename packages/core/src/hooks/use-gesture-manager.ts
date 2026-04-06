@@ -22,8 +22,7 @@ export interface GestureManagerOptions {
   maxTapMs?: number;
 }
 
-/**
- * centralized gesture manager to normalize pointer/touch gestures across mobile & desktop.
+/** * centralized gesture manager to normalize pointer/touch gestures across mobile & desktop.
  * keeps refs to avoid rerenders during high-frequency pointer moves.
  */
 export function useGestureManager(
@@ -97,8 +96,7 @@ export function useGestureManager(
       clearLongPress();
       handlers.onDragEnd?.(event);
 
-      // multi-touch tap detection
-      stateRef.current.pointers.delete(event.pointerId);
+      // multi-touch tap detection      stateRef.current.pointers.delete(event.pointerId);
       stateRef.current.downTime.delete(event.pointerId);
       const activePointers = [...stateRef.current.pointers.values()];
       if (!wasDragging) {
@@ -123,8 +121,7 @@ export function useGestureManager(
     };
 
     const handleContextMenu: EventListener = (ev) => {
-      // event may be mouseevent or pointerevent; cast safely before use
-      const event = ev as PointerEvent;
+      // event may be mouseevent or pointerevent; cast safely before use      const event = ev as PointerEvent;
       if (handlers.onContextMenu) {
         if (preventDefault && typeof event.preventDefault === 'function') {
           event.preventDefault();

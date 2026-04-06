@@ -8,8 +8,7 @@ async function main() {
       password: process.env.NOCOBASE_PASSWORD || 'password123'
     });
     
-    // get captures
-    const res = await axios.get('https://pkm.houseofmates.space/api/captures:list', {
+    // get captures    const res = await axios.get('https://pkm.houseofmates.space/api/captures:list', {
       headers: {
         Authorization: `Bearer ${loginRes.data.data.token}`
       }

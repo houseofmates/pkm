@@ -1,5 +1,4 @@
-/**
- * field type registry for the modular schema service
+/** * field type registry for the modular schema service
  * 
  * this module provides an extensible registry for field types.
  * field types define how data is validated, stored, and displayed.
@@ -11,21 +10,17 @@ import { z } from 'zod';
 import type { FieldTypeDefinition, FieldDefinition } from './types';
 import { secureLogger } from '@/lib/secure-logger';
 
-/**
- * field registry class - manages all registered field types
+/** * field registry class - manages all registered field types
  */
 class FieldRegistry {
-  // map of field type name to field type definition
-  private fieldTypes: Map<string, FieldTypeDefinition> = new Map();
+  // map of field type name to field type definition  private fieldTypes: Map<string, FieldTypeDefinition> = new Map();
 
-  /**
-   * register a new field type
+  /**   * register a new field type
    * @param fieldtype the field type definition to register
    * @throws error if field type is invalid or already registered (and overwrite is false)
    */
   public register(fieldType: FieldTypeDefinition, overwrite: boolean = false): void {
-    // validate the field type definition
-    if (!fieldType.typeName || typeof fieldType.typeName !== 'string') {
+    // validate the field type definition    if (!fieldType.typeName || typeof fieldType.typeName !== 'string') {
       throw new Error('field type must have a valid typeName');
     }
 
@@ -37,16 +32,14 @@ class FieldRegistry {
       throw new Error('field type must have a valid zod schema');
     }
 
-    // check if already registered
-    if (this.fieldTypes.has(fieldType.typeName) && !overwrite) {
+    // check if already registered    if (this.fieldTypes.has(fieldType.typeName) && !overwrite) {
       throw new Error(`field type "${fieldType.typeName}" is already registered. use overwrite=true to replace.`);
     }
 
     this.fieldTypes.set(fieldType.typeName, fieldType);
   }
 
-  /**
-   * get a registered field type by name
+  /**   * get a registered field type by name
    * @param typename the name of the field type
    * @returns the field type definition or undefined if not found
    */
@@ -54,8 +47,7 @@ class FieldRegistry {
     return this.fieldTypes.get(typeName);
   }
 
-  /**
-   * check if a field type is registered
+  /**   * check if a field type is registered
    * @param typename the name of the field type
    * @returns true if the field type is registered
    */
@@ -63,24 +55,21 @@ class FieldRegistry {
     return this.fieldTypes.has(typeName);
   }
 
-  /**
-   * get all registered field types
+  /**   * get all registered field types
    * @returns array of all field type definitions
    */
   public getAll(): FieldTypeDefinition[] {
     return Array.from(this.fieldTypes.values());
   }
 
-  /**
-   * get all registered field type names
+  /**   * get all registered field type names
    * @returns array of all field type names
    */
   public getTypeNames(): string[] {
     return Array.from(this.fieldTypes.keys());
   }
 
-  /**
-   * unregister a field type
+  /**   * unregister a field type
    * @param typename the name of the field type to unregister
    * @returns true if the field type was removed, false if it didn't exist
    */
@@ -88,15 +77,13 @@ class FieldRegistry {
     return this.fieldTypes.delete(typeName);
   }
 
-  /**
-   * clear all registered field types
+  /**   * clear all registered field types
    */
   public clear(): void {
     this.fieldTypes.clear();
   }
 
-  /**
-   * get the zod schema for a field definition
+  /**   * get the zod schema for a field definition
    * @param field the field definition
    * @returns the zod schema for this field
    * @throws error if the field type is not registered
@@ -110,8 +97,7 @@ class FieldRegistry {
 
     let schema = fieldType.schema;
 
-    // apply field-level validation rules
-    if (field.validationRules) {
+    // apply field-level validation rules    if (field.validationRules) {
       for (const rule of field.validationRules) {
         switch (rule.type) {
           case 'required':
@@ -138,37 +124,31 @@ class FieldRegistry {
       }
     }
 
-    // make optional if not required
-    if (!field.required) {
+    // make optional if not required    if (!field.required) {
       schema = schema.optional();
     }
 
     return schema;
   }
 
-  /**
-   * get the default value for a field
+  /**   * get the default value for a field
    * @param field the field definition
    * @returns the default value
    */
   public getDefaultValue(field: FieldDefinition): any {
-    // use field-specific default if provided
-    if (field.defaultValue !== undefined) {
+    // use field-specific default if provided    if (field.defaultValue !== undefined) {
       return field.defaultValue;
     }
 
-    // fall back to field type default
-    const fieldType = this.get(field.type);
+    // fall back to field type default    const fieldType = this.get(field.type);
     if (fieldType?.defaultValue !== undefined) {
       return fieldType.defaultValue;
     }
 
-    // return null as ultimate fallback
-    return null;
+    // return null as ultimate fallback    return null;
   }
 
-  /**
-   * generate a zod object schema for a table based on its field definitions
+  /**   * generate a zod object schema for a table based on its field definitions
    * @param fields array of field definitions
    * @returns zod object schema for validating records
    */
@@ -183,19 +163,13 @@ class FieldRegistry {
   }
 }
 
-// singleton instance
-export const fieldRegistry = new FieldRegistry();
+// singleton instanceexport const fieldRegistry = new FieldRegistry();
 
-// ============================================================================
-// built-in field type definitions
-// ============================================================================
-
-/**
- * register all built-in field types
+// ============================================================================// built-in field type definitions// ============================================================================
+/** * register all built-in field types
  */
 export function registerBuiltinFieldTypes(): void {
-  // text field - simple string
-  fieldRegistry.register({
+  // text field - simple string  fieldRegistry.register({
     typeName: 'text',
     label: 'text',
     schema: z.string(),
@@ -206,8 +180,7 @@ export function registerBuiltinFieldTypes(): void {
     filterable: true,
   });
 
-  // number field - integer or float
-  fieldRegistry.register({
+  // number field - integer or float  fieldRegistry.register({
     typeName: 'number',
     label: 'number',
     schema: z.number(),
@@ -218,8 +191,7 @@ export function registerBuiltinFieldTypes(): void {
     filterable: true,
   });
 
-  // boolean field - true/false
-  fieldRegistry.register({
+  // boolean field - true/false  fieldRegistry.register({
     typeName: 'boolean',
     label: 'checkbox',
     schema: z.boolean(),
@@ -230,8 +202,7 @@ export function registerBuiltinFieldTypes(): void {
     filterable: true,
   });
 
-  // date field - date only (no time)
-  fieldRegistry.register({
+  // date field - date only (no time)  fieldRegistry.register({
     typeName: 'date',
     label: 'date',
     schema: z.string(), // iso date string
@@ -242,8 +213,7 @@ export function registerBuiltinFieldTypes(): void {
     filterable: true,
   });
 
-  // datetime field - date and time
-  fieldRegistry.register({
+  // datetime field - date and time  fieldRegistry.register({
     typeName: 'datetime',
     label: 'date & time',
     schema: z.string(), // iso datetime string
@@ -254,8 +224,7 @@ export function registerBuiltinFieldTypes(): void {
     filterable: true,
   });
 
-  // email field - validated email string
-  fieldRegistry.register({
+  // email field - validated email string  fieldRegistry.register({
     typeName: 'email',
     label: 'email',
     schema: z.string().email(),
@@ -266,8 +235,7 @@ export function registerBuiltinFieldTypes(): void {
     filterable: true,
   });
 
-  // url field - validated url string
-  fieldRegistry.register({
+  // url field - validated url string  fieldRegistry.register({
     typeName: 'url',
     label: 'url',
     schema: z.string().url(),
@@ -278,8 +246,7 @@ export function registerBuiltinFieldTypes(): void {
     filterable: true,
   });
 
-  // select field - single choice from options
-  fieldRegistry.register({
+  // select field - single choice from options  fieldRegistry.register({
     typeName: 'select',
     label: 'single select',
     schema: z.string(),
@@ -290,8 +257,7 @@ export function registerBuiltinFieldTypes(): void {
     filterable: true,
   });
 
-  // multiselect field - multiple choices from options
-  fieldRegistry.register({
+  // multiselect field - multiple choices from options  fieldRegistry.register({
     typeName: 'multiselect',
     label: 'multi select',
     schema: z.array(z.string()),
@@ -302,8 +268,7 @@ export function registerBuiltinFieldTypes(): void {
     filterable: true,
   });
 
-  // json field - arbitrary json data
-  fieldRegistry.register({
+  // json field - arbitrary json data  fieldRegistry.register({
     typeName: 'json',
     label: 'json',
     schema: z.any(),
@@ -314,8 +279,7 @@ export function registerBuiltinFieldTypes(): void {
     filterable: false,
   });
 
-  // attachment field - file reference
-  fieldRegistry.register({
+  // attachment field - file reference  fieldRegistry.register({
     typeName: 'attachment',
     label: 'attachment',
     schema: z.object({
@@ -331,8 +295,7 @@ export function registerBuiltinFieldTypes(): void {
     filterable: true,
   });
 
-  // relation field - link to another record
-  fieldRegistry.register({
+  // relation field - link to another record  fieldRegistry.register({
     typeName: 'relation',
     label: 'relation',
     schema: z.string(), // record id

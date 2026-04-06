@@ -20,8 +20,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// icons mapping for dynamic items
-const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+// icons mapping for dynamic itemsconst ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   'Text': Text,
   'Heading 1': Heading1,
   'Heading 2': Heading2,

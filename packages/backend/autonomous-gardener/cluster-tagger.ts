@@ -3,7 +3,6 @@ import type { WeaveConfig } from '../shared/config.js';
 import { generateText, extractJson } from '../shared/ollama.js';
 
 // ── types ────────────────────────────────────────────────────
-
 export interface ConceptCluster {
   id: number;
   documentIds: string[];
@@ -13,15 +12,13 @@ export interface ConceptCluster {
 }
 
 // ── cluster tagger ───────────────────────────────────────────
-
 export class ClusterTagger {
   constructor(
     private vectorStore: VectorStore,
     private config: WeaveConfig,
   ) {}
 
-  /**
-   * identify concept clusters among indexed documents and suggest
+  /**   * identify concept clusters among indexed documents and suggest
    * descriptive tags for each cluster using the local llm.
    *
    * algorithm:
@@ -35,13 +32,10 @@ export class ClusterTagger {
     const docs = this.vectorStore.getAll();
     if (docs.length < 3) return [];
 
-    // ── step 1: build adjacency via pairwise cosine similarity ─
-    // use a lower threshold than merge detection so we catch thematic groups
-    const clusterThreshold = this.config.mergeSimilarityThreshold * 0.75;
+    // ── step 1: build adjacency via pairwise cosine similarity ─    // use a lower threshold than merge detection so we catch thematic groups    const clusterThreshold = this.config.mergeSimilarityThreshold * 0.75;
     const parent = new Map<string, string>();
 
-    // initialize union-find
-    for (const doc of docs) {
+    // initialize union-find    for (const doc of docs) {
       parent.set(doc.id, doc.id);
     }
 
@@ -60,8 +54,7 @@ export class ClusterTagger {
       }
     }
 
-    // ── step 2: extract connected components ─────────────────
-    const components = new Map<string, IndexedDocument[]>();
+    // ── step 2: extract connected components ─────────────────    const components = new Map<string, IndexedDocument[]>();
     for (const doc of docs) {
       const root = find(parent, doc.id);
       let group = components.get(root);
@@ -72,13 +65,11 @@ export class ClusterTagger {
       group.push(doc);
     }
 
-    // ── step 3: filter and sort ──────────────────────────────
-    const meaningfulClusters = Array.from(components.values())
+    // ── step 3: filter and sort ──────────────────────────────    const meaningfulClusters = Array.from(components.values())
       .filter(group => group.length >= 3)
       .sort((a, b) => b.length - a.length);
 
-    // ── step 4: llm tag suggestion ───────────────────────────
-    const results: ConceptCluster[] = [];
+    // ── step 4: llm tag suggestion ───────────────────────────    const results: ConceptCluster[] = [];
     let clusterId = 1;
 
     for (const group of meaningfulClusters) {
@@ -96,12 +87,10 @@ export class ClusterTagger {
   }
 
   // ── llm tag suggestion ─────────────────────────────────────
-
   private async suggestTagsForCluster(
     group: IndexedDocument[],
   ): Promise<{ tags: string[]; reason: string }> {
-    // build a concise summary of the cluster for the llm
-    const notesSummary = group
+    // build a concise summary of the cluster for the llm    const notesSummary = group
       .slice(0, 10) // cap at 10 to stay within context window
       .map((d, i) => {
         const excerpt = d.plainText.slice(0, 250).replace(/\n/g, ' ');
@@ -133,8 +122,7 @@ all text must be lowercase.`;
       console.error('[cluster-tagger] llm suggestion failed:', err);
     }
 
-    // fallback: use existing tags from the cluster
-    const tagCounts = new Map<string, number>();
+    // fallback: use existing tags from the cluster    const tagCounts = new Map<string, number>();
     for (const doc of group) {
       for (const tag of doc.tags) {
         tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
@@ -153,14 +141,12 @@ all text must be lowercase.`;
 }
 
 // ── union-find ───────────────────────────────────────────────
-
 function find(parent: Map<string, string>, x: string): string {
   let root = x;
   while (parent.get(root) !== root) {
     root = parent.get(root)!;
   }
-  // path compression
-  let current = x;
+  // path compression  let current = x;
   while (current !== root) {
     const next = parent.get(current)!;
     parent.set(current, root);
@@ -178,7 +164,6 @@ function union(parent: Map<string, string>, a: string, b: string): void {
 }
 
 // ── cosine similarity ────────────────────────────────────────
-
 function cosineSim(a: number[], b: number[]): number {
   const len = Math.min(a.length, b.length);
   let dot = 0, nA = 0, nB = 0;
