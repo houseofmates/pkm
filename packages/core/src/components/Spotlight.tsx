@@ -440,7 +440,7 @@ export function Spotlight() {
                     <Command className="bg-transparent" shouldFilter={false}>
                         <div className="flex items-center px-4 py-4 border-b border-primary/10 relative">
                             <CommandInput
-                                placeholder="Search your second brain..."
+                                placeholder="search your second brain..."
                                 value={query}
                                 onValueChange={onQueryChange}
                                 className="flex-1 h-8 bg-transparent border-none focus:ring-0 text-lg placeholder:text-muted-foreground/50"
