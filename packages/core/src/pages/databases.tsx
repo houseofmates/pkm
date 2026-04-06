@@ -296,22 +296,6 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="p-4 md:p-8 h-full flex items-center justify-center">
-        <Card className="max-w-md w-full">
-          <CardHeader>
-            <CardTitle className="">connect nocobase</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label className="">API Token</Label>
-              <Input
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="enter nocobase api token"
-                onKeyDown={(e) => e.key === 'Enter' && !validating && handleLogin()}
                 disabled={validating}
               />
               <p className="text-xs text-muted-foreground">
@@ -323,7 +307,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
               onClick={handleLogin}
               disabled={validating || !apiKey}
             >
-              {validating ? 'Validating...' : 'Connect'}
+              {validating ? 'validating...' : 'connect'}
             </Button>
           </CardContent>
         </Card>
