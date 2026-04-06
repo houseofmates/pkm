@@ -543,8 +543,8 @@ export function Spotlight() {
                         <div className="flex items-center justify-between px-4 py-3 border-t border-primary/10 bg-primary/5 text-[10px] text-muted-foreground shrink-0">
                             <div className="flex items-center gap-4">
                                 <span><strong>↑↓</strong> to navigate</span>
-                                <span><strong>Enter</strong> to select</span>
-                                <span><strong>Esc</strong> to close</span>
+                                <span><strong>enter</strong> to select</span>
+                                <span><strong>esc</strong> to close</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <CommandIcon className="h-3 w-3" />
