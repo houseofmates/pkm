@@ -65,8 +65,8 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                         </h4>
                         <div className="bg-white/5 p-3 rounded-lg flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium">Canvas Web Worker</p>
-                                <p className="text-xs text-muted-foreground">Offloads IDB Ops to Background Thread</p>
+                                <p className="text-sm font-medium lowercase">canvas web worker</p>
+                                <p className="text-xs text-muted-foreground lowercase">offloads idb ops to background thread</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
