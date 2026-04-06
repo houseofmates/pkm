@@ -263,10 +263,10 @@ export function Toolbar() {
               <div className="flex flex-col gap-2">
                 <span className="text-xs text-primary font-bold lowercase">mode</span>
                 <button onClick={() => { store.setSelectionMode('grab'); closeMenu() }} className={`text-sm p-2 rounded flex items-center gap-2 ${store.selectionMode === 'grab' ? 'bg-primary/20 text-primary' : 'text-zinc-300 hover:bg-white/10'}`}>
-                  <Hand size={16} /> Grab (Pan)
+                  <Hand size={16} /> grab (pan)
                 </button>
                 <button onClick={() => { store.setSelectionMode('cursor'); closeMenu() }} className={`text-sm p-2 rounded flex items-center gap-2 ${store.selectionMode === 'cursor' ? 'bg-primary/20 text-primary' : 'text-zinc-300 hover:bg-white/10'}`}>
-                  <MousePointer2 size={16} /> Interact
+                  <MousePointer2 size={16} /> interact
                 </button>
               </div>
             }
@@ -486,7 +486,7 @@ export function Toolbar() {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-primary lowercase">layers</span>
                   <button onClick={() => store.addLayer(`layer ${store.layers.length + 1}`)} className="text-xs px-2 py-1 bg-primary/20 hover:bg-primary/40 rounded text-primary lowercase">
-                    + Add
+                    + add
                   </button>
                 </div>
                 <div className="flex flex-col gap-1 max-h-[200px] overflow-y-auto">
@@ -502,7 +502,7 @@ export function Toolbar() {
                         {layer.name}
                       </span>
                       <button onClick={() => {
-                        if (confirm('Delete layer?')) store.removeLayer(layer.id)
+                        if (confirm('delete layer?')) store.removeLayer(layer.id)
                       }} className="text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Trash2 size={12} />
                       </button>
