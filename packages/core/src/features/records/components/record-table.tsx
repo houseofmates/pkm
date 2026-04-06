@@ -867,20 +867,29 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         <Button
                           variant={sortDirection === 'up' ? 'default' : 'ghost'}
                           size="sm"
-                          className="h-7 flex-1 text-xs"
+                          className="h-7 flex-1 text-xs lowercase"
                           onClick={() => setSortDirection('up')}
                           disabled={!sortField}
                         >
-                          Up
+                          up
                         </Button>
                         <Button
                           variant={sortDirection === 'down' ? 'default' : 'ghost'}
                           size="sm"
-                          className="h-7 flex-1 text-xs"
+                          className="h-7 flex-1 text-xs lowercase"
                           onClick={() => setSortDirection('down')}
                           disabled={!sortField}
                         >
-                          Down
+                          down
+                        </Button>
+                        <Button
+                          variant={sortDirection === 'down' ? 'default' : 'ghost'}
+                          size="sm"
+                          className="h-7 flex-1 text-xs lowercase"
+                          onClick={() => setSortDirection('down')}
+                          disabled={!sortField}
+                        >
+                          down
                         </Button>
                       </div>
                     </div>
