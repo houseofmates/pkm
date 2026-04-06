@@ -236,10 +236,10 @@ export function Toolbar() {
 
         {/* primary tools - centered */}
         <div className="flex items-center gap-1 px-2">
-          <button onClick={store.undo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="Undo">
+          <button onClick={store.undo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="undo">
             <Undo2 size={20} />
           </button>
-          <button onClick={store.redo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="Redo">
+          <button onClick={store.redo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="redo">
             <Redo2 size={20} />
           </button>
           <div className="w-px h-6 bg-white/10 mx-1" />
@@ -261,7 +261,7 @@ export function Toolbar() {
             specialModeIcon={store.selectionMode === 'cursor' ? <MousePointer2 size={24} /> : <Hand size={24} />}
             menuContent={
               <div className="flex flex-col gap-2">
-                <span className="text-xs text-primary font-bold">Mode</span>
+                <span className="text-xs text-primary font-bold lowercase">mode</span>
                 <button onClick={() => { store.setSelectionMode('grab'); closeMenu() }} className={`text-sm p-2 rounded flex items-center gap-2 ${store.selectionMode === 'grab' ? 'bg-primary/20 text-primary' : 'text-zinc-300 hover:bg-white/10'}`}>
                   <Hand size={16} /> Grab (Pan)
                 </button>
@@ -310,7 +310,7 @@ export function Toolbar() {
             }}
             menuContent={
               <div className="flex flex-col gap-2 min-w-[200px]">
-                <span className="text-xs text-primary font-bold">Selection</span>
+                <span className="text-xs text-primary font-bold lowercase">selection</span>
                 <p className="text-xs text-zinc-400">
                   draw a rectangle to cut & move pixels
                 </p>
@@ -340,7 +340,7 @@ export function Toolbar() {
             }}
             menuContent={
               <div className="flex flex-col gap-2 min-w-[200px]">
-                <span className="text-xs text-primary font-bold">Transform</span>
+                <span className="text-xs text-primary font-bold lowercase">transform</span>
                 <p className="text-xs text-zinc-400">
                   scale, rotate and move selected objects
                 </p>
@@ -465,7 +465,7 @@ export function Toolbar() {
           <button
             onClick={handlePinToDashboard}
             className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors"
-            title="Pin to Dashboard"
+            title="pin to dashboard"
           >
             <Pin size={20} />
           </button>
@@ -484,8 +484,8 @@ export function Toolbar() {
             menuContent={
               <div className="flex flex-col gap-2 min-w-[200px]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-primary">Layers</span>
-                  <button onClick={() => store.addLayer(`Layer ${store.layers.length + 1}`)} className="text-xs px-2 py-1 bg-primary/20 hover:bg-primary/40 rounded text-primary">
+                  <span className="text-xs font-bold text-primary lowercase">layers</span>
+                  <button onClick={() => store.addLayer(`layer ${store.layers.length + 1}`)} className="text-xs px-2 py-1 bg-primary/20 hover:bg-primary/40 rounded text-primary lowercase">
                     + Add
                   </button>
                 </div>
