@@ -3497,7 +3497,7 @@ summary:`;
                     "p-1.5 rounded-lg transition-colors",
                     isRecording ? "bg-red-500/20 text-red-400 animate-pulse" : "hover:bg-white/10 text-white/40 hover:text-white"
                   )}
-                  title={isRecording ? `Recording ${formatTime(recordingTime)}` : "Voice Memo"}
+                  title={isRecording ? `recording ${formatTime(recordingTime)}` : "voice memo"}
                 >
                   <Mic size={16} />
                 </button>
@@ -3507,7 +3507,7 @@ summary:`;
                     "p-1.5 rounded-lg transition-colors",
                     isTranscribing ? "bg-red-500/20 text-red-400 animate-pulse" : "hover:bg-white/10 text-white/40 hover:text-white"
                   )}
-                  title={isTranscribing ? `Transcribing` : "Voice Summary"}
+                  title={isTranscribing ? `transcribing` : "voice summary"}
                 >
                   <FileText size={16} />
                 </button>
