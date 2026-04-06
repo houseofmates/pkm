@@ -393,11 +393,11 @@ export function Spotlight() {
                         <ScrollArea className="flex-1">
                             <CommandList className="pb-4">
                                 <CommandEmpty className="p-8 text-center text-muted-foreground">
-                                    No activities found. Try a different search.
+                                    no activities found. try a different search.
                                 </CommandEmpty>
 
                                 {filteredActivities.length > 0 && (
-                                    <CommandGroup heading="Quick Log Activity" className="px-2">
+                                    <CommandGroup heading="quick log activity" className="px-2">
                                         {filteredActivities.map((activity) => (
                                             <CommandItem
                                                 key={activity.id}
@@ -432,7 +432,7 @@ export function Spotlight() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <Activity className="h-3 w-3" />
-                                <span>Activity Logging</span>
+                                <span>activity logging</span>
                             </div>
                         </div>
                     </Command>
