@@ -378,7 +378,7 @@ export function TemplatePage() {
         >
           <span className="text-sm font-medium flex items-center gap-2">
             <Info className="h-4 w-4 text-primary" />
-            Getting Started
+            getting started
           </span>
           {onboardingOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
         </button>
