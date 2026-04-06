@@ -296,14 +296,29 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="p-4 md:p-8 h-full flex items-center justify-center">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle className="lowercase">connect nocobase</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label className="lowercase">api token</Label>
+              <Input
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="enter your api token"
                 disabled={validating}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground lowercase">
                 your token is stored locally.
               </p>
             </div>
             <Button
-              className="w-full"
+              className="w-full lowercase"
               onClick={handleLogin}
               disabled={validating || !apiKey}
             >
