@@ -159,6 +159,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
                 className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-white/10"
                 onClick={handleOpenFullPage}
                 title="open full page"
+                aria-label="open full page"
               >
                 <ExternalLink className="h-4 w-4" />
               </Button>
@@ -167,6 +168,8 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
                 size="icon"
                 className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-white/10"
                 onClick={onClose}
+                title="close drawer"
+                aria-label="close drawer"
               >
                 <X className="h-4 w-4" />
               </Button>
