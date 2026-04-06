@@ -20,6 +20,7 @@ import { RecordContextMenu } from './record-context-menu';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { PropertyContextMenu } from './property-context-menu';
 import { toast } from 'sonner';
+import { humanizeFieldName } from '@/utils/text-formatting';
 
 // helper to grab lucide icons dynamically (used in headers for property icons)
 function getLucideIcon(name: string): LucideIcon | undefined {
@@ -37,20 +38,7 @@ function parseI18nTemplate(str: string | undefined): string {
   return '';
 }
 
-const ACRONYMS = new Set(['URL', 'UID', 'ID', 'API', 'CSV', 'PDF', 'HTML', 'CSS', 'JSON', 'XML']);
-
-export function humanizeFieldName(name: string): string {
-  if (!name) return name;
-  
-  // split camelCase: createdAt -> created At
-  let processed = name.replace(/([a-z])([A-Z])/g, '$1 $2');
-  
-  // replace underscores and hyphens with spaces
-  processed = processed.replace(/[_-]/g, ' ');
-  
-  // return lowercase - per design system, all UI text must be lowercase
-  return processed.toLowerCase().trim();
-}
+export { humanizeFieldName };
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';

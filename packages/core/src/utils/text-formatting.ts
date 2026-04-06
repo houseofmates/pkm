@@ -45,3 +45,11 @@ export function getCapitalizationClass(name: string): string {
   }
   return '';
 }
+
+export function humanizeFieldName(name: string): string {
+  if (!name) return '';
+
+  // split camelCase and then normalize separators
+  const withCamelSplit = name.replace(/([a-z])([A-Z])/g, '$1 $2');
+  return withCamelSplit.replace(/[_-]/g, ' ').toLowerCase().trim();
+}
