@@ -192,7 +192,7 @@ interface ChatBubbleProps {
 const ChatBubble = memo(function ChatBubble({ message }: ChatBubbleProps) {
   return (
     <div className={`flex flex-col gap-1 ${message.role === 'assistant' ? 'items-start' : 'items-end'}`}>
-      <span className="text-[10px] text-primary opacity-50">{message.role === 'assistant' ? 'Wilson' : 'user'}</span>
+      <span className="text-[10px] text-primary opacity-50 lowercase">{message.role === 'assistant' ? 'wilson' : 'user'}</span>
       <div className={`p-3 rounded-lg max-w-[90%] ${message.role === 'assistant' ? 'bg-primary/10 border border-primary/20 text-primary' : 'bg-black border border-gray-700 text-gray-300'}`}>
         {message.content}
       </div>
@@ -226,7 +226,7 @@ const StreamingBubble = memo(function StreamingBubble() {
   if (!streamingContent) return null;
   return (
     <div className="flex flex-col gap-1 items-start">
-      <span className="text-[10px] text-primary opacity-50">Wilson</span>
+      <span className="text-[10px] text-primary opacity-50 lowercase">wilson</span>
       <div className="p-3 rounded-lg max-w-[90%] bg-primary/10 border border-primary/20 text-primary">
         {streamingContent}
         <span className="inline-block w-1.5 h-3.5 bg-primary/60 ml-0.5 animate-pulse" />
@@ -445,7 +445,7 @@ export function WilsonChat() {
             <button onClick={() => setShowHistory(!showHistory)} className={`p-1 rounded hover:bg-primary/20 transition-colors ${showHistory ? 'text-primary' : 'text-primary/60'}`} title={showHistory ? 'Hide history' : 'Show history'}>
               <History size={18} />
             </button>
-            <span>Wilson</span>
+            <span className="lowercase">wilson</span>
             {currentSession && (
               <span className="text-xs font-normal text-primary/50 truncate max-w-[120px]" title={currentSession.title}>
                 - {compactTimestamp(currentSession.createdAt)}
@@ -469,15 +469,15 @@ export function WilsonChat() {
             <div className="text-primary opacity-50 text-center mt-10">
               <p>systems online.</p>
               <p>waiting for input...</p>
-              <p className="mt-4 text-xs" title={RAW_MODEL_NAME}>supports images, gifs, and videos with {friendlyModelName(RAW_MODEL_NAME)}</p>
-              <p className="mt-2 text-xs text-primary/30" title={RAW_MODEL_NAME}>routing to: {friendlyModelName(RAW_MODEL_NAME)}</p>
+              <p className="mt-4 text-xs lowercase" title={RAW_MODEL_NAME}>supports: jpg, png, gif, webp, mp4, mov with {friendlyModelName(RAW_MODEL_NAME).toLowerCase()}</p>
+              <p className="mt-2 text-xs text-primary/30 lowercase" title={RAW_MODEL_NAME}>routing to: {friendlyModelName(RAW_MODEL_NAME).toLowerCase()}</p>
             </div>
           )}
           {interactionHistory.map((msg) => <ChatBubble key={msg.id} message={msg} />)}
           <StreamingBubble />
           {isThinking && !streamingContent && (
             <div className="flex items-center gap-2 text-primary text-xs animate-pulse">
-              <BrainCircuit size={14} /><span title={RAW_MODEL_NAME}>processing with {friendlyModelName(RAW_MODEL_NAME).split(' ')[0]}...</span>
+              <BrainCircuit size={14} /><span title={RAW_MODEL_NAME} className="lowercase">processing with {friendlyModelName(RAW_MODEL_NAME).split(' ')[0].toLowerCase()}...</span>
             </div>
           )}
         </div>
@@ -498,7 +498,7 @@ export function WilsonChat() {
               <Camera size={18} />
             </button>
             <div className="relative flex-1">
-              <input value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyDown={handleKeyDown} type="text" placeholder="Chat..." disabled={isThinking} className="w-full bg-black border-2 border-primary rounded-lg py-3 pl-4 pr-10 text-primary focus:outline-none focus:border-primary placeholder:text-primary/30 disabled:opacity-50" />
+              <input value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyDown={handleKeyDown} type="text" placeholder="chat..." disabled={isThinking} className="w-full bg-black border-2 border-primary rounded-lg py-3 pl-4 pr-10 text-primary focus:outline-none focus:border-primary placeholder:text-primary/30 disabled:opacity-50 lowercase" />
               <button onClick={checkAndSend} className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-white disabled:opacity-50" disabled={(!userInput.trim() && pendingAttachments.length === 0) || isThinking}>
                 <Send size={16} />
               </button>
@@ -511,8 +511,8 @@ export function WilsonChat() {
           </div>
           <div className="text-[10px] text-primary/30 mt-2 flex items-center gap-2">
             <Image size={10} />
-            <span>Supports: JPG, PNG, GIF, WebP, MP4, MOV</span>
-            <span className="ml-auto" title={RAW_MODEL_NAME}>Model: {friendlyModelName(RAW_MODEL_NAME)}</span>
+            <span className="lowercase">supports: jpg, png, gif, webp, mp4, mov</span>
+            <span className="ml-auto lowercase" title={RAW_MODEL_NAME}>model: {friendlyModelName(RAW_MODEL_NAME).toLowerCase()}</span>
           </div>
         </div>
       </div>

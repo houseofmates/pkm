@@ -447,14 +447,14 @@ export function Spotlight() {
                             />
                             {isSearching && <Loader2 className="h-4 w-4 animate-spin text-primary/40 ml-2" />}
 
-                                <Button
+                            <Button
                                 variant="ghost"
                                 size="sm"
-                                className="absolute right-10 top-1/2 -translate-y-1/2 h-7 text-xs text-muted-foreground hover:text-primary"
+                                className="absolute right-10 top-1/2 -translate-y-1/2 h-7 text-xs text-muted-foreground hover:text-primary lowercase"
                                 onClick={() => { setMode('semantic'); setQuery(''); }}
                             >
                                 <MessageCircle className="w-3 h-3 mr-1" />
-                                Ask AI
+                                ask ai
                             </Button>
                         </div>
 
