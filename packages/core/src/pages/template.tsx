@@ -397,9 +397,9 @@ export function TemplatePage() {
             <div>
               <p className="font-medium text-foreground mb-1">Buttons</p>
               <ul className="list-disc pl-5 space-y-0.5">
-                <li><strong>Load Sample</strong> — Inject a minimal template</li>
-                <li><strong>Save</strong> — Persist current JSON to settings</li>
-                <li><strong>Preview</strong> — Validate and render the pipeline</li>
+                <li><strong>load sample</strong> — Inject a minimal template</li>
+                <li><strong>save</strong> — Persist current JSON to settings</li>
+                <li><strong>preview</strong> — Validate and render the pipeline</li>
                 <li><strong>Build Workspace</strong> — Create databases, fields, and layout</li>
               </ul>
             </div>
