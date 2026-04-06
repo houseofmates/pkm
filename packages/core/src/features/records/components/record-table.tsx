@@ -508,7 +508,7 @@ const DraggableRecordRow = (props: any) => {
             className="h-full w-full rounded-none opacity-50 hover:opacity-100 flex items-center justify-center p-0"
             onClick={(e) => { e.stopPropagation(); onOpenDetail?.(row.original); }}
             onDoubleClick={(e) => { e.stopPropagation(); }}
-            title="View Details"
+            title="view details"
           >
             <Maximize2 className="h-4 w-4" />
           </Button>
@@ -818,7 +818,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     variant="ghost" 
                     size="icon" 
                     className={cn("h-6 w-6", (sortField || isManualOrderActive) && "text-primary")}
-                    title={isManualOrderActive ? "Manual Order Active" : (sortField ? `Sorted by ${sortField} (${sortDirection})` : "Sort")}
+                    title={isManualOrderActive ? "manual order active" : (sortField ? `sorted by ${sortField} (${sortDirection})` : "sort")}
                   >
                     <ArrowUpDown className="h-4 w-4" />
                   </Button>
@@ -826,7 +826,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 <PopoverContent align="end" className="w-56">
                   <div className="space-y-3">
                     <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2">
-                      {isManualOrderActive ? "Manual Order" : "Sort By"}
+                      {isManualOrderActive ? "manual order" : "sort by"}
                     </h4>
                     {isManualOrderActive && (
                       <div className="text-xs text-muted-foreground">
@@ -843,7 +843,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         }}
                         className="w-full h-8 px-2 text-sm bg-[#111] border border-[#333] rounded text-white"
                       >
-                        <option value="">Select Field...</option>
+                        <option value="">select field...</option>
                         {(() => {
                           const availableFields: any[] =
                             collection.fields && collection.fields.length > 0
@@ -914,7 +914,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-56">
                   <div className="space-y-2">
-                    <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2">View Settings</h4>
+                    <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2 lowercase">view settings</h4>
                     <div className="text-xs text-muted-foreground mb-2">Check to unhide properties</div>
                     <div className="max-h-60 overflow-y-auto space-y-1">
                       {(() => {
