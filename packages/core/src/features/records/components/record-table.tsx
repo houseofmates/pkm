@@ -48,17 +48,8 @@ export function humanizeFieldName(name: string): string {
   // replace underscores and hyphens with spaces
   processed = processed.replace(/[_-]/g, ' ');
   
-  // split on spaces and capitalize each word
-  return processed
-    .split(/\s+/)
-    .map(word => {
-      const upper = word.toUpperCase();
-      // if it's an acronym, return uppercase
-      if (ACRONYMS.has(upper)) return upper;
-      // otherwise capitalize first letter, lowercase rest
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    })
-    .join(' ');
+  // return lowercase - per design system, all UI text must be lowercase
+  return processed.toLowerCase().trim();
 }
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
