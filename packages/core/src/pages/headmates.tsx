@@ -73,7 +73,7 @@ export const HeadmatesPage: React.FC = () => {
             onClick={handleSaveKey}
             className="px-6 py-2 bg-yellow-500 text-black font-medium rounded-lg hover:opacity-90"
           >
-            Save & Sync
+            save & sync
           </button>
         </div>
       ) : (
