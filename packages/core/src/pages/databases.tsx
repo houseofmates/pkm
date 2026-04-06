@@ -301,7 +301,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
       <div className="p-4 md:p-8 h-full flex items-center justify-center">
         <Card className="max-w-md w-full">
           <CardHeader>
-            <CardTitle className="">Connect NocoBase</CardTitle>
+            <CardTitle className="">connect nocobase</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -315,7 +315,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
                 disabled={validating}
               />
               <p className="text-xs text-muted-foreground">
-                Your Token Is Stored Locally.
+                your token is stored locally.
               </p>
             </div>
             <Button
@@ -332,11 +332,11 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   }
 
   if (error) {
-    return <div className="p-8 text-destructive">Error Loading Databases: {error}</div>;
+    return <div className="p-8 text-destructive lowercase">error loading databases: {error}</div>;
   }
 
   if (loading && collections.length === 0) {
-    return <div className="p-8 text-muted-foreground">Loading Databases...</div>;
+    return <div className="p-8 text-muted-foreground lowercase">loading databases...</div>;
   }
 
   // only exclude if truly empty (no collections and no sidebar docs)
@@ -354,8 +354,8 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center p-20 text-center space-y-4 border-2 border-dashed rounded-lg opacity-50">
-          <p className="text-xl">No Databases Found</p>
-          <p className="text-sm">Create One to Get Started</p>
+          <p className="text-xl lowercase">no databases found</p>
+          <p className="text-sm lowercase">create one to get started</p>
         </div>
       </div>
     );
