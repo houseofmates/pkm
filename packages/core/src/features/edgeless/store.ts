@@ -276,6 +276,10 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   // history (empty oplog)
   history: { ops: [], undone: [] },
 
+  // pending oplog load
+  pendingOplogLoad: null,
+  setPendingOplogLoad: (load) => set({ pendingOplogLoad: load }),
+
   // ui defaults
   selectionMode: 'grab',
   eraserWidth: 20,
