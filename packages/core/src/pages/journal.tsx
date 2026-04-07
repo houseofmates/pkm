@@ -12,6 +12,7 @@ import remarkGfm from 'remark-gfm';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { PushToTalkWidget } from '@/components/push-to-talk-widget';
+import { MoodSelector } from '@/components/journal/MoodSelector';
 
 // override focus/accent for journal buttons so color comes from the element itself
 const journalStyles = `
@@ -3293,17 +3294,7 @@ summary:`;
       {!viewingEntry && (
         <>
           {/* mood selector */}
-          <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-            <p className="text-xs text-white/40 mb-3 lowercase">how are you feeling?</p>
-            <div className="flex gap-3 justify-center">
-              {MOODS.map(m => renderMoodButton(m))}
-            </div>
-            {mood && (
-              <p className="text-center text-xs text-white/40 mt-3 lowercase">
-                feeling {MOODS.find(m => m.id === mood)?.label}
-              </p>
-            )}
-          </div>
+          <MoodSelector mood={mood} onMoodChange={setMood} />
 
           {/* emotions */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
