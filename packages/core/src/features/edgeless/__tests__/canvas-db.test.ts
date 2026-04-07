@@ -336,13 +336,13 @@ describe('canvas-db oplog operations', () => {
   describe('pruneOldOps', () => {
     it('should delete old synced operations', async () => {
       const drawingId = `${testDrawingId}-prune`
-      await appendOps(drawingId, [
+      const ops = await appendOps(drawingId, [
         createTestOp('p1'),
         createTestOp('p2'),
       ])
 
       // Mark all as synced
-      await markOpsSynced(entries.map(e => e.id))
+      await markOpsSynced(ops.map((e) => e.id))
 
       // Add a new unsynced op
       await appendOp(drawingId, createTestOp('p3'))
