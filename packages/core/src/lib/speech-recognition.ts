@@ -1,4 +1,4 @@
-/**
+/* *
  * speech recognition utility with firefox support
  * firefox doesn't support web speech api natively, so we provide
  * graceful degradation without error toasts.
@@ -8,8 +8,7 @@
  * recommended setup:
  * 1. ensure ollama is running locally (or configured endpoint)
  * 2. pull a whisper model: `ollama pull whisper-small` (or whisper-base, whisper-medium, whisper-large-v3)
- * 3. the hook will automatically use whisper when speechrecognition is unavailable
- */
+ * 3. the hook will automatically use whisper when speechrecognition is unavailable */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';

@@ -1,10 +1,9 @@
-/**
+/* *
  * core type definitions for the modular schema service
  * 
  * this module defines all the types needed for dynamic table schemas,
  * field definitions, records, and queries. all types use zod for
- * runtime validation and typescript inference.
- */
+ * runtime validation and typescript inference. */
 
 import { z } from 'zod';
 
@@ -12,9 +11,8 @@ import { z } from 'zod';
 // field type definitions
 // ============================================================================
 
-/**
- * validation rule for a field - can be a zod schema or custom validator
- */
+/* *
+ * validation rule for a field - can be a zod schema or custom validator */
 export const ValidationRuleSchema = z.object({
   type: z.enum(['required', 'min', 'max', 'regex', 'custom']),
   value: z.any().optional(),
@@ -23,10 +21,9 @@ export const ValidationRuleSchema = z.object({
 
 export type ValidationRule = z.infer<typeof ValidationRuleSchema>;
 
-/**
+/* *
  * field type definition - defines a reusable field type
- * each field type provides a zod schema for validation
- */
+ * each field type provides a zod schema for validation */
 export const FieldTypeDefinitionSchema = z.object({
   // unique identifier for this field type (e.g., 'text', 'number', 'date')
   typeName: z.string(),
@@ -62,10 +59,9 @@ export type FieldTypeDefinition = z.infer<typeof FieldTypeDefinitionSchema>;
 // field instance definitions
 // ============================================================================
 
-/**
+/* *
  * field definition - defines a field within a table schema
- * this connects a column name to a registered field type
- */
+ * this connects a column name to a registered field type */
 export const FieldDefinitionSchema = z.object({
   // unique identifier for this field within the table
   id: z.string(),
@@ -113,9 +109,8 @@ export type FieldDefinition = z.infer<typeof FieldDefinitionSchema>;
 // table definitions
 // ============================================================================
 
-/**
- * table metadata - additional information about a table
- */
+/* *
+ * table metadata - additional information about a table */
 export const TableMetadataSchema = z.object({
   // display color for the table
   color: z.string().optional(),
@@ -135,9 +130,8 @@ export const TableMetadataSchema = z.object({
 
 export type TableMetadata = z.infer<typeof TableMetadataSchema>;
 
-/**
- * table definition - complete schema for a dynamic table
- */
+/* *
+ * table definition - complete schema for a dynamic table */
 export const TableDefinitionSchema = z.object({
   // unique identifier for this table
   id: z.string(),
@@ -170,9 +164,8 @@ export type TableDefinition = z.infer<typeof TableDefinitionSchema>;
 // record definitions
 // ============================================================================
 
-/**
- * base record type - all records have these fields
- */
+/* *
+ * base record type - all records have these fields */
 export const BaseRecordSchema = z.object({
   // unique identifier for the record
   id: z.string(),
@@ -192,9 +185,8 @@ export const BaseRecordSchema = z.object({
 
 export type BaseRecord = z.infer<typeof BaseRecordSchema>;
 
-/**
- * full record type - base fields plus dynamic data
- */
+/* *
+ * full record type - base fields plus dynamic data */
 export type Record = BaseRecord & {
   [fieldName: string]: any;
 };
@@ -203,9 +195,8 @@ export type Record = BaseRecord & {
 // query definitions
 // ============================================================================
 
-/**
- * filter operator types
- */
+/* *
+ * filter operator types */
 export const FilterOperatorSchema = z.enum([
   'eq',      // equals
   'neq',     // not equals
@@ -225,9 +216,8 @@ export const FilterOperatorSchema = z.enum([
 
 export type FilterOperator = z.infer<typeof FilterOperatorSchema>;
 
-/**
- * filter condition
- */
+/* *
+ * filter condition */
 export const FilterConditionSchema = z.object({
   field: z.string(),
   operator: FilterOperatorSchema,
@@ -236,17 +226,15 @@ export const FilterConditionSchema = z.object({
 
 export type FilterCondition = z.infer<typeof FilterConditionSchema>;
 
-/**
- * filter group - combines multiple conditions with and/or
- */
+/* *
+ * filter group - combines multiple conditions with and/or */
 export interface FilterGroup {
   operator: 'and' | 'or';
   conditions: (FilterCondition | FilterGroup)[];
 }
 
-/**
- * zod schema for filter group (using lazy evaluation for recursion)
- */
+/* *
+ * zod schema for filter group (using lazy evaluation for recursion) */
 export const FilterGroupSchema: z.ZodType<FilterGroup> = z.object({
   operator: z.enum(['and', 'or']),
   conditions: z.array(z.union([
@@ -255,16 +243,14 @@ export const FilterGroupSchema: z.ZodType<FilterGroup> = z.object({
   ])),
 });
 
-/**
- * sort direction
- */
+/* *
+ * sort direction */
 export const SortDirectionSchema = z.enum(['asc', 'desc']);
 
 export type SortDirection = z.infer<typeof SortDirectionSchema>;
 
-/**
- * sort specification
- */
+/* *
+ * sort specification */
 export const SortSpecSchema = z.object({
   field: z.string(),
   direction: SortDirectionSchema.optional(),
@@ -272,9 +258,8 @@ export const SortSpecSchema = z.object({
 
 export type SortSpec = z.infer<typeof SortSpecSchema>;
 
-/**
- * query options for fetching records
- */
+/* *
+ * query options for fetching records */
 export const QueryOptionsSchema = z.object({
   // filter conditions
   filter: z.union([FilterConditionSchema, FilterGroupSchema]).optional(),
@@ -297,9 +282,8 @@ export const QueryOptionsSchema = z.object({
 
 export type QueryOptions = z.infer<typeof QueryOptionsSchema>;
 
-/**
- * query result with pagination info
- */
+/* *
+ * query result with pagination info */
 export const QueryResultSchema = z.object({
   // matching records
   records: z.array(z.record(z.string(), z.any())),
@@ -326,9 +310,8 @@ export type QueryResult = z.infer<typeof QueryResultSchema>;
 // change/event definitions (for collaboration)
 // ============================================================================
 
-/**
- * change operation types
- */
+/* *
+ * change operation types */
 export const ChangeOperationSchema = z.enum([
   'create',
   'update',
@@ -337,9 +320,8 @@ export const ChangeOperationSchema = z.enum([
 
 export type ChangeOperation = z.infer<typeof ChangeOperationSchema>;
 
-/**
- * record change event
- */
+/* *
+ * record change event */
 export const RecordChangeSchema = z.object({
   // unique id for this change (for crdt/ot)
   id: z.string(),

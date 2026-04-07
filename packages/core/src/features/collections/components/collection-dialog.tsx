@@ -716,7 +716,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                 <Input
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://... or upload"
+                  placeholder="https:// ... or upload"
                 />
                 <Button
                   type="button"

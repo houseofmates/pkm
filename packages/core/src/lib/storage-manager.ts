@@ -1,10 +1,9 @@
-/**
+/* *
  * storage-manager - centralized localstorage access with optional encryption
  *
  * provides a single api layer that wraps safestorage (sanitization warnings) and
  * adds aes-gcm encryption via the web crypto api so that values stored for
- * sensitive keys aren't plainly visible in the clear.
- */
+ * sensitive keys aren't plainly visible in the clear. */
 
 import { safeStorage } from './sanitize-utils';
 
@@ -115,19 +114,17 @@ export const storageManager = {
     }
   },
 
-  /**
-   * stores a value encrypted in localstorage
-   */
+  /* *
+   * stores a value encrypted in localstorage */
   async setEncryptedItem(key: string, value: string): Promise<void> {
     secretCache[key] = value;
     const encoded = await encrypt(value);
     safeStorage.setItem(key, encoded);
   },
 
-  /**
+  /* *
    * retrieves and decrypts a value from localstorage.
-   * uses an in-memory cache for performance.
-   */
+   * uses an in-memory cache for performance. */
   async getEncryptedItem(key: string): Promise<string | null> {
     if (key in secretCache) return secretCache[key];
 
@@ -142,10 +139,9 @@ export const storageManager = {
     return decrypted;
   },
 
-  /**
+  /* *
    * synchronous version that only works if the item was already loaded
-   * into cache via getencrypteditem or setencrypteditem.
-   */
+   * into cache via getencrypteditem or setencrypteditem. */
   getCachedSecret(key: string): string | null {
     return secretCache[key] || null;
   }

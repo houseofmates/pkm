@@ -14,10 +14,9 @@ export interface SimplyPluralMember {
   };
 }
 
-/**
+/* *
  * syncs simplyplural headmates to the nocobase 'headmates' collection
- * creates/updates records to match simplyplural data
- */
+ * creates/updates records to match simplyplural data */
 export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   try {
   // 1. fetch simplyplural members

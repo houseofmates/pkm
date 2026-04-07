@@ -26,12 +26,10 @@ export const TierListElement = React.memo(function TierListElement({ element: _e
 
           {/* drop zone */}
           <div className="flex-1 bg-black/50 hover:bg-white/5 transition-colors relative">
-            {/*
-   in a full implementation, we would register a droppable zone here for dnd-kit
+            {/* in a full implementation, we would register a droppable zone here for dnd-kit
    that accepts other node elements and snaps them.
    for now, it's a visual container that elements float over.
-   the snapping logic would be in `handledrop` or `ondragend`.
- */}
+   the snapping logic would be in `handledrop` or `ondragend`. */}
           </div>
         </div>
       ))}

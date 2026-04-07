@@ -61,7 +61,7 @@ describe('JournalPage', () => {
     let blobText = '';
     vi.spyOn(URL, 'createObjectURL').mockImplementation((blob: any) => {
       blob.text().then((t: string) => { blobText = t; });
-      return 'blob://fake';
+      return 'blob:// fake';
     });
 
     const { getByTitle } = render(

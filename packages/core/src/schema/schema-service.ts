@@ -1,11 +1,10 @@
-/**
+/* *
  * main schema service for the modular database canvas
  * 
  * this is the primary service for managing dynamic tables, fields, and records.
  * it combines the field registry, persistence layer, and validation into a
  * unified api. this service is the foundation for the visual, programmable
- * database canvas.
- */
+ * database canvas. */
 
 import { z } from 'zod';
 import { fieldRegistry, registerBuiltinFieldTypes } from './field-registry';
@@ -23,16 +22,14 @@ import type {
 // ensure built-in field types are registered
 registerBuiltinFieldTypes();
 
-/**
- * schema service class - main api for dynamic table management
- */
+/* *
+ * schema service class - main api for dynamic table management */
 class SchemaService {
   private initialized: boolean = false;
 
-  /**
+  /* *
    * initialize the schema service
-   * this must be called before any other operations
-   */
+   * this must be called before any other operations */
   public async initialize(): Promise<void> {
     if (this.initialized) return;
     
@@ -42,9 +39,8 @@ class SchemaService {
     secureLogger.info('schema service initialized');
   }
 
-  /**
-   * ensure the service is initialized
-   */
+  /* *
+   * ensure the service is initialized */
   private ensureInitialized(): void {
     if (!this.initialized) {
       throw new Error('schema service not initialized. call initialize() first.');
@@ -55,14 +51,13 @@ class SchemaService {
   // table management
   // ============================================================================
 
-  /**
+  /* *
    * create a new dynamic table
    * @param name unique table name (identifier)
    * @param label human-readable label
    * @param fields array of field definitions
    * @param metadata optional table metadata
-   * @returns the created table definition
-   */
+   * @returns the created table definition */
   public async createTable(
     name: string,
     label: string,
@@ -115,31 +110,28 @@ class SchemaService {
     return table;
   }
 
-  /**
+  /* *
    * get a table by name
    * @param name the table name
-   * @returns the table definition or undefined
-   */
+   * @returns the table definition or undefined */
   public async getTable(name: string): Promise<TableDefinition | undefined> {
     this.ensureInitialized();
     return persistenceService.getTableByName(name);
   }
 
-  /**
+  /* *
    * get all tables
-   * @returns array of all table definitions
-   */
+   * @returns array of all table definitions */
   public async getAllTables(): Promise<TableDefinition[]> {
     this.ensureInitialized();
     return persistenceService.getAllTables();
   }
 
-  /**
+  /* *
    * update a table's schema
    * @param name the table name
    * @param updates partial updates to apply
-   * @returns the updated table definition
-   */
+   * @returns the updated table definition */
   public async updateTable(
     name: string,
     updates: {
@@ -182,10 +174,9 @@ class SchemaService {
     return table;
   }
 
-  /**
+  /* *
    * delete a table and all its records
-   * @param name the table name to delete
-   */
+   * @param name the table name to delete */
   public async deleteTable(name: string): Promise<void> {
     this.ensureInitialized();
 
@@ -202,12 +193,11 @@ class SchemaService {
   // field management
   // ============================================================================
 
-  /**
+  /* *
    * add a field to an existing table
    * @param tablename the table name
    * @param field the field definition (without id)
-   * @returns the updated table definition
-   */
+   * @returns the updated table definition */
   public async addField(
     tableName: string,
     field: Omit<FieldDefinition, 'id'>
@@ -237,12 +227,11 @@ class SchemaService {
     return table;
   }
 
-  /**
+  /* *
    * remove a field from a table
    * @param tablename the table name
    * @param fieldid the field id to remove
-   * @returns the updated table definition
-   */
+   * @returns the updated table definition */
   public async removeField(tableName: string, fieldId: string): Promise<TableDefinition> {
     this.ensureInitialized();
 
@@ -267,12 +256,11 @@ class SchemaService {
   // record operations
   // ============================================================================
 
-  /**
+  /* *
    * create a new record in a table
    * @param tablename the table name
    * @param data the record data (without system fields)
-   * @returns the created record with id and timestamps
-   */
+   * @returns the created record with id and timestamps */
   public async createRecord(
     tableName: string,
     data: Record<string, any>
@@ -318,23 +306,21 @@ class SchemaService {
     return record;
   }
 
-  /**
+  /* *
    * get a record by id
    * @param recordid the record id
-   * @returns the record or undefined
-   */
+   * @returns the record or undefined */
   public async getRecord(recordId: string): Promise<TableRecord | undefined> {
     this.ensureInitialized();
     return persistenceService.getRecord(recordId);
   }
 
-  /**
+  /* *
    * update a record
    * @param tablename the table name
    * @param recordid the record id
    * @param updates the data to update
-   * @returns the updated record
-   */
+   * @returns the updated record */
   public async updateRecord(
     tableName: string,
     recordId: string,
@@ -373,21 +359,19 @@ class SchemaService {
     return record;
   }
 
-  /**
+  /* *
    * delete a record
-   * @param recordid the record id to delete
-   */
+   * @param recordid the record id to delete */
   public async deleteRecord(recordId: string): Promise<void> {
     this.ensureInitialized();
     await persistenceService.deleteRecord(recordId);
   }
 
-  /**
+  /* *
    * query records from a table
    * @param tablename the table name
    * @param options query options (filter, sort, pagination)
-   * @returns query result with records and pagination info
-   */
+   * @returns query result with records and pagination info */
   public async queryRecords(
     tableName: string,
     options?: QueryOptions
@@ -402,11 +386,10 @@ class SchemaService {
     return persistenceService.queryRecords(tableName, options);
   }
 
-  /**
+  /* *
    * get all records from a table
    * @param tablename the table name
-   * @returns array of all records
-   */
+   * @returns array of all records */
   public async getAllRecords(tableName: string): Promise<TableRecord[]> {
     this.ensureInitialized();
     return persistenceService.getRecordsByTable(tableName);
@@ -416,35 +399,31 @@ class SchemaService {
   // utility operations
   // ============================================================================
 
-  /**
+  /* *
    * export all data (for backup)
-   * @returns all tables and records
-   */
+   * @returns all tables and records */
   public async exportAll(): Promise<{ tables: TableDefinition[]; records: TableRecord[] }> {
     this.ensureInitialized();
     return persistenceService.exportAll();
   }
 
-  /**
+  /* *
    * import data (for restore)
-   * @param data the data to import
-   */
+   * @param data the data to import */
   public async importAll(data: { tables: TableDefinition[]; records: TableRecord[] }): Promise<void> {
     this.ensureInitialized();
     return persistenceService.importAll(data);
   }
 
-  /**
-   * clear all data (use with caution!)
-   */
+  /* *
+   * clear all data (use with caution!) */
   public async clearAll(): Promise<void> {
     this.ensureInitialized();
     return persistenceService.clearAll();
   }
 
-  /**
-   * get the field registry (for registering custom field types)
-   */
+  /* *
+   * get the field registry (for registering custom field types) */
   public getFieldRegistry(): unknown {
     return fieldRegistry;
   }

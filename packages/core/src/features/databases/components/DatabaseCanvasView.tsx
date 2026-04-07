@@ -117,8 +117,7 @@ export function DatabaseCanvasView() {
             if header is absolute, canvas is behind.
             we should probably pad the canvas or let it pan infinitely underneath.
             "align header separator... pannable canvas"
-            usually canvas flows under header.
-        */}
+            usually canvas flows under header. */}
       <div className="flex-1 w-full h-full relative overflow-hidden">
         <EdgelessCanvas
           className="bg-[#050505]"

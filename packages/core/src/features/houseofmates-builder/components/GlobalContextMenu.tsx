@@ -67,7 +67,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   const handleUploadBackground = () => {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = 'image/*';
+  input.accept = 'image/* ';
   input.onchange = async (e: any) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -348,7 +348,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
    onClick={() => {
    const input = document.createElement('input');
    input.type = 'file';
-   input.accept = 'audio/*';
+   input.accept = 'audio/* ';
    input.onchange = async (e: any) => {
   const file = e.target.files[0];
   if (!file) return;

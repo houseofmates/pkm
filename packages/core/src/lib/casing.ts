@@ -1,7 +1,6 @@
-/**
- * Converts snake_case or lowercase strings to Title Case.
- * Handles underscores, hyphens, and preserves known acronyms.
- */
+/* *
+ * converts snake_case or lowercase strings to title case.
+ * handles underscores, hyphens, and preserves known acronyms. */
 const ACRONYMS = new Set(['api', 'xp', 'csv', 'json', 'id', 'url', 'uid', 'pdf', 'wysiwyg', 'pkm', 'ai', 'jwt', 'llm']);
 
 export function toTitleCase(str: string): string {
@@ -18,5 +17,5 @@ export function toTitleCase(str: string): string {
     .join(' ');
 }
 
-// Alias for backward compatibility
+// alias for backward compatibility
 export const humanizeFieldName = toTitleCase;

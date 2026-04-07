@@ -1,4 +1,4 @@
-/**
+/* *
  * nocobase collection: journal
  *
  * create this collection via the nocobase admin ui or api.
@@ -49,8 +49,7 @@
  *  list:    get    /api/journal:list          ?pagesize=20&sort=-date
  *  get one: get    /api/journal:get?filterbytk=<id>
  *  update:  post   /api/journal:update?filterbytk=<id>
- *  delete:  post   /api/journal:destroy?filterbytk=<id>
- */
+ *  delete:  post   /api/journal:destroy?filterbytk=<id> */
 
 export interface JournalRecord {
   id?: number;
@@ -68,7 +67,7 @@ export interface JournalRecord {
   updatedAt?: string;
 }
 
-/** parse activities json string → string array */
+/* * parse activities json string → string array */
 export function parseActivities(raw: string | null | undefined): string[] {
   try { return JSON.parse(raw ?? '[]'); } catch { return []; }
 }

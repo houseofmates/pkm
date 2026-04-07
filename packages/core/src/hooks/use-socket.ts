@@ -14,7 +14,7 @@ export const useSocket = () => {
     socketRefCount++;
 
     if (!socket) {
-      socket = io(import.meta.env.VITE_SOCKET_URL || 'wss://db.houseofmates.space', {
+      socket = io(import.meta.env.VITE_SOCKET_URL || 'wss:// db.houseofmates.space', {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         autoConnect: true,

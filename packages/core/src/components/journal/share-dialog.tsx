@@ -15,7 +15,7 @@ interface ShareDialogProps {
 
 export function ShareDialog({ documentId, isPublic, onTogglePublic }: ShareDialogProps) {
   const [open, setOpen] = useState(false);
-  const publicUrl = `${import.meta.env.VITE_PUBLIC_URL || 'http://localhost:3011'}/doc/${documentid}`;
+  const publicUrl = `${import.meta.env.VITE_PUBLIC_URL || 'http:// localhost:3011'}/doc/${documentid}`;
 
   const handleCopyLink = () => {
   navigator.clipboard.writeText(publicUrl);

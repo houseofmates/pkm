@@ -20,9 +20,9 @@ import { secureLogger } from '@/lib/secure-logger';
 interface CreateFieldDialogProps {
   collectionName: string;
   onFieldCreated: () => void;
-  /** controlled open state */
+  /* * controlled open state */
   open?: boolean;
-  /** callback when open state changes */
+  /* * callback when open state changes */
   onOpenChange?: (open: boolean) => void;
 }
 

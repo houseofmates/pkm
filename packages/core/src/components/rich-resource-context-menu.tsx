@@ -5,8 +5,7 @@ import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check
 // note: static import of lucide-react gets tree-shaken by bundlers. a number of
 // other modules rely on some of the helper icons above, so we keep those
 // exports around, but the full namespace may still be pruned.
-//
-// to avoid a completely empty picker when the module is tree‑shaken (which was
+// // to avoid a completely empty picker when the module is tree‑shaken (which was
 // the original user complaint), we dynamically load the library at runtime and
 // cache the result.  additionally we trigger a background import as soon as
 // this file loads so that the first time the context menu is opened the icons
@@ -66,16 +65,14 @@ interface CustomIconEntry {
 // could end up empty or missing most of the icons, which is exactly what
 // manifested when right‑clicking a sidebar item – the "icons" tab would be
 // completely blank.
-//
-// loading the module with a dynamic `import()` ensures we receive the full
+// // loading the module with a dynamic `import()` ensures we receive the full
 // export list at runtime (the library cannot be pruned) and allows us to
 // rebuild the list when the context menu opens.  we also keep the filtering
 // logic the same so we still exclude internal helpers and duplicates.
 
 // helper used in `useeffect` below; not exported because it's only relevant in
 // this file.
-//
-// lucide's module shape has changed a few times – during development the
+// // lucide's module shape has changed a few times – during development the
 // namespace might expose every icon as a top‑level export, and in production
 // builds a single `icons` object may be provided instead.  the previous
 // implementation blindly filtered out the `icons` property which meant that
@@ -486,7 +483,7 @@ function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: R
     if (activeTab === 'emojis' && emojis.length === DEFAULT_EMOJIS.length) {
       const raf = requestAnimationFrame(() => setLoadingEmojis(true));
       // fetch a comprehensive emoji list
-      fetch('https://unpkg.com/emoji-datasource-twitter@15.0.0/emoji.json')
+      fetch('https:// unpkg.com/emoji-datasource-twitter@15.0.0/emoji.json')
         .then(res => res.json())
         .then((data: any[]) => {
           // sort by sort_order to ensure smileys are first (fixing the "flags only" issue)
@@ -531,7 +528,7 @@ function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: R
   // twemoji url helper
   const getTwemojiUrl = (unified: string) => {
     const code = unified.toLowerCase().replace(/-fe0f/g, '');
-    return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${code}.png`;
+    return `https:// cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${code}.png`;
   };
 
   // file upload

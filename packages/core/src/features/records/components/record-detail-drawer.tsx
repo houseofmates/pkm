@@ -31,7 +31,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
   if (!record || !collection) return null;
 
-  // Apply fallback fields for collections that don't have fields defined
+  // apply fallback fields for collections that don't have fields defined
   const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string; uiSchema?: { title?: string } }>> = {
     events: [
       { name: 'title', type: 'string', interface: 'input', uiSchema: { title: 'title' } },

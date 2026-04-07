@@ -62,7 +62,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
 
   if (linkType === 'external' && externalUrl.trim()) {
   // ensure url has protocol
-  link = externalUrl.startsWith('http') ? externalUrl : `https://${externalurl}`;
+  link = externalUrl.startsWith('http') ? externalUrl : `https:// ${externalurl}`;
   } else if (linkType === 'internal' && internalPage) {
   link = `/${internalPage}`;
   } else {
@@ -143,7 +143,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
    type="text"
    value={externalUrl}
    onChange={(e) => setExternalUrl(e.target.value)}
-   placeholder="https://example.com"
+   placeholder="https:// example.com"
    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30"
  />
  </div>
@@ -186,7 +186,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  <p className="text-xs text-white/40 lowercase mb-1">link preview</p>
  <p className="text-sm text-[var(--primary)] font-mono break-all">
    {linkType === 'external'
-   ? (externalUrl.startsWith('http') ? externalUrl : `https://${externalurl}`)
+   ? (externalUrl.startsWith('http') ? externalUrl : `https:// ${externalurl}`)
    : `/${internalPage}`
    }
  </p>

@@ -60,7 +60,7 @@ export function ProtocolShift() {
   <div className="absolute inset-0 bg-gradient-to-tr from-[#050505] via-[#1a0b1a] to-[#001f3f] opacity-80 animate-pulse mix-blend-screen" />
 
   {/* stars / dust */}
-  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30" />
+  <div className="absolute inset-0 bg-[url('https:// www.transparenttextures.com/patterns/stardust.png')] opacity-30" />
 
   <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/20 text-xs tracking-[1em] font-light animate-pulse">
  sanctuary protocol active

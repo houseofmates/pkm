@@ -1,4 +1,4 @@
-/**
+/* *
  * secure logger - privacy-first logging system
  *
  * this logger ensures no sensitive data leaks to browser console unless:
@@ -6,14 +6,12 @@
  * 2. explicitly in development mode with vite_debug=true
  * 3. privacy mode is disabled
  *
- * for a did system with sensitive headmate data, this is critical.
- */
+ * for a did system with sensitive headmate data, this is critical. */
 
 import { storageManager } from './storage-manager';
 
-/**
- * deep sanitization utility for logging objects/arrays
- */
+/* *
+ * deep sanitization utility for logging objects/arrays */
 export function sanitizeForLogging<T>(input: T): T {
   if (typeof input === 'string') {
     return sanitizeMessage(input) as unknown as T;

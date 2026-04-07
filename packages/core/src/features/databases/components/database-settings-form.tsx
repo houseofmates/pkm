@@ -128,7 +128,7 @@ export function DatabaseSettingsForm({
                 )}
               </Button>
               {/* hidden upload for icon */}
-              <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onchange={(e) => handleupload(e, 'icon')} />
+              <input type="file" ref={fileInputRef} className="hidden" accept="image/* " onchange={(e) => handleupload(e, 'icon')} />
               <button variant="ghost" size="icon" classname="h-8 w-8" onclick={() => fileinputref.current?.click()} title="upload icon">
                 <upload classname="h-3 w-3" />
               </button>

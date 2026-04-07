@@ -1,11 +1,9 @@
 // ai-worker-core.ts — pure logic extracted from ai.worker.ts
-//
-// this module contains all the ai/vector/rag/streaming logic with
+// // this module contains all the ai/vector/rag/streaming logic with
 // zero comlink or web-worker dependencies. it can be imported by:
-//   1. ai.worker.ts (runs in a dedicated worker thread)
-//   2. use-ai-worker.ts main-thread fallback (runs on the ui thread)
-//
-// a custom `fetchimpl` can be injected at init time so mobile builds
+// 1. ai.worker.ts (runs in a dedicated worker thread)
+// 2. use-ai-worker.ts main-thread fallback (runs on the ui thread)
+// // a custom `fetchimpl` can be injected at init time so mobile builds
 // can route requests through capacitor's native http bridge.
 
 import { secureLogger } from '@/lib/secure-logger';
@@ -21,7 +19,7 @@ const VECTOR_CONFIG = {
     chunkOverlap: 128,
     topK: 8,
     embeddingModel: 'nomic-embed-text',
-    embeddingEndpoint: 'http://localhost:11434/api/embeddings',
+    embeddingEndpoint: 'http:// localhost:11434/api/embeddings',
 };
 
 // ---------------------------------------------------------------------------
@@ -31,7 +29,7 @@ const VECTOR_CONFIG = {
 let _apiBaseUrl = '';
 let _authToken = '';
 let _fetch: typeof globalThis.fetch = globalThis.fetch?.bind(globalThis);
-let _ollamaBaseUrl = 'http://localhost:11434';
+let _ollamaBaseUrl = 'http:// localhost:11434';
 
 // ---------------------------------------------------------------------------
 // init
@@ -50,7 +48,7 @@ export function init(
     // log the incoming ollamabaseurl for debugging
     secureLogger.info('[ai-worker] init called with ollamaBaseUrl:', ollamaBaseUrl);
     
-    _ollamaBaseUrl = (ollamaBaseUrl || _ollamaBaseUrl || 'http://localhost:11434').replace(/\/+$/, '');
+    _ollamaBaseUrl = (ollamaBaseUrl || _ollamaBaseUrl || 'http:// localhost:11434').replace(/\/+$/, '');
     
     secureLogger.info('[ai-worker] resolved _ollamaBaseUrl:', _ollamaBaseUrl);
 
@@ -301,7 +299,7 @@ async function chatStream(
     
     secureLogger.info('[ai-worker] chatStream using endpoint:', resolvedEndpoint, '(input was:', endpoint + ')');
 
-    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+    const isGemini = /generativeai\.googleapis\.com\// i.test(resolvedendpoint);
 
     if (isGemini) {
         const response = await _fetch(resolvedEndpoint, {
@@ -381,7 +379,7 @@ async function chatStreamMultimodal(
     
     secureLogger.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
 
-    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+    const isGemini = /generativeai\.googleapis\.com\// i.test(resolvedendpoint);
     if (isGemini) {
         // flatten the messages into a single prompt for gemini
         const prompt = messages
@@ -453,7 +451,7 @@ async function generateTextLegacy(
 ): Promise<string | null> {
     try {
         const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/generate');
-        const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+        const isGemini = /generativeai\.googleapis\.com\// i.test(resolvedendpoint);
 
         const body = isGemini
             ? { prompt: { text: prompt } }
@@ -596,13 +594,13 @@ export type WorkerAPIWithInit = AIWorkerAPI & {
 };
 
 function resolveOllamaEndpointForWorker(endpoint: string, fallbackPath: string = '/api/generate'): string {
-    const normalizedBase = (_ollamaBaseUrl || 'http://localhost:11434').replace(/\/+$/, '');
+    const normalizedBase = (_ollamaBaseUrl || 'http:// localhost:11434').replace(/\/+$/, '');
     if (!endpoint) return `${normalizedBase}${fallbackPath}`;
 
     const stripped = endpoint.replace(/\/+$/, '');
     
     // if endpoint is already a full url (starts with http:// or https://)
-    if (/^https?:\/\//.test(stripped)) {
+    if (/^https?:\/\// .test(stripped)) {
         // check if it ends with /api/generate but we need /api/chat (or vice versa)
         const generatePattern = /\/api\/generate$/;
         const chatPattern = /\/api\/chat$/;

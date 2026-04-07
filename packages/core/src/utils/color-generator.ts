@@ -10,10 +10,9 @@ function hashCode(str: string): number {
   return hash;
 }
 
-/**
+/* *
  * generates a consistent hsl color string for a given text.
- * uses a predefined set of pleasing hues or continuous space.
- */
+ * uses a predefined set of pleasing hues or continuous space. */
 export function getStringColor(str: string): string {
   if (!str) return '#888888';
 
@@ -28,14 +27,13 @@ export function getStringColor(str: string): string {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
-/**
+/* *
  * calculates a "darker, more vibrant, slightly cooler" outline color
  * based on the input hsl or hex. 
  * note: for simplicity with css usage, this might return a css color-mix string
  * or we calculate it manually if we have the hsl components.
  * 
- * since we generate hsl above, we can manually manipulate it.
- */
+ * since we generate hsl above, we can manually manipulate it. */
 export function getOutlineColorFromHsl(hue: number, saturation: number, lightness: number): string {
   // "darker": reduce lightness significantly (keep it readable but dark)
   // user requested "25% darker" -> increase reduction from 40 to 50
@@ -50,9 +48,8 @@ export function getOutlineColorFromHsl(hue: number, saturation: number, lightnes
   return `hsl(${newH}, ${newS}%, ${newL}%)`;
 }
 
-/**
- * helper to get both base and outline styles for a string
- */
+/* *
+ * helper to get both base and outline styles for a string */
 export function getColorStyles(str: string) {
   const hash = Math.abs(hashCode(str));
   const h = hash % 360;

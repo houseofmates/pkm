@@ -1,7 +1,7 @@
 import { secureLogger } from '@/lib/secure-logger';
 
 // hardcoded faster-whisper server endpoint
-const FASTER_WHISPER_URL = 'http://192.168.4.250:5000/transcribe';
+const FASTER_WHISPER_URL = 'http:// 192.168.4.250:5000/transcribe';
 
 export interface FasterWhisperTranscriptionOptions {
   language?: string;
@@ -33,10 +33,9 @@ export interface FasterWhisperTranscriptionResult {
   }>;
 }
 
-/**
+/* *
  * dedicated client for faster-whisper server running on 192.168.4.250:5000
- * optimized for local network transcription with wav/pcm streams
- */
+ * optimized for local network transcription with wav/pcm streams */
 export class FasterWhisperClient {
   private baseUrl: string;
 
@@ -44,10 +43,9 @@ export class FasterWhisperClient {
     this.baseUrl = baseUrl;
   }
 
-  /**
+  /* *
    * convert audio blob to wav format for faster-whisper
-   * uses web audio api for proper format conversion
-   */
+   * uses web audio api for proper format conversion */
   async convertToWav(audioBlob: Blob): Promise<Blob> {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     
@@ -82,9 +80,8 @@ export class FasterWhisperClient {
     }
   }
 
-  /**
-   * convert audiobuffer to wav format
-   */
+  /* *
+   * convert audiobuffer to wav format */
   private audioBufferToWav(buffer: AudioBuffer): ArrayBuffer {
     const length = buffer.length * 2 + 44;
     const arrayBuffer = new ArrayBuffer(length);
@@ -125,10 +122,9 @@ export class FasterWhisperClient {
     }
   }
 
-  /**
+  /* *
    * transcribe audio using faster-whisper server
-   * sends wav/pcm data to 192.168.4.250:5000/transcribe
-   */
+   * sends wav/pcm data to 192.168.4.250:5000/transcribe */
   async transcribe(
     audioBlob: Blob,
     options: FasterWhisperTranscriptionOptions = {}
@@ -197,9 +193,8 @@ export class FasterWhisperClient {
     }
   }
 
-  /**
-   * check if faster-whisper server is reachable
-   */
+  /* *
+   * check if faster-whisper server is reachable */
   async isAvailable(): Promise<boolean> {
     try {
       const response = await fetch(this.baseUrl.replace('/transcribe', '/'), {

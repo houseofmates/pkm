@@ -1,9 +1,8 @@
 import { NotionWorkspace } from './parser';
 
-/**
+/* *
  * mapping for editors to show human‑readable descriptions or completions when
- * dealing with notion export data.
- */
+ * dealing with notion export data. */
 export const notionTypeMap: Record<string, string> = {
     title: 'string',
     text: 'string',
@@ -21,10 +20,9 @@ export const notionTypeMap: Record<string, string> = {
     files: 'json',
 };
 
-/**
+/* *
  * return suggestions for a given database workspace (collection) that can be
- * used by an editor extension to annotate schema or generate completions.
- */
+ * used by an editor extension to annotate schema or generate completions. */
 export function generateSchemaSuggestions(ws: NotionWorkspace) {
     const suggestions: Array<{ collection: string; fields: Record<string, string> }> = [];
     for (const db of ws.databases) {

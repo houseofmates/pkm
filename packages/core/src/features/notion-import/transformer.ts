@@ -11,10 +11,9 @@ const REL_MIN_SCORE = 0.5;
 const REL_SAMPLE_SIZE = 120; // cap value comparisons for performance
 const REL_KEY_UNIQUENESS_MIN = 0.6; // require keys to be reasonably unique
 
-/**
+/* *
  * utility to yield control back to the main thread.
- * uses requestanimationframe if in browser, otherwise settimeout.
- */
+ * uses requestanimationframe if in browser, otherwise settimeout. */
 const yieldControl = () => new Promise(resolve => {
     if (typeof requestAnimationFrame !== 'undefined') {
         requestAnimationFrame(() => resolve(undefined));

@@ -2,7 +2,7 @@ import { secureLogger } from '@/lib/secure-logger';
 import { getOllamaBase } from '@/lib/llm-config';
 
 // hardcoded ollama endpoint for detail enhancement
-const OLLAMA_URL = 'http://192.168.4.250:11434/api/generate';
+const OLLAMA_URL = 'http:// 192.168.4.250:11434/api/generate';
 const DETAIL_ENHANCER_MODEL = 'qwen2.5-coder:7b-instruct-q4_K_S';
 
 export interface DetailEnhancerOptions {
@@ -19,7 +19,7 @@ export interface DetailEnhancerResult {
   processingTime: number;
 }
 
-/**
+/* *
  * detail enhancer - transforms messy speech into dense professional documentation
  * 
  * core principles:
@@ -27,8 +27,7 @@ export interface DetailEnhancerResult {
  * - reorganizes fragmented thoughts into coherent structure
  * - infers and adds relevant context from pkm knowledge base
  * - expands on implied details while staying factual
- * - produces professional, dense documentation
- */
+ * - produces professional, dense documentation */
 export class DetailEnhancer {
   private model: string;
   private ollamaUrl: string;
@@ -38,9 +37,8 @@ export class DetailEnhancer {
     this.ollamaUrl = getOllamaBase() + '/api/generate';
   }
 
-  /**
-   * build the enhancement prompt that enforces data preservation
-   */
+  /* *
+   * build the enhancement prompt that enforces data preservation */
   private buildPrompt(
     transcript: string,
     existingNotes?: string[]
@@ -78,9 +76,8 @@ OUTPUT FORMAT:
     return { system: systemPrompt, prompt };
   }
 
-  /**
-   * extract added context references from enhanced text
-   */
+  /* *
+   * extract added context references from enhanced text */
   private extractAddedContext(enhanced: string): string[] {
     const refs: string[] = [];
     const refMatches = enhanced.matchAll(/\[ref:\s*([^\]]+)\]/g);
@@ -90,10 +87,9 @@ OUTPUT FORMAT:
     return [...new Set(refs)];
   }
 
-  /**
+  /* *
    * process transcript through detail enhancer
-   * returns enhanced documentation with metadata
-   */
+   * returns enhanced documentation with metadata */
   async enhance(
     transcript: string,
     options: DetailEnhancerOptions = {}
@@ -147,10 +143,9 @@ OUTPUT FORMAT:
     }
   }
 
-  /**
+  /* *
    * fallback enhancement when ollama is unavailable
-   * applies basic formatting without llm
-   */
+   * applies basic formatting without llm */
   private fallbackEnhance(transcript: string): string {
     const lines = transcript
       .split(/[.!?]+/)
@@ -173,9 +168,8 @@ OUTPUT FORMAT:
       .join('\n\n---\n\n');
   }
 
-  /**
-   * stream enhancement for real-time ui updates
-   */
+  /* *
+   * stream enhancement for real-time ui updates */
   async enhanceStream(
     transcript: string,
     onChunk: (chunk: string) => void,

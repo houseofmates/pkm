@@ -1,11 +1,9 @@
 // use-ai-worker.ts — react hook that provides typed async ai methods.
-//
-// strategy:
-//   1. try to spin up a web worker + comlink proxy (fast, off main thread)
-//   2. if the worker fails (mobile webview, csp, etc) fall back to
-//      importing ai-worker-core.ts directly and running on the main thread
-//
-// the hook is a singleton — every consumer gets the same instance.
+// // strategy:
+// 1. try to spin up a web worker + comlink proxy (fast, off main thread)
+// 2. if the worker fails (mobile webview, csp, etc) fall back to
+// importing ai-worker-core.ts directly and running on the main thread
+// // the hook is a singleton — every consumer gets the same instance.
 // comlink proxy callbacks are properly released after each streaming call
 // to prevent messagechannel / messageport memory leaks.
 

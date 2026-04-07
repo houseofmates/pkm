@@ -26,7 +26,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: WidgetPrope
   const handleFileUpload = (field: string, config: any) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'image/*';
+    input.accept = 'image/* ';
     input.onchange = (e: any) => {
       const file = e.target.files?.[0];
       if (file) {
@@ -57,7 +57,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: WidgetPrope
         return (
           <>
             <input label="button text" value={content.text} onchange={(v: string) => updatefield('text', v)} />
-            <input label="url" value={content.url} onchange={(v: string) => updatefield('url', v)} placeholder="https://" />
+            <input label="url" value={content.url} onchange={(v: string) => updatefield('url', v)} placeholder="https:// " />
             <div classname="flex flex-col gap-1.5">
               <label classname="text-white/70 text-xs font-bold">icon (lucide name)</label>
               <div classname="flex gap-2">
@@ -67,7 +67,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: WidgetPrope
                   onchange={e => updatefield('icon', e.target.value)}
                   placeholder="e.g. star, heart, link"
                 />
-                <a href="https://lucide.dev/icons" target="_blank" rel="noopener noreferrer" classname="p-2 bg-white/5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white" title="browse icons">
+                <a href="https:// lucide.dev/icons" target="_blank" rel="noopener noreferrer" classname="p-2 bg-white/5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white" title="browse icons">
                   <search size={16} />
                 </a>
               </div>

@@ -45,12 +45,11 @@ function scheduleFlush(drawingId: string) {
   flushTimers.set(drawingId, timer)
 }
 
-/**
+/* *
  * force immediate persistence of any queued operations for a drawing.
  *
  * this is used for critical moments such as page unload to avoid losing
- * recent user input before the debounce timer fires.
- */
+ * recent user input before the debounce timer fires. */
 export async function flushDrawingOps(drawingId: string): Promise<void> {
   if (!drawingId) return
   const timer = flushTimers.get(drawingId)
@@ -224,7 +223,7 @@ interface EdgelessState {
 
 // ─── helpers ────────────────────────────────────────────────────────────────────
 
-/** build a map<id, element> from an array – used by every mutation */
+/* * build a map<id, element> from an array – used by every mutation */
 function buildMap(elements: EdgelessElement[]): Map<string, EdgelessElement> {
   const m = new Map<string, EdgelessElement>()
   for (const el of elements) m.set(el.id, el)
@@ -531,19 +530,19 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
 // ─── granular selectors ─────────────────────────────────────────────────────────
 // these hooks subscribe to a single slice of state, preventing cascading re-renders.
 
-/** subscribe to a single element by id. returns undefined if not found.
+/* * subscribe to a single element by id. returns undefined if not found.
  *  the component only re-renders when *this specific element object* changes. */
 export function useElement(id: string): EdgelessElement | undefined {
   return useEdgelessStore((s) => s.elementMap.get(id))
 }
 
-/** subscribe to the viewport with shallow equality – prevents re-render
+/* * subscribe to the viewport with shallow equality – prevents re-render
  *  when the reference changes but x/y/zoom values are identical. */
 export function useViewport() {
   return useEdgelessStore(useShallow((s: EdgelessState) => s.viewPort))
 }
 
-/** subscribe to the element ids array only (not the element objects).
+/* * subscribe to the element ids array only (not the element objects).
  *  re-renders only when elements are added/removed, not when one is moved. */
 export function useElementIds(): string[] {
   return useEdgelessStore(
@@ -551,12 +550,12 @@ export function useElementIds(): string[] {
   )
 }
 
-/** subscribe to the active tool */
+/* * subscribe to the active tool */
 export function useActiveTool(): ToolType {
   return useEdgelessStore((s) => s.activeTool)
 }
 
-/** subscribe to selection mode */
+/* * subscribe to selection mode */
 export function useSelectionMode() {
   return useEdgelessStore((s) => s.selectionMode)
 }

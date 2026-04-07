@@ -1,11 +1,10 @@
-/**
+/* *
  * habits system - component index
  * 
  * export all habit tracking components for easy imports.
  * 
  * usage:
- *   import { factbuffer, habitsdashboard, habitloggerwidget } from '@/components/habits';
- */
+ *   import { factbuffer, habitsdashboard, habitloggerwidget } from '@/components/habits'; */
 
 export { FactBuffer, type FactBufferProps, type ActivityTip, getTipsByCategory, mapActivityToCategory } from './FactBuffer';
 export { HabitsDashboard, type HabitMetric, type HabitDashboardProps } from './HabitsDashboard';

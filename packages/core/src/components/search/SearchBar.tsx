@@ -4,7 +4,7 @@ import { useSearchStore } from '@/store/useSearchStore';
 import type { SearchHit } from '../../types';
 import { secureLogger } from '@/lib/secure-logger';
 
-const API_BASE = (import.meta.env.VITE_PKM_API_URL as string) || 'http://localhost:4110';
+const API_BASE = (import.meta.env.VITE_PKM_API_URL as string) || 'http:// localhost:4110';
 
 async function doSearch(q: string, topK = 10): Promise<SearchHit[]> {
   const res = await fetch(`${API_BASE}/search`, {

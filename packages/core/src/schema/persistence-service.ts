@@ -1,10 +1,9 @@
-/**
+/* *
  * persistence service for the modular schema service
  * 
  * this module provides data persistence using indexeddb via the idb library.
  * it handles storing table definitions, records, and metadata.
- * all operations are async and support transactions.
- */
+ * all operations are async and support transactions. */
 
 import { openDB, type IDBPDatabase } from 'idb';
 import type { DBSchema } from 'idb';
@@ -43,16 +42,14 @@ interface SchemaDB extends DBSchema {
   };
 }
 
-/**
- * persistence service class - manages all data storage
- */
+/* *
+ * persistence service class - manages all data storage */
 class PersistenceService {
   private db: IDBPDatabase<SchemaDB> | null = null;
   private initPromise: Promise<void> | null = null;
 
-  /**
-   * initialize the database connection
-   */
+  /* *
+   * initialize the database connection */
   public async initialize(): Promise<void> {
     if (this.initPromise) {
       return this.initPromise;
@@ -90,9 +87,8 @@ class PersistenceService {
     secureLogger.info('persistence service initialized - database:', DB_NAME, 'version:', DB_VERSION);
   }
 
-  /**
-   * ensure database is initialized before operations
-   */
+  /* *
+   * ensure database is initialized before operations */
   private async ensureInitialized(): Promise<IDBPDatabase<SchemaDB>> {
     if (!this.db) {
       await this.initialize();
@@ -107,48 +103,43 @@ class PersistenceService {
   // table operations
   // ============================================================================
 
-  /**
+  /* *
    * save a table definition
-   * @param table the table definition to save
-   */
+   * @param table the table definition to save */
   public async saveTable(table: TableDefinition): Promise<void> {
     const db = await this.ensureInitialized();
     await db.put('tables', table);
   }
 
-  /**
+  /* *
    * get a table definition by id
    * @param tableid the table id
-   * @returns the table definition or undefined
-   */
+   * @returns the table definition or undefined */
   public async getTable(tableId: string): Promise<TableDefinition | undefined> {
     const db = await this.ensureInitialized();
     return db.get('tables', tableId);
   }
 
-  /**
+  /* *
    * get a table definition by name
    * @param tablename the table name
-   * @returns the table definition or undefined
-   */
+   * @returns the table definition or undefined */
   public async getTableByName(tableName: string): Promise<TableDefinition | undefined> {
     const db = await this.ensureInitialized();
     return db.getFromIndex('tables', 'by-name', tableName);
   }
 
-  /**
+  /* *
    * get all table definitions
-   * @returns array of all table definitions
-   */
+   * @returns array of all table definitions */
   public async getAllTables(): Promise<TableDefinition[]> {
     const db = await this.ensureInitialized();
     return db.getAll('tables');
   }
 
-  /**
+  /* *
    * delete a table and all its records
-   * @param tableid the table id to delete
-   */
+   * @param tableid the table id to delete */
   public async deleteTable(tableId: string): Promise<void> {
     const db = await this.ensureInitialized();
     
@@ -175,53 +166,48 @@ class PersistenceService {
   // record operations
   // ============================================================================
 
-  /**
+  /* *
    * save a record
    * @param tablename the table this record belongs to
-   * @param record the record to save
-   */
+   * @param record the record to save */
   public async saveRecord(tableName: string, record: Record): Promise<void> {
     const db = await this.ensureInitialized();
     const recordWithTable = { ...record, tableName };
     await db.put('records', recordWithTable);
   }
 
-  /**
+  /* *
    * get a record by id
    * @param recordid the record id
-   * @returns the record or undefined
-   */
+   * @returns the record or undefined */
   public async getRecord(recordId: string): Promise<Record | undefined> {
     const db = await this.ensureInitialized();
     return db.get('records', recordId);
   }
 
-  /**
+  /* *
    * get all records for a table
    * @param tablename the table name
-   * @returns array of records
-   */
+   * @returns array of records */
   public async getRecordsByTable(tableName: string): Promise<Record[]> {
     const db = await this.ensureInitialized();
     const index = db.transaction('records').store.index('by-table');
     return index.getAll(tableName);
   }
 
-  /**
+  /* *
    * delete a record
-   * @param recordid the record id to delete
-   */
+   * @param recordid the record id to delete */
   public async deleteRecord(recordId: string): Promise<void> {
     const db = await this.ensureInitialized();
     await db.delete('records', recordId);
   }
 
-  /**
+  /* *
    * query records with filtering, sorting, and pagination
    * @param tablename the table to query
    * @param options query options
-   * @returns query result with records and pagination info
-   */
+   * @returns query result with records and pagination info */
   public async queryRecords(tableName: string, options: QueryOptions = {}): Promise<QueryResult> {
     const db = await this.ensureInitialized();
     
@@ -288,9 +274,8 @@ class PersistenceService {
     };
   }
 
-  /**
-   * check if a record matches a filter condition or group
-   */
+  /* *
+   * check if a record matches a filter condition or group */
   private matchesFilter(record: Record, filter: FilterCondition | FilterGroup): boolean {
     // check if it's a filter group
     if ('conditions' in filter) {
@@ -345,9 +330,8 @@ class PersistenceService {
     }
   }
 
-  /**
-   * sort records by sort specifications
-   */
+  /* *
+   * sort records by sort specifications */
   private sortRecords(records: Record[], sortSpecs: { field: string; direction?: 'asc' | 'desc' }[]): Record[] {
     return [...records].sort((a, b) => {
       for (const spec of sortSpecs) {
@@ -382,30 +366,27 @@ class PersistenceService {
   // metadata operations
   // ============================================================================
 
-  /**
+  /* *
    * get metadata value
    * @param key the metadata key
-   * @returns the metadata value or undefined
-   */
+   * @returns the metadata value or undefined */
   public async getMetadata(key: string): Promise<any> {
     const db = await this.ensureInitialized();
     return db.get('metadata', key);
   }
 
-  /**
+  /* *
    * set metadata value
    * @param key the metadata key
-   * @param value the value to store
-   */
+   * @param value the value to store */
   public async setMetadata(key: string, value: any): Promise<void> {
     const db = await this.ensureInitialized();
     await db.put('metadata', value, key);
   }
 
-  /**
+  /* *
    * delete metadata
-   * @param key the metadata key to delete
-   */
+   * @param key the metadata key to delete */
   public async deleteMetadata(key: string): Promise<void> {
     const db = await this.ensureInitialized();
     await db.delete('metadata', key);
@@ -415,9 +396,8 @@ class PersistenceService {
   // utility operations
   // ============================================================================
 
-  /**
-   * clear all data (use with caution!)
-   */
+  /* *
+   * clear all data (use with caution!) */
   public async clearAll(): Promise<void> {
     const db = await this.ensureInitialized();
     const tx = db.transaction(['tables', 'records', 'metadata'], 'readwrite');
@@ -428,9 +408,8 @@ class PersistenceService {
     secureLogger.info('all data cleared from database');
   }
 
-  /**
-   * close the database connection
-   */
+  /* *
+   * close the database connection */
   public async close(): Promise<void> {
     if (this.db) {
       this.db.close();
@@ -439,10 +418,9 @@ class PersistenceService {
     }
   }
 
-  /**
+  /* *
    * export all data as json (for backup)
-   * @returns object containing all tables and records
-   */
+   * @returns object containing all tables and records */
   public async exportAll(): Promise<{ tables: TableDefinition[]; records: Record[] }> {
     const db = await this.ensureInitialized();
     const tables = await db.getAll('tables');
@@ -450,10 +428,9 @@ class PersistenceService {
     return { tables, records };
   }
 
-  /**
+  /* *
    * import data from json (for restore)
-   * @param data the data to import
-   */
+   * @param data the data to import */
   public async importAll(data: { tables: TableDefinition[]; records: Record[] }): Promise<void> {
     const db = await this.ensureInitialized();
     

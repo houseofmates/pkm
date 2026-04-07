@@ -1,4 +1,4 @@
-/**
+/* *
  * security dashboard widget
  * 
  * a creative addition to the pkm system that provides:
@@ -8,8 +8,7 @@
  * - console log audit trail
  * 
  * this helps users (especially those with did systems) understand
- * their privacy and security posture at a glance.
- */
+ * their privacy and security posture at a glance. */
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

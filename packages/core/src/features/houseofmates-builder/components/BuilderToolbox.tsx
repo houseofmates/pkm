@@ -116,7 +116,7 @@ export function BuilderToolbox() {
   const handleAddSocialLinks = () => {
   addElement({
   ...createDefaultElement('social', {
- discord: 'https://discord.gg/...',
+ discord: 'https:// discord.gg/...',
  twitter: '',
  youtube: '',
   }),
@@ -159,9 +159,9 @@ export function BuilderToolbox() {
   addElement({
   ...createDefaultElement('gallery', {
  images: [
- { src: 'https://via.placeholder.com/300x300', alt: 'image 1' },
- { src: 'https://via.placeholder.com/300x300', alt: 'image 2' },
- { src: 'https://via.placeholder.com/300x300', alt: 'image 3' },
+ { src: 'https:// via.placeholder.com/300x300', alt: 'image 1' },
+ { src: 'https:// via.placeholder.com/300x300', alt: 'image 2' },
+ { src: 'https:// via.placeholder.com/300x300', alt: 'image 3' },
  ],
  columns: 3,
   }),
@@ -304,7 +304,7 @@ export function BuilderToolbox() {
   addElement({
   ...createDefaultElement('linkcard', {
  title: 'my website',
- url: 'https://example.com',
+ url: 'https:// example.com',
  icon: 'link-2',
  description: 'visit my personal site',
  color: 'var(--primary)',
@@ -343,7 +343,7 @@ export function BuilderToolbox() {
   const handleImageUpload = () => {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = 'image/*';
+  input.accept = 'image/* ';
   input.onchange = async (e) => {
   const file = (e.target as htmlinputelement).files?.[0];
   if (!file) return;
@@ -405,10 +405,10 @@ export function BuilderToolbox() {
   let embedurl = url;
   if (url.includes('youtube.com/watch')) {
     const videoid = new url(url).searchparams.get('v');
-  embedurl = `https://www.youtube.com/embed/${videoid}`;
+  embedurl = `https:// www.youtube.com/embed/${videoid}`;
   } else if (url.includes('youtu.be/')) {
   const videoid = url.split('youtu.be/')[1]?.split('?')[0];
-  embedurl = `https://www.youtube.com/embed/${videoid}`;
+  embedurl = `https:// www.youtube.com/embed/${videoid}`;
   }
 
   addelement({
@@ -432,7 +432,7 @@ export function BuilderToolbox() {
     if (!key) throw new error('unsplash key missing');
 
   const res = await fetch(
- `https://api.unsplash.com/search/photos?query=${encodeuricomponent(searchquery)}&per_page=12&client_id=${key}`
+ `https:// api.unsplash.com/search/photos?query=${encodeuricomponent(searchquery)}&per_page=12&client_id=${key}`
   );
   const data = await res.json();
     setsearchresults(data.results || []);
@@ -456,7 +456,7 @@ export function BuilderToolbox() {
     if (!key) throw new error('giphy key missing');
 
   const res = await fetch(
- `https://api.giphy.com/v1/gifs/search?q=${encodeuricomponent(searchquery)}&limit=12&api_key=${key}`
+ `https:// api.giphy.com/v1/gifs/search?q=${encodeuricomponent(searchquery)}&limit=12&api_key=${key}`
   );
   const data = await res.json();
     setsearchresults(data.data || []);

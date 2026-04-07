@@ -247,7 +247,7 @@ export class SpatialIndex {
     return new Set(visible.map(obj => obj.id))
   }
 
-  /**
+  /* *
    * convenience method for overlay elements: convert viewport params (pan + zoom
    * + screen dimensions) into world-space bounds and return visible element ids.
    *
@@ -256,8 +256,7 @@ export class SpatialIndex {
    * @param zoom - current zoom level
    * @param screenw - visible screen width in pixels
    * @param screenh - visible screen height in pixels
-   * @param bufferpercent - percentage of screen size to use as buffer (default 0.2)
-   */
+   * @param bufferpercent - percentage of screen size to use as buffer (default 0.2) */
   queryViewportIds(
     panX: number,
     panY: number,
@@ -340,10 +339,9 @@ export function buildSpatialIndex(canvas: FabricCanvas): SpatialIndex {
   return index
 }
 
-/**
+/* *
  * build a spatial index from edgelesselement overlay elements (not fabric objects).
- * used for viewport culling of the html overlay layer.
- */
+ * used for viewport culling of the html overlay layer. */
 export function buildOverlaySpatialIndex(elements: { id: string; x: number; y: number; width: number; height: number; layerId?: string }[]): SpatialIndex {
   const index = new SpatialIndex(200) // larger cells for overlay elements (they're bigger than strokes)
 

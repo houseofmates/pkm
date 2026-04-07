@@ -5,7 +5,7 @@ export const API_KEY_STORAGE_KEY = 'gemini_api_key';
 
 const GEMINI_IMAGE_MODEL = 'gemini-3-pro-image-preview';   // "nano banana pro"
 const GEMINI_TEXT_MODEL  = 'gemini-3.1-pro-preview';       // for prompt enhancement
-const REMBG_API_URL      = 'https://rembg.houseofmates.space';
+const REMBG_API_URL      = 'https:// rembg.houseofmates.space';
 const TARGET_BG          = '#050505';
 const ICON_SIZE          = 512;
 
@@ -34,7 +34,7 @@ export function buildIconPrompt(userPrompt: string): string {
 
 export async function generateGeminiIcon(userPrompt: string, apiKey: string): Promise<string> {
   const prompt = buildIconPrompt(userPrompt);
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent`;
+  const url = `https:// generativelanguage.googleapis.com/v1beta/models/${gemini_image_model}:generatecontent`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -60,7 +60,7 @@ export async function generateGeminiIcon(userPrompt: string, apiKey: string): Pr
 }
 
 export async function generateVerticalThumbnail(userPrompt: string, apiKey: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent`;
+  const url = `https:// generativelanguage.googleapis.com/v1beta/models/${gemini_image_model}:generatecontent`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -88,7 +88,7 @@ export async function generateVerticalThumbnail(userPrompt: string, apiKey: stri
 // ── prompt enhancement ───────────────────────────────────────────────────────
 
 export async function enhancePromptWithGemini(userPrompt: string, apiKey: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TEXT_MODEL}:generateContent`;
+  const url = `https:// generativelanguage.googleapis.com/v1beta/models/${gemini_text_model}:generatecontent`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -182,7 +182,7 @@ export async function removeBackground(dataUrl: string): Promise<string> {
 
 // ── legacy shim ──────────────────────────────────────────────────────────────
 
-/** @deprecated use generategeminiicon directly */
+/* * @deprecated use generategeminiicon directly */
 export async function generateVertexIcon(userPrompt: string): Promise<string> {
   const apiKey = getGeminiApiKey() ?? (import.meta.env?.VITE_VERTEX_API_KEY as string | undefined);
   if (!apiKey) throw new Error('no api key – click the ai icon button to add one');

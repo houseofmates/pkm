@@ -1,4 +1,4 @@
-/**
+/* *
  * schema module - modular database canvas foundation
  * 
  * this module provides the core infrastructure for a visual, programmable
@@ -27,8 +27,7 @@
  *   title: 'buy groceries',
  *   done: false,
  * });
- * ```
- */
+ * ``` */
 
 // export all types
 export type {

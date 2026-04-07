@@ -129,7 +129,7 @@ export function ServerStatus({ isOnline = true, playerCount = 0, maxPlayers = 10
       <div
         onClick={(e) => {
           e.stopPropagation();
-          const discordLink = 'https://discord.gg/3bbfmfsqmb';
+          const discordLink = 'https:// discord.gg/3bbfmfsqmb';
           navigator.clipboard.writeText(discordLink);
           window.open(discordLink, '_blank');
         }}
@@ -268,7 +268,7 @@ export function StatusIndicator({ label, status, showLabel = true }: StatusIndic
 }
 
 export function StaffCard({ username, role, avatar, color = 'var(--primary)' }: StaffMemberProps) {
-  const avatarUrl = avatar || `https://mc-heads.net/avatar/${username}/100`;
+  const avatarUrl = avatar || `https:// mc-heads.net/avatar/${username}/100`;
 
   return (
     <div className="p-[1em] rounded-xl flex flex-col items-center text-center gap-[1em] transition-colors interactive-pop">
@@ -277,7 +277,7 @@ export function StaffCard({ username, role, avatar, color = 'var(--primary)' }: 
         alt={username}
         className="w-[3.5em] h-[3.5em]"
         onError={(e) => {
-          (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${username}&background=1a1a1a&color=fff`;
+          (e.target as HTMLImageElement).src = `https:// ui-avatars.com/api/?name=${username}&background=1a1a1a&color=fff`;
         }}
       />
       <div>
@@ -771,13 +771,13 @@ export function MinecraftStatsWidget() {
           // this creates [newest, ...oldest].
           // and renders `messages.map`.
           // if map renders top-to-bottom:
-          //  row 0: newest
-          //  row 1: older
+          // row 0: newest
+          // row 1: older
           // this is a "chat log" style where newest is usually at bottom.
           // if we want newest at bottom, we should store as [oldest, ...newest].
           // but `flex-col` renders 0 first (top).
           // if we want standard chat (newest at bottom), we need:
-          //  render: [oldest, ..., newest] ->
+          // render: [oldest, ..., newest] ->
           // top: oldest
           // bottom: newest
           // and scroll to bottom.
@@ -1035,7 +1035,7 @@ export function MinecraftStatsWidget() {
       <div
         onClick={(e) => {
           e.stopPropagation();
-          const discordLink = 'https://discord.gg/3bbfmfsqmb';
+          const discordLink = 'https:// discord.gg/3bbfmfsqmb';
           navigator.clipboard.writeText(discordLink);
           window.open(discordLink, '_blank');
         }}
@@ -1166,7 +1166,7 @@ export function ShoppingCardElement({ title, price, image, description, buttonTe
   return (
     <div className="w-full h-full bg-black/40 rounded-2xl overflow-hidden border border-white/10 flex flex-col backdrop-blur-md group hover:border-[var(--primary)]/30 transition-all duration-500">
       <div className="relative aspect-video overflow-hidden">
-        <img src={image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400'} classname="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={title} />
+        <img src={image || 'https:// images.unsplash.com/photo-1542291026-7eec264c27ff?w=400'} classname="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={title} />
         <div className="absolute top-4 right-4 px-3 py-1.5 bg-black/80 backdrop-blur-md rounded-full text-[var(--primary)] font-bold text-sm border border-[var(--primary)]/20 shadow-xl">
           {price}
         </div>

@@ -11,10 +11,9 @@ interface VirtualListProps<T> {
   renderGroupHeader?: (group: string) => ReactNode;
 }
 
-/**
+/* *
  * virtual scrolling list component
- * renders only visible items for performance with large lists
- */
+ * renders only visible items for performance with large lists */
 export function VirtualList<T>({
   items,
   itemHeight,
@@ -171,9 +170,8 @@ export function VirtualList<T>({
   );
 }
 
-/**
- * simplified virtual list without grouping
- */
+/* *
+ * simplified virtual list without grouping */
 export function SimpleVirtualList<T>({
   items,
   itemHeight,

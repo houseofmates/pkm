@@ -3,11 +3,12 @@ import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
 import { type JournalRecord, parseActivities } from '@/schema/journal-collection';
 import { secureLogger } from '@/lib/secure-logger';
+import { storageManager } from '@/lib/storage-manager';
 import type { Activity } from '@/components/ActivitiesPanel';
 
-// simple helpers identical to journal.tsx; mirrors localstorage access used
+// simple helpers identical to journal.tsx; mirrors storagemanager access used
 function getStoredData<T>(key: string, defaultValue: T): T {
-  const raw = localStorage.getItem(key);
+  const raw = storageManager.getItem(key);
   if (raw === null) return defaultValue;
   try {
     return JSON.parse(raw);
@@ -18,9 +19,9 @@ function getStoredData<T>(key: string, defaultValue: T): T {
 
 function setStoredData(key: string, value: any) {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // ignore
+    storageManager.setItem(key, JSON.stringify(value));
+  } catch (err) {
+    secureLogger.debug('failed to set stored data', err);
   }
 }
 
@@ -222,6 +223,20 @@ export function useJournalData() {
     return map;
   }, [entries]);
 
+  // cleanup for voice recognition
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          secureLogger.debug('failed to stop voice recognition on cleanup', e);
+        }
+        recognitionRef.current = null;
+      }
+    };
+  }, []);
+
   // semantic search with race condition handling
   useEffect(() => {
     if (!pastEntriesFilter.search || pastEntriesFilter.search.length < 3) {
@@ -238,9 +253,11 @@ export function useJournalData() {
         // const results = await api.resource('journal').list({ filter: { content: { _ilike: `%${pastentriesfilter.search}%` } } });
         // if (searchid === nlsearchcounterref.current) setnlids(results.map(r => r.id));
       } catch (e) {
-        secureLogger.error('semantic search failed', e);
+        secureLogger.debug('semantic search failed', e);
       } finally {
-        if (searchId === nlSearchCounterRef.current) setIsNlSearching(false);
+        if (searchId === nlSearchCounterRef.current) {
+          setIsNlSearching(false);
+        }
       }
     }, 500);
 

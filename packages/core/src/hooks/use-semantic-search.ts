@@ -7,8 +7,8 @@ import { useState, useCallback } from 'react'
 import { useSearchStore } from '@/store/useSearchStore';
 import { secureLogger } from '@/lib/secure-logger'
 
-const api_base = (import.meta.env.VITE_PKM_API_URL as string) || 'http://localhost:4100'
-const ollama_base = 'http://localhost:11434'
+const api_base = (import.meta.env.VITE_PKM_API_URL as string) || 'http:// localhost:4100'
+const ollama_base = 'http:// localhost:11434'
 
 // in-memory embedding cache (survives for session)
 const embeddingcache = new Map<string, number[]>()

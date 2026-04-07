@@ -99,10 +99,9 @@ export async function appendOp(drawingId: string, op: DrawOp): Promise<OpLogEntr
   return entry
 }
 
-/**
+/* *
  * appendops - batch-insert multiple oplog entries in a single transaction.
- * used to reduce round-trips / pressure on idb during high-op bursts.
- */
+ * used to reduce round-trips / pressure on idb during high-op bursts. */
 type AppendOpsInput = DrawOp | OpLogEntry
 
 function isOpLogEntry(value: unknown): value is OpLogEntry {
@@ -115,7 +114,7 @@ function isOpLogEntry(value: unknown): value is OpLogEntry {
   )
 }
 
-/**
+/* *
  * batch append ops to the oplog in a single indexeddb transaction.
  *
  * this is used for high-frequency stroke writes: the runtime can buffer
@@ -124,8 +123,7 @@ function isOpLogEntry(value: unknown): value is OpLogEntry {
  *
  * @param drawingid id of the drawing canvas
  * @param ops array of drawop or pre-built oplogentry objects
- * @returns the stored entries (same ordering as input)
- */
+ * @returns the stored entries (same ordering as input) */
 export async function appendOps(drawingId: string, ops: AppendOpsInput[]): Promise<OpLogEntry[]> {
   if (!ops || ops.length === 0) return []
   const db = await getCanvasDB()
@@ -157,11 +155,10 @@ export async function appendOps(drawingId: string, ops: AppendOpsInput[]): Promi
   return result
 }
 
-/**
+/* *
  * retrieve up to `limit` unsynced oplog entries for a drawing.
  *
- * uses an indexed cursor scan to avoid allocating the full index result.
- */
+ * uses an indexed cursor scan to avoid allocating the full index result. */
 export async function getUnsyncedOps(drawingId: string, limit = Infinity): Promise<OpLogEntry[]> {
   const db = await getCanvasDB()
   const tx = db.transaction('oplog', 'readonly')

@@ -1,4 +1,4 @@
-/**
+/* *
  * nocobase collection schema: high-granularity activity logging system
  * 
  * this file contains the complete collection configuration for the
@@ -6,8 +6,7 @@
  * category-specific feedback.
  * 
  * colors: background #050505, primary #f5af12, secondary #3c9fdd
- * typography: varela round (all ui text lowercase)
- */
+ * typography: varela round (all ui text lowercase) */
 
 // ============================================================================
 // collection 1: habits (activity definitions)

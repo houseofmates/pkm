@@ -12,14 +12,14 @@ export const HeadmatesPage: React.FC = () => {
   const fetchMembers = async (key: string) => {
     setLoading(true);
     try {
-      const meRes = await fetch('https://api.apparyllis.com/v1/me', {
+      const meRes = await fetch('https:// api.apparyllis.com/v1/me', {
         headers: { 'Authorization': key }
       });
       if (!meRes.ok) throw new Error('Failed to fetch system info');
       const meData = await meRes.json();
       const systemId = meData.id;
 
-      const membersRes = await fetch(`https://api.apparyllis.com/v1/members/${systemId}`, {
+      const membersRes = await fetch(`https:// api.apparyllis.com/v1/members/${systemid}`, {
         headers: { 'Authorization': key }
       });
       if (!membersRes.ok) throw new Error('Failed to fetch members');

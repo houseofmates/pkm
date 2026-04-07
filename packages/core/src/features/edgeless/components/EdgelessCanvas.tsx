@@ -58,7 +58,7 @@ function makeBrushCursor(px: number): string {
   // add 2px padding on each side so the 1.5px stroke is never clipped
   const sz = d + 4
   const c = sz / 2
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${sz}' height='${sz}'>`
+  const svg = `<svg xmlns='http:// www.w3.org/2000/svg' width='${sz}' height='${sz}'>`
     + `<circle cx='${c}' cy='${c}' r='${d / 2}' fill='none' stroke='rgba(255,255,255,0.85)' stroke-width='1.5'/>`
     + `</svg>`
   const hotspot = Math.round(c)
@@ -67,7 +67,7 @@ function makeBrushCursor(px: number): string {
 
 // ─── custom hand cursor for panning ─────────────────────────────────────────────
 // small white hand cursor (20x20px) with hotspot at center (10,10)
-const HAND_CURSOR_SVG = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 11v6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="m14 10v4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="m10 10.5v6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="m18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-3.3 0-6.4-2.5-7.7-5.6l-1.3-3.1a2 2 0 0 1 3 11.5v9a2 2 0 0 1 2-2v0"/></svg>`)}`;
+const HAND_CURSOR_SVG = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http:// www.w3.org/2000/svg" width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 11v6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="m14 10v4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="m10 10.5v6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="m18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-3.3 0-6.4-2.5-7.7-5.6l-1.3-3.1a2 2 0 0 1 3 11.5v9a2 2 0 0 1 2-2v0"/></svg>`)}`;
 const getHandCursor = (grabbing = false) => `url("${HAND_CURSOR_SVG}") 10 10, ${grabbing ? 'grabbing' : 'grab'}`;
 
 // ─── memoized per-element wrapper ─────────────────────────────────────────────
@@ -284,7 +284,7 @@ interface OverlayLayerProps {
   pdfDoc: any
 }
 
-/** renders only elements whose ids are within the current viewport.
+/* * renders only elements whose ids are within the current viewport.
  *  the overlay container uses a css transform so pan/zoom is handled by the
  *  gpu compositor — no react re-renders needed for viewport movement. */
 const OverlayLayer = memo(function OverlayLayer({ pointerClass, pdfDoc }: OverlayLayerProps) {
@@ -1442,7 +1442,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
             offCtx.restore()
 
             // 3) trim transparent borders so the bounding box only
-            //    covers remaining visible pixels (erased areas vanish).
+            // covers remaining visible pixels (erased areas vanish).
             const imgData = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height)
             const pxData = imgData.data
             let tMinX = offCanvas.width, tMinY = offCanvas.height
@@ -1482,7 +1482,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
             )
 
             // 4) create replacement image with per-pixel hit detection
-            //    so transparent (erased) areas cannot be selected/clicked.
+            // so transparent (erased) areas cannot be selected/clicked.
             const left = uL + tMinX / dpr
             const top = uT + tMinY / dpr
             const scaleX = 1 / dpr
@@ -1692,9 +1692,9 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
             const el = useEdgelessStore.getState().elements.find(e => e.id === useEdgelessStore.getState().activeElementId)
             const isLocked = el ? el.locked : useEdgelessStore.getState().layers.find(l => l.id === useEdgelessStore.getState().activeLayerId)?.locked
             return isLocked ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="m7 11v7a5 5 0 0 1 10 0v4"></path></svg>
+              <svg xmlns="http:// www.w3.org/2000/svg" width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentcolor" strokewidth="2" strokelinecap="round" strokelinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="m7 11v7a5 5 0 0 1 10 0v4"></path></svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="m7 11v7a5 5 0 0 1 9.9-1"></path></svg>
+              <svg xmlns="http:// www.w3.org/2000/svg" width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentcolor" strokewidth="2" strokelinecap="round" strokelinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="m7 11v7a5 5 0 0 1 9.9-1"></path></svg>
             )
           })()}
         </button>
@@ -1704,18 +1704,18 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
           ref={fileInputRef}
           className="hidden"
           onChange={handleUpload}
-          accept="image/*,application/pdf"
+          accept="image/* ,application/pdf"
         />
         <button
-          className="p-2 bg-black/80 backdrop-blur border border-white/20 rounded-md shadow hover:bg-white/10 transition-colors text-foreground"
-          onClick={() => fileInputRef.current?.click()}
-          title="Upload Image/PDF"
+          classname="p-2 bg-black/80 backdrop-blur border border-white/20 rounded-md shadow hover:bg-white/10 transition-colors text-foreground"
+          onclick={() => fileinputref.current?.click()}
+          title="upload image/pdf"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
+          <svg xmlns="http:// www.w3.org/2000/svg" width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentcolor" strokewidth="2" strokelinecap="round" strokelinejoin="round"><path d="m21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
         </button>
       </div>
 
-      <canvas ref={canvasEl} />
+      <canvas ref={canvasel} />
 
       {/* page boundary indicator */}
       {(() => {

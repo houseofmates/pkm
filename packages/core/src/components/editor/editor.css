@@ -55,7 +55,7 @@
     @apply border-border my-6;
 }
 
-/* Columns */
+/* columns */
 [data-type="column"] {
     transition: all 0.2s ease;
 }
@@ -64,7 +64,7 @@
     border: 1px dashed var(--primary);
 }
 
-/* Drop targets */
+/* drop targets */
 .ProseMirror-drop-target {
     border-left: 2px solid var(--primary) !important;
     background: rgba(var(--primary), 0.1);

@@ -42,7 +42,7 @@ const ACRONYMS = new Set(['URL', 'UID', 'ID', 'API', 'CSV', 'PDF', 'HTML', 'CSS'
 export function humanizeFieldName(name: string): string {
   if (!name) return name;
   
-  // split camelCase: createdAt -> created At
+  // split camelcase: createdat -> created at
   let processed = name.replace(/([a-z])([A-Z])/g, '$1 $2');
   
   // replace underscores and hyphens with spaces

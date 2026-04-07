@@ -5,12 +5,11 @@ import { secureLogger } from '@/lib/secure-logger';
 import { storageManager } from '@/lib/storage-manager';
 
 export const MemberService = {
-  /**
+  /* *
  * uploads an avatar to nocobase, syncs it to simplyplural, and updates the local override.
  * @param memberid simplyplural member id
  * @param file file object to upload
- * @param updatelocalcallback callback to update local frontercontext state
- */
+ * @param updatelocalcallback callback to update local frontercontext state */
   async updateMemberAvatar(
   memberId: string,
   file: File,

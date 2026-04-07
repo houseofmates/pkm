@@ -68,8 +68,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
       !pageFallbackTried &&
       typeof queryParams.page === 'number'
     ) {
-      const current = queryParams.page as number;
-      const newPage = current === 0 ? 1 : 0;
+      const newPage = queryParams.page === 1 ? 0 : 1;
       // postpone state update to avoid synchronous setstate in effect
       setTimeout(() => {
         setQueryParams((prev) => ({ ...prev, page: newPage }));

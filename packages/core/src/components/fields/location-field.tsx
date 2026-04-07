@@ -9,9 +9,9 @@ import { secureLogger } from '@/lib/secure-logger';
 // fix for default marker icon in react leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconRetinaUrl: 'https:// cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https:// cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https:// cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
 interface LocationFieldProps {
@@ -66,8 +66,8 @@ export function LocationField({ value, onChange, readOnly }: LocationFieldProps)
  dragging={true}
   >
  <TileLayer
- attribution='&copy; <a href="https://www.openstreetmap.org/copyright">openstreetmap</a> contributors'
- url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+ attribution='&copy; <a href="https:// www.openstreetmap.org/copyright">openstreetmap</a> contributors'
+ url="https:// {s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
  />
  <LocationMarker position={position} onChange={handleUpdate} readOnly={readOnly} />
   </MapContainer>
@@ -76,7 +76,7 @@ export function LocationField({ value, onChange, readOnly }: LocationFieldProps)
   <div className="absolute bottom-1 right-1 z-[400] opacity-0 group-hover:opacity-100 transition-opacity">
  <Button size="sm" variant="secondary" className="text-xs h-6" onClick={(e) => {
  e.stopPropagation();
- if (position) window.open(`https://www.openstreetmap.org/?mlat=${position.lat}&mlon=${position.lng}#map=15/${position.lat}/${position.lng}`, '_blank');
+ if (position) window.open(`https:// www.openstreetmap.org/?mlat=${position.lat}&mlon=${position.lng}#map=15/${position.lat}/${position.lng}`, '_blank');
  }}>
  open osm
  </Button>

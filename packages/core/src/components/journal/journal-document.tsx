@@ -174,7 +174,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
    <h3 className="text-lg font-semibold mb-4 lowercase">upload banner image</h3>
    <input
    type="file"
-   accept="image/*"
+   accept="image/* "
    onchange={(e) => {
    const file = e.target.files?.[0];
    if (file) handlebannerupload(file);

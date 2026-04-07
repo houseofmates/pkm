@@ -8,11 +8,11 @@ interface ImageGridProps {
 
 // mock data
 const mockImages = [
-  { src: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba', alt: 'mountain', aspectratio: 1.5 },
-  { src: 'https://images.unsplash.com/photo-1682686581854-5e71f58e7e3f', alt: 'dessert', aspectratio: 0.8 },
-  { src: 'https://images.unsplash.com/photo-1682687220063-4742bd7fd538', alt: 'sea', aspectratio: 1.2 },
-  { src: 'https://images.unsplash.com/photo-1682685797661-9e0c8c1848fd', alt: 'forest', aspectratio: 0.9 },
-  { src: 'https://images.unsplash.com/photo-1682687220199-d0124f48f95b', alt: 'building', aspectratio: 1.4 },
+  { src: 'https:// images.unsplash.com/photo-1682687220742-aba13b6e50ba', alt: 'mountain', aspectratio: 1.5 },
+  { src: 'https:// images.unsplash.com/photo-1682686581854-5e71f58e7e3f', alt: 'dessert', aspectratio: 0.8 },
+  { src: 'https:// images.unsplash.com/photo-1682687220063-4742bd7fd538', alt: 'sea', aspectratio: 1.2 },
+  { src: 'https:// images.unsplash.com/photo-1682685797661-9e0c8c1848fd', alt: 'forest', aspectratio: 0.9 },
+  { src: 'https:// images.unsplash.com/photo-1682687220199-d0124f48f95b', alt: 'building', aspectratio: 1.4 },
 ];
 
 export function ImageGrid({ images = mockImages }: ImageGridProps) {
