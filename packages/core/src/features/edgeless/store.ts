@@ -14,57 +14,68 @@ interface PendingOplogLoad {
   ops: OpLogEntry[]
 }
 
-const OPLOG_FLUSH_DELAY_MS = 120
-const OPLOG_FLUSH_BATCH_SIZE = 50
+const CHECKPOINT_DEBOUNCE_MS = 500
 
-const pendingOpsByDrawing = new Map<string, OpLogEntry[]>()
-const flushTimers = new Map<string, ReturnType<typeof setTimeout>>()
+const pendingCheckpointTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
-async function flushPendingOps(drawingId: string) {
-  const ops = pendingOpsByDrawing.get(drawingId)
-  if (!ops || ops.length === 0) return
-
-  // flush in bounded batches to avoid blocking the main thread
-  const batch = ops.splice(0, OPLOG_FLUSH_BATCH_SIZE)
-
-  try {
-    await appendOps(drawingId, batch)
-  } catch (e) {
-    secureLogger.error('[oplog] flush failed', e)
-    // keep ops in memory, so we can retry
-    ops.unshift(...batch)
-  } finally {
-    if (ops.length > 0) {
-      scheduleFlush(drawingId)
-    } else {
-      pendingOpsByDrawing.delete(drawingId)
-    }
+function scheduleCheckpoint(drawingId: string, canvasDataGetter: () => unknown) {
+  const existing = pendingCheckpointTimers.get(drawingId)
+  if (existing) {
+    clearTimeout(existing)
   }
+  const timer = setTimeout(async () => {
+    pendingCheckpointTimers.delete(drawingId)
+    try {
+      const canvasData = canvasDataGetter()
+      if (canvasData) {
+        await saveCheckpoint(drawingId, canvasData)
+        secureLogger.debug('[oplog] checkpoint saved')
+      }
+    } catch (e) {
+      secureLogger.error('[oplog] checkpoint failed', e)
+    }
+  }, CHECKPOINT_DEBOUNCE_MS)
+  pendingCheckpointTimers.set(drawingId, timer)
 }
 
-function scheduleFlush(drawingId: string) {
-  if (flushTimers.has(drawingId)) return
-  const timer = setTimeout(() => {
-    flushTimers.delete(drawingId)
-    void flushPendingOps(drawingId)
-  }, OPLOG_FLUSH_DELAY_MS)
-  flushTimers.set(drawingId, timer)
+function cancelPendingCheckpoint(drawingId: string) {
+  const existing = pendingCheckpointTimers.get(drawingId)
+  if (existing) {
+    clearTimeout(existing)
+    pendingCheckpointTimers.delete(drawingId)
+  }
 }
 
 /**
- * force immediate persistence of any queued operations for a drawing.
- *
- * this is used for critical moments such as page unload to avoid losing
- * recent user input before the debounce timer fires.
+ * trigger a live checkpoint save (non-blocking, debounced).
+ * called after each stroke completes for live persistence.
+ */
+export function triggerLiveCheckpoint(drawingId: string): void {
+  if (!drawingId) return
+  const canvasDataGetter = () => {
+    try {
+      return (window as Record<string, unknown>).pkmGetCanvasJSON?.()
+    } catch {
+      return null
+    }
+  }
+  scheduleCheckpoint(drawingId, canvasDataGetter)
+}
+
+/**
+ * force immediate persistence of all pending ops and checkpoint.
  */
 export async function flushDrawingOps(drawingId: string): Promise<void> {
   if (!drawingId) return
-  const timer = flushTimers.get(drawingId)
-  if (timer) {
-    clearTimeout(timer)
-    flushTimers.delete(drawingId)
+  cancelPendingCheckpoint(drawingId)
+  try {
+    const canvasData = (window as Record<string, unknown>).pkmGetCanvasJSON?.()
+    if (canvasData) {
+      await saveCheckpoint(drawingId, canvasData)
+    }
+  } catch (e) {
+    secureLogger.error('[oplog] flush checkpoint failed', e)
   }
-  await flushPendingOps(drawingId)
 }
 
 export type ElementType =
