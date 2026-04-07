@@ -624,13 +624,14 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
     };
 
-    const handleLoadOplog = async (e: CustomEvent<{ drawingId: string; checkpoint: unknown; ops: unknown[] }>) => {
-      const { drawingId: id, checkpoint, ops } = e.detail;
+    const handleLoadOplog = async (e: Event) => {
+      const detail = (e as CustomEvent).detail as { drawingId: string; checkpoint: unknown; ops: unknown[] };
+      const { drawingId: id, checkpoint, ops } = detail;
       if (id !== useEdgelessStore.getState().drawingId) return;
       await loadFromOplogData(id, checkpoint, ops);
     };
 
-    window.addEventListener('pkm:load-oplog', handleLoadOplog as EventListener);
+    window.addEventListener('pkm:load-oplog', handleLoadOplog);
     
     (window as any).__pkmCurrentDrawingId = useEdgelessStore.getState().drawingId;
 
@@ -643,7 +644,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     return () => {
       delete (window as any).pkmGetCanvasJSON;
       delete (window as any).pkmGetCanvasThumbnail;
-      window.removeEventListener('pkm:load-oplog', handleLoadOplog as EventListener);
+      window.removeEventListener('pkm:load-oplog', handleLoadOplog);
       (window as any).__pkmCurrentDrawingId = null;
     };
   }, [fabricCanvas]);
