@@ -27,6 +27,7 @@ import { useGestureManager } from '@/hooks/use-gesture-manager'
 import { buildOverlaySpatialIndex } from '../spatial/spatial-index'
 import { useDrawingTools } from '../hooks/use-drawing-tools'
 import { applyOp, compactOplog, resolveConflicts } from '../storage/oplog'
+import type { OpLogEntry } from '../storage/oplog'
 
 // --- canvas element pooling (reduces gc and keeps redraws snappy) ---
 const canvasPool: HTMLCanvasElement[] = []
@@ -576,7 +577,6 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
   useEffect(() => {
     if (!fabricCanvas) return;
 
-    // ensure fabric is globally available for oplog utils
     (window as any).fabric = fabric;
 
     (window as any).pkmGetCanvasJSON = () => {
@@ -592,52 +592,61 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
     };
 
-    const handleLoadOplog = async (e: any) => {
-      const { drawingId: id, checkpoint, ops } = e.detail;
-      if (id !== useEdgelessStore.getState().drawingId) return;
-
+    const loadFromOplogData = async (drawingId: string, checkpoint: unknown, ops: unknown[]) => {
       isLoadingStateRef.current = true;
       try {
-        if (checkpoint?.state) {
-        const state = checkpoint.state as any;
-        if (state && state.canvas) {
-          await fabricCanvas.loadFromJSON(state.canvas);
-          // restore overlay elements (widgets, notes, cards, etc.)
-          useEdgelessStore.getState().setElements(state.elements || []);
+        if (checkpoint && typeof checkpoint === 'object' && 'state' in (checkpoint as Record<string, unknown>)) {
+          const state = (checkpoint as { state: unknown }).state as any;
+          if (state && state.canvas) {
+            await fabricCanvas.loadFromJSON(state.canvas);
+            useEdgelessStore.getState().setElements(state.elements || []);
+          } else {
+            await fabricCanvas.loadFromJSON(state);
+          }
         } else {
-          await fabricCanvas.loadFromJSON(state);
+          fabricCanvas.clear();
+          fabricCanvas.backgroundColor = '#050505';
         }
-      } else {
-        fabricCanvas.clear();
-        fabricCanvas.backgroundColor = '#050505';
-      }
 
         if (Array.isArray(ops) && ops.length > 0) {
-          const compacted = compactOplog(resolveConflicts(ops));
+          const typedOps = ops as OpLogEntry[];
+          const compacted = compactOplog(resolveConflicts(typedOps));
           for (const entry of compacted) {
             await applyOp(fabricCanvas, entry.op);
           }
         }
         
         fabricCanvas.requestRenderAll();
-        // save initial state to history baseline
         historyRef.current = [];
       } catch (err) {
         secureLogger.error('[canvas] failed to load drawing from oplog:', err);
       } finally {
         isLoadingStateRef.current = false;
+        useEdgelessStore.getState().setPendingOplogLoad(null);
       }
     };
 
-    window.addEventListener('pkm:load-oplog', handleLoadOplog as EventListener);
+    const handleLoadOplog = async (e: Event) => {
+      const detail = (e as CustomEvent).detail as { drawingId: string; checkpoint: unknown; ops: unknown[] };
+      const { drawingId: id, checkpoint, ops } = detail;
+      if (id !== useEdgelessStore.getState().drawingId) return;
+      await loadFromOplogData(id, checkpoint, ops);
+    };
+
+    window.addEventListener('pkm:load-oplog', handleLoadOplog);
     
-    // set current drawing id for recovery
     (window as any).__pkmCurrentDrawingId = useEdgelessStore.getState().drawingId;
+
+    // check for pending load from store state (handles race condition)
+    const pendingLoad = useEdgelessStore.getState().pendingOplogLoad;
+    if (pendingLoad && pendingLoad.drawingId === useEdgelessStore.getState().drawingId) {
+      void loadFromOplogData(pendingLoad.drawingId, pendingLoad.checkpoint, pendingLoad.ops);
+    }
 
     return () => {
       delete (window as any).pkmGetCanvasJSON;
       delete (window as any).pkmGetCanvasThumbnail;
-      window.removeEventListener('pkm:load-oplog', handleLoadOplog as EventListener);
+      window.removeEventListener('pkm:load-oplog', handleLoadOplog);
       (window as any).__pkmCurrentDrawingId = null;
     };
   }, [fabricCanvas]);
@@ -1686,7 +1695,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
               if (layer) useEdgelessStore.getState().toggleLayerLock(layer.id)
             }
           }}
-          title="Lock/Unlock (Ctrl+L)"
+          title="lock/unlock (Ctrl+L)"
         >
           {(() => {
             const el = useEdgelessStore.getState().elements.find(e => e.id === useEdgelessStore.getState().activeElementId)
@@ -1707,8 +1716,8 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
           accept="image/* ,application/pdf"
         />
         <button
-          classname="p-2 bg-black/80 backdrop-blur border border-white/20 rounded-md shadow hover:bg-white/10 transition-colors text-foreground"
-          onclick={() => fileinputref.current?.click()}
+          className="p-2 bg-black/80 backdrop-blur border border-white/20 rounded-md shadow hover:bg-white/10 transition-colors text-foreground"
+          onClick={() => fileInputRef.current?.click()}
           title="upload image/pdf"
         >
           <svg xmlns="http:// www.w3.org/2000/svg" width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentcolor" strokewidth="2" strokelinecap="round" strokelinejoin="round"><path d="m21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>

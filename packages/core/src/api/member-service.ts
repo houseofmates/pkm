@@ -85,7 +85,7 @@ export const MemberService = {
   } catch (error: unknown) {
   secureLogger.error("MemberService Error:", error);
   const errorMessage = error instanceof Error ? error.message : String(error);
-  toast.error(`Avatar update failed: ${errorMessage}`, { id: toastId });
+  toast.error(`avatar update failed: ${errorMessage}`, { id: toastId });
   throw error;
   }
   }

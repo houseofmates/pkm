@@ -6,23 +6,19 @@ import { toast } from 'sonner';
 import { extractRecords } from '@/lib/nocobase-utils';
 import { generateAndSaveAiField } from '@/services/ai-field-generator';
 
-/* *
- * encapsulates the data loading / mutation logic previously found
- * in collectiondetailpage.  the hook is intentionally fairly
- * "dumb"; it takes an api client and the collection name as
- * arguments and returns state and callbacks.  calling components
- * deal only with rendering. */
+export interface RecordWithTimestamp extends SchemaRecord {
+  timestamp?: string;
+}
 
-// minimal shape of the api client used by the hook
 interface CollectionClient {
-  getCollection(name: string): Promise<any>;
-  listRecords(name: string, opts?: any): Promise<any>;
-  createRecord(name: string, data: any): Promise<any>;
-  updateRecord(name: string, id: any, data: any): Promise<any>;
-  deleteRecord(name: string, id: any): Promise<any>;
-  deleteRecordByFilter(name: string, filter: Record<string, unknown>): Promise<any>;
-  listFields(name: string): Promise<any>;
-  createField(name: string, data: any): Promise<any>;
+  getCollection(name: string): Promise<{ data: TableDefinition }>;
+  listRecords(name: string, opts?: Record<string, unknown>): Promise<{ data: SchemaRecord[] }>;
+  createRecord(name: string, data: Record<string, unknown>): Promise<{ id?: string | number; data?: { id?: string | number } }>;
+  updateRecord(name: string, id: string | number, data: Record<string, unknown>): Promise<void>;
+  deleteRecord(name: string, id: string | number): Promise<void>;
+  deleteRecordByFilter(name: string, filter: Record<string, unknown>): Promise<void>;
+  listFields(name: string): Promise<{ data: FieldDefinition[] }>;
+  createField(name: string, data: Record<string, unknown>): Promise<void>;
 }
 
 export function useCollectionData(
@@ -164,7 +160,7 @@ export function useCollectionData(
         await client.updateRecord(collectionName, id, data);
         if (fetchId !== fetchCounterRef.current) return;
       } catch (error) {
-        secureLogger.debug('failed to update record:', error);
+        secureLogger.error('failed to update record', error);
         toast.error('failed to update record');
         fetchData();
       }
@@ -182,12 +178,8 @@ export function useCollectionData(
     if (!lastDeleted) return;
 
     try {
-      const rest: Partial<SchemaRecord> = { ...lastDeleted };
-      delete rest.id;
-      delete (rest as any).created_at;
-      delete (rest as any).updated_at;
-      await client.createRecord(collectionName, rest);
-      if (fetchId !== fetchCounterRef.current) return;
+      const { id: _id, created_at: _created_at, updated_at: _updated_at, ...rest } = lastDeleted as SchemaRecord & { created_at?: unknown; updated_at?: unknown };
+      await client.createRecord(collectionName, rest as Record<string, unknown>);
       toast.success('deletion undone');
       fetchData();
     } catch (e) {
@@ -198,15 +190,14 @@ export function useCollectionData(
 
   const handleDeleteRecord = useCallback(
     async (record: SchemaRecord) => {
-      const fetchId = fetchCounterRef.current;
+      const recordWithTs = record as RecordWithTimestamp;
       if (!record || record.id === undefined || record.id === null) {
-        if (record && (record as any).timestamp) {
+        if (recordWithTs.timestamp) {
           try {
-            await client.deleteRecordByFilter(collectionName, { timestamp: (record as any).timestamp });
-            if (fetchId !== fetchCounterRef.current) return;
+            await client.deleteRecordByFilter(collectionName, { timestamp: recordWithTs.timestamp });
             setDeletedStack(prev => [...prev, record]);
             toast.success('record deleted');
-            setRecords(prev => prev.filter(r => (r as any).timestamp !== (record as any).timestamp));
+            setRecords(prev => prev.filter(r => (r as RecordWithTimestamp).timestamp !== recordWithTs.timestamp));
             return;
           } catch (error) {
             secureLogger.debug('failed to delete record by timestamp:', error);
@@ -236,17 +227,13 @@ export function useCollectionData(
     async (recordToRestore: SchemaRecord) => {
       const fetchId = fetchCounterRef.current;
       try {
-        const rest: Partial<SchemaRecord> = { ...recordToRestore };
-        delete rest.id;
-        delete (rest as any).created_at;
-        delete (rest as any).updated_at;
-        await client.createRecord(collectionName, rest);
-        if (fetchId !== fetchCounterRef.current) return;
+        const { id: _id, created_at: _created_at, updated_at: _updated_at, ...rest } = recordToRestore as SchemaRecord & { created_at?: unknown; updated_at?: unknown };
+        await client.createRecord(collectionName, rest as Record<string, unknown>);
         toast.success('deletion undone');
         fetchData();
         setDeletedStack(prev => prev.filter(r => r.id !== recordToRestore.id));
       } catch (e) {
-        secureLogger.debug('failed to undo delete:', e);
+        secureLogger.error('failed to undo delete', e);
         toast.error('failed to undo delete');
       }
     },
@@ -272,12 +259,11 @@ export function useCollectionData(
 
   useEffect(() => {
     const handleCreate = async (evt: Event) => {
-      const e = evt as CustomEvent<any>;
+      const e = evt as CustomEvent<{ collection?: string; data?: Record<string, unknown> }>;
       if (e.detail?.collection === collectionName) {
         const fetchId = fetchCounterRef.current;
         try {
-          const createRes = await client.createRecord(collectionName, e.detail.data);
-          if (fetchId !== fetchCounterRef.current) return;
+          const createRes = await client.createRecord(collectionName, e.detail.data || {});
           const newId = createRes?.id || createRes?.data?.id;
           toast.success('record created!');
           fetchData();
@@ -288,7 +274,7 @@ export function useCollectionData(
             }).catch(err => secureLogger.debug('auto-suggest generation failed', err));
           }
         } catch (err) {
-          secureLogger.debug('failed to create record from event:', err);
+          secureLogger.error(String(err));
           toast.error('failed to create record');
         }
       }

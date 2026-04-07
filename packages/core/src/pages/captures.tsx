@@ -41,18 +41,18 @@ export function CapturesPage() {
     return (
       <div className="h-full flex flex-col items-center justify-center p-8 text-center">
         <Camera className="w-12 h-12 text-amber-500/50 mb-4" />
-        <h3 className="text-lg font-medium text-zinc-200 mb-2">
-          No captures yet
+        <h3 className="text-lg font-medium text-zinc-200 mb-2 lowercase">
+          no captures yet
         </h3>
-        <p className="text-sm text-zinc-500 mb-6">
-          Capture ideas, links, and content from anywhere
+        <p className="text-sm text-zinc-500 mb-6 lowercase">
+          capture ideas, links, and content from anywhere
         </p>
         <button
           onClick={() => setShowForm(true)}
-          className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-black rounded-lg font-medium transition-colors inline-flex items-center gap-2"
+          className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-black rounded-lg font-medium transition-colors inline-flex items-center gap-2 lowercase"
         >
           <Plus className="h-4 w-4" />
-          New Capture
+          new capture
         </button>
         <CreateRecordDialog
           open={showForm}

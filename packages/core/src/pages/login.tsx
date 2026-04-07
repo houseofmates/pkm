@@ -70,10 +70,10 @@ export function LoginPage() {
               <Database className="w-10 h-10 text-primary" />
             </div>
           )}
-          <h1 className="text-2xl font-bold text-center">Login to {isPublic ? 'House of Mates' : 'PKM'}</h1>
+          <h1 className="text-2xl font-bold text-center">login to {isPublic ? 'house of mates' : 'pkm'}</h1>
         </div>
 
-        <p className="text-sm text-center text-muted-foreground">Enter your NocoBase JWT token</p>
+        <p className="text-sm text-center text-muted-foreground">enter your nocobase jwt token</p>
 
         {error && (
           <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">{error}</div>
@@ -113,7 +113,7 @@ export function LoginPage() {
           />
 
           <Button type="submit" className="w-full" disabled={isValidating || !inputToken}>
-            {isValidating ? 'Validating...' : 'Login'}
+            {isValidating ? 'validating...' : 'login'}
           </Button>
         </form>
       </div>

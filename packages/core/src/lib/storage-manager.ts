@@ -1,15 +1,9 @@
-/* *
- * storage-manager - centralized localstorage access with optional encryption
- *
- * provides a single api layer that wraps safestorage (sanitization warnings) and
- * adds aes-gcm encryption via the web crypto api so that values stored for
- * sensitive keys aren't plainly visible in the clear. */
-
 import { safeStorage } from './sanitize-utils';
+import { secureLogger } from './secure-logger';
 
 let cachedKey: CryptoKey | null = null;
 
-// derive a stable aes-gcm key from the browser's origin
+// derive a stable aes-gcm key from the browser origin for consistent encryption
 async function getEncryptionKey(): Promise<CryptoKey> {
   if (cachedKey) return cachedKey;
 
@@ -35,7 +29,7 @@ async function getEncryptionKey(): Promise<CryptoKey> {
   return cachedKey;
 }
 
-// pack iv + ciphertext into a single base64 string for storage
+// pack iv + ciphertext into a single base64 string for secure storage
 async function encrypt(str: string): Promise<string> {
   try {
     const key = await getEncryptionKey();
@@ -52,15 +46,14 @@ async function encrypt(str: string): Promise<string> {
     packed.set(new Uint8Array(encrypted), iv.length);
     return btoa(String.fromCharCode(...packed));
   } catch (err) {
-    console.error('[storage-manager] encryption failed:', err);
+    secureLogger.debug('[storage-manager] encryption failed:', err);
     return str;
   }
 }
 
 async function decrypt(encStr: string): Promise<string> {
   try {
-    // fast check if it's even worth trying to decrypt
-    // base64 encoded packed data should at least be longer than iv (12 bytes)
+    // fast check for potentially valid encrypted data
     if (!encStr || encStr.length < 16) return encStr;
 
     const key = await getEncryptionKey();
@@ -68,7 +61,7 @@ async function decrypt(encStr: string): Promise<string> {
     try {
       packed = Uint8Array.from(atob(encStr), c => c.charCodeAt(0));
     } catch {
-      return encStr; // not valid base64
+      return encStr; // fallback for non-base64 data
     }
 
     if (packed.length < 13) return encStr;
@@ -80,13 +73,14 @@ async function decrypt(encStr: string): Promise<string> {
       data
     );
     return new TextDecoder().decode(decrypted);
-  } catch {
-    // if decryption fails (e.g. it was stored as plain text), return as is
+  } catch (err) {
+    // fallback to original string if decryption fails (likely plain text)
+    secureLogger.debug('[storage-manager] decryption fallback', err);
     return encStr;
   }
 }
 
-// in-memory cache for decrypted secrets to avoid repeated async calls
+// in-memory cache for decrypted secrets to minimize async calls and overhead
 const secretCache: Record<string, string | null> = {};
 
 export const storageManager = {
@@ -95,7 +89,7 @@ export const storageManager = {
   },
   setItem(key: string, value: string): void {
     safeStorage.setItem(key, value);
-    // if this key was in secret cache, update it (though setitem shouldn't really be used for secrets anymore)
+    // keep cache in sync for overlapping access
     if (key in secretCache) {
       secretCache[key] = value;
     }
@@ -107,10 +101,10 @@ export const storageManager = {
   clear(): void {
     try {
       localStorage.clear();
-      // clear secret cache
+      // flush secret cache
       for (const key in secretCache) delete secretCache[key];
-    } catch {
-      // ignore
+    } catch (err) {
+      secureLogger.debug('storage clear failed', err);
     }
   },
 
@@ -122,9 +116,9 @@ export const storageManager = {
     safeStorage.setItem(key, encoded);
   },
 
-  /* *
-   * retrieves and decrypts a value from localstorage.
-   * uses an in-memory cache for performance. */
+  /**
+   * retrieves and decrypts a value from localstorage with caching
+   */
   async getEncryptedItem(key: string): Promise<string | null> {
     if (key in secretCache) return secretCache[key];
 
@@ -139,9 +133,9 @@ export const storageManager = {
     return decrypted;
   },
 
-  /* *
-   * synchronous version that only works if the item was already loaded
-   * into cache via getencrypteditem or setencrypteditem. */
+  /**
+   * synchronous access for pre-loaded secrets
+   */
   getCachedSecret(key: string): string | null {
     return secretCache[key] || null;
   }

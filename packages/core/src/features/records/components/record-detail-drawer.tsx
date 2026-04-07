@@ -7,7 +7,7 @@ import { SmartField } from '@/components/fields/smart-field';
 import { X, Save, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { humanizeFieldName } from './record-table';
+import { humanizeFieldName } from '@/utils/text-formatting';
 
 interface RecordDetailDrawerProps {
   isOpen: boolean;
@@ -97,7 +97,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
   const handleSave = async () => {
     if (!onUpdate) {
-      toast.error('Update not available');
+      toast.error('update not available');
       return;
     }
 
@@ -134,11 +134,18 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
   const isDirty = Object.keys(editedData).some(key => editedData[key] !== record[key]);
 
+  const isValueEmpty = (value: unknown): boolean => {
+    if (value === null || value === undefined) return true;
+    if (typeof value === 'string') return value.trim() === '';
+    if (Array.isArray(value)) return value.length === 0;
+    return false;
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <SheetContent 
         side="right" 
-        className="w-full sm:max-w-lg bg-[#0a0a0a] border-l border-[#222] p-0 flex flex-col"
+        className="w-full sm:max-w-lg bg-[#1a1a1a] border-l border-[#222] p-0 flex flex-col"
       >
         <SheetHeader className="border-b border-[#222] p-4 pb-3 flex-shrink-0">
           <div className="flex items-center justify-between">
@@ -152,6 +159,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
                 className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-white/10"
                 onClick={handleOpenFullPage}
                 title="open full page"
+                aria-label="open full page"
               >
                 <ExternalLink className="h-4 w-4" />
               </Button>
@@ -160,12 +168,14 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
                 size="icon"
                 className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-white/10"
                 onClick={onClose}
+                title="close drawer"
+                aria-label="close drawer"
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
           </div>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-[#6b7280] mt-1">
             {collection.title || collection.name} • ID: {record.id}
           </p>
         </SheetHeader>
@@ -178,19 +188,23 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
         ) : (
             displayFields.map((field: any) => {
               const value = editedData[field.name];
-              const displayName = field.uiSchema?.title || humanizeFieldName(field.name);
+              const displayName = humanizeFieldName(field.uiSchema?.title || field.name);
+              const emptyValue = isValueEmpty(value);
 
               return (
                 <div key={field.name} className="space-y-2">
                   <Label 
                     htmlFor={`field-${field.name}`}
-                    className="text-xs text-zinc-400 flex items-center gap-2"
+                    className="text-xs text-[#d4af37] flex items-center gap-2"
                   >
                     {displayName}
                     {field.required && (
                       <span className="text-red-500">*</span>
                     )}
                   </Label>
+                  {emptyValue && (
+                    <p className="text-[10px] text-[#6b7280] lowercase">not set</p>
+                  )}
                   <div className="bg-[#111] rounded-md p-1">
                     <SmartField
                       value={value}

@@ -117,7 +117,7 @@ export function DragHandle({ editor }: DragHandleProps) {
       {/* quick actions (e.g. add column) */}
       <button
         className="p-1 hover:bg-white/10 rounded text-muted-foreground hover:text-primary transition-colors"
-        title="Wrap in Columns"
+        title="wrap in columns"
         onClick={() => {
             if (currentNodePos !== null) {
                 // replace setcolumns with a valid command or show a placeholder

@@ -34,7 +34,7 @@ export const CommandActions = {
   },
 
   sendToCanvas: (editor: Editor, range: TiptapRange) => {
-  let content = "New Thought";
+  let content = "new thought";
 
   try {
   // range.from is where the slash command started.
@@ -45,7 +45,7 @@ export const CommandActions = {
   } else {
  // fallback to selection
  const slice = editor.state.doc.slice(range.from - 50, range.from); // grab some context
- content = slice.content.textBetween(0, slice.content.size) || "New Thought";
+ content = slice.content.textBetween(0, slice.content.size) || "new thought";
   }
   } catch (e) {
   secureLogger.warn("Could not extract text for canvas", e);

@@ -106,7 +106,7 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
             {(meta as any).title || collection.title || collection.name}
           </CardTitle>
           <p className="text-xs text-muted-foreground relative z-10">
-            {fieldCount} Fields{recordCount !== undefined ? ` · ${recordCount} Records` : ''}
+            {fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}
           </p>
 
           {/* preview area - only render if we have something to show */}

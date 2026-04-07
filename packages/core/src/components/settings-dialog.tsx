@@ -70,7 +70,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                                <span className="text-xs text-white/40">Identity</span>
+                                <span className="text-xs text-white/40 lowercase">identity</span>
                             </div>
                         </div>
                     </div>
@@ -134,10 +134,9 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                         >
                             <Trash2 className="h-4 w-4 mr-2" /> clear link registry
                         </Button>
-                        {/* notion import button */}
                         <Button
                             variant="outline"
-                            className="w-full justify-start h-9 px-3"
+                            className="w-full justify-start h-9 px-3 lowercase"
                             onClick={() => {
                                 window.location.href = '/notion-import';
                             }}

@@ -27,7 +27,7 @@ export const HeadmatesPage: React.FC = () => {
       setMembers(membersData);
     } catch (err) {
       secureLogger.error('Failed to fetch SimplyPlural members:', err);
-      toast.error('Could not load headmates. Check your API key.');
+      toast.error('could not load headmates. check your api key.');
     } finally {
       setLoading(false);
     }
@@ -51,17 +51,17 @@ export const HeadmatesPage: React.FC = () => {
       fetchMembers(apiKey);
     } catch (e) {
       secureLogger.error('Failed to save SimplyPlural API key:', e);
-      toast.error('Failed to save API key.');
+      toast.error('failed to save api key.');
     }
   };
 
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">Headmates</h1>
+      <h1 className="text-2xl font-bold lowercase">headmates</h1>
 
       {!hasKey ? (
         <div className="space-y-4 p-6 bg-white/5 rounded-xl border border-white/10">
-          <p className="text-sm text-white/60">Enter your SimplyPlural API key to sync your headmates.</p>
+          <p className="text-sm text-white/60 lowercase">enter your simplyplural api key to sync your headmates.</p>
           <input
             type="password"
             value={apiKey}
@@ -73,7 +73,7 @@ export const HeadmatesPage: React.FC = () => {
             onClick={handleSaveKey}
             className="px-6 py-2 bg-yellow-500 text-black font-medium rounded-lg hover:opacity-90"
           >
-            Save & Sync
+            save & sync
           </button>
         </div>
       ) : (

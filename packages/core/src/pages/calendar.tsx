@@ -318,8 +318,8 @@ export function CalendarPage() {
       <div className="flex flex-col gap-2 mb-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex flex-col gap-1">
-            <p className="text-sm font-semibold flex items-center gap-2">
-                Events Calendar 
+            <p className="text-sm font-semibold flex items-center gap-2 lowercase">
+                events calendar 
                 {isSyncing && <Loader2 className="w-3 h-3 animate-spin opacity-50" />}
             </p>
           </div>

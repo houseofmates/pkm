@@ -12,6 +12,7 @@ import remarkGfm from 'remark-gfm';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { PushToTalkWidget } from '@/components/push-to-talk-widget';
+import { MoodSelector } from '@/components/journal/MoodSelector';
 
 // override focus/accent for journal buttons so color comes from the element itself
 const journalStyles = `
@@ -2957,8 +2958,8 @@ summary:`;
       {/* header */}
       <div className="flex items-center justify-between pl-2">
         <div>
-          <p className="text-xs text-white/40 lowercase">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-          <h1 className="text-2xl font-bold tracking-tight">Journal</h1>
+          <p className="text-xs text-white/40 lowercase">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase()}</p>
+          <h1 className="text-2xl font-bold tracking-tight lowercase">journal</h1>
         </div>
         <div className="flex items-center gap-1 flex-wrap justify-end">
           {streak > 0 && (
@@ -3080,7 +3081,7 @@ summary:`;
       {/* daily prompt */}
       <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-white/30">Today's Prompt</p>
+          <p className="text-xs text-white/30 lowercase">today's prompt</p>
           <div className="flex gap-1">
             <button onClick={handleShufflePrompt} className="p-1 rounded hover:bg-white/10" title="new prompt"><Sparkles size={12} /></button>
             <button onClick={() => setShowTemplates(true)} className="p-1 rounded hover:bg-white/10" title="templates"><BookOpen size={12} /></button>
@@ -3293,21 +3294,11 @@ summary:`;
       {!viewingEntry && (
         <>
           {/* mood selector */}
-          <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-            <p className="text-xs text-white/40 mb-3">How Are You Feeling?</p>
-            <div className="flex gap-3 justify-center">
-              {MOODS.map(m => renderMoodButton(m))}
-            </div>
-            {mood && (
-              <p className="text-center text-xs text-white/40 mt-3 lowercase">
-                feeling {MOODS.find(m => m.id === mood)?.label}
-              </p>
-            )}
-          </div>
+          <MoodSelector mood={mood} onMoodChange={setMood} />
 
           {/* emotions */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-            <p className="text-xs text-white/40 mb-3">What Emotions Are You Experiencing?</p>
+            <p className="text-xs text-white/40 mb-3 lowercase">what emotions are you experiencing?</p>
             <div className="flex flex-wrap gap-2 mb-3">
               {availableEmotions.filter(e => e.toLowerCase().includes(emotionQuery.toLowerCase())).map(emotion => (
                 <button
@@ -3352,7 +3343,7 @@ summary:`;
           {/* activities */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs text-white/40">What Have You Done Today?</p>
+              <p className="text-xs text-white/40 mb-3 lowercase">what have you done today?</p>
               <div className="flex gap-1">
                 {['health', 'productivity', 'creative', 'social', 'leisure', 'wellness'].map(cat => (
                   <button
@@ -3399,60 +3390,11 @@ summary:`;
             )}
           </div>
 
-          {/* tags */}
-          <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-            <p className="text-xs text-white/40 mb-3">Add Tags</p>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {availableTags.filter(t => t.toLowerCase().includes(tagQuery.toLowerCase())).slice(0, 10).map(tag => {
-                const color = tagColors[tag] || '#ffffff';
-                return (
-                  <button
-                    key={tag}
-                    onClick={() => toggleTag(tag)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs lowercase transition-all",
-                      tags.has(tag) 
-                        ? "" 
-                        : "bg-white/5 hover:bg-white/10"
-                    )}
-                    style={{
-                      color,
-                      ...(tags.has(tag) ? { backgroundColor: `${color}33`, border: `1px solid ${color}` } : {})
-                    }}
-                  >
-                    #{tag}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="flex gap-2">
-              <input
-                list="tag-options"
-                type="text"
-                value={tagQuery}
-                onChange={e => setTagQuery(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleAddTag()}
-                placeholder="add custom tag..."
-                className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30"
-              />
-              <datalist id="tag-options">
-                {availableTags.map(t => <option key={t} value={t} />)}
-              </datalist>
-              <button
-                onClick={handleAddTag}
-                disabled={!tagQuery.trim()}
-                className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 transition-colors"
-              >
-                <Plus size={16} />
-              </button>
-            </div>
-          </div>
-
           {/* breathing exercises */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
             <div className="flex items-center gap-2 mb-3">
               <Wind size={16} className="text-amber-500/60" />
-              <p className="text-xs text-white/40">Breathing Exercises</p>
+              <p className="text-xs text-white/40 lowercase mb-3">breathing exercises</p>
             </div>
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -3482,12 +3424,12 @@ summary:`;
           {/* notes */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs text-white/40">Journal Notes</p>
+              <p className="text-xs text-white/40 mb-3 lowercase">journal notes</p>
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => fileInputRef.current?.click()}
                   className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
-                  title="Add Photo"
+                  title="add photo"
                 >
                   <Image size={16} />
                 </button>
@@ -3497,7 +3439,7 @@ summary:`;
                     "p-1.5 rounded-lg transition-colors",
                     isRecording ? "bg-red-500/20 text-red-400 animate-pulse" : "hover:bg-white/10 text-white/40 hover:text-white"
                   )}
-                  title={isRecording ? `Recording ${formatTime(recordingTime)}` : "Voice Memo"}
+                  title={isRecording ? `recording ${formatTime(recordingTime)}` : "voice memo"}
                 >
                   <Mic size={16} />
                 </button>
@@ -3507,7 +3449,7 @@ summary:`;
                     "p-1.5 rounded-lg transition-colors",
                     isTranscribing ? "bg-red-500/20 text-red-400 animate-pulse" : "hover:bg-white/10 text-white/40 hover:text-white"
                   )}
-                  title={isTranscribing ? `Transcribing` : "Voice Summary"}
+                  title={isTranscribing ? `transcribing` : "voice summary"}
                 >
                   <FileText size={16} />
                 </button>

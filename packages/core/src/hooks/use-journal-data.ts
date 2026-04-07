@@ -265,6 +265,19 @@ export function useJournalData() {
   }, [pastEntriesFilter.search]);
 
 
+  // cleanup speech recognition on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          // ignore cleanup errors safely
+        }
+      }
+    };
+  }, []);
+
   return {
     entries,
     setEntries,

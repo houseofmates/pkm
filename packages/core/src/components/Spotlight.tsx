@@ -440,21 +440,21 @@ export function Spotlight() {
                     <Command className="bg-transparent" shouldFilter={false}>
                         <div className="flex items-center px-4 py-4 border-b border-primary/10 relative">
                             <CommandInput
-                                placeholder="Search your second brain..."
+                                placeholder="search your second brain..."
                                 value={query}
                                 onValueChange={onQueryChange}
                                 className="flex-1 h-8 bg-transparent border-none focus:ring-0 text-lg placeholder:text-muted-foreground/50"
                             />
                             {isSearching && <Loader2 className="h-4 w-4 animate-spin text-primary/40 ml-2" />}
 
-                                <Button
+                            <Button
                                 variant="ghost"
                                 size="sm"
-                                className="absolute right-10 top-1/2 -translate-y-1/2 h-7 text-xs text-muted-foreground hover:text-primary"
+                                className="absolute right-10 top-1/2 -translate-y-1/2 h-7 text-xs text-muted-foreground hover:text-primary lowercase"
                                 onClick={() => { setMode('semantic'); setQuery(''); }}
                             >
                                 <MessageCircle className="w-3 h-3 mr-1" />
-                                Ask AI
+                                ask ai
                             </Button>
                         </div>
 
@@ -543,8 +543,8 @@ export function Spotlight() {
                         <div className="flex items-center justify-between px-4 py-3 border-t border-primary/10 bg-primary/5 text-[10px] text-muted-foreground shrink-0">
                             <div className="flex items-center gap-4">
                                 <span><strong>↑↓</strong> to navigate</span>
-                                <span><strong>Enter</strong> to select</span>
-                                <span><strong>Esc</strong> to close</span>
+                                <span><strong>enter</strong> to select</span>
+                                <span><strong>esc</strong> to close</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <CommandIcon className="h-3 w-3" />

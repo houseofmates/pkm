@@ -580,12 +580,12 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
 
   const tabs = [
-    { id: 'databases', icon: Database, label: 'Databases' },
-    { id: 'captures', icon: Inbox, label: 'Captures' },
-    { id: 'home', icon: Home, label: 'Home' },
-    { id: 'journal', icon: BookOpen, label: 'Journal' },
-    { id: 'calendar', icon: LucideIcons.Calendar, label: 'Calendar' },
-    { id: 'headmates', icon: Users, label: 'Headmates' },
+    { id: 'databases', icon: Database, label: 'databases' },
+    { id: 'captures', icon: Inbox, label: 'captures' },
+    { id: 'home', icon: Home, label: 'home' },
+    { id: 'journal', icon: BookOpen, label: 'journal' },
+    { id: 'calendar', icon: LucideIcons.Calendar, label: 'calendar' },
+    { id: 'headmates', icon: Users, label: 'headmates' },
   ] as const;
 
   const handleOpenChat = () => {
@@ -599,7 +599,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         {/* top icons */}
         <div className="flex items-center justify-around px-2 mb-2">
           <NavIconButton
-            tab={{ id: 'chat', icon: MessageSquare, label: 'Wilson Chat' }}
+            tab={{ id: 'chat', icon: MessageSquare, label: 'wilson chat' }}
             isActive={false}
             onClick={handleOpenChat}
           />
@@ -624,7 +624,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
               variant="ghost"
               size="icon"
               className="h-5 w-5 rounded-full hover:bg-muted text-primary"
-              title="Create New Folder"
+              title="create new folder"
               onClick={() => setFolderDialogOpen(true)}
             >
               <Folder className="h-3 w-3" />
@@ -632,7 +632,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-muted text-primary" title="Create New...">
+                <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-muted text-primary" title="create new...">
                   <Plus className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
@@ -642,7 +642,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   trigger={
                     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                       <Database className="h-4 w-4 mr-2 text-primary" />
-                      <span>New Database</span>
+                      <span>new database</span>
                     </DropdownMenuItem>
                   }
                 />
@@ -664,7 +664,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   }]);
                 }}>
                   <FileText className="h-4 w-4 mr-2 text-primary" />
-                  <span>New Document</span>
+                  <span>new document</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={async () => {
                   // create new drawing in idb and navigate
@@ -687,12 +687,12 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   }]);
                 }}>
                   <PenTool className="h-4 w-4 mr-2 text-primary" />
-                  <span>New Drawing</span>
+                  <span>new drawing</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             {/* csv uploader button */}
-            <label className="relative flex items-center justify-center h-5 w-5 rounded-full hover:bg-muted text-primary cursor-pointer" title="Upload CSV">
+            <label className="relative flex items-center justify-center h-5 w-5 rounded-full hover:bg-muted text-primary cursor-pointer" title="upload csv">
               <input
                 key={csvInputKey}
                 type="file"
@@ -708,7 +708,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             variant="ghost"
             size="icon"
             className="h-5 w-5 rounded-full hover:bg-primary-soft ml-auto text-primary"
-            title="Template Ingestion Engine"
+            title="template ingestion engine"
             onClick={() => navigate('/template')}
           >
             <Wand2 className="h-3 w-3" />
@@ -718,7 +718,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             variant="ghost"
             size="icon"
             className="h-5 w-5 rounded-full hover:bg-primary-soft ml-2 text-primary"
-            title="Infinite Canvas Database"
+            title="infinite canvas database"
             onClick={() => navigate('/db-canvas')}
           >
             <LayoutDashboard className="h-3 w-3" />
@@ -729,17 +729,17 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         {folderDialogOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="bg-popover border p-4 rounded-lg shadow-lg w-full max-w-xs">
-              <h3 className="font-semibold mb-2">Create Folder</h3>
+              <h3 className="font-semibold mb-2">create folder</h3>
               <Input
-                placeholder="Folder name"
+                placeholder="folder name"
                 value={newFolderName}
                 onChange={e => setNewFolderName(e.target.value)}
                 autoFocus
                 className="mb-4"
               />
               <div className="flex justify-end gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setFolderDialogOpen(false)}>Cancel</Button>
-                <Button size="sm" onClick={createFolder}>Create</Button>
+                <Button variant="ghost" size="sm" onClick={() => setFolderDialogOpen(false)}>cancel</Button>
+                <Button size="sm" onClick={createFolder}>create</Button>
               </div>
             </div>
           </div>
@@ -803,7 +803,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             onClick={() => window.dispatchEvent(new CustomEvent('pkm:open-search'))}
           >
             <MessageCircle className="h-4 w-4" />
-            <span className="text-xs">Search / Ask AI...</span>
+            <span className="text-xs">search / ask ai...</span>
           </Button>
 
           <Button
@@ -811,10 +811,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             size="icon"
             className="w-full justify-start gap-2 px-3 mt-1 text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors border-none shadow-none"
             onClick={() => navigate('/settings')}
-            title="Settings"
+            title="settings"
           >
             <Settings className="h-4 w-4" />
-            <span className="text-xs">Settings</span>
+            <span className="text-xs">settings</span>
           </Button>
         </div>
       </div>

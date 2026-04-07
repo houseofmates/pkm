@@ -364,8 +364,8 @@ export function TemplatePage() {
             <Wand2 className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Template Ingestion Engine</h1>
-            <p className="text-muted-foreground text-sm">JSON to Workspace Pipeline</p>
+            <h1 className="text-2xl font-bold">template ingestion engine</h1>
+            <p className="text-muted-foreground text-sm">json to workspace pipeline</p>
           </div>
         </div>
       </header>
@@ -378,7 +378,7 @@ export function TemplatePage() {
         >
           <span className="text-sm font-medium flex items-center gap-2">
             <Info className="h-4 w-4 text-primary" />
-            Getting Started
+            getting started
           </span>
           {onboardingOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
         </button>
@@ -397,9 +397,9 @@ export function TemplatePage() {
             <div>
               <p className="font-medium text-foreground mb-1">Buttons</p>
               <ul className="list-disc pl-5 space-y-0.5">
-                <li><strong>Load Sample</strong> — Inject a minimal template</li>
-                <li><strong>Save</strong> — Persist current JSON to settings</li>
-                <li><strong>Preview</strong> — Validate and render the pipeline</li>
+                <li><strong>load sample</strong> — Inject a minimal template</li>
+                <li><strong>save</strong> — Persist current JSON to settings</li>
+                <li><strong>preview</strong> — Validate and render the pipeline</li>
                 <li><strong>Build Workspace</strong> — Create databases, fields, and layout</li>
               </ul>
             </div>
@@ -421,13 +421,13 @@ export function TemplatePage() {
             <CardTitle className="text-sm font-medium flex items-center gap-2">editor.json</CardTitle>
             <div className="flex gap-2">
               <Button variant="ghost" size="sm" onClick={loadSample} className="h-8 gap-2 text-xs">
-                <Info className="h-4 w-4" /> Load Sample
+                <Info className="h-4 w-4" /> load sample
               </Button>
               <Button variant="ghost" size="sm" onClick={saveTemplate} className="h-8 gap-2 text-xs">
-                <Database className="h-4 w-4" /> Save
+                <Database className="h-4 w-4" /> save
               </Button>
               <Button variant="ghost" size="sm" onClick={validateJson} className="h-8 gap-2 text-xs text-primary">
-                <Eye className="h-4 w-4" /> Preview
+                <Eye className="h-4 w-4" /> preview
               </Button>
             </div>
           </CardHeader>
@@ -459,18 +459,18 @@ export function TemplatePage() {
           <Card className="border-white/5 bg-white/5 backdrop-blur-xl">
             <CardHeader className="py-3 px-4 flex flex-row items-center gap-2">
               <Info className="h-4 w-4 text-primary" />
-              <CardTitle className="text-sm font-medium">Engine Status</CardTitle>
+              <CardTitle className="text-sm font-medium">engine status</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4 space-y-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Validation State</span>
+                <span className="text-muted-foreground">validation state</span>
                 <span className={cn(
                   "px-2 py-0.5 rounded-full text-[10px] font-bold ",
                   isValid === true ? "bg-green-500/20 text-green-500" :
                     isValid === false ? "bg-red-500/20 text-red-500" :
                       "bg-white/10 text-white/40"
                 )}>
-                  {isValid === true ? 'Ready' : isValid === false ? 'Failure' : 'Pending'}
+                  {isValid === true ? 'Ready' : isValid === false ? 'Failure' : 'pending'}
                 </span>
               </div>
               {error && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-400 font-mono">{error}</div>}
@@ -486,11 +486,11 @@ export function TemplatePage() {
           <Card className="border-white/5 bg-white/5 backdrop-blur-xl flex-1 min-h-[400px] flex flex-col overflow-hidden">
             <CardHeader className="py-3 px-4 border-b border-white/5">
               <div className="flex items-center justify-between w-full">
-                <CardTitle className="text-sm font-medium">Pipeline Preview</CardTitle>
+                <CardTitle className="text-sm font-medium">pipeline preview</CardTitle>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="ghost" onClick={undoLastChange} className="h-8 text-xs">Undo</Button>
+                  <Button size="sm" variant="ghost" onClick={undoLastChange} className="h-8 text-xs">undo</Button>
                   <Button size="sm" variant="ghost" onClick={() => setFullscreenOpen(true)} className="h-8 text-xs">
-                    <Maximize2 className="h-4 w-4 mr-1" /> Fullscreen
+                    <Maximize2 className="h-4 w-4 mr-1" /> fullscreen
                   </Button>
                   <Button size="sm" variant="ghost" onClick={createDocument} disabled={!isValid} className="h-8 text-xs bg-primary/10 text-primary">
                     <FilePlus className="h-4 w-4 mr-1" /> Create Doc
@@ -530,7 +530,7 @@ export function TemplatePage() {
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-muted-foreground py-10 opacity-30">
                   <Info className="h-10 w-10 mb-4" />
-                  <p className="text-sm">Paste JSON to Preview Pipeline</p>
+                  <p className="text-sm">paste json to preview pipeline</p>
                 </div>
               )}
             </CardContent>

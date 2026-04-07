@@ -132,7 +132,7 @@ export function ContextMenu() {
   // this likely needs a full dialog flow.
   // for now, let's just create a basic note with the content.
 
-  const content = data?.text || data?.title || "New Record from Canvas";
+  const content = data?.text || data?.title || "new record from canvas";
 
   // we'll dispatch an event or use a dialog store
   // simplicity: prompt user for collection? or just dump to 'notes'?

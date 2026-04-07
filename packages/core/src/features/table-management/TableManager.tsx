@@ -65,18 +65,18 @@ export const TableManager: React.FC = () => {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Create New Collection</CardTitle>
+          <CardTitle className="lowercase">create new collection</CardTitle>
         </CardHeader>
         <CardContent className="flex gap-2">
           <Input
-            placeholder="Enter new collection name"
+            placeholder="enter new collection name"
             value={newTableName}
             onChange={(e) => setNewTableName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCreateTable()}
             disabled={isCreating}
           />
           <Button onClick={handleCreateTable} disabled={isCreating}>
-            {isCreating ? 'Creating...' : 'Create'}
+            {isCreating ? 'creating...' : 'create'}
           </Button>
         </CardContent>
       </Card>

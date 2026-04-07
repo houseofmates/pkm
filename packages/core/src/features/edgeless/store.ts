@@ -1,12 +1,18 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import { appendOp, appendOps, saveCheckpoint, getLatestCheckpoint, getRecentOps } from './storage/canvas-db'
-import type { DrawOp, OpLogEntry } from './storage/oplog'
+import type { DrawOp, OpLogEntry, CanvasCheckpoint } from './storage/oplog'
 import { canvasSync } from './sync/canvas-sync'
 import { SpatialIndex } from './spatial/spatial-index'
 import { secureLogger } from '@/lib/secure-logger'
 import type * as fabric from 'fabric'
 import { useShallow } from 'zustand/react/shallow'
+
+interface PendingOplogLoad {
+  drawingId: string
+  checkpoint: CanvasCheckpoint | null
+  ops: OpLogEntry[]
+}
 
 const OPLOG_FLUSH_DELAY_MS = 120
 const OPLOG_FLUSH_BATCH_SIZE = 50
@@ -166,6 +172,10 @@ interface EdgelessState {
   // history (oplog-based)
   history: OplogHistory
 
+  // pending oplog load (for reliable loading across re-renders)
+  pendingOplogLoad: PendingOplogLoad | null
+  setPendingOplogLoad: (load: PendingOplogLoad | null) => void
+
   // ui state
   selectionMode: 'cursor' | 'free' | 'rect' | 'magic' | 'grab'
   eraserWidth: number
@@ -264,6 +274,10 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
 
   // history (empty oplog)
   history: { ops: [], undone: [] },
+
+  // pending oplog load
+  pendingOplogLoad: null,
+  setPendingOplogLoad: (load) => set({ pendingOplogLoad: load }),
 
   // ui defaults
   selectionMode: 'grab',
@@ -452,7 +466,6 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   },
 
   loadFromOplog: async (drawingId) => {
-    // load checkpoint + recent ops
     const checkpoint = await getLatestCheckpoint(drawingId)
     const ops = await getRecentOps(drawingId, 500)
 
@@ -461,10 +474,8 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       opCount: ops.length,
     })
 
-    // set drawing id
-    set({ drawingId })
+    set({ drawingId, pendingOplogLoad: { drawingId, checkpoint: checkpoint ?? null, ops } })
 
-    // emit event for canvas to load
     window.dispatchEvent(
       new CustomEvent('pkm:load-oplog', {
         detail: { drawingId, checkpoint, ops },

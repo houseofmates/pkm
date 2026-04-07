@@ -78,7 +78,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   };
 
   const handleDelete = async (record: any) => {
-    if (!confirm('Are you sure you want to delete this record?')) return;
+    if (!confirm('are you sure you want to delete this record?')) return;
     try {
       await client.deleteRecord(collection.name, record.id);
       refresh();
