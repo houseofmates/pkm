@@ -156,14 +156,24 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
     };
   }, [id, loading]);
 
-  // emergency save on unload
+  // emergency save on unload and visibility change
   useEffect(() => {
     const handleUnload = () => {
       saveCurrentCheckpointRef.current();
       if (id) void flushDrawingOps(id);
     };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden' && initialLoadCompleteRef.current) {
+        saveCurrentCheckpointRef.current();
+        if (id) void flushDrawingOps(id);
+      }
+    };
     window.addEventListener('beforeunload', handleUnload);
-    return () => window.removeEventListener('beforeunload', handleUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      window.removeEventListener('beforeunload', handleUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [id]);
 
   // persist element state (widgets, notes, etc.) when it changes
