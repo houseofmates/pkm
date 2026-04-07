@@ -412,22 +412,21 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       drawingId,
       timestamp: Date.now(),
       op: opWithLayer,
-      synced: false,
-    }
-
     // optimistic ui: update history immediately
     set((state) => ({
       history: {
         ops: [...state.history.ops, entry.id],
-        undone: [], // clear redo on new action
+        undone: [],
       },
     }))
 
-    // buffer for batched persistence
-    const buffer = pendingOpsByDrawing.get(drawingId) ?? []
-    if (!pendingOpsByDrawing.has(drawingId)) pendingOpsByDrawing.set(drawingId, buffer)
-    buffer.push(entry)
-    scheduleFlush(drawingId)
+    // write to indexeddb immediately (non-blocking via worker)
+    void appendOp(drawingId, opWithLayer).catch((e) => {
+      secureLogger.error('[oplog] immediate write failed', e)
+    })
+
+    // trigger live checkpoint save (debounced)
+    triggerLiveCheckpoint(drawingId)
 
     // mark as pending in metadata (async, non-blocking)
     void updateDrawingMeta(drawingId, { syncState: 'pending' }).catch((e) => {
