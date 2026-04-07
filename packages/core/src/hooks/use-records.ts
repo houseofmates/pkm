@@ -6,6 +6,11 @@ import { walWrite, walCommit, walFail } from '@/lib/write-ahead-log';
 import { registry } from '@/lib/link-registry';
 import { extractRecords } from '@/lib/nocobase-utils';
 import { secureLogger } from '@/lib/secure-logger';
+import type { NocoBaseRecord } from '@/lib/api/schemas';
+
+export interface RecordPayload {
+  [key: string]: unknown;
+}
 
 interface QueryParams {
   page?: number;
