@@ -6,24 +6,19 @@ import { toast } from 'sonner';
 import { extractRecords } from '@/lib/nocobase-utils';
 import { generateAndSaveAiField } from '@/services/ai-field-generator';
 
-/**
- * encapsulates the data loading / mutation logic previously found
- * in collectiondetailpage.  the hook is intentionally fairly
- * "dumb"; it takes an api client and the collection name as
- * arguments and returns state and callbacks.  calling components
- * deal only with rendering.
- */
+export interface RecordWithTimestamp extends SchemaRecord {
+  timestamp?: string;
+}
 
-// minimal shape of the api client used by the hook
 interface CollectionClient {
-  getCollection(name: string): Promise<any>;
-  listRecords(name: string, opts?: any): Promise<any>;
-  createRecord(name: string, data: any): Promise<any>;
-  updateRecord(name: string, id: any, data: any): Promise<any>;
-  deleteRecord(name: string, id: any): Promise<any>;
-  deleteRecordByFilter(name: string, filter: Record<string, unknown>): Promise<any>;
-  listFields(name: string): Promise<any>;
-  createField(name: string, data: any): Promise<any>;
+  getCollection(name: string): Promise<{ data: TableDefinition }>;
+  listRecords(name: string, opts?: Record<string, unknown>): Promise<{ data: SchemaRecord[] }>;
+  createRecord(name: string, data: Record<string, unknown>): Promise<{ id?: string | number; data?: { id?: string | number } }>;
+  updateRecord(name: string, id: string | number, data: Record<string, unknown>): Promise<void>;
+  deleteRecord(name: string, id: string | number): Promise<void>;
+  deleteRecordByFilter(name: string, filter: Record<string, unknown>): Promise<void>;
+  listFields(name: string): Promise<{ data: FieldDefinition[] }>;
+  createField(name: string, data: Record<string, unknown>): Promise<void>;
 }
 
 export function useCollectionData(
