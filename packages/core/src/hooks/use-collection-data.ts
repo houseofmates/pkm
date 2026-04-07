@@ -173,7 +173,7 @@ export function useCollectionData(
     if (!lastDeleted) return;
 
     try {
-      const { id, created_at, updated_at, ...rest } = lastDeleted as SchemaRecord & { created_at?: unknown; updated_at?: unknown };
+      const { id: _id, created_at: _created_at, updated_at: _updated_at, ...rest } = lastDeleted as SchemaRecord & { created_at?: unknown; updated_at?: unknown };
       await client.createRecord(collectionName, rest as Record<string, unknown>);
       toast.success('deletion undone');
       fetchData();
