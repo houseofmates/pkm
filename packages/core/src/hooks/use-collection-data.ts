@@ -252,10 +252,10 @@ export function useCollectionData(
 
   useEffect(() => {
     const handleCreate = async (evt: Event) => {
-      const e = evt as CustomEvent<any>;
+      const e = evt as CustomEvent<{ collection?: string; data?: Record<string, unknown> }>;
       if (e.detail?.collection === collectionName) {
         try {
-          const createRes = await client.createRecord(collectionName, e.detail.data);
+          const createRes = await client.createRecord(collectionName, e.detail.data || {});
           const newId = createRes?.id || createRes?.data?.id;
           toast.success('record created!');
           fetchData();
