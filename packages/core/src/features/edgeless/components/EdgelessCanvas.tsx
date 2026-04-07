@@ -576,7 +576,6 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
   useEffect(() => {
     if (!fabricCanvas) return;
 
-    // ensure fabric is globally available for oplog utils
     (window as any).fabric = fabric;
 
     (window as any).pkmGetCanvasJSON = () => {
@@ -592,25 +591,21 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
     };
 
-    const handleLoadOplog = async (e: any) => {
-      const { drawingId: id, checkpoint, ops } = e.detail;
-      if (id !== useEdgelessStore.getState().drawingId) return;
-
+    const loadFromOplogData = async (drawingId: string, checkpoint: unknown, ops: unknown[]) => {
       isLoadingStateRef.current = true;
       try {
-        if (checkpoint?.state) {
-        const state = checkpoint.state as any;
-        if (state && state.canvas) {
-          await fabricCanvas.loadFromJSON(state.canvas);
-          // restore overlay elements (widgets, notes, cards, etc.)
-          useEdgelessStore.getState().setElements(state.elements || []);
+        if (checkpoint && typeof checkpoint === 'object' && 'state' in (checkpoint as Record<string, unknown>)) {
+          const state = (checkpoint as { state: unknown }).state as any;
+          if (state && state.canvas) {
+            await fabricCanvas.loadFromJSON(state.canvas);
+            useEdgelessStore.getState().setElements(state.elements || []);
+          } else {
+            await fabricCanvas.loadFromJSON(state);
+          }
         } else {
-          await fabricCanvas.loadFromJSON(state);
+          fabricCanvas.clear();
+          fabricCanvas.backgroundColor = '#050505';
         }
-      } else {
-        fabricCanvas.clear();
-        fabricCanvas.backgroundColor = '#050505';
-      }
 
         if (Array.isArray(ops) && ops.length > 0) {
           const compacted = compactOplog(resolveConflicts(ops));
@@ -620,19 +615,30 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         }
         
         fabricCanvas.requestRenderAll();
-        // save initial state to history baseline
         historyRef.current = [];
       } catch (err) {
         secureLogger.error('[canvas] failed to load drawing from oplog:', err);
       } finally {
         isLoadingStateRef.current = false;
+        useEdgelessStore.getState().setPendingOplogLoad(null);
       }
+    };
+
+    const handleLoadOplog = async (e: CustomEvent<{ drawingId: string; checkpoint: unknown; ops: unknown[] }>) => {
+      const { drawingId: id, checkpoint, ops } = e.detail;
+      if (id !== useEdgelessStore.getState().drawingId) return;
+      await loadFromOplogData(id, checkpoint, ops);
     };
 
     window.addEventListener('pkm:load-oplog', handleLoadOplog as EventListener);
     
-    // set current drawing id for recovery
     (window as any).__pkmCurrentDrawingId = useEdgelessStore.getState().drawingId;
+
+    // check for pending load from store state (handles race condition)
+    const pendingLoad = useEdgelessStore.getState().pendingOplogLoad;
+    if (pendingLoad && pendingLoad.drawingId === useEdgelessStore.getState().drawingId) {
+      void loadFromOplogData(pendingLoad.drawingId, pendingLoad.checkpoint, pendingLoad.ops);
+    }
 
     return () => {
       delete (window as any).pkmGetCanvasJSON;
