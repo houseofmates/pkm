@@ -336,7 +336,7 @@ describe('canvas-db oplog operations', () => {
   describe('pruneOldOps', () => {
     it('should delete old synced operations', async () => {
       const drawingId = `${testDrawingId}-prune`
-      const entries = await appendOps(drawingId, [
+      await appendOps(drawingId, [
         createTestOp('p1'),
         createTestOp('p2'),
       ])

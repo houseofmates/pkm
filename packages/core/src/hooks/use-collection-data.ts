@@ -220,7 +220,7 @@ export function useCollectionData(
   const restoreRecord = useCallback(
     async (recordToRestore: SchemaRecord) => {
       try {
-        const { id, created_at, updated_at, ...rest } = recordToRestore as SchemaRecord & { created_at?: unknown; updated_at?: unknown };
+        const { id: _id, created_at: _created_at, updated_at: _updated_at, ...rest } = recordToRestore as SchemaRecord & { created_at?: unknown; updated_at?: unknown };
         await client.createRecord(collectionName, rest as Record<string, unknown>);
         toast.success('deletion undone');
         fetchData();
