@@ -1,3 +1,5 @@
+import { secureLogger } from 'packages/core/src/lib/secure-logger';
+
 export async function apiFetch(path: string, opts: RequestInit = {}) {
   const base = (import.meta.env.VITE_NOCOBASE_URL || '/api').replace(/\/$/, '')
   const token = import.meta.env.VITE_NOCOBASE_API_TOKEN || import.meta.env.NOCOBASE_API_KEY || ''
@@ -11,9 +13,13 @@ export async function apiFetch(path: string, opts: RequestInit = {}) {
     const res = await fetch(`${base}${path}`, { ...opts, headers })
     if (!res.ok) throw new Error(`api_fetch_failed: ${res.status} ${res.statusText}`)
     const text = await res.text()
-    try { return JSON.parse(text) } catch { return text }
+    try {
+      return JSON.parse(text)
+    } catch {
+      return text
+    }
   } catch (e) {
-    console.error('api_fetch_error', e)
+    secureLogger.debug('api_fetch_error', e)
     throw e
   }
 }
@@ -25,18 +31,26 @@ function extractId(resp: any) {
   return d?.id || d?.key || d?._id || null
 }
 
-// prevent concurrent findorcreateactivity calls for the same name
+// prevent concurrent find_or_create_activity calls for the same name to maintain data integrity
 const activityCreationPromises: Record<string, Promise<string | null>> = {};
 
 export async function findOrCreateActivity(name: string, localId?: string): Promise<string | null> {
-  const cacheKey = name.toLowerCase().trim();
+  // strictly lowercase and trim name for deterministic matching
+  const cacheKey = (name || '').toLowerCase().trim();
+  if (!cacheKey) return null;
   if (activityCreationPromises[cacheKey]) return activityCreationPromises[cacheKey];
 
   const promise = (async () => {
     try {
       const mapRaw = localStorage.getItem('pkm_activity_server_map')
-      const map = mapRaw ? JSON.parse(mapRaw) : { byName: {}, byLocal: {} }
+      let map = { byName: {} as any, byLocal: {} as any }
+      try {
+        if (mapRaw) map = JSON.parse(mapRaw);
+      } catch (err) {
+        secureLogger.warn('corrupted activity map in storage - resetting', err);
+      }
 
+      // use cached server id if available
       if (localId && map.byLocal && map.byLocal[localId]) return map.byLocal[localId]
       if (map.byName && map.byName[cacheKey]) {
         if (localId) {
@@ -47,7 +61,8 @@ export async function findOrCreateActivity(name: string, localId?: string): Prom
         return map.byName[cacheKey]
       }
 
-      const q = encodeURIComponent(name)
+      // attempt to find existing activity on server before creating new one
+      const q = encodeURIComponent(cacheKey)
       const list = await apiFetch(`/activities:list?filter[name]=${q}`)
       if (list && list.data && list.data.length > 0) {
         const sid = extractId(list.data[0])
@@ -59,18 +74,24 @@ export async function findOrCreateActivity(name: string, localId?: string): Prom
         }
       }
 
-      const created = await apiFetch(`/activities:create`, { method: 'POST', body: JSON.stringify({ name }) })
+      // create new activity if not found
+      const created = await apiFetch(`/activities:create`, { method: 'POST', body: JSON.stringify({ name: cacheKey }) })
       const sid = extractId(created)
       if (sid) {
-        const map2 = JSON.parse(localStorage.getItem('pkm_activity_server_map') || '{"byName":{},"byLocal":{}}')
-        map2.byName[cacheKey] = sid
-        if (localId) map2.byLocal[localId] = sid
-        localStorage.setItem('pkm_activity_server_map', JSON.stringify(map2))
+        // reload map from storage to avoid race condition with other sync processes
+        let latestMap = { byName: {} as any, byLocal: {} as any };
+        try {
+          latestMap = JSON.parse(localStorage.getItem('pkm_activity_server_map') || '{"byName":{},"byLocal":{}}');
+        } catch { /* use default */ }
+
+        latestMap.byName[cacheKey] = sid
+        if (localId) latestMap.byLocal[localId] = sid
+        localStorage.setItem('pkm_activity_server_map', JSON.stringify(latestMap))
         return sid
       }
       return null
     } catch (e) {
-      console.error('find_or_create_activity_failed', e)
+      secureLogger.debug('find_or_create_activity_failed', e)
       return null
     } finally {
       delete activityCreationPromises[cacheKey];
@@ -85,7 +106,11 @@ export async function createActivityLog({ activityId, note, rating, createdAt, l
   try {
     if (localLogId) {
       const lmRaw = localStorage.getItem('pkm_activity_log_server_map')
-      const lm = lmRaw ? JSON.parse(lmRaw) : {}
+      let lm: any = {}
+      try {
+        if (lmRaw) lm = JSON.parse(lmRaw);
+      } catch { /* ignore */ }
+
       if (lm[localLogId]) return lm[localLogId]
     }
 
@@ -96,13 +121,16 @@ export async function createActivityLog({ activityId, note, rating, createdAt, l
     const sid = extractId(res)
 
     if (sid && localLogId) {
-      const lm2 = JSON.parse(localStorage.getItem('pkm_activity_log_server_map') || '{}')
-      lm2[localLogId] = sid
-      localStorage.setItem('pkm_activity_log_server_map', JSON.stringify(lm2))
+      let latestLm: any = {}
+      try {
+        latestLm = JSON.parse(localStorage.getItem('pkm_activity_log_server_map') || '{}');
+      } catch { /* ignore */ }
+      latestLm[localLogId] = sid
+      localStorage.setItem('pkm_activity_log_server_map', JSON.stringify(latestLm))
     }
     return sid
   } catch (e) {
-    console.error('create_activity_log_failed', e)
+    secureLogger.debug('create_activity_log_failed', e)
     return null
   }
 }
@@ -111,14 +139,28 @@ export async function syncAllLocalLogs() {
   try {
     const raw = localStorage.getItem('pkm_activity_logs')
     if (!raw) return { pushed: 0 }
-    const logs = JSON.parse(raw)
+
+    let logs: any[] = [];
+    try {
+      logs = JSON.parse(raw);
+    } catch (err) {
+      secureLogger.error('failed to parse local activity logs', err);
+      return { pushed: 0 };
+    }
+
     const activitiesRaw = localStorage.getItem('pkm_activities')
-    const activities = activitiesRaw ? JSON.parse(activitiesRaw) : []
+    let activities: any[] = [];
+    try {
+      if (activitiesRaw) activities = JSON.parse(activitiesRaw);
+    } catch { /* ignore */ }
+
     const nameById: Record<string,string> = {}
-    activities.forEach((a: any) => nameById[a.id] = a.name)
+    activities.forEach((a: any) => {
+      if (a.id && a.name) nameById[a.id] = a.name;
+    });
 
     let pushed = 0
-    // process sequentially to avoid overwhelming server and hitting race conditions
+    // process sequentially to maintain pkm integrity and avoid overlapping api requests
     for (const l of logs) {
       const localName = nameById[l.activityId] || l.activityId || 'other'
       const serverActivityId = await findOrCreateActivity(localName, l.activityId)
@@ -135,7 +177,7 @@ export async function syncAllLocalLogs() {
     }
     return { pushed }
   } catch (e) {
-    console.error('sync_all_local_logs_failed', e)
+    secureLogger.debug('sync_all_local_logs_failed', e)
     throw e
   }
 }

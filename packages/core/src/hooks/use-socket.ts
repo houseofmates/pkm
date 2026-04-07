@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { secureLogger } from '@/lib/secure-logger';
 
-// global singleton to reuse connection
+// global singleton to reuse connection across components
 let socket: Socket | null = null;
 let socketRefCount = 0;
 
@@ -13,20 +13,19 @@ export const useSocket = () => {
   useEffect(() => {
     socketRefCount++;
 
+    // lazy initialization of the socket connection
     if (!socket) {
       socket = io(import.meta.env.VITE_SOCKET_URL || 'wss://db.houseofmates.space', {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         autoConnect: true,
         timeout: 10000,
-        path: '/socket.io', // use relative path for compatibility
+        path: '/socket.io',
       });
     }
 
     const s = socket;
     socketRef.current = s;
-
-    // sync initial state
     setIsConnected(s.connected);
 
     const onConnect = () => {
@@ -49,7 +48,7 @@ export const useSocket = () => {
     s.on('connect_error', onError);
     s.on('reconnect_failed', onDisconnect);
 
-    // ensure connected
+    // trigger connection if idle
     if (!s.connected) {
       try {
         s.connect();
@@ -59,12 +58,14 @@ export const useSocket = () => {
     }
 
     return () => {
+      // cleanup listeners to prevent memory leaks and duplicate triggers
       s.off('connect', onConnect);
       s.off('disconnect', onDisconnect);
       s.off('connect_error', onError);
       s.off('reconnect_failed', onDisconnect);
 
       socketRefCount--;
+      // only disconnect when no active components are using the socket
       if (socketRefCount <= 0 && socket) {
         secureLogger.info('disconnecting socket (no active consumers)');
         socket.disconnect();
