@@ -412,7 +412,9 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       drawingId,
       timestamp: Date.now(),
       op: opWithLayer,
-    // optimistic ui: update history immediately
+      synced: false,
+    }
+
     set((state) => ({
       history: {
         ops: [...state.history.ops, entry.id],
