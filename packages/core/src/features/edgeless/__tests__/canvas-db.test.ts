@@ -172,7 +172,7 @@ describe('canvas-db oplog operations', () => {
   describe('getRecentOps', () => {
     it('should return operations in chronological order', async () => {
       const drawingId = `${testDrawingId}-recent`
-      const entries = await appendOps(drawingId, [
+      await appendOps(drawingId, [
         createTestOp('r1'),
         createTestOp('r2'),
         createTestOp('r3'),
