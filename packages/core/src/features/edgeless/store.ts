@@ -173,6 +173,10 @@ interface EdgelessState {
   // history (oplog-based)
   history: OplogHistory
 
+  // pending oplog load (for reliable loading across re-renders)
+  pendingOplogLoad: PendingOplogLoad | null
+  setPendingOplogLoad: (load: PendingOplogLoad | null) => void
+
   // ui state
   selectionMode: 'cursor' | 'free' | 'rect' | 'magic' | 'grab'
   eraserWidth: number
