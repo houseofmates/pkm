@@ -54,7 +54,8 @@ export function triggerLiveCheckpoint(drawingId: string): void {
   if (!drawingId) return
   const canvasDataGetter = () => {
     try {
-      return (window as Record<string, unknown>).pkmGetCanvasJSON?.()
+      const win = window as unknown as { pkmGetCanvasJSON?: () => unknown }
+      return win.pkmGetCanvasJSON?.()
     } catch {
       return null
     }
@@ -69,7 +70,8 @@ export async function flushDrawingOps(drawingId: string): Promise<void> {
   if (!drawingId) return
   cancelPendingCheckpoint(drawingId)
   try {
-    const canvasData = (window as Record<string, unknown>).pkmGetCanvasJSON?.()
+    const win = window as unknown as { pkmGetCanvasJSON?: () => unknown }
+    const canvasData = win.pkmGetCanvasJSON?.()
     if (canvasData) {
       await saveCheckpoint(drawingId, canvasData)
     }
