@@ -85,14 +85,14 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
 
   // create record mutation
   const createMutation = useMutation({
-    mutationFn: async (data: Record<string, unknown>) => {
-      const payload: Record<string, unknown> = { ...data };
+    mutationFn: async (data: RecordPayload) => {
+      const payload: RecordPayload = { ...data };
       if (activeFronterId) {
-        (payload as any).fronter = activeFronterId;
+        payload.fronter = activeFronterId;
       }
       const walId = await walWrite(collectionName, 'new', 'create', payload);
       try {
-        const result = await client.createRecord(collectionName, payload as any);
+        const result = await client.createRecord(collectionName, payload);
         await walCommit(walId);
         return result;
       } catch (err) {
@@ -107,14 +107,14 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
 
   // update record mutation (with optimistic updates)
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string | number; data: Record<string, unknown> }) => {
-      const payload: Record<string, unknown> = { ...data };
+    mutationFn: async ({ id, data }: { id: string | number; data: RecordPayload }) => {
+      const payload: RecordPayload = { ...data };
       if (activeFronterId) {
-        (payload as any).lastEditedByFronter = activeFronterId;
+        payload.lastEditedByFronter = activeFronterId;
       }
       const walId = await walWrite(collectionName, String(id), 'update', payload);
       try {
-        const result = await client.updateRecord(collectionName, id, payload as any);
+        const result = await client.updateRecord(collectionName, id, payload);
         await walCommit(walId);
         if (typeof payload.content === 'string') {
           registry.rescan(String(id), collectionName, payload.content);
@@ -125,15 +125,15 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
         throw err;
       }
     },
-    onMutate: async ({ id, data }: { id: string | number; data: Record<string, unknown> }) => {
+    onMutate: async ({ id, data }: { id: string | number; data: RecordPayload }) => {
       await queryClient.cancelQueries({ queryKey: ['records', collectionName] });
-      const previousData = queryClient.getQueryData(['records', collectionName, queryParams]);
+      const previousData = queryClient.getQueryData<{ data: NocoBaseRecord[] }>(['records', collectionName, queryParams]);
 
-      queryClient.setQueryData(['records', collectionName, queryParams], (old: any) => {
+      queryClient.setQueryData<{ data: NocoBaseRecord[] }>(['records', collectionName, queryParams], (old) => {
         if (!old || !old.data) return old;
         return {
           ...old,
-          data: old.data.map((record: any) =>
+          data: old.data.map((record) =>
             String(record.id) === String(id) ? { ...record, ...data } : record
           ),
         };
@@ -176,8 +176,8 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     loading: isLoading,
     error: error ? (error as Error).message : null,
     refresh,
-    createRecord: (data: Record<string, unknown>) => createMutation.mutateAsync(data),
-    updateRecord: (id: string | number, data: Record<string, unknown>) => updateMutation.mutateAsync({ id, data }),
+    createRecord: (data: RecordPayload) => createMutation.mutateAsync(data),
+    updateRecord: (id: string | number, data: RecordPayload) => updateMutation.mutateAsync({ id, data }),
     deleteRecord: (id: string | number) => deleteMutation.mutateAsync(id),
   };
 }
@@ -199,12 +199,12 @@ export function useRecord(collectionName: string, recordId: string | number) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (data: Record<string, unknown>) => {
-      const payload: Record<string, unknown> = { ...data };
+    mutationFn: async (data: RecordPayload) => {
+      const payload: RecordPayload = { ...data };
       if (activeFronterId) {
-        (payload as any).lastEditedByFronter = activeFronterId;
+        payload.lastEditedByFronter = activeFronterId;
       }
-      return client.updateRecord(collectionName, recordId, payload as any);
+      return client.updateRecord(collectionName, recordId, payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['record', collectionName, recordId] });
@@ -212,7 +212,6 @@ export function useRecord(collectionName: string, recordId: string | number) {
     },
   });
 
-  // extract data from various response formats safely
   const extractRecordData = (responseData: unknown): unknown => {
     if (!responseData) return null;
     if (typeof responseData !== 'object') return responseData;
@@ -224,7 +223,7 @@ export function useRecord(collectionName: string, recordId: string | number) {
     data: extractRecordData(data),
     loading: isLoading,
     error: error ? (error as Error).message : null,
-    updateRecord: (data: Record<string, unknown>) => updateMutation.mutateAsync(data),
+    updateRecord: (data: RecordPayload) => updateMutation.mutateAsync(data),
     refresh: refetch
   };
 }
