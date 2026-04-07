@@ -27,6 +27,7 @@ import { useGestureManager } from '@/hooks/use-gesture-manager'
 import { buildOverlaySpatialIndex } from '../spatial/spatial-index'
 import { useDrawingTools } from '../hooks/use-drawing-tools'
 import { applyOp, compactOplog, resolveConflicts } from '../storage/oplog'
+import type { OpLogEntry } from '../storage/oplog'
 
 // --- canvas element pooling (reduces gc and keeps redraws snappy) ---
 const canvasPool: HTMLCanvasElement[] = []
