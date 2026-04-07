@@ -467,7 +467,6 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   },
 
   loadFromOplog: async (drawingId) => {
-    // load checkpoint + recent ops
     const checkpoint = await getLatestCheckpoint(drawingId)
     const ops = await getRecentOps(drawingId, 500)
 
@@ -476,10 +475,8 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       opCount: ops.length,
     })
 
-    // set drawing id
-    set({ drawingId })
+    set({ drawingId, pendingOplogLoad: { drawingId, checkpoint: checkpoint ?? null, ops } })
 
-    // emit event for canvas to load
     window.dispatchEvent(
       new CustomEvent('pkm:load-oplog', {
         detail: { drawingId, checkpoint, ops },
