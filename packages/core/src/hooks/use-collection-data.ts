@@ -173,11 +173,11 @@ export function useCollectionData(
     if (!lastDeleted) return;
 
     try {
-      const rest: Partial<SchemaRecord> = { ...lastDeleted };
+      const rest = { ...lastDeleted };
       delete rest.id;
-      delete (rest as any).created_at;
-      delete (rest as any).updated_at;
-      await client.createRecord(collectionName, rest);
+      delete (rest as Record<string, unknown>).created_at;
+      delete (rest as Record<string, unknown>).updated_at;
+      await client.createRecord(collectionName, rest as Record<string, unknown>);
       toast.success('deletion undone');
       fetchData();
     } catch (e) {
@@ -188,13 +188,14 @@ export function useCollectionData(
 
   const handleDeleteRecord = useCallback(
     async (record: SchemaRecord) => {
+      const recordWithTs = record as RecordWithTimestamp;
       if (!record || record.id === undefined || record.id === null) {
-        if (record && (record as any).timestamp) {
+        if (recordWithTs.timestamp) {
           try {
-            await client.deleteRecordByFilter(collectionName, { timestamp: (record as any).timestamp });
+            await client.deleteRecordByFilter(collectionName, { timestamp: recordWithTs.timestamp });
             setDeletedStack(prev => [...prev, record]);
             toast.success('record deleted');
-            setRecords(prev => prev.filter(r => (r as any).timestamp !== (record as any).timestamp));
+            setRecords(prev => prev.filter(r => (r as RecordWithTimestamp).timestamp !== recordWithTs.timestamp));
             return;
           } catch (error) {
             secureLogger.error('failed to delete record by timestamp', error);
