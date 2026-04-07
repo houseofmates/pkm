@@ -609,7 +609,8 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         }
 
         if (Array.isArray(ops) && ops.length > 0) {
-          const compacted = compactOplog(resolveConflicts(ops));
+          const typedOps = ops as OpLogEntry[];
+          const compacted = compactOplog(resolveConflicts(typedOps));
           for (const entry of compacted) {
             await applyOp(fabricCanvas, entry.op);
           }
