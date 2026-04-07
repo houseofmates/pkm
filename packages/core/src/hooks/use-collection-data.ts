@@ -173,10 +173,7 @@ export function useCollectionData(
     if (!lastDeleted) return;
 
     try {
-      const rest = { ...lastDeleted };
-      delete rest.id;
-      delete (rest as Record<string, unknown>).created_at;
-      delete (rest as Record<string, unknown>).updated_at;
+      const { id, created_at, updated_at, ...rest } = lastDeleted as SchemaRecord & { created_at?: unknown; updated_at?: unknown };
       await client.createRecord(collectionName, rest as Record<string, unknown>);
       toast.success('deletion undone');
       fetchData();
@@ -223,11 +220,8 @@ export function useCollectionData(
   const restoreRecord = useCallback(
     async (recordToRestore: SchemaRecord) => {
       try {
-        const rest: Partial<SchemaRecord> = { ...recordToRestore };
-        delete rest.id;
-        delete (rest as any).created_at;
-        delete (rest as any).updated_at;
-        await client.createRecord(collectionName, rest);
+        const { id, created_at, updated_at, ...rest } = recordToRestore as SchemaRecord & { created_at?: unknown; updated_at?: unknown };
+        await client.createRecord(collectionName, rest as Record<string, unknown>);
         toast.success('deletion undone');
         fetchData();
         setDeletedStack(prev => prev.filter(r => r.id !== recordToRestore.id));
