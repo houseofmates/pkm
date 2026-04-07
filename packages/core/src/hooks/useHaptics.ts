@@ -20,9 +20,8 @@ export function useHaptics() {
         intensity,
       });
     } catch (e) {
-      // fallback vibrate for older devices
-      if ('vibrate' in navigator) {
-        (navigator.vibrate as any)(50);
+      if ('vibrate' in navigator && typeof navigator.vibrate === 'function') {
+        navigator.vibrate(50);
       }
     }
   };

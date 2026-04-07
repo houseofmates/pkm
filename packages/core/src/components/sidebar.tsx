@@ -21,13 +21,13 @@ export function Sidebar({ className, collections = [], selectedCollection = null
       <div className="space-y-1">
         {collections.map((collection) => {
           const isActive = selectedCollection?.name === collection.name;
-          const displayName = <span className="lowercase">{collection.title || collection.name}</span>;
+          const displayName = collection.title || collection.name;
           return (
             <Button
               key={collection.name}
               variant="ghost"
               className={cn(
-                'w-full justify-start',
+                'w-full justify-start lowercase',
                 isActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5'
               )}
               onClick={() => onSelect?.(collection)}

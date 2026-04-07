@@ -9,7 +9,7 @@ interface StreakData {
 }
 
 export function StreakWidget() {
-  const [streak, setStreak] = useState({ current: 0, longest: 0 } as StreakData);
+  const [streak, setStreak] = useState<StreakData>({ current: 0, longest: 0, lastDate: '' });
   const haptics = useHaptics();
 
   useEffect(() => {
