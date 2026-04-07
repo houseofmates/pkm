@@ -1,7 +1,7 @@
 // edgeless canvas feature exports
 // main entry point for the drawing/edgeless system
 
-export { useEdgelessStore } from './store'
+export { useEdgelessStore, triggerLiveCheckpoint, flushDrawingOps } from './store'
 export type {
   ElementType,
   EdgelessLayer,
