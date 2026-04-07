@@ -1,12 +1,18 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
 import { appendOp, appendOps, saveCheckpoint, getLatestCheckpoint, getRecentOps } from './storage/canvas-db'
-import type { DrawOp, OpLogEntry } from './storage/oplog'
+import type { DrawOp, OpLogEntry, CanvasCheckpoint } from './storage/oplog'
 import { canvasSync } from './sync/canvas-sync'
 import { SpatialIndex } from './spatial/spatial-index'
 import { secureLogger } from '@/lib/secure-logger'
 import type * as fabric from 'fabric'
 import { useShallow } from 'zustand/react/shallow'
+
+interface PendingOplogLoad {
+  drawingId: string
+  checkpoint: CanvasCheckpoint | null
+  ops: OpLogEntry[]
+}
 
 const OPLOG_FLUSH_DELAY_MS = 120
 const OPLOG_FLUSH_BATCH_SIZE = 50
