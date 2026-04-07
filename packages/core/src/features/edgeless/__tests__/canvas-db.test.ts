@@ -315,10 +315,15 @@ describe('canvas-db oplog operations', () => {
 
     it('should handle token with TTL', async () => {
       const key = `test-token-ttl-${Date.now()}`
+      
+      // Set token with short TTL
       await setToken(key, 'ttl-value', 0.001) // 0.001 minutes = 60ms
 
       const immediate = await getToken(key)
       expect(immediate).toBe('ttl-value')
+
+      // Clear memory cache to force IDB read
+      clearMemoryTokens()
 
       // Wait for TTL to expire
       await new Promise(resolve => setTimeout(resolve, 100))
