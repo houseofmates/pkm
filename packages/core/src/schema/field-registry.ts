@@ -1,28 +1,25 @@
-/**
+/* *
  * field type registry for the modular schema service
  * 
  * this module provides an extensible registry for field types.
  * field types define how data is validated, stored, and displayed.
  * new field types can be registered at runtime, enabling plugins
- * to add custom field types.
- */
+ * to add custom field types. */
 
 import { z } from 'zod';
 import type { FieldTypeDefinition, FieldDefinition } from './types';
 import { secureLogger } from '@/lib/secure-logger';
 
-/**
- * field registry class - manages all registered field types
- */
+/* *
+ * field registry class - manages all registered field types */
 class FieldRegistry {
   // map of field type name to field type definition
   private fieldTypes: Map<string, FieldTypeDefinition> = new Map();
 
-  /**
+  /* *
    * register a new field type
    * @param fieldtype the field type definition to register
-   * @throws error if field type is invalid or already registered (and overwrite is false)
-   */
+   * @throws error if field type is invalid or already registered (and overwrite is false) */
   public register(fieldType: FieldTypeDefinition, overwrite: boolean = false): void {
     // validate the field type definition
     if (!fieldType.typeName || typeof fieldType.typeName !== 'string') {
@@ -45,62 +42,55 @@ class FieldRegistry {
     this.fieldTypes.set(fieldType.typeName, fieldType);
   }
 
-  /**
+  /* *
    * get a registered field type by name
    * @param typename the name of the field type
-   * @returns the field type definition or undefined if not found
-   */
+   * @returns the field type definition or undefined if not found */
   public get(typeName: string): FieldTypeDefinition | undefined {
     return this.fieldTypes.get(typeName);
   }
 
-  /**
+  /* *
    * check if a field type is registered
    * @param typename the name of the field type
-   * @returns true if the field type is registered
-   */
+   * @returns true if the field type is registered */
   public has(typeName: string): boolean {
     return this.fieldTypes.has(typeName);
   }
 
-  /**
+  /* *
    * get all registered field types
-   * @returns array of all field type definitions
-   */
+   * @returns array of all field type definitions */
   public getAll(): FieldTypeDefinition[] {
     return Array.from(this.fieldTypes.values());
   }
 
-  /**
+  /* *
    * get all registered field type names
-   * @returns array of all field type names
-   */
+   * @returns array of all field type names */
   public getTypeNames(): string[] {
     return Array.from(this.fieldTypes.keys());
   }
 
-  /**
+  /* *
    * unregister a field type
    * @param typename the name of the field type to unregister
-   * @returns true if the field type was removed, false if it didn't exist
-   */
+   * @returns true if the field type was removed, false if it didn't exist */
   public unregister(typeName: string): boolean {
     return this.fieldTypes.delete(typeName);
   }
 
-  /**
-   * clear all registered field types
-   */
+  /* *
+   * clear all registered field types */
   public clear(): void {
     this.fieldTypes.clear();
   }
 
-  /**
+  /* *
    * get the zod schema for a field definition
    * @param field the field definition
    * @returns the zod schema for this field
-   * @throws error if the field type is not registered
-   */
+   * @throws error if the field type is not registered */
   public getSchemaForField(field: FieldDefinition): z.ZodType<any> {
     const fieldType = this.get(field.type);
     
@@ -146,11 +136,10 @@ class FieldRegistry {
     return schema;
   }
 
-  /**
+  /* *
    * get the default value for a field
    * @param field the field definition
-   * @returns the default value
-   */
+   * @returns the default value */
   public getDefaultValue(field: FieldDefinition): any {
     // use field-specific default if provided
     if (field.defaultValue !== undefined) {
@@ -167,11 +156,10 @@ class FieldRegistry {
     return null;
   }
 
-  /**
+  /* *
    * generate a zod object schema for a table based on its field definitions
    * @param fields array of field definitions
-   * @returns zod object schema for validating records
-   */
+   * @returns zod object schema for validating records */
   public generateRecordSchema(fields: FieldDefinition[]): z.ZodObject<any> {
     const shape: { [key: string]: z.ZodType<any> } = {};
 
@@ -190,9 +178,8 @@ export const fieldRegistry = new FieldRegistry();
 // built-in field type definitions
 // ============================================================================
 
-/**
- * register all built-in field types
- */
+/* *
+ * register all built-in field types */
 export function registerBuiltinFieldTypes(): void {
   // text field - simple string
   fieldRegistry.register({

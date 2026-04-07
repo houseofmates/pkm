@@ -22,10 +22,9 @@ export interface GestureManagerOptions {
   maxTapMs?: number;
 }
 
-/**
+/* *
  * centralized gesture manager to normalize pointer/touch gestures across mobile & desktop.
- * keeps refs to avoid rerenders during high-frequency pointer moves.
- */
+ * keeps refs to avoid rerenders during high-frequency pointer moves. */
 export function useGestureManager(
   targetRef: MutableRefObject<HTMLElement | null>,
   handlers: GestureHandlers,

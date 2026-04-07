@@ -88,7 +88,7 @@ export function LiveServerWidget() {
 
   // socket connection for live updates
   // allow overriding via vite env: vite_socket_url (e.g. https://example.com:4100)
-  const SOCKET_URL = (import.meta as any).env?.VITE_SOCKET_URL || `${location.protocol}//${location.hostname}:4100`;
+  const SOCKET_URL = (import.meta as any).env?.VITE_SOCKET_URL || `${location.protocol}// ${location.hostname}:4100`;
   const socket = io(SOCKET_URL, { path: '/socket.io' });
 
   socket.on('connect', () => {

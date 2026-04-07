@@ -93,20 +93,20 @@ describe('backend /api/nb-import', () => {
 
   describe('CORS', () => {
     it('returns allow-origin header for configured origin', async () => {
-      process.env.ALLOWED_ORIGINS = 'https://foo.example';
+      process.env.ALLOWED_ORIGINS = 'https:// foo.example';
       const r = await request(server)
         .get('/api/nb-import/logs?id=none')
-        .set('Origin', 'https://foo.example')
+        .set('Origin', 'https:// foo.example')
         .set('Authorization', 'Bearer test-secret');
-      expect(r.headers['access-control-allow-origin']).toBe('https://foo.example');
+      expect(r.headers['access-control-allow-origin']).toBe('https:// foo.example');
       delete process.env.ALLOWED_ORIGINS;
     });
 
     it('does not expose header for disallowed origin', async () => {
-      process.env.ALLOWED_ORIGINS = 'https://bar.example';
+      process.env.ALLOWED_ORIGINS = 'https:// bar.example';
       const r = await request(server)
         .get('/api/nb-import/logs?id=none')
-        .set('Origin', 'https://not.allowed')
+        .set('Origin', 'https:// not.allowed')
         .set('Authorization', 'Bearer test-secret');
       expect(r.headers['access-control-allow-origin']).toBeUndefined();
       delete process.env.ALLOWED_ORIGINS;
@@ -115,7 +115,7 @@ describe('backend /api/nb-import', () => {
     it('handles CORS and auth on get for logs endpoint', async () => {
       const r = await request(server)
         .get('/api/nb-import/logs?id=test123')
-        .set('Origin', 'https://foo.example')
+        .set('Origin', 'https:// foo.example')
         .set('Authorization', 'Bearer test-secret');
       expect(r.status).toBe(404);
     });

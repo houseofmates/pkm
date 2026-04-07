@@ -25,7 +25,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
   // state for editable fields
-  const [bannerUrl, setBannerUrl] = useState((member as any).banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop');
+  const [bannerUrl, setBannerUrl] = useState((member as any).banner || 'https:// images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop');
   const [name, setName] = useState(member.name);
   const [birthday, setBirthday] = useState((member as any).birthday || '');
   const [favColor, setFavColor] = useState(member.color || '#ffffff');
@@ -148,7 +148,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
                 <input
                   ref={bannerInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/* "
                   onchange={handlebannerupload}
                   classname="hidden"
                 />

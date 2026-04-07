@@ -82,9 +82,9 @@ async function capturePageScreenshot(): Promise<HTMLCanvasElement | null> {
 
       // use html2canvas-like approach with foreignobject svg
       const svgData = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+        <svg xmlns="http:// www.w3.org/2000/svg" width="${width}" height="${height}">
           <foreignObject width="100%" height="100%" x="0" y="0">
-            <div xmlns="http://www.w3.org/1999/xhtml">
+            <div xmlns="http:// www.w3.org/1999/xhtml">
               ${new XMLSerializer().serializeToString(document.documentElement)}
             </div>
           </foreignObject>
@@ -132,9 +132,9 @@ async function captureViewportScreenshot(): Promise<HTMLCanvasElement | null> {
         // note: this would require user permission and shows a picker
         // for now, use the svg approach for the viewport
         const svgData = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+          <svg xmlns="http:// www.w3.org/2000/svg" width="${width}" height="${height}">
             <foreignObject width="100%" height="100%" x="0" y="0">
-              <div xmlns="http://www.w3.org/1999/xhtml">
+              <div xmlns="http:// www.w3.org/1999/xhtml">
                 ${new XMLSerializer().serializeToString(document.documentElement)}
               </div>
             </foreignObject>

@@ -1,18 +1,16 @@
-/**
+/* *
  * data sanitization utilities
  * 
  * functions to safely handle sensitive data without exposing it
- * to browser console, network logs, or localstorage.
- */
+ * to browser console, network logs, or localstorage. */
 
 import { secureLogger } from './secure-logger';
 
 // characters to use for masking
 const MASK_CHAR = '•';
 
-/**
- * mask a string, showing only first and last n characters
- */
+/* *
+ * mask a string, showing only first and last n characters */
 export function maskString(str: string, visibleFirst = 4, visibleLast = 4): string {
   if (!str || str.length <= visibleFirst + visibleLast) {
     return MASK_CHAR.repeat(str?.length || 0);
@@ -25,17 +23,15 @@ export function maskString(str: string, visibleFirst = 4, visibleLast = 4): stri
   return `${first}${MASK_CHAR.repeat(middleLength)}${last}`;
 }
 
-/**
- * completely redact a sensitive value
- */
+/* *
+ * completely redact a sensitive value */
 export function redact(value: string | null | undefined): string {
   if (!value) return '[EMPTY]';
   return `[REDACTED:${value.length}chars]`;
 }
 
-/**
- * sanitize an object by redacting sensitive fields
- */
+/* *
+ * sanitize an object by redacting sensitive fields */
 export function sanitizeObject(
   obj: Record<string, any>,
   sensitiveFields: string[] = ['token', 'apiKey', 'password', 'secret', 'credential', 'key', 'auth']
@@ -58,17 +54,15 @@ export function sanitizeObject(
   return sanitized;
 }
 
-/**
- * safe json stringify that redacts sensitive data
- */
+/* *
+ * safe json stringify that redacts sensitive data */
 export function safeStringify(obj: any, space?: number): string {
   const sanitized = sanitizeObject(obj);
   return JSON.stringify(sanitized, null, space);
 }
 
-/**
- * extract public-safe error message (no internal details)
- */
+/* *
+ * extract public-safe error message (no internal details) */
 export function safeErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     // remove file paths, stack traces, internal details
@@ -86,9 +80,8 @@ export function safeErrorMessage(error: unknown): string {
   return 'an error occurred';
 }
 
-/**
- * create a safe version of headers for logging
- */
+/* *
+ * create a safe version of headers for logging */
 export function sanitizeHeaders(headers: Record<string, string>): Record<string, string> {
   const sensitive = ['authorization', 'x-api-key', 'x-token', 'cookie', 'x-hom-api-key'];
   const sanitized: Record<string, string> = {};
@@ -105,9 +98,8 @@ export function sanitizeHeaders(headers: Record<string, string>): Record<string,
   return sanitized;
 }
 
-/**
- * check if a value looks like an api key/token
- */
+/* *
+ * check if a value looks like an api key/token */
 export function looksLikeSecret(value: string): boolean {
   if (!value || value.length < 8) return false;
   
@@ -121,9 +113,8 @@ export function looksLikeSecret(value: string): boolean {
   return patterns.some(p => p.test(value));
 }
 
-/**
- * safe localstorage wrapper that warns about sensitive data
- */
+/* *
+ * safe localstorage wrapper that warns about sensitive data */
 // safestorage no longer depends on storagemanager; it wraps localstorage
 // directly and applies some heuristic warnings for sensitive values.
 
@@ -172,9 +163,8 @@ export const safeStorage = {
   },
 };
 
-/**
- * create a safe url for logging (remove query params that might contain secrets)
- */
+/* *
+ * create a safe url for logging (remove query params that might contain secrets) */
 export function safeUrl(url: string): string {
   try {
     const urlObj = new URL(url);

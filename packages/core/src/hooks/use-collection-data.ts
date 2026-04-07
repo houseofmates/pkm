@@ -6,13 +6,12 @@ import { toast } from 'sonner';
 import { extractRecords } from '@/lib/nocobase-utils';
 import { generateAndSaveAiField } from '@/services/ai-field-generator';
 
-/**
+/* *
  * encapsulates the data loading / mutation logic previously found
  * in collectiondetailpage.  the hook is intentionally fairly
  * "dumb"; it takes an api client and the collection name as
  * arguments and returns state and callbacks.  calling components
- * deal only with rendering.
- */
+ * deal only with rendering. */
 
 // minimal shape of the api client used by the hook
 interface CollectionClient {
@@ -58,13 +57,13 @@ export function useCollectionData(
       );
 
       if (preloaded) {
-        secureLogger.info('found preloaded collection:', preloaded.name);
+        secureLogger.debug('found preloaded collection:', preloaded.name);
         colData = preloaded;
       }
 
       if (!colData?.fields) {
         try {
-          secureLogger.info('attempting to fetch full collection schema with fields...');
+          secureLogger.debug('attempting to fetch full collection schema with fields...');
           const colRes = await client.getCollection(collectionName);
           if (fetchId !== fetchCounterRef.current) return;
 
@@ -75,7 +74,7 @@ export function useCollectionData(
           }
         } catch (e) {
           if (fetchId !== fetchCounterRef.current) return;
-          secureLogger.warn('failed to fetch collection schema, using preloaded if available', e);
+          secureLogger.debug('failed to fetch collection schema, using preloaded if available', e);
           if (preloaded) colData = preloaded;
         }
       }
@@ -95,13 +94,13 @@ export function useCollectionData(
               hasFronter = fields.some((f: FieldDefinition) => f.name === 'fronter');
             }
           } catch (e) {
-            secureLogger.warn("failed to fetch fields separately when checking for fronter:", e);
+            secureLogger.debug("failed to fetch fields separately when checking for fronter:", e);
           }
         }
 
         if (!hasFronter && fetchId === fetchCounterRef.current) {
           try {
-            secureLogger.info('auto-creating "fronter" field for', collectionName);
+            secureLogger.debug('auto-creating "fronter" field for', collectionName);
             await client.createField(collectionName, {
               name: 'fronter',
               type: 'string',
@@ -110,7 +109,7 @@ export function useCollectionData(
             if (!colData.fields) colData.fields = [];
             colData.fields.push({ id: 'fronter', name: 'fronter', type: 'string', label: 'fronter' });
           } catch (e: any) {
-             secureLogger.warn('failed to auto-create fronter field', e);
+             secureLogger.debug('failed to auto-create fronter field', e);
           }
         }
       }
@@ -121,9 +120,9 @@ export function useCollectionData(
       setRecords(recData);
     } catch (error: any) {
       if (fetchId !== fetchCounterRef.current) return;
-      secureLogger.error(error instanceof Error ? error.message : String(error));
+      secureLogger.debug('fetch data failed:', error);
       setFetchError(error?.message || 'unknown error');
-      toast.error('Failed to load collection data');
+      toast.error('failed to load collection data');
     } finally {
       if (fetchId === fetchCounterRef.current) {
         setLoading(false);
@@ -133,6 +132,7 @@ export function useCollectionData(
 
   const handleDirectCreate = useCallback(
     async (initialData: Partial<SchemaRecord> = {}) => {
+      const fetchId = fetchCounterRef.current;
       try {
         const dataToSubmit: Partial<SchemaRecord> = { ...initialData };
         if (activeFronters && activeFronters.length > 0) {
@@ -145,11 +145,12 @@ export function useCollectionData(
         }
 
         await client.createRecord(collectionName, dataToSubmit);
+        if (fetchId !== fetchCounterRef.current) return;
         toast.success('record created');
         fetchData();
       } catch (error) {
-        secureLogger.error(error instanceof Error ? error.message : String(error));
-        toast.error('Failed to create record');
+        secureLogger.debug('failed to create record:', error);
+        toast.error('failed to create record');
       }
     },
     [activeFronters, client, collection, collectionName, fetchData]
@@ -157,12 +158,14 @@ export function useCollectionData(
 
   const handleUpdateRecord = useCallback(
     async (id: string | number, data: Partial<SchemaRecord>) => {
+      const fetchId = fetchCounterRef.current;
       try {
         setRecords(prev => prev.map(r => (r.id === id ? { ...r, ...data } : r)));
         await client.updateRecord(collectionName, id, data);
+        if (fetchId !== fetchCounterRef.current) return;
       } catch (error) {
-        secureLogger.error('failed to update record', error);
-        toast.error('Failed to update record');
+        secureLogger.debug('failed to update record:', error);
+        toast.error('failed to update record');
         fetchData();
       }
     },
@@ -170,6 +173,7 @@ export function useCollectionData(
   );
 
   const handleUndoDelete = useCallback(async () => {
+    const fetchId = fetchCounterRef.current;
     let lastDeleted: SchemaRecord | undefined;
     setDeletedStack(prev => {
       lastDeleted = prev[prev.length - 1];
@@ -183,42 +187,46 @@ export function useCollectionData(
       delete (rest as any).created_at;
       delete (rest as any).updated_at;
       await client.createRecord(collectionName, rest);
+      if (fetchId !== fetchCounterRef.current) return;
       toast.success('deletion undone');
       fetchData();
     } catch (e) {
-      secureLogger.error('failed to undo delete', e);
+      secureLogger.debug('failed to undo delete:', e);
       toast.error('failed to undo delete');
     }
   }, [client, collectionName, fetchData]);
 
   const handleDeleteRecord = useCallback(
     async (record: SchemaRecord) => {
+      const fetchId = fetchCounterRef.current;
       if (!record || record.id === undefined || record.id === null) {
         if (record && (record as any).timestamp) {
           try {
             await client.deleteRecordByFilter(collectionName, { timestamp: (record as any).timestamp });
+            if (fetchId !== fetchCounterRef.current) return;
             setDeletedStack(prev => [...prev, record]);
             toast.success('record deleted');
             setRecords(prev => prev.filter(r => (r as any).timestamp !== (record as any).timestamp));
             return;
           } catch (error) {
-            secureLogger.error('failed to delete record by timestamp', error);
-            toast.error('Failed to delete record');
+            secureLogger.debug('failed to delete record by timestamp:', error);
+            toast.error('failed to delete record');
             return;
           }
         }
-        toast.error('Cannot delete record: Missing ID');
+        toast.error('cannot delete record: missing id');
         return;
       }
 
       try {
         await client.deleteRecord(collectionName, record.id);
+        if (fetchId !== fetchCounterRef.current) return;
         setDeletedStack(prev => [...prev, record]);
         toast.success('record deleted');
         setRecords(prev => prev.filter(r => r.id !== record.id));
       } catch (error) {
-        secureLogger.error('failed to delete record', error);
-        toast.error('Failed to delete record');
+        secureLogger.debug('failed to delete record:', error);
+        toast.error('failed to delete record');
       }
     },
     [client, collectionName]
@@ -226,18 +234,20 @@ export function useCollectionData(
 
   const restoreRecord = useCallback(
     async (recordToRestore: SchemaRecord) => {
+      const fetchId = fetchCounterRef.current;
       try {
         const rest: Partial<SchemaRecord> = { ...recordToRestore };
         delete rest.id;
         delete (rest as any).created_at;
         delete (rest as any).updated_at;
         await client.createRecord(collectionName, rest);
+        if (fetchId !== fetchCounterRef.current) return;
         toast.success('deletion undone');
         fetchData();
         setDeletedStack(prev => prev.filter(r => r.id !== recordToRestore.id));
       } catch (e) {
-        secureLogger.error('failed to undo delete', e);
-        toast.error('Failed to undo delete');
+        secureLogger.debug('failed to undo delete:', e);
+        toast.error('failed to undo delete');
       }
     },
     [client, collectionName, fetchData]
@@ -264,8 +274,10 @@ export function useCollectionData(
     const handleCreate = async (evt: Event) => {
       const e = evt as CustomEvent<any>;
       if (e.detail?.collection === collectionName) {
+        const fetchId = fetchCounterRef.current;
         try {
           const createRes = await client.createRecord(collectionName, e.detail.data);
+          if (fetchId !== fetchCounterRef.current) return;
           const newId = createRes?.id || createRes?.data?.id;
           toast.success('record created!');
           fetchData();
@@ -273,11 +285,11 @@ export function useCollectionData(
              generateAndSaveAiField(collectionName, newId, 'ai', {
               instruction: 'provide a brief summary and initial ideas for this new entry',
               topK: 5
-            }).catch(err => secureLogger.warn('auto-suggest generation failed', err));
+            }).catch(err => secureLogger.debug('auto-suggest generation failed', err));
           }
         } catch (err) {
-          secureLogger.error(String(err));
-          toast.error('Failed to create record');
+          secureLogger.debug('failed to create record from event:', err);
+          toast.error('failed to create record');
         }
       }
     };

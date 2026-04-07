@@ -3,7 +3,7 @@ import * as fabric from 'fabric';
 import { useEdgelessStore } from '../store';
 import { LassoTool } from '../tools';
 
-/**
+/* *
  * usedrawingtools – manages lasso drawing and marquee selection.
  *
  * - lasso: custom overlay drawing. on close, selects fabric objects inside
@@ -11,8 +11,7 @@ import { LassoTool } from '../tools';
  *   controls (scale, rotate, skew).
  * - selection: draws a marquee rectangle on overlay. on release, selects
  *   fabric objects within the rect, then switches to transform tool.
- * - transform: does nothing here – fabric handles everything natively.
- */
+ * - transform: does nothing here – fabric handles everything natively. */
 export function useDrawingTools(canvas: fabric.Canvas | null, pushHistoryAction?: (action: any) => void) {
   const activeTool = useEdgelessStore((s) => s.activeTool);
   const viewPort = useEdgelessStore((s) => s.viewPort);

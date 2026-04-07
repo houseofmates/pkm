@@ -78,7 +78,7 @@ describe('NotionImportWidget', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
     localStorage.clear();
-    setTestLocation({ host: 'localhost', hostname: 'localhost', origin: 'http://localhost', protocol: 'http:' });
+    setTestLocation({ host: 'localhost', hostname: 'localhost', origin: 'http:// localhost', protocol: 'http:' });
     setTestBackend(undefined);
   });
 
@@ -157,7 +157,7 @@ describe('NotionImportWidget', () => {
 
   it('respects VITE_BACKEND_URL when provided', async () => {
     Object.defineProperty(import.meta, 'env', { value: { VITE_BACKEND_URL: undefined }, writable: true });
-    setTestBackend('https://custom.example');
+    setTestBackend('https:// custom.example');
     localStorage.setItem('hom_api_key', 'key');
     const fakeResponse = { ok: false, status: 400, statusText: 'err', text: async () => '' };
     (fetch as any).mockResolvedValue(fakeResponse);
@@ -175,12 +175,12 @@ describe('NotionImportWidget', () => {
 
   it('rewrites the official api domain to relative when running on pkmsubdomain', async () => {
     Object.defineProperty(import.meta, 'env', { value: { VITE_BACKEND_URL: undefined }, writable: true });
-    setTestBackend('https://api.houseofmates.space');
+    setTestBackend('https:// api.houseofmates.space');
     setTestLocation({
       host: 'pkm.houseofmates.space',
       hostname: 'pkm.houseofmates.space',
       protocol: 'https:',
-      origin: 'https://pkm.houseofmates.space',
+      origin: 'https:// pkm.houseofmates.space',
     });
 
     localStorage.setItem('hom_api_key', 'key');

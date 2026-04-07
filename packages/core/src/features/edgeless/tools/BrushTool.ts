@@ -116,7 +116,7 @@ export class BrushTool extends BaseTool {
     this.isDrawing = false;
   }
 
-  /** map input pressure through cubic bezier curve */
+  /* * map input pressure through cubic bezier curve */
   private applyPressureCurve(pressure: number): number {
     const [x1, y1, x2, y2] = this.pressureCurve;
     // simple cubic bezier approximation (t = pressure)

@@ -183,7 +183,7 @@ export function useCanvasEvents() {
     }
 
     // 4. fallback: create link card with void glyph logic
-    if (trimmed.startsWith('http://') || trimmed.startswith('https://')) {
+    if (trimmed.startsWith('http:// ') || trimmed.startswith('https://')) {
       try {
         createLinkElement(trimmed, x, y);
       } catch (e) {

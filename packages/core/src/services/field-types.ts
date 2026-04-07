@@ -3,20 +3,18 @@ import { schemaService } from './schema.service';
 import type { FieldType } from './schema.service';
 import { secureLogger } from '@/lib/secure-logger';
 
-/**
+/* *
  * text field type
- * a simple string-based field.
- */
+ * a simple string-based field. */
 const textField: FieldType = {
   typeName: 'text',
   schema: z.string().nullable(),
   defaultValue: '',
 };
 
-/**
+/* *
  * number field type
- * a numeric field that supports both integers and floats.
- */
+ * a numeric field that supports both integers and floats. */
 const numberField: FieldType = {
   typeName: 'number',
   schema: z.number().nullable(),
@@ -131,11 +129,10 @@ const relationField: FieldType = {
   defaultValue: null,
 };
 
-/**
+/* *
  * link database field type
  * references another database/collection in the pkm system.
- * stores the database name and display info.
- */
+ * stores the database name and display info. */
 const linkDatabaseField: FieldType = {
   typeName: 'linkDatabase',
   schema: z.object({
@@ -145,11 +142,10 @@ const linkDatabaseField: FieldType = {
   defaultValue: null,
 };
 
-/**
+/* *
  * link item field type
  * references a specific item/record in any database, canvas, or document.
- * stores the item id, collection name, title, and item type.
- */
+ * stores the item id, collection name, title, and item type. */
 const linkItemField: FieldType = {
   typeName: 'linkItem',
   schema: z.object({

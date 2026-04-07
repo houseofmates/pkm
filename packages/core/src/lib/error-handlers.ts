@@ -14,8 +14,8 @@ const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
     str.includes('ModuleRunner') ||
     str.includes('HMR') ||
     str.includes('connect/') ||
-    str.includes('ws://') ||
-    str.includes('wss://');
+    str.includes('ws:// ') ||
+    str.includes('wss:// ');
   
   // check if reason is a string
   if (reason && typeof reason === 'string') {

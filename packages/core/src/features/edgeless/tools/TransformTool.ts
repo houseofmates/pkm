@@ -1,6 +1,6 @@
 import { BaseTool, ToolContext } from './BaseTool';
 
-/**
+/* *
  * transformtool – apply move / scale / rotate to the entire active layer.
  * ported from drawing-app transformtool.ts.
  *
@@ -8,8 +8,7 @@ import { BaseTool, ToolContext } from './BaseTool';
  *   1. onstart → records initial pointer
  *   2. onmove → updates translation (or scale/rotation via modifier keys)
  *   3. onend → stops drag
- *   4. apply() → stamps the transformation onto the canvas pixels
- */
+ *   4. apply() → stamps the transformation onto the canvas pixels */
 export class TransformTool extends BaseTool {
   name = 'transform-apply' as const;
 
@@ -63,12 +62,12 @@ export class TransformTool extends BaseTool {
     this.activeHandle = null;
   }
 
-  /** set the active interaction handle programmatically */
+  /* * set the active interaction handle programmatically */
   setHandle(handle: 'move' | 'scale' | 'rotate') {
     this.activeHandle = handle;
   }
 
-  /** apply the accumulated transformation to the layer canvas pixels */
+  /* * apply the accumulated transformation to the layer canvas pixels */
   apply(ctx: ToolContext) {
     const { ctx: layerCtx, canvas } = ctx;
 
@@ -96,7 +95,7 @@ export class TransformTool extends BaseTool {
     this.rotation = 0;
   }
 
-  /** reset without applying */
+  /* * reset without applying */
   reset() {
     this.x = 0;
     this.y = 0;

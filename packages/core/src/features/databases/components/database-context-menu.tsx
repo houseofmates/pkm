@@ -181,7 +181,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
           </DialogHeader>
           <div className="flex gap-2 py-4">
             <Input
-              placeholder="https://..."
+              placeholder="https:// ..."
               defaultValue={metadata[collection.name]?.image || ''}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -193,7 +193,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
             <Button onClick={() => {
               // this relies on the input value being set, simpler to just use onkeydown or controlled state
               // but for brevity in this replace block:
-              const input = document.querySelector('input[placeholder="https://..."]') as htmlinputelement;
+              const input = document.querySelector('input[placeholder="https:// ..."]') as htmlinputelement;
               if (input) {
                 updateMeta('image', input.value);
                 setImageOpen(false);

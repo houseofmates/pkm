@@ -34,7 +34,7 @@ if (import.meta.hot) {
 }
 
 // ─────────────────────────────────────────────
-//  constants
+// constants
 // ─────────────────────────────────────────────
 
 const Y = '#f5af12';
@@ -290,7 +290,7 @@ const STORAGE_KEYS = {
 };
 
 // ─────────────────────────────────────────────
-//  helpers
+// helpers
 // ─────────────────────────────────────────────
 
 function getStoredData<T>(key: string, defaultValue: T): T {
@@ -372,7 +372,7 @@ function calculateAverageMood(entries: JournalRecord[]): number {
 }
 
 // ─────────────────────────────────────────────
-//  color picker component
+// color picker component
 // ─────────────────────────────────────────────
 
 interface ColorPickerProps {
@@ -556,7 +556,7 @@ function hslColorToHex(h: number, s: number, l: number): string {
 }
 
 // ─────────────────────────────────────────────
-//  breathing exercise component
+// breathing exercise component
 // ─────────────────────────────────────────────
 
 function BreathingExerciseModal({ isOpen, onClose, preset }: { isOpen: boolean; onClose: () => void; preset?: string }) {
@@ -709,7 +709,7 @@ function BreathingExerciseModal({ isOpen, onClose, preset }: { isOpen: boolean; 
 }
 
 // ─────────────────────────────────────────────
-//  reflection timer component
+// reflection timer component
 // ─────────────────────────────────────────────
 
 function ReflectionTimer({ isOpen, onClose, prompt }: { isOpen: boolean; onClose: () => void; prompt: string }) {
@@ -824,7 +824,7 @@ function ReflectionTimer({ isOpen, onClose, prompt }: { isOpen: boolean; onClose
 }
 
 // ─────────────────────────────────────────────
-//  achievement celebration component
+// achievement celebration component
 // ─────────────────────────────────────────────
 
 function AchievementCelebration({ achievement, onClose }: { achievement: typeof ACHIEVEMENTS[0]; onClose: () => void }) {
@@ -852,7 +852,7 @@ function AchievementCelebration({ achievement, onClose }: { achievement: typeof 
 }
 
 // ─────────────────────────────────────────────
-//  weekly review component
+// weekly review component
 // ─────────────────────────────────────────────
 
 function WeeklyReviewModal({ isOpen, onClose, entries, onSummaryGenerated }: { isOpen: boolean; onClose: () => void; entries: JournalRecord[]; onSummaryGenerated?: () => void }) {
@@ -956,7 +956,7 @@ ${text}`;
 }
 
 // ─────────────────────────────────────────────
-//  template selector component
+// template selector component
 // ─────────────────────────────────────────────
 
 function TemplateSelector({ isOpen, onClose, onSelect }: { isOpen: boolean; onClose: () => void; onSelect: (template: typeof JOURNAL_TEMPLATES[0]) => void }) {
@@ -1009,7 +1009,7 @@ function TemplateSelector({ isOpen, onClose, onSelect }: { isOpen: boolean; onCl
 
 
 // ─────────────────────────────────────────────
-//  stats charts component
+// stats charts component
 // ─────────────────────────────────────────────
 
 interface StatsChartsProps {
@@ -1282,7 +1282,7 @@ function StatsCharts({ entries }: StatsChartsProps) {
 }
 
 // ─────────────────────────────────────────────
-//  gratitude tracker component
+// gratitude tracker component
 // ─────────────────────────────────────────────
 
 function GratitudeTracker() {
@@ -1344,7 +1344,7 @@ function GratitudeTracker() {
 
 
 // ─────────────────────────────────────────────
-//  mood-activity correlation component
+// mood-activity correlation component
 // ─────────────────────────────────────────────
 
 interface MoodActivityCorrelationProps {
@@ -1435,7 +1435,7 @@ function MoodActivityCorrelation({ entries }: MoodActivityCorrelationProps) {
 }
 
 // ─────────────────────────────────────────────
-//  privacy lock component
+// privacy lock component
 // ─────────────────────────────────────────────
 
 function PrivacyLock({ isLocked, onUnlock, onLock }: { isLocked: boolean; onUnlock: () => void; onLock: () => void }) {
@@ -1550,7 +1550,7 @@ function PrivacyLock({ isLocked, onUnlock, onLock }: { isLocked: boolean; onUnlo
 }
 
 // ─────────────────────────────────────────────
-//  mood heatmap component
+// mood heatmap component
 // ─────────────────────────────────────────────
 
 function MoodHeatmap({ entries }: { entries: JournalRecord[] }) {
@@ -1641,7 +1641,7 @@ function MoodHeatmap({ entries }: { entries: JournalRecord[] }) {
 }
 
 // ─────────────────────────────────────────────
-//  habit calendar component
+// habit calendar component
 // ─────────────────────────────────────────────
 
 function HabitCalendar({
@@ -1699,7 +1699,7 @@ function HabitCalendar({
 }
 
 // ─────────────────────────────────────────────
-//  word cloud component
+// word cloud component
 // ─────────────────────────────────────────────
 
 function WordCloud({ entries }: { entries: JournalRecord[] }) {
@@ -1754,7 +1754,7 @@ function WordCloud({ entries }: { entries: JournalRecord[] }) {
 }
 
 // ─────────────────────────────────────────────
-//  time insights component
+// time insights component
 // ─────────────────────────────────────────────
 
 function TimeInsights({ entries }: { entries: JournalRecord[] }) {
@@ -1829,7 +1829,7 @@ function TimeInsights({ entries }: { entries: JournalRecord[] }) {
 }
 
 // ─────────────────────────────────────────────
-//  main journal page component
+// main journal page component
 // ─────────────────────────────────────────────
 
 export function JournalPage() {
@@ -2378,8 +2378,8 @@ export function JournalPage() {
     const data = labels.map(l => activityCounts[l]);
     const moodData = moods;
     const statsHtml = `<p>entries: ${recent.length} &nbsp; average mood: ${avgMood}</p>`;
-    const moodChartUrl = `https://quickchart.io/chart?c=${encodeuricomponent(json.stringify({type:'line',data:{labels:recent.map(r=>r.date),datasets:[{label:'mood',data:mooddata,fill:false,bordercolor:'blue'}]}}))}`;
-    const activityChartUrl = labels.length ? `https://quickchart.io/chart?c=${encodeuricomponent(json.stringify({type:'bar',data:{labels, datasets:[{label:'activities',data}]}}))}` : '';
+    const moodChartUrl = `https:// quickchart.io/chart?c=${encodeuricomponent(json.stringify({type:'line',data:{labels:recent.map(r=>r.date),datasets:[{label:'mood',data:mooddata,fill:false,bordercolor:'blue'}]}}))}`;
+    const activityChartUrl = labels.length ? `https:// quickchart.io/chart?c=${encodeuricomponent(json.stringify({type:'bar',data:{labels, datasets:[{label:'activities',data}]}}))}` : '';
     const printHtml = `<!doctype html><html><head><meta charset="utf-8"><title>journal report</title><style>body{font-family:sans-serif;padding:1em;color:#000}h1{text-transform:lowercase}p,div{page-break-inside:avoid}a{color:#000}</style></head><body><h1>journal report (last 14 days)</h1>${statsHtml}${moodChartUrl?`<img src="${moodChartUrl}" style="width:100%;max-width:600px;"/>`:''}${activityChartUrl?`<img src="${activityChartUrl}" style="width:100%;max-width:600px;"/>`:''}<div>${summary}</div>${htmlEntries}</body></html>`;
     const win = window.open('','_blank');
     if (win) {
@@ -2486,7 +2486,7 @@ ${entriesText}`;
         );
         payload.location = `${pos.coords.latitude.toFixed(3)},${pos.coords.longitude.toFixed(3)}`;
         try {
-          const wresp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true&timezone=auto`);
+          const wresp = await fetch(`https:// api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true&timezone=auto`);
           const wjson = await wresp.json();
           if (wjson.current_weather) {
             payload.weather = `${wjson.current_weather.temperature}°C`;
@@ -2948,10 +2948,10 @@ summary:`;
       <input 
         ref={fileInputRef}
         type="file" 
-        accept="image/*" 
+        accept="image/* "
         multiple 
-        className="hidden"
-        onChange={handlePhotoUpload}
+        classname="hidden"
+        onchange={handlephotoupload}
       />
 
       {/* header */}
@@ -3514,7 +3514,7 @@ summary:`;
               </div>
             </div>
 
-            {/* Photos Preview */}
+            {/* photos preview */}
             {photos.length > 0 && (
               <div className="flex gap-2 mb-3 flex-wrap">
                 {photos.map((photo, i) => (
@@ -3531,7 +3531,7 @@ summary:`;
               </div>
             )}
 
-            {/* Voice Memos */}
+            {/* voice memos */}
             {voiceMemos.length > 0 && (
               <div className="flex gap-2 mb-3 flex-wrap">
                 {voiceMemos.map((memo, i) => (

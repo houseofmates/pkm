@@ -18,11 +18,10 @@ const HARDCODED_COLLECTIONS = [
   'hygiene-log', 'journal', 'media', 'products', 'sleep'
 ];
 
-/**
+/* *
  * a service that orchestrates data flow between the ui, local cache, and nocobase backend.
  * it implements a read-through cache for offline-first capabilities.
- * adds real-time sync via websocket for multi-device continuity.
- */
+ * adds real-time sync via websocket for multi-device continuity. */
 class DataService {
   private socket: Socket | null = null;
   private reconnectAttempts = 0;
@@ -32,12 +31,11 @@ class DataService {
     this.initializeSocket();
   }
 
-  /**
+  /* *
    * initialize socket.io connection for real-time data sync.
-   * listens for data_update events from server and refreshes local stores.
-   */
+   * listens for data_update events from server and refreshes local stores. */
   private initializeSocket(): void {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://db.houseofmates.space';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https:// db.houseofmates.space';
     
     try {
       this.socket = io(backendUrl, {
@@ -77,10 +75,9 @@ class DataService {
     }
   }
 
-  /**
+  /* *
    * handle incoming data_update events from other devices.
-   * refreshes relevant stores and shows sync confirmation.
-   */
+   * refreshes relevant stores and shows sync confirmation. */
   private handleDataUpdate(payload: any): void {
     const { type, source } = payload;
 
@@ -119,10 +116,9 @@ class DataService {
     }
   }
 
-  /**
+  /* *
    * refresh gamification state from server (nocobase as source of truth).
-   * falls back to localstorage if server unavailable.
-   */
+   * falls back to localstorage if server unavailable. */
   private async refreshGamificationState(): Promise<void> {
     try {
       const gamificationStore = useGamificationStore.getState();
@@ -133,10 +129,9 @@ class DataService {
     }
   }
 
-  /**
+  /* *
    * emit data update event to server (for other devices to receive).
-   * use this when local data changes to broadcast to other devices.
-   */
+   * use this when local data changes to broadcast to other devices. */
   public emitDataUpdate(dataType: string, payload: any): void {
     if (this.socket?.connected) {
       this.socket.emit('client_data_update', {
@@ -149,18 +144,16 @@ class DataService {
     }
   }
 
-  /**
-   * check if socket is connected.
-   */
+  /* *
+   * check if socket is connected. */
   public isConnected(): boolean {
     return this.socket?.connected || false;
   }
 
-  /**
+  /* *
    * creates a new nocobase collection and then triggers a fresh sync.
    * @param name the name of the collection.
-   * @param fields the fields that define the collection's schema.
-   */
+   * @param fields the fields that define the collection's schema. */
   public async createTable(name: string, fields: FieldInstance[]): Promise<void> {
     const backendFields = fields.map(field => ({
       name: field.name,
@@ -177,12 +170,11 @@ class DataService {
     this.emitDataUpdate('collections_updated', { collection_name: name });
   }
 
-  /**
+  /* *
    * syncs the list of tables/collections.
    * 1. loads and displays data from the local cache immediately.
    * 2. fetches fresh data from the nocobase backend.
-   * 3. updates the local cache and the ui with the fresh data.
-   */
+   * 3. updates the local cache and the ui with the fresh data. */
   public async syncTables(): Promise<void> {
     // 1. load from cache and update ui immediately for instant load
     try {

@@ -25,7 +25,7 @@ interface SidebarColorMap {
   [itemId: string]: SidebarItemMetadata;
 }
 
-/**
+/* *
  * hook for managing sidebar colors with cross-device sync
  * 
  * usage:
@@ -35,8 +35,7 @@ interface SidebarColorMap {
  * const color = colors['my_collection']?.color;
  * 
  * // update color (syncs to all devices)
- * await updatecolor('my_collection', '#ff0000');
- */
+ * await updatecolor('my_collection', '#ff0000'); */
 export function useSidebarColors(options?: { pollIntervalMs?: number }) {
   const { isAuthenticated, token } = useAuth();
   const queryClient = useQueryClient();
@@ -304,10 +303,9 @@ export function useSidebarColors(options?: { pollIntervalMs?: number }) {
   };
 }
 
-/**
+/* *
  * hook for getting a single sidebar item's color
- * more efficient when you only need one item's color
- */
+ * more efficient when you only need one item's color */
 export function useSidebarItemColor(itemId: string, fallbackColor?: string) {
   const { colors, updateColor, getColor, isLoading } = useSidebarColors();
   

@@ -20,7 +20,7 @@ interface WhisperTranscriptionState {
   isProcessing: boolean;
 }
 
-/**
+/* *
  * hook for whisper-based speech transcription via ollama
  * works in firefox where web speech api is not supported
  * 
@@ -31,8 +31,7 @@ interface WhisperTranscriptionState {
  * - 'whisper-base': very fast, acceptable accuracy
  * - 'whisper-tiny': fastest, lowest accuracy, minimal resource usage
  * 
- * to use: pull a whisper model in ollama: `ollama pull whisper-small`
- */
+ * to use: pull a whisper model in ollama: `ollama pull whisper-small` */
 export function useWhisperTranscription(options: WhisperTranscriptionOptions = {}) {
   const {
     onTranscript,
@@ -63,9 +62,8 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
     };
   }, []);
 
-  /**
-   * convert audio blob to base64 for sending to ollama
-   */
+  /* *
+   * convert audio blob to base64 for sending to ollama */
   const blobToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -80,9 +78,8 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
     });
   };
 
-  /**
-   * send audio to ollama whisper model for transcription
-   */
+  /* *
+   * send audio to ollama whisper model for transcription */
   const transcribeAudio = useCallback(async (audioBlob: Blob) => {
     setState(prev => ({ ...prev, isProcessing: true }));
 
@@ -134,9 +131,8 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
     }
   }, [language, whisperModel, onTranscript, onError]);
 
-  /**
-   * start recording audio for transcription
-   */
+  /* *
+   * start recording audio for transcription */
   const startRecording = useCallback(async () => {
     try {
       // reset state
@@ -213,9 +209,8 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
     }
   }, [onStart, onEnd, onError, transcribeAudio]);
 
-  /**
-   * stop recording and process the audio
-   */
+  /* *
+   * stop recording and process the audio */
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
@@ -230,9 +225,8 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
     setState(prev => ({ ...prev, isRecording: false }));
   }, []);
 
-  /**
-   * toggle recording state
-   */
+  /* *
+   * toggle recording state */
   const toggleRecording = useCallback(() => {
     if (state.isRecording) {
       stopRecording();
@@ -241,9 +235,8 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
     }
   }, [state.isRecording, startRecording, stopRecording]);
 
-  /**
-   * reset the transcription state
-   */
+  /* *
+   * reset the transcription state */
   const reset = useCallback(() => {
     audioChunksRef.current = [];
     setState({

@@ -11,12 +11,11 @@ interface KeyboardShortcut {
   description: string;
 }
 
-/**
+/* *
  * hook for global keyboard shortcuts
  * usage: usekeyboardshortcuts([
  *   { key: 'j', ctrl: true, action: () => navigate('/journal'), description: 'go to journal' }
- * ])
- */
+ * ]) */
 export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -51,9 +50,8 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
   }, [handleKeyDown]);
 }
 
-/**
- * default keyboard shortcuts for the app
- */
+/* *
+ * default keyboard shortcuts for the app */
 export function useAppKeyboardShortcuts() {
   useKeyboardShortcuts([
     {
@@ -77,9 +75,8 @@ export function useAppKeyboardShortcuts() {
   ]);
 }
 
-/**
- * keyboard shortcuts for journal page
- */
+/* *
+ * keyboard shortcuts for journal page */
 export function useJournalKeyboardShortcuts({
   onSave,
   onClose,
@@ -106,9 +103,8 @@ export function useJournalKeyboardShortcuts({
   ]);
 }
 
-/**
- * show keyboard shortcuts help
- */
+/* *
+ * show keyboard shortcuts help */
 export function showKeyboardShortcutsHelp() {
   const shortcuts = [
     { combo: 'ctrl + j', desc: 'go to journal' },

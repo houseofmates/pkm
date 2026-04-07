@@ -2,7 +2,7 @@ import { BaseTool, ToolContext } from './BaseTool';
 import { TransformBox } from './TransformBox';
 import { useEdgelessStore } from '../store';
 
-/**
+/* *
  * selectiontool – marquee rectangle or lasso-capture → pixel-level cut → transformbox
  * ported from drawing-app selectiontool.ts, adapted for pkm edgeless store.
  *
@@ -10,8 +10,7 @@ import { useEdgelessStore } from '../store';
  *   1. user draws a marquee rect or lasso path closes
  *   2. captureselection() cuts the selected pixels out of the layer
  *   3. a transformbox appears – user can move, scale (freeform squish/stretch), rotate
- *   4. confirmtransform() stamps the sub-canvas back onto the layer
- */
+ *   4. confirmtransform() stamps the sub-canvas back onto the layer */
 export class SelectionTool extends BaseTool {
   name = 'selection' as const;
   private isDrawing = false;
@@ -83,10 +82,9 @@ export class SelectionTool extends BaseTool {
 
   // ── public api: capture arbitrary polygon path ────────────────────────────
 
-  /**
+  /* *
    * cut the pixels inside `path` out of the layer canvas and wrap them in a
-   * transformbox so the user can drag / scale / rotate freely.
-   */
+   * transformbox so the user can drag / scale / rotate freely. */
   public captureSelection(ctx: ToolContext, path: { x: number; y: number }[]) {
     const { ctx: layerCtx, canvas } = ctx;
 
@@ -135,7 +133,7 @@ export class SelectionTool extends BaseTool {
 
   // ── confirm / cancel ─────────────────────────────────────────────────────
 
-  /** stamp the transformed sub-canvas back onto the layer */
+  /* * stamp the transformed sub-canvas back onto the layer */
   confirmTransform(ctx: ToolContext) {
     if (this.transformBox && this.subCanvas) {
       const { ctx: layerCtx } = ctx;

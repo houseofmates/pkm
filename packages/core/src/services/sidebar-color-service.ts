@@ -26,10 +26,9 @@ export interface SidebarItemMetadata {
 
 const COLLECTION_NAME = 'sidebar_item_colors';
 
-/**
+/* *
  * ensure the sidebar_item_colors collection exists in nocobase
- * should be called on app initialization
- */
+ * should be called on app initialization */
 export async function ensureSidebarColorsCollection(): Promise<boolean> {
   try {
     // check if collection exists by attempting to list
@@ -73,9 +72,8 @@ export async function ensureSidebarColorsCollection(): Promise<boolean> {
   }
 }
 
-/**
- * fetch all sidebar color records
- */
+/* *
+ * fetch all sidebar color records */
 export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
   try {
     const response = await api.listRecords(COLLECTION_NAME, {
@@ -99,9 +97,8 @@ export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
   }
 }
 
-/**
- * get color for a specific sidebar item
- */
+/* *
+ * get color for a specific sidebar item */
 export async function getSidebarColor(itemId: string): Promise<SidebarColorRecord | null> {
   try {
     const response = await api.listRecords(COLLECTION_NAME, {
@@ -130,9 +127,8 @@ export async function getSidebarColor(itemId: string): Promise<SidebarColorRecor
   }
 }
 
-/**
- * save or update a sidebar item's color and metadata
- */
+/* *
+ * save or update a sidebar item's color and metadata */
 export async function saveSidebarColor(
   itemId: string,
   itemType: SidebarItemType,
@@ -165,9 +161,8 @@ export async function saveSidebarColor(
   }
 }
 
-/**
- * update just the color for an item
- */
+/* *
+ * update just the color for an item */
 export async function updateSidebarItemColor(
   itemId: string,
   itemType: SidebarItemType,
@@ -196,9 +191,8 @@ export async function updateSidebarItemColor(
   }
 }
 
-/**
- * delete a sidebar item's color record
- */
+/* *
+ * delete a sidebar item's color record */
 export async function deleteSidebarColor(itemId: string): Promise<boolean> {
   try {
     const existing = await getSidebarColor(itemId);
@@ -212,10 +206,9 @@ export async function deleteSidebarColor(itemId: string): Promise<boolean> {
   }
 }
 
-/**
+/* *
  * batch save multiple sidebar item colors
- * useful for initial sync or bulk updates
- */
+ * useful for initial sync or bulk updates */
 export async function batchSaveSidebarColors(
   items: Array<{ itemId: string; itemType: SidebarItemType; metadata: SidebarItemMetadata }>
 ): Promise<boolean> {
@@ -231,9 +224,8 @@ export async function batchSaveSidebarColors(
   }
 }
 
-/**
- * convert nav item to item type
- */
+/* *
+ * convert nav item to item type */
 export function getItemTypeFromId(itemId: string): SidebarItemType {
   if (itemId.startsWith('folder_')) return 'folder';
   if (itemId.startsWith('doc_')) return 'document';
@@ -241,9 +233,8 @@ export function getItemTypeFromId(itemId: string): SidebarItemType {
   return 'collection';
 }
 
-/**
- * broadcast color change to other tabs/windows via storage event
- */
+/* *
+ * broadcast color change to other tabs/windows via storage event */
 function broadcastColorChange(itemId: string, color: string) {
   if (typeof window !== 'undefined') {
     const eventData = {
@@ -264,9 +255,8 @@ function broadcastColorChange(itemId: string, color: string) {
   }
 }
 
-/**
- * subscribe to color changes from other tabs/windows
- */
+/* *
+ * subscribe to color changes from other tabs/windows */
 export function subscribeToColorChanges(
   callback: (itemId: string, color: string) => void
 ): () => void {

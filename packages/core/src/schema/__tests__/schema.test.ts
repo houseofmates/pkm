@@ -1,4 +1,4 @@
-/**
+/* *
  * schema service tests
  * 
  * these tests verify that the modular schema service can:
@@ -7,8 +7,7 @@
  * - validate records against schemas
  * - query records with filters and sorting
  * 
- * uses fake-indexeddb for testing without a real browser environment.
- */
+ * uses fake-indexeddb for testing without a real browser environment. */
 
 import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
 import 'fake-indexeddb/auto';

@@ -71,7 +71,7 @@ export class LassoTool extends BaseTool {
     }
   }
 
-  /** call this when user presses enter or taps confirm */
+  /* * call this when user presses enter or taps confirm */
   confirm(): { x: number; y: number }[] | null {
     if (this.points.length < 3) return null;
     if (!this.isClosed) {

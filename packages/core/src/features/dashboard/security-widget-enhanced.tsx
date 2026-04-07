@@ -1,12 +1,11 @@
-/**
+/* *
  * enhanced security dashboard widget
  * 
  * a robust, interactive security monitoring system that:
  * - scans codebase for security vulnerabilities
  * - provides actionable llm prompts to fix issues
  * - real-time authentication and privacy monitoring
- * - interactive vulnerability explorer
- */
+ * - interactive vulnerability explorer */
 
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

@@ -1,6 +1,6 @@
 // utilities for working with nocobase api responses
 
-/**
+/* *
  * normalize the raw response from a nocobase list endpoint into a
  * consistent shape that always has a `data` array and optional `meta`.
  *
@@ -13,8 +13,7 @@
  *   - `{ data: { list: [...], total: 3 } }`
  *   - `{ list: [...], count: 5 }`
  *
- * this helper inspects several common locations and flattens them.
- */
+ * this helper inspects several common locations and flattens them. */
 export function normalizeListResponse(raw: any) {
   let data: any[] = [];
   let meta: any = undefined;
@@ -50,12 +49,11 @@ export function normalizeListResponse(raw: any) {
   return { data, meta };
 }
 
-/**
+/* *
  * convenience wrapper used by hooks/components to pull the "records"
  * portion out of whatever nocobase gave us.  this mirrors the logic used
  * internally by normalizelistresponse but returns just an array so callers
- * don't need to worry about metadata.
- */
+ * don't need to worry about metadata. */
 export function extractRecords(responseData: any): any[] {
   if (!responseData) return [];
   if (Array.isArray(responseData)) return responseData;

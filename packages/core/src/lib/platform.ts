@@ -1,10 +1,9 @@
 // platform.ts — environment detection utilities for web vs capacitor native
-//
-// used by the ai worker hook to decide whether to use a web worker
+// // used by the ai worker hook to decide whether to use a web worker
 // or fall back to main-thread execution, and to rewrite endpoints
 // that point to localhost (unreachable from a phone).
 
-/** true when running inside a capacitor native webview (android/ios) */
+/* * true when running inside a capacitor native webview (android/ios) */
 interface CapacitorInfo {
     isNative?: boolean;
     isNativePlatform?: () => boolean;
@@ -32,10 +31,9 @@ export function isCapacitorNative(): boolean {
     }
 }
 
-/** 
+/* *
  * true when running in a mobile context (native app or mobile browser).
- * also checks if we're loading from the mobile server origin on a mobile device.
- */
+ * also checks if we're loading from the mobile server origin on a mobile device. */
 export function isMobileContext(): boolean {
     if (isCapacitorNative()) return true;
     if (typeof navigator === 'undefined') return false;
@@ -54,13 +52,12 @@ export function isMobileContext(): boolean {
     return isMobileUA;
 }
 
-/** 
+/* *
  * detects if we're in a context where localhost won't be reachable.
  * this includes:
  * - capacitor native apps
  * - mobile browsers loading from remote origin
- * - any non-localhost origin on mobile
- */
+ * - any non-localhost origin on mobile */
 export function isLocalhostUnreachable(): boolean {
     // definitely unreachable in native app
     if (isCapacitorNative()) return true;
@@ -81,7 +78,7 @@ export function isLocalhostUnreachable(): boolean {
     return false;
 }
 
-/** true when the browser supports module workers and we can actually instantiate one */
+/* * true when the browser supports module workers and we can actually instantiate one */
 export function isWorkerSupported(): boolean {
     if (typeof Worker === 'undefined') return false;
 
@@ -93,15 +90,14 @@ export function isWorkerSupported(): boolean {
     return true;
 }
 
-/**
+/* *
  * returns the correct ollama-compatible endpoint for the current platform.
  *
- * - on desktop/browser: `http://localhost:11434` (local ollama)
+ * - on desktop/browser: `http:// localhost:11434` (local ollama)
  * - on mobile/capacitor: proxy through the remote server
  *
  * @param serverorigin - the remote server origin (e.g. from capacitor config)
- * @param localendpoint - the default local endpoint
- */
+ * @param localendpoint - the default local endpoint */
 export function resolveOllamaEndpoint(
     localEndpoint: string,
     _serverOrigin?: string,
@@ -111,12 +107,11 @@ export function resolveOllamaEndpoint(
     return localEndpoint;
 }
 
-/**
+/* *
  * the remote server origin for the mobile app.
  * mirrors the value in capacitor.config.ts so the core package can use it
  * without importing capacitor config directly.
  *
- * use https on the public hostname so the bundled apk (capacitor://localhost)
- * avoids mixed-content blocks when calling the backend.
- */
-export const MOBILE_SERVER_ORIGIN = 'https://pkm.houseofmates.space';
+ * use https on the public hostname so the bundled apk (capacitor:// localhost)
+ * avoids mixed-content blocks when calling the backend. */
+export const MOBILE_SERVER_ORIGIN = 'https:// pkm.houseofmates.space';

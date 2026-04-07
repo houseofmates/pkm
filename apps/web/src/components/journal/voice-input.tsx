@@ -19,7 +19,7 @@ const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { size?: 
 import { useGamificationStore } from '../../stores/gamification-store'
 
 // ollama client stub (per context src/api/ollama-client.ts pattern)
-const OLLAMA_URL = 'http://192.168.4.233:11434/api/generate'
+const OLLAMA_URL = 'http:// 192.168.4.233:11434/api/generate'
 
 const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTranscribe }) => {
   const [isListening, setIsListening] = useState(false)
@@ -94,7 +94,7 @@ const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTran
     const modelUrl = platform === 'grapheneos' 
       ? 'whisper-tiny-mobile.ggml' 
       : 'whisper-small-desktop.ggml'
-    window.open(`https://huggingface.co/ggerganov/whisper.cpp/${modelUrl}`)
+    window.open(`https:// huggingface.co/ggerganov/whisper.cpp/${modelurl}`)
   }
 
   return (

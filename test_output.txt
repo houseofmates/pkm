@@ -1,0 +1,17 @@
+
+> pkm-monorepo@0.0.0 test
+> npm run test --workspace=@pkm/core --run
+
+npm warn Unknown cli config "--run". This will stop working in the next major version of npm.
+
+> @pkm/core@0.0.0 test
+> vitest
+
+sh: 1: vitest: not found
+npm error Lifecycle script `test` failed with error:
+npm error code 127
+npm error path /app/packages/core
+npm error workspace @pkm/core@0.0.0
+npm error location /app/packages/core
+npm error command failed
+npm error command sh -c vitest

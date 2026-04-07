@@ -5,7 +5,7 @@ import { localDbService } from '../services/local-db.service';
 import { compactOplog, resolveConflicts } from '../features/edgeless/storage/oplog';
 import type { OpLogEntry } from '../features/edgeless/storage/oplog';
 
-/**
+/* *
  * nocobase collection schema: 'front_history'
  * 
  * fields:
@@ -14,17 +14,15 @@ import type { OpLogEntry } from '../features/edgeless/storage/oplog';
  * - starttime (date/datetime): when front started
  * - endtime (date/datetime): when front ended (nullable)
  * - customstatus (string): optional status
- * - live (boolean): is currently fronting?
- */
+ * - live (boolean): is currently fronting? */
 
 export class SyncService {
   private static COLLECTION = 'front_history';
 
-  /**
+  /* *
  * syncs recent history from simplyplural to nocobase.
  * @param apikey simplyplural api key
- * @param systemid simplyplural system id
- */
+ * @param systemid simplyplural system id */
   static async sync(apiKey: string) {
     secureLogger.info("sync: fetching last entry from nocobase...");
     try {
@@ -143,9 +141,8 @@ export class SyncService {
     }
   }
 
-  /**
-   * syncs local canvas operations to the server using the compacted oplog strategy.
-   */
+  /* *
+   * syncs local canvas operations to the server using the compacted oplog strategy. */
   static async syncOplog() {
     secureLogger.info("syncOplog: starting...");
     try {

@@ -210,7 +210,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   </ContextMenu>
 
   {/* hidden file input for direct click if needed, but using dialog now mostly */}
-  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onchange={handlefilechange} />
+  <input type="file" ref={fileInputRef} className="hidden" accept="image/* " onchange={handlefilechange} />
 
   {/* visual name dialog */}
   <Dialog open={nameOpen} onOpenChange={setNameOpen}>
@@ -239,7 +239,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
    <div className="col-span-2 border-t pt-4">
    <Label>or paste image link</Label>
    <div className="flex gap-2 mt-2">
-   <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://..." />
+   <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https:// ..." />
    <Button onClick={saveImageUrl}>save</Button>
    </div>
    </div>

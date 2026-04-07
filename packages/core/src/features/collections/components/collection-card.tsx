@@ -88,8 +88,7 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
  this implies auto height when empty, but maybe fixed/expanded when full?
  however, in a grid, auto-height cards look messy.
  but request is specific: "just remove the extra space".
- let's try auto height for all, but visual previews might need a specific height.
- */}
+ let's try auto height for all, but visual previews might need a specific height. */}
 
           {/* top row: icon */}
           <div className={cn("flex items-center justify-between relative z-10", showBottom ? "mb-2" : "mb-0")}>

@@ -91,12 +91,11 @@ export interface CanvasCheckpoint {
   state: string | Record<string, unknown> // full fabricjs canvas state
 }
 
-/**
+/* *
  * apply a single oplog operation to a fabric canvas instance.
  *
  * this is intentionally low-level and avoids replaying the entire canvas
- * snapshot for each step; instead we mutate the canvas in-place.
- */
+ * snapshot for each step; instead we mutate the canvas in-place. */
 export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<void> {
   if (!canvas) return
 
@@ -249,11 +248,10 @@ export async function replayOplog(
   }
 }
 
-/**
+/* *
  * deterministically resolves conflicts between concurrent operations.
  * implements last-write-wins (lww) based on timestamp.
- * in case of a tie (same timestamp), it falls back to string comparison of the operation id.
- */
+ * in case of a tie (same timestamp), it falls back to string comparison of the operation id. */
 export function resolveConflicts(ops: OpLogEntry[]): OpLogEntry[] {
   return [...ops].sort((a, b) => {
     if (a.timestamp !== b.timestamp) {
@@ -264,13 +262,12 @@ export function resolveConflicts(ops: OpLogEntry[]): OpLogEntry[] {
   });
 }
 
-/**
+/* *
  * compacts an array of operations by removing redundant intermediate states.
  * - keeps only the latest transformop for a given targetid.
  * - removes transformop and eraseop that precede a deleteop for the same targetid.
  * 
- * assumes the input `ops` array is already sorted chronologically (e.g., via resolveconflicts).
- */
+ * assumes the input `ops` array is already sorted chronologically (e.g., via resolveconflicts). */
 export function compactOplog(ops: OpLogEntry[]): OpLogEntry[] {
   const result: OpLogEntry[] = [];
   const processedTransforms = new Set<string>();

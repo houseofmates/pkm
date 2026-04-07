@@ -71,10 +71,9 @@ class LocalDbService {
     secureLogger.info(`Saved ${savedCount} collections to local DB in batches of ${CHUNK_SIZE}.`);
   }
 
-  /**
+  /* *
    * retrieves all collections stored in the local database.
-   * @returns a promise that resolves to an array of collection objects.
-   */
+   * @returns a promise that resolves to an array of collection objects. */
   public async getAllCollections(): Promise<any[]> {
     const db = await this.dbPromise;
     return db.getAll('collections');
