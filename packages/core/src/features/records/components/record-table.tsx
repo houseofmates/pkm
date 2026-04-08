@@ -252,20 +252,20 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           {...(!isEditing ? listeners : {})}
         >
           {!isEditing ? (
+          <div
+            className="relative z-20 h-full w-full flex items-center select-none cursor-pointer hover:bg-white/5 transition-colors py-2"
+            onClick={() => {
+              if (!isSystemColumn) {
+                onOpenFieldSettings?.(field);
+              }
+            }}
+            onDoubleClick={startEditing}
+          >
             <div
-              className="relative z-20 h-full w-full flex items-center px-0.5 select-none cursor-pointer hover:bg-white/5 transition-colors py-2"
-              onClick={() => {
-                if (!isSystemColumn) {
-                  onOpenFieldSettings?.(field);
-                }
-              }}
-              onDoubleClick={startEditing}
+              className="whitespace-nowrap overflow-hidden text-ellipsis font-medium leading-[1.2] text-base text-center w-full flex items-center justify-center gap-1"
+              style={{ minWidth: '40px', maxWidth: '200px', color: fieldColors[field?.name] || undefined }}
+              title={typeof header.column.columnDef.header === 'string' ? header.column.columnDef.header : String(header.column.columnDef.header || '')}
             >
-              <div
-                className="whitespace-nowrap overflow-hidden text-ellipsis font-medium leading-[1.2] text-base text-center w-full flex items-center justify-center gap-1"
-                style={{ minWidth: '80px', maxWidth: '200px', color: fieldColors[field?.name] || undefined }}
-                title={typeof header.column.columnDef.header === 'string' ? header.column.columnDef.header : String(header.column.columnDef.header || '')}
-              >
                 {iconInfo.icon && iconInfo.iconType === 'emoji' && (
                   <span style={{ color: iconInfo.iconColor || fieldColors[field?.name] }} className="text-lg">
                     {iconInfo.icon}
