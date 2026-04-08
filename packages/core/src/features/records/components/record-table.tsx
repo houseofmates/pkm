@@ -164,10 +164,10 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         maxWidth: header.getSize() || DEFAULT_COL_WIDTH,
         background: 'transparent',
       }}
-      className={cn(
-        "group select-none relative text-left p-0 transition-colors border-r border-[#222] border-b border-b-[#222] flex-shrink-0 h-10 align-middle font-medium text-foreground text-sm",
-        isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
-      )}
+className={cn(
+  "group select-none relative text-left p-0 transition-colors border-b border-b-[#222] flex-shrink-0 h-10 align-middle font-medium text-foreground text-sm",
+  isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
+)}
     >
       <PropertyContextMenu
         collectionName={collectionName}
