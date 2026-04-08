@@ -1192,9 +1192,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     enableColumnResizing: true,
     columnResizeMode: 'onChange',
     onColumnSizingChange: setColumnSizing,
-    onColumnSizingChangeEnd: () => {
-      saveColumnSizing();
-    },
     state: {
       columnSizing: localColumnSizing,
       columnOrder,
