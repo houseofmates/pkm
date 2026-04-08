@@ -729,7 +729,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   const [localColumnSizing, setLocalColumnSizing] = React.useState<Record<string, number>>(persistedColumnSizing);
   const isResizingRef = React.useRef(false);
-  const resizeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   React.useEffect(() => {
     if (!isResizingRef.current) {
@@ -753,6 +752,15 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       }
     }));
   }, [collection?.name, localColumnSizing, setMetadata]);
+
+  const handleResizeStart = React.useCallback(() => {
+    isResizingRef.current = true;
+  }, []);
+
+  const handleResizeEnd = React.useCallback(() => {
+    isResizingRef.current = false;
+    saveColumnSizing();
+  }, [saveColumnSizing]);
 
   // stable refs for callbacks used inside column definitions
   const onEditRef = React.useRef(onEdit);
