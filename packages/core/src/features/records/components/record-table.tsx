@@ -1348,20 +1348,22 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     strategy={horizontalListSortingStrategy}
                   >
                     {headerGroup.headers.map((header) => (
-                      <SortableHeader
-                        key={header.id}
-                        header={header}
-                        collectionName={collection?.name}
-                        onFieldUpdated={onFieldUpdatedCb}
-                        onOpenFieldSettings={(field: any) => {
-                          setSettingsField(field);
-                          setIsSettingsOpen(true);
-                        }}
-                        fieldColors={fieldColors}
-                        fieldIcons={fieldIcons}
-                        valueColorRules={valueColorRules}
-                        setMetadata={setMetadata}
-                        onHide={(field: any) => {
+                <SortableHeader
+                  key={header.id}
+                  header={header}
+                  collectionName={collection?.name}
+                  onFieldUpdated={onFieldUpdatedCb}
+                  onOpenFieldSettings={(field: any) => {
+                    setSettingsField(field);
+                    setIsSettingsOpen(true);
+                  }}
+                  fieldColors={fieldColors}
+                  fieldIcons={fieldIcons}
+                  valueColorRules={valueColorRules}
+                  setMetadata={setMetadata}
+                  onResizeStart={handleResizeStart}
+                  onResizeEnd={handleResizeEnd}
+                  onHide={(field: any) => {
                           if (!field || !field.name) return;
                           setHiddenColumns((prev: string[]) => {
                             if (prev.includes(field.name)) {
