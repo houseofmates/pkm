@@ -548,11 +548,11 @@ const DraggableRecordRow = (props: any) => {
                 touchAction: 'manipulation',
               }}
             >
-              <div
-                className="flex items-center justify-center h-full w-full px-0.5 whitespace-normal leading-[1.2] text-sm"
-                style={{ wordBreak: 'break-word', minWidth: 0 }}
-                data-cell-content
-              >
+        <div
+          className="flex items-center justify-center h-full w-full whitespace-normal leading-[1.2] text-sm"
+          style={{ wordBreak: 'break-word', minWidth: 0 }}
+          data-cell-content
+        >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </div>
             </div>
