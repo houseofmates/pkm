@@ -6,13 +6,13 @@ const MOODS = [
 
   { id: '0', label: 'terrible', emoji: '😡', color: '#ef4444', value: 1 },
 
-  { id: '1', label: 'bad',      emoji: '😞', color: '#f97316', value: 2 },
+  { id: '1', label: 'bad', emoji: '😞', color: '#f97316', value: 2 },
 
-  { id: '2', label: 'fine',     emoji: '😐', color: '#eab308', value: 3 },
+  { id: '2', label: 'fine', emoji: '😐', color: '#eab308', value: 3 },
 
-  { id: '4', label: 'good',     emoji: '😊', color: '#22c55e', value: 4 },
+  { id: '4', label: 'good', emoji: '😊', color: '#22c55e', value: 4 },
 
-  { id: '5', label: 'great',    emoji: '😃', color: '#06b6d4', value: 5 },
+  { id: '5', label: 'great', emoji: '😃', color: '#06b6d4', value: 5 },
 
   { id: '6', label: 'amazing!', emoji: '😁', color: '#8b5cf6', value: 6 },
 
@@ -76,7 +76,7 @@ export function MoodSelector({ mood, onMoodChange, className }: MoodSelectorProp
 
       >
 
-        <img src={`/images/moods/${m.label.toLowerCase()}.svg`} alt={m.label} className="h-8 w-8" />
+        <img src={`/images/moods/${m.label.toLowerCase().replace('!', '')}.png`} alt={m.label} className="h-10 w-10 object-contain" />
 
       </button>
 
