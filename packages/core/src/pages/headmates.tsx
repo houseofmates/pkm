@@ -77,23 +77,35 @@ export const HeadmatesPage: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {loading ? (
-            <p className="text-white/40 lowercase">loading members...</p>
+            <p className="text-white/40 lowercase col-span-full">loading members...</p>
           ) : members.length > 0 ? (
             members.map(m => (
-              <div key={m.id} className="p-4 bg-white/5 rounded-xl border border-white/10 flex items-center gap-4">
-                {m.content?.avatarUrl && (
-                  <img src={m.content.avatarUrl} alt={m.content.name} className="w-12 h-12 rounded-full object-cover" />
-                )}
-                <div>
-                  <p className="font-medium lowercase">{m.content?.name || 'unknown'}</p>
-                  <p className="text-xs text-white/40 lowercase">{m.content?.pronouns || 'no pronouns'}</p>
+              <div key={m.id} className="group flex flex-col gap-2">
+                <div className="aspect-[3/4] rounded-xl border border-white/10 bg-white/5 overflow-hidden relative">
+                  {m.content?.avatarUrl ? (
+                    <img
+                      src={m.content.avatarUrl}
+                      alt={m.content.name}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-white/10">
+                      <span className="text-4xl opacity-30">👤</span>
+                    </div>
+                  )}
+                </div>
+                <div className="text-center">
+                  <p className="font-medium lowercase text-sm truncate">{m.content?.name || 'unknown'}</p>
+                  {m.content?.pronouns && (
+                    <p className="text-xs text-white/40 lowercase truncate">{m.content.pronouns}</p>
+                  )}
                 </div>
               </div>
             ))
           ) : (
-            <p className="text-white/40 lowercase">no members found.</p>
+            <p className="text-white/40 lowercase col-span-full">no members found.</p>
           )}
           <button
             onClick={() => {
