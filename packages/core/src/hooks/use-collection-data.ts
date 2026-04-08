@@ -87,6 +87,8 @@ export function useCollectionData(
             if (fields.length > 0) {
               colData.fields = fields;
               hasFronter = fields.some((f: FieldDefinition) => f.name === 'fronter');
+              // update state with fetched fields so UI renders columns
+              setCollection({ ...colData });
             }
           } catch (e) {
             secureLogger.warn("failed to fetch fields separately when checking for fronter:", e);
