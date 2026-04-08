@@ -564,7 +564,7 @@ const DraggableRecordRow = (props: any) => {
   );
 };
 
-const DEFAULT_COL_WIDTH = 150;
+const DEFAULT_COL_WIDTH = 120;
 const EMPTY_SIZING: Record<string, number> = {};
 const EMPTY_ORDER: string[] = [];
 
