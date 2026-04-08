@@ -691,7 +691,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     setSelectedRecord(null);
   };
 
-  const columnSizing = metadata[collection?.name]?.columnWidths ?? EMPTY_SIZING;
+  const persistedColumnSizing = metadata[collection?.name]?.columnWidths ?? EMPTY_SIZING;
   const columnOrder = metadata[collection?.name]?.columnOrder ?? EMPTY_ORDER;
 
   const setColumnOrder = React.useCallback((newOrder: string[]) => {
@@ -704,19 +704,32 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     }));
   }, [collection?.name, setMetadata]);
 
+  const [localColumnSizing, setLocalColumnSizing] = React.useState<Record<string, number>>(persistedColumnSizing);
+  const isResizingRef = React.useRef(false);
+  const resizeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  React.useEffect(() => {
+    if (!isResizingRef.current) {
+      setLocalColumnSizing(persistedColumnSizing);
+    }
+  }, [persistedColumnSizing]);
+
   const setColumnSizing = React.useCallback((updater: any) => {
-    setMetadata((prev: Record<string, any>) => {
-      const currentSizing = prev[collection.name]?.columnWidths ?? EMPTY_SIZING;
-      const newSizing = typeof updater === 'function' ? updater(currentSizing) : updater;
-      return {
-        ...prev,
-        [collection.name]: {
-          ...prev[collection.name],
-          columnWidths: newSizing
-        }
-      };
+    setLocalColumnSizing((prev) => {
+      const newSizing = typeof updater === 'function' ? updater(prev) : updater;
+      return newSizing;
     });
-  }, [collection?.name, setMetadata]);
+  }, []);
+
+  const saveColumnSizing = React.useCallback(() => {
+    setMetadata((prev: Record<string, any>) => ({
+      ...prev,
+      [collection.name]: {
+        ...prev[collection.name],
+        columnWidths: localColumnSizing
+      }
+    }));
+  }, [collection?.name, localColumnSizing, setMetadata]);
 
   // stable refs for callbacks used inside column definitions
   const onEditRef = React.useRef(onEdit);
