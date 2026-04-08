@@ -131,7 +131,7 @@ const FixationTrap: React.FC = () => {
             {fixations.map(fixation => (
               <div key={fixation.id} className="border rounded-lg p-4 hover:shadow-lg transition-all">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="font-bold text-lg line-clamp-1">{fixation.name}</div>
+                  <div className=" text-lg line-clamp-1">{fixation.name}</div>
                   <Badge variant="secondary">
                     {fixation.completedSessions}/{fixation.totalSessions}
                   </Badge>

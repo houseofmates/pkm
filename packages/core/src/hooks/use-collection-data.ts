@@ -17,7 +17,7 @@ interface CollectionClient {
   updateRecord(name: string, id: string | number, data: Record<string, unknown>): Promise<void>;
   deleteRecord(name: string, id: string | number): Promise<void>;
   deleteRecordByFilter(name: string, filter: Record<string, unknown>): Promise<void>;
-  listFields(name: string): Promise<{ data: FieldDefinition[] }>;
+  listFields(name: string): Promise<FieldDefinition[]>;
   createField(name: string, data: Record<string, unknown>): Promise<void>;
 }
 
@@ -82,9 +82,8 @@ export function useCollectionData(
 
         if (!hasFronter) {
           try {
-            const fieldsRes = await client.listFields(collectionName);
+            const fields = await client.listFields(collectionName);
             if (fetchId !== fetchCounterRef.current) return;
-            const fields = fieldsRes?.data || [];
             if (fields.length > 0) {
               colData.fields = fields;
               hasFronter = fields.some((f: FieldDefinition) => f.name === 'fronter');
@@ -105,7 +104,7 @@ export function useCollectionData(
             if (!colData.fields) colData.fields = [];
             colData.fields.push({ id: 'fronter', name: 'fronter', type: 'string', label: 'fronter' });
           } catch (e: any) {
-             secureLogger.warn('failed to auto-create fronter field', e);
+            secureLogger.warn('failed to auto-create fronter field', e);
           }
         }
       }
@@ -260,7 +259,7 @@ export function useCollectionData(
           toast.success('record created!');
           fetchData();
           if (newId && collection?.fields?.some((f: FieldDefinition) => f.name === 'ai')) {
-             generateAndSaveAiField(collectionName, newId, 'ai', {
+            generateAndSaveAiField(collectionName, newId, 'ai', {
               instruction: 'provide a brief summary and initial ideas for this new entry',
               topK: 5
             }).catch(err => secureLogger.warn('auto-suggest generation failed', err));

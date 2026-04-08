@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom"
 import { isPublicDomain } from "@/utils/subdomain-router"
-import { lazy, Suspense, useEffect, useState } from "react"
+import React, { lazy, Suspense, useEffect, useState } from "react"
 import { FronterProvider } from "@/contexts/fronter-context"
 import { LLMContextProvider } from "@/contexts/llm-context"
 import { CanvasErrorBoundary } from "@/features/edgeless"
@@ -14,7 +14,6 @@ import { CanvasInitializer } from "@/features/edgeless/components/canvas-initial
 import { isLinkRegistryMigrated, backfillLinkRegistry } from "@/lib/link-migration"
 import { secureLogger } from "@/lib/secure-logger"
 import { isCapacitorNative } from "@/lib/platform"
-import { ErrorBoundary } from "@/components/ui/error-boundary"
 
 // lazy load heavy components
 const Spotlight = lazy(() => import("@/components/Spotlight").then(m => ({ default: m.Spotlight })));
@@ -177,6 +176,45 @@ const LoadingFallback = (
   </div>
 )
 
+// error boundary for lazy load failures
+class LazyLoadErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback?: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    secureLogger.error('lazy load error boundary caught error:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || (
+        <div className="flex flex-col items-center justify-center h-screen p-4 text-center">
+          <div className="text-destructive text-lg mb-4">failed to load page</div>
+          <div className="text-muted-foreground text-sm mb-4">
+            {this.state.error?.message || 'unknown error'}
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+          >
+            reload page
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
 function AppContent() {
   const { token } = useAuth()
   const [updateChecked, setUpdateChecked] = useState(false)
@@ -296,10 +334,10 @@ function AppContent() {
         <>
           <Suspense fallback={LoadingFallback}>
             <Routes>
-              <Route path="/" element={<HouseofmatesBuilder />} />
+              <Route path="/" element={<LazyLoadErrorBoundary><HouseofmatesBuilder /></LazyLoadErrorBoundary>} />
               <Route path="/breathe" element={<BreathePage />} />
-              <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
-              <Route path="/:slug" element={<HouseofmatesBuilder />} />
+              <Route path="/doc/:slug" element={<LazyLoadErrorBoundary><PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} /></LazyLoadErrorBoundary>} />
+              <Route path="/:slug" element={<LazyLoadErrorBoundary><HouseofmatesBuilder /></LazyLoadErrorBoundary>} />
             </Routes>
           </Suspense>
           <Toaster />
@@ -321,34 +359,34 @@ function AppContent() {
           <Suspense fallback={LoadingFallback}>
             <Routes>
               <Route element={<RootLayout />}>
-                <Route path="/" element={<ErrorBoundary><HomePage /></ErrorBoundary>} />
-                <Route path="/today" element={<ErrorBoundary><TodayPage /></ErrorBoundary>} />
-                <Route path="/databases" element={<ErrorBoundary><DatabasesPage /></ErrorBoundary>} />
+                <Route path="/" element={<LazyLoadErrorBoundary><HomePage /></LazyLoadErrorBoundary>} />
+                <Route path="/today" element={<LazyLoadErrorBoundary><TodayPage /></LazyLoadErrorBoundary>} />
+                <Route path="/databases" element={<LazyLoadErrorBoundary><DatabasesPage /></LazyLoadErrorBoundary>} />
                 <Route path="/databases/hygeine-log" element={<Navigate to="/databases/hygiene-log" replace />} />
-                <Route path="/databases/captures" element={<ErrorBoundary><CapturesPage /></ErrorBoundary>} />
-                <Route path="/databases/:name" element={<ErrorBoundary><CollectionDetailPage /></ErrorBoundary>} />
-                <Route path="/headmates" element={<ErrorBoundary><HeadmatesPage /></ErrorBoundary>} />
-                <Route path="/board" element={<ErrorBoundary><MoodboardPage /></ErrorBoundary>} />
-                <Route path="/canvas/:id" element={<ErrorBoundary><CanvasPage /></ErrorBoundary>} />
+                <Route path="/databases/captures" element={<LazyLoadErrorBoundary><CapturesPage /></LazyLoadErrorBoundary>} />
+                <Route path="/databases/:name" element={<LazyLoadErrorBoundary><CollectionDetailPage /></LazyLoadErrorBoundary>} />
+                <Route path="/headmates" element={<LazyLoadErrorBoundary><HeadmatesPage /></LazyLoadErrorBoundary>} />
+                <Route path="/board" element={<LazyLoadErrorBoundary><MoodboardPage /></LazyLoadErrorBoundary>} />
+                <Route path="/canvas/:id" element={<LazyLoadErrorBoundary><CanvasPage /></LazyLoadErrorBoundary>} />
                 <Route path="/drawings/:id" element={
                   <CanvasErrorBoundary>
                     <DrawingPage />
                   </CanvasErrorBoundary>
                 } />
-                <Route path="/databases/:name/:id" element={<ErrorBoundary><RecordView /></ErrorBoundary>} />
-                <Route path="/captures" element={<ErrorBoundary><CapturesPage /></ErrorBoundary>} />
-                <Route path="/db-canvas" element={<ErrorBoundary><DatabaseCanvasView /></ErrorBoundary>} />
-                <Route path="/page/:id" element={<ErrorBoundary><PageCanvas /></ErrorBoundary>} />
-                <Route path="/template" element={<ErrorBoundary><TemplatePage /></ErrorBoundary>} />
-                <Route path="/workspace/:id" element={<ErrorBoundary><WorkspacePage /></ErrorBoundary>} />
-                <Route path="/settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
-                <Route path="/notion-import" element={<ErrorBoundary><NotionImportPage /></ErrorBoundary>} />
-                <Route path="/rag-test" element={<ErrorBoundary><RagTestPage /></ErrorBoundary>} />
-                <Route path="/journal" element={<ErrorBoundary><JournalPage /></ErrorBoundary>} />
-                <Route path="/calendar" element={<ErrorBoundary><CalendarPage /></ErrorBoundary>} />
-                <Route path="/achievements" element={<ErrorBoundary><AchievementsPage /></ErrorBoundary>} />
-                <Route path="/awards" element={<ErrorBoundary><AchievementsPage /></ErrorBoundary>} />
-                <Route path="*" element={<ErrorBoundary><HomePage /></ErrorBoundary>} />
+                <Route path="/databases/:name/:id" element={<LazyLoadErrorBoundary><RecordView /></LazyLoadErrorBoundary>} />
+                <Route path="/captures" element={<LazyLoadErrorBoundary><CapturesPage /></LazyLoadErrorBoundary>} />
+                <Route path="/db-canvas" element={<LazyLoadErrorBoundary><DatabaseCanvasView /></LazyLoadErrorBoundary>} />
+                <Route path="/page/:id" element={<LazyLoadErrorBoundary><PageCanvas /></LazyLoadErrorBoundary>} />
+                <Route path="/template" element={<LazyLoadErrorBoundary><TemplatePage /></LazyLoadErrorBoundary>} />
+                <Route path="/workspace/:id" element={<LazyLoadErrorBoundary><WorkspacePage /></LazyLoadErrorBoundary>} />
+                <Route path="/settings" element={<LazyLoadErrorBoundary><SettingsPage /></LazyLoadErrorBoundary>} />
+                <Route path="/notion-import" element={<LazyLoadErrorBoundary><NotionImportPage /></LazyLoadErrorBoundary>} />
+                <Route path="/rag-test" element={<LazyLoadErrorBoundary><RagTestPage /></LazyLoadErrorBoundary>} />
+                <Route path="/journal" element={<LazyLoadErrorBoundary><JournalPage /></LazyLoadErrorBoundary>} />
+                <Route path="/calendar" element={<LazyLoadErrorBoundary><CalendarPage /></LazyLoadErrorBoundary>} />
+                <Route path="/achievements" element={<LazyLoadErrorBoundary><AchievementsPage /></LazyLoadErrorBoundary>} />
+                <Route path="/awards" element={<LazyLoadErrorBoundary><AchievementsPage /></LazyLoadErrorBoundary>} />
+                <Route path="*" element={<LazyLoadErrorBoundary><HomePage /></LazyLoadErrorBoundary>} />
               </Route>
             </Routes>
           </Suspense>

@@ -309,11 +309,22 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         onTouchStart={header.getResizeHandler()}
         onPointerDown={(e) => e.stopPropagation()}
         className={cn(
-          "absolute -right-1 top-0 h-full w-1.5 z-30 cursor-col-resize touch-none select-none transition-opacity",
-          header.column.getIsResizing() ? "opacity-100 bg-[#333] shadow-[0_4000px_0_0_currentColor]" : "opacity-20 hover:opacity-100"
+          "absolute -right-2 top-0 h-full w-4 z-30 cursor-col-resize touch-none select-none group",
+          "transition-all duration-75 ease-out"
         )}
-        style={{ color: '#333' }}
-      />
+      >
+        <div
+          className={cn(
+            "absolute top-0 right-1/2 -translate-x-1/2 h-full w-0.5 rounded-full transition-all duration-75",
+            header.column.getIsResizing()
+              ? "bg-primary/80 scale-y-100 opacity-100"
+              : "bg-white/20 group-hover:bg-white/40 group-hover:scale-y-100 scale-y-60 opacity-60 group-hover:opacity-100"
+          )}
+        />
+        {header.column.getIsResizing() && (
+          <div className="absolute inset-0 bg-primary/5" />
+        )}
+      </div>
     </div>
   );
 };

@@ -1,13 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+/* local font - avoids firefox tracking protection blocking google fonts */
+@font-face {
+  font-family: 'Varela Round';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/varela-round-regular.woff2') format('woff2');
+}
 
-
+/* stylelint-disable at-rule-no-unknown */
+/* postcss-ignore */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
-  font-family: 'varela round', sans-serif !important;
+  font-family: 'Varela Round', sans-serif !important;
 }
 
 @layer base {
@@ -58,7 +66,7 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
-    font-family: 'varela round', sans-serif !important;
+    font-family: 'Varela Round', sans-serif !important;
     color-scheme: dark;
   }
 }
@@ -69,7 +77,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'varela round', sans-serif !important;
+  font-family: 'Varela Round', sans-serif !important;
 }
 
 /* --- override: visual repair v2 --- */
@@ -244,6 +252,7 @@ table td *:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -560,6 +569,7 @@ label.cursor-pointer,
 input[type="range"] {
   cursor: grab;
 }
+
 input[type="range"]:active {
   cursor: grabbing;
 }

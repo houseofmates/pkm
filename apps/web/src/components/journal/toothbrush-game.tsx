@@ -242,13 +242,13 @@ const ToothbrushGame: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="text-3xl">🪥</div>
               <div>
-                <div className="font-bold text-cyan-400">toothbrush quest</div>
+                <div className=" text-cyan-400">toothbrush quest</div>
                 <div className="text-xs text-slate-400">level {level} • {totalXp} total xp</div>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Flame className={`w-5 h-5 ${streak >= 3 ? 'text-orange-400' : 'text-slate-500'}`} />
-              <span className="font-bold text-orange-400">{streak}d streak</span>
+              <span className=" text-orange-400">{streak}d streak</span>
             </div>
           </div>
           <div className="mt-2 flex gap-2">
@@ -274,11 +274,11 @@ const ToothbrushGame: React.FC = () => {
         <Card className="bg-gradient-to-r from-emerald-900/50 to-cyan-900/50 border-emerald-500/50 animate-pulse">
           <CardContent className="p-8 text-center">
             <div className="text-6xl mb-4">🎉</div>
-            <div className="text-2xl font-bold text-emerald-400 mb-2">teeth sparkly clean!</div>
+            <div className="text-2xl  text-emerald-400 mb-2">teeth sparkly clean!</div>
             <div className="text-slate-300 mb-4">
               cleaned {cleanedTeeth.size} surfaces • {streak} day streak
             </div>
-            <div className="flex items-center justify-center gap-2 text-2xl font-bold text-amber-400">
+            <div className="flex items-center justify-center gap-2 text-2xl  text-amber-400">
               <Star className="w-6 h-6" />
               +{Math.min(50, 20 + cleanedTeeth.size * 2 + streak * 2)} xp earned!
             </div>
@@ -418,7 +418,7 @@ const ToothbrushGame: React.FC = () => {
             {QUADRANTS.map((q, i) => (
               <div key={q.id} className={`p-2 rounded-lg ${currentQuadrant === i && isPlaying ? 'bg-cyan-500/20 border border-cyan-500/50' : 'bg-slate-800/50'}`}>
                 <div className="text-lg mb-1">{q.icon}</div>
-                <div className="font-bold">{q.name}</div>
+                <div className="">{q.name}</div>
                 <div className="text-slate-500">{q.targetTime}s</div>
               </div>
             ))}
@@ -431,28 +431,28 @@ const ToothbrushGame: React.FC = () => {
         <Card className="bg-gradient-to-br from-amber-900/30 to-orange-900/30">
           <CardContent className="p-4 text-center">
             <Trophy className="w-8 h-8 mx-auto mb-2 text-amber-400" />
-            <div className="font-bold text-amber-400">{streak}</div>
+            <div className=" text-amber-400">{streak}</div>
             <div className="text-xs text-slate-400">day streak</div>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-cyan-900/30 to-blue-900/30">
           <CardContent className="p-4 text-center">
             <Sparkles className="w-8 h-8 mx-auto mb-2 text-cyan-400" />
-            <div className="font-bold text-cyan-400">{totalCleanedToday}</div>
+            <div className=" text-cyan-400">{totalCleanedToday}</div>
             <div className="text-xs text-slate-400">cleaned today</div>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-emerald-900/30 to-green-900/30">
           <CardContent className="p-4 text-center">
             <Zap className="w-8 h-8 mx-auto mb-2 text-emerald-400" />
-            <div className="font-bold text-emerald-400">{sessions.length}</div>
+            <div className=" text-emerald-400">{sessions.length}</div>
             <div className="text-xs text-slate-400">total sessions</div>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-purple-900/30 to-pink-900/30">
           <CardContent className="p-4 text-center">
             <Shield className="w-8 h-8 mx-auto mb-2 text-purple-400" />
-            <div className="font-bold text-purple-400">{level}</div>
+            <div className=" text-purple-400">{level}</div>
             <div className="text-xs text-slate-400">hygiene level</div>
           </CardContent>
         </Card>

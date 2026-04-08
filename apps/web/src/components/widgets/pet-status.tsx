@@ -25,7 +25,7 @@ const PetStatusWidget: React.FC<{ className?: string }> = ({ className = '' }) =
       <Link className="h-full p-4">
         <CardHeader className="p-0 pb-3">
           <div className="flex items-center gap-2 mb-1">
-            <div className="text-lg font-bold">pet garden</div>
+            <div className="text-lg ">pet garden</div>
             <Badge variant="secondary">lvl {level}</Badge>
           </div>
         </CardHeader>

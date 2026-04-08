@@ -8,15 +8,23 @@
          `root-layout` component will override this again later based
          on the hostname. -->
   <link rel="icon" type="image/png" href="/favicon.png" id="favicon" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+  <!-- local font preload - avoids firefox tracking protection blocking google fonts -->
+  <link rel="preload" href="/fonts/varela-round-regular.woff2" as="font" type="font/woff2" crossorigin>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 
 
   <!-- Critical CSS to prevent FOUC - loaded immediately -->
   <style>
+    /* local font face - avoids firefox tracking protection */
+    @font-face {
+      font-family: 'Varela Round';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('/fonts/varela-round-regular.woff2') format('woff2');
+    }
+
     /* Reset and base styles */
     *,
     *::before,
@@ -109,10 +117,10 @@
       else if (host === 'blog.houseofmates.space') title = 'blog';
       else if (host === 'houseofmates.space') title = 'houseofmates';
       else if (host === 'pkm.houseofmates.space') title = 'pkm';
-      
+
       // lowercase all titles
       title = title.toLowerCase();
-      
+
       // also set favicon before React loads
       const favIcon = document.getElementById('favicon');
       if (favIcon) {

@@ -69,7 +69,7 @@ const ExerciseTracker: React.FC = () => {
                     onClick={() => toggleMuscle(muscle)}
                     className={`h-20 p-2 transition-all ${workedMuscles[muscle] ? 'animate-pulse shadow-lg shadow-emerald-500/25' : 'hover:shadow-md hover:shadow-orange-500/25'}`}
                   >
-                    <div className="text-xs font-bold line-clamp-2">{muscle.replace('-', ' ').toLowerCase()}</div>
+                    <div className="text-xs  line-clamp-2">{muscle.replace('-', ' ').toLowerCase()}</div>
                   </Button>
                 ))}
               </div>

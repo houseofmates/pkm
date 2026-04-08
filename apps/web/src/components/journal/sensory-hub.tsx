@@ -178,7 +178,7 @@ const SensoryHub: React.FC = () => {
                 className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full relative cursor-pointer hover:scale-110 transition-all hover:rotate-180"
                 onClick={spinFidget}
               >
-                <div className="absolute inset-0 flex items-center justify-center text-white font-bold text-sm">
+                <div className="absolute inset-0 flex items-center justify-center text-white  text-sm">
                   spin #{fidgetSpins}
                 </div>
               </div>

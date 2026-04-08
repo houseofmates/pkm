@@ -76,13 +76,14 @@ export default {
                 "accordion-up": "accordion-up 0.2s ease-out",
             },
             fontFamily: {
-                sans: ['Inter', 'system-ui', 'sans-serif'],
+                sans: ['Varela Round', 'system-ui', 'sans-serif'],
                 varela: ['Varela Round', 'sans-serif'],
+                mono: ['Droid Sans Mono', 'monospace'],
             },
             boxShadow: {
                 'sharp': '0 10px 30px rgba(0, 0, 0, 0.5), 0 4px 6px -1px rgba(0, 0, 0, 0.3)',
                 'sharp-lg': '0 20px 40px rgba(0, 0, 0, 0.6), 0 8px 12px -4px rgba(0, 0, 0, 0.4)',
-                'glass': '0 8px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                // Removed glass/blur effects per TODO: "sharp shadows, no blur/gradients"
             },
         },
     },

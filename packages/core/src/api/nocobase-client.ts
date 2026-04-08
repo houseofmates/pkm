@@ -61,7 +61,11 @@ export class NocoBaseClient {
 
   async getCollection(name: string): Promise<CollectionResponse> {
     try {
-      const res = await this._axios.get(`/collections/${name}:get`);
+      const res = await this._axios.get(`/collections/${name}:get`, {
+        params: {
+          'appends': ['fields']
+        }
+      });
       return GetRecordResponseSchema.parse(res.data);
     } catch (error: unknown) {
       const err = error as ApiError;

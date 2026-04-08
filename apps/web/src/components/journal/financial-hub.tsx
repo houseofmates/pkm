@@ -218,10 +218,10 @@ const FinancialHub: React.FC = () => {
         <Card className="bg-gradient-to-br from-purple-900 to-pink-900 border-purple-500 animate-bounce">
           <CardContent className="p-8 text-center">
             <div className="text-6xl mb-4">🎁</div>
-            <div className="text-2xl font-bold text-yellow-400 mb-2">goal completed!</div>
+            <div className="text-2xl  text-yellow-400 mb-2">goal completed!</div>
             <div className="text-slate-300 mb-4">you earned a reward!</div>
             <div className="bg-black/30 rounded-lg p-4 mb-4">
-              <div className="text-4xl font-bold text-emerald-400">
+              <div className="text-4xl  text-emerald-400">
                 {reward.type === 'xp' && `+${reward.amount} xp`}
                 {reward.type === 'shield' && `${reward.amount} streak shield`}
                 {reward.type === 'multiplier' && `+${(reward.amount * 100).toFixed(0)}% xp boost`}
@@ -248,7 +248,7 @@ const FinancialHub: React.FC = () => {
               <div className="text-4xl">{currentLevel.emoji}</div>
               <div>
                 <div className="text-sm text-slate-400">net worth</div>
-                <div className="text-4xl font-bold text-emerald-400">${netWorth.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                <div className="text-4xl  text-emerald-400">${netWorth.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
                 <div className="flex items-center gap-2 text-sm">
                   <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/50">
                     <Crown className="w-3 h-3 mr-1" />
@@ -267,14 +267,14 @@ const FinancialHub: React.FC = () => {
               <div className="text-center">
                 <div className="flex items-center gap-1 text-orange-400">
                   <Flame className="w-5 h-5" />
-                  <span className="font-bold">${((netWorth * 0.05) / 365).toFixed(2)}</span>
+                  <span className="">${((netWorth * 0.05) / 365).toFixed(2)}</span>
                 </div>
                 <div className="text-xs text-slate-400">daily growth</div>
               </div>
               <div className="text-center">
                 <div className="flex items-center gap-1 text-purple-400">
                   <Shield className="w-5 h-5" />
-                  <span className="font-bold">{streakShields}</span>
+                  <span className="">{streakShields}</span>
                 </div>
                 <div className="text-xs text-slate-400">streak shields</div>
               </div>
@@ -319,7 +319,7 @@ const FinancialHub: React.FC = () => {
               <Landmark className="w-4 h-4 text-emerald-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-emerald-400">
+              <div className="text-2xl  text-emerald-400">
                 ${accounts.filter(a => a.type !== 'credit' && a.type !== 'debt').reduce((sum, a) => sum + a.balance, 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </CardContent>
@@ -331,7 +331,7 @@ const FinancialHub: React.FC = () => {
               <ArrowUpRight className="w-4 h-4 text-emerald-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-emerald-400">
+              <div className="text-2xl  text-emerald-400">
                 ${transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </CardContent>
@@ -343,7 +343,7 @@ const FinancialHub: React.FC = () => {
               <ArrowDownRight className="w-4 h-4 text-red-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-400">
+              <div className="text-2xl  text-red-400">
                 ${Math.abs(transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </CardContent>
@@ -375,7 +375,7 @@ const FinancialHub: React.FC = () => {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">{savingsGoals[0].icon}</span>
-                    <span className="font-bold">{savingsGoals[0].name}</span>
+                    <span className="">{savingsGoals[0].name}</span>
                   </div>
                   <div className="text-sm text-slate-400 mb-1">
                     ${savingsGoals[0].current.toLocaleString()} / ${savingsGoals[0].target.toLocaleString()}
@@ -403,7 +403,7 @@ const FinancialHub: React.FC = () => {
                   </Badge>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold mb-2" style={{ color: account.color }}>
+                  <div className="text-2xl  mb-2" style={{ color: account.color }}>
                     ${account.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </div>
                   {account.institution && (
@@ -468,7 +468,7 @@ const FinancialHub: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <span className="text-3xl">{goal.icon}</span>
                     <div>
-                      <div className="font-bold">{goal.name}</div>
+                      <div className="">{goal.name}</div>
                       <div className="text-sm text-slate-400">
                         ${goal.current.toLocaleString()} / ${goal.target.toLocaleString()}
                       </div>
@@ -574,7 +574,7 @@ const FinancialHub: React.FC = () => {
               <Card key={item.name} className="bg-slate-900/50">
                 <CardContent className="p-3 text-center">
                   <div className="w-4 h-4 rounded-full mx-auto mb-1" style={{ backgroundColor: item.color }} />
-                  <div className="font-bold">${item.value}</div>
+                  <div className="">${item.value}</div>
                   <div className="text-xs text-slate-400 capitalize">{item.name}</div>
                 </CardContent>
               </Card>
@@ -607,7 +607,7 @@ const FinancialHub: React.FC = () => {
             <Card className="bg-emerald-900/20 border-emerald-500/30">
               <CardContent className="p-4 text-center">
                 <TrendingUp className="w-8 h-8 mx-auto mb-2 text-emerald-400" />
-                <div className="text-2xl font-bold text-emerald-400">
+                <div className="text-2xl  text-emerald-400">
                   ${(3500 * 6 - 2950 * 6).toLocaleString()}
                 </div>
                 <div className="text-sm text-slate-400">6mo savings</div>
@@ -616,7 +616,7 @@ const FinancialHub: React.FC = () => {
             <Card className="bg-cyan-900/20 border-cyan-500/30">
               <CardContent className="p-4 text-center">
                 <Star className="w-8 h-8 mx-auto mb-2 text-cyan-400" />
-                <div className="text-2xl font-bold text-cyan-400">
+                <div className="text-2xl  text-cyan-400">
                   {((savingsGoals.reduce((sum, g) => sum + g.current, 0) / savingsGoals.reduce((sum, g) => sum + g.target, 0)) * 100).toFixed(0)}%
                 </div>
                 <div className="text-sm text-slate-400">goals progress</div>
@@ -625,7 +625,7 @@ const FinancialHub: React.FC = () => {
             <Card className="bg-purple-900/20 border-purple-500/30">
               <CardContent className="p-4 text-center">
                 <Zap className="w-8 h-8 mx-auto mb-2 text-purple-400" />
-                <div className="text-2xl font-bold text-purple-400">
+                <div className="text-2xl  text-purple-400">
                   ${(3500 * 6 * 0.2).toLocaleString()}
                 </div>
                 <div className="text-sm text-slate-400">potential savings (20%)</div>
@@ -653,8 +653,8 @@ const FinancialHub: React.FC = () => {
                   <Card key={item.name} className="bg-slate-900 border-slate-700">
                     <CardContent className="p-4 text-center">
                       <div className="w-8 h-8 rounded-full mx-auto mb-2" style={{ backgroundColor: item.color }} />
-                      <div className="font-bold capitalize mb-1">{item.name}</div>
-                      <div className="text-lg font-bold">${item.value}</div>
+                      <div className=" capitalize mb-1">{item.name}</div>
+                      <div className="text-lg ">${item.value}</div>
                       <Button size="sm" variant="outline" className="mt-2 w-full" onClick={() => {
                         logTransaction(item.name, -item.value, `defense: ${item.name}`)
                       }}>
@@ -733,7 +733,7 @@ const FinancialHub: React.FC = () => {
                   <div className="text-xs text-slate-400">{t.date}</div>
                 </div>
               </div>
-              <div className={`font-mono font-bold ${t.amount > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              <div className={`font-mono  ${t.amount > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                 {t.amount > 0 ? '+' : ''}{t.amount.toFixed(2)}
               </div>
             </div>

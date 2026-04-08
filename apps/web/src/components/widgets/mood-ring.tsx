@@ -30,7 +30,7 @@ const MoodRingWidget: React.FC<{ className?: string }> = ({ className = '' }) =>
     <Card className={`w-full max-w-sm h-32 cursor-pointer hover:scale-105 hover:shadow-xl border-2 border-purple-800/50 glass-effect backdrop-blur-md ${className}`}>
       <Link href="/journal" className="h-full p-4 flex flex-col justify-between">
         <div>
-          <div className="text-lg font-bold mb-2 flex items-center gap-2">
+          <div className="text-lg  mb-2 flex items-center gap-2">
             mood ring
             <Badge variant="outline" className="text-xs">today</Badge>
           </div>
