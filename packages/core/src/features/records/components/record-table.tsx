@@ -1158,11 +1158,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     data: sortedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  enableColumnResizing: true,
-  columnResizeMode: 'onChange',
+    enableColumnResizing: true,
+    columnResizeMode: 'onChange',
     onColumnSizingChange: setColumnSizing,
+    onColumnSizingChangeEnd: () => {
+      saveColumnSizing();
+    },
     state: {
-      columnSizing,
+      columnSizing: localColumnSizing,
       columnOrder,
     },
   });
