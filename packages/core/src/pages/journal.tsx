@@ -11710,10 +11710,6 @@ summary:`;
 
 
 
-          <input type="date" value={exportTo} onChange={e => setExportTo(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
-
-
-
           <div className="relative group">
 
 
