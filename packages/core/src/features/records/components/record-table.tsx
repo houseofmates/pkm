@@ -1216,7 +1216,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   // also bump when our persisted sizing updates
   React.useEffect(() => {
     setColumnVersion(v => v + 1);
-  }, [columnSizing]);
+  }, [persistedColumnSizing]);
 
   const handleRowSelect = React.useCallback((rowId: string, rowIndex: number, event: React.MouseEvent) => {
     setSelectedIds((prev) => {
