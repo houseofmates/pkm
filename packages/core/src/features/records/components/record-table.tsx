@@ -332,12 +332,12 @@ className={cn(
         }}
         onPointerDown={(e) => e.stopPropagation()}
         className={cn(
-          "absolute -right-0.5 top-0 h-full w-1 z-30 cursor-col-resize touch-none select-none group",
+          "absolute right-0 top-0 h-full w-2 z-30 cursor-col-resize touch-none select-none group",
           "transition-colors duration-150"
         )}
         style={{
           background: isResizing
-            ? 'rgba(59, 130, 246, 0.6)'
+            ? 'rgba(246, 176, 18, 0.3)'
             : 'transparent'
         }}
       >
@@ -346,7 +346,7 @@ className={cn(
             "absolute top-0 right-0 h-full w-px",
             "transition-all duration-150",
             isResizing
-              ? "bg-primary"
+              ? "bg-[#f6b012]"
               : "bg-[#222] group-hover:bg-white/30"
           )}
         />
