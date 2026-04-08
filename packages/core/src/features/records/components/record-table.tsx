@@ -252,20 +252,20 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           {...(!isEditing ? listeners : {})}
         >
           {!isEditing ? (
-          <div
-            className="relative z-20 h-full w-full flex items-center select-none cursor-pointer hover:bg-white/5 transition-colors py-2"
-            onClick={() => {
-              if (!isSystemColumn) {
-                onOpenFieldSettings?.(field);
-              }
-            }}
-            onDoubleClick={startEditing}
-          >
             <div
-              className="whitespace-nowrap overflow-hidden text-ellipsis font-medium leading-[1.2] text-base text-center w-full flex items-center justify-center gap-1"
-              style={{ minWidth: '40px', maxWidth: '200px', color: fieldColors[field?.name] || undefined }}
-              title={typeof header.column.columnDef.header === 'string' ? header.column.columnDef.header : String(header.column.columnDef.header || '')}
+              className="relative z-20 h-full w-full flex items-center select-none cursor-pointer hover:bg-white/5 transition-colors py-2"
+              onClick={() => {
+                if (!isSystemColumn) {
+                  onOpenFieldSettings?.(field);
+                }
+              }}
+              onDoubleClick={startEditing}
             >
+              <div
+                className="whitespace-nowrap overflow-hidden text-ellipsis font-medium leading-[1.2] text-base text-center w-full flex items-center justify-center gap-1"
+                style={{ minWidth: '40px', maxWidth: '200px', color: fieldColors[field?.name] || undefined }}
+                title={typeof header.column.columnDef.header === 'string' ? header.column.columnDef.header : String(header.column.columnDef.header || '')}
+              >
                 {iconInfo.icon && iconInfo.iconType === 'emoji' && (
                   <span style={{ color: iconInfo.iconColor || fieldColors[field?.name] }} className="text-lg">
                     {iconInfo.icon}
@@ -548,11 +548,11 @@ const DraggableRecordRow = (props: any) => {
                 touchAction: 'manipulation',
               }}
             >
-        <div
-          className="flex items-center justify-center h-full w-full whitespace-normal leading-[1.2] text-sm"
-          style={{ wordBreak: 'break-word', minWidth: 0 }}
-          data-cell-content
-        >
+              <div
+                className="flex items-center justify-center h-full w-full whitespace-normal leading-[1.2] text-sm"
+                style={{ wordBreak: 'break-word', minWidth: 0 }}
+                data-cell-content
+              >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </div>
             </div>
@@ -606,6 +606,23 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     `hidden_columns_${collection?.name || 'unknown'}`,
     []
   );
+
+  // Reset hidden columns if all fields would be hidden (corrupted/invalid state)
+  // This ensures the default is always showing all fields
+  React.useEffect(() => {
+    if (!collection.fields || collection.fields.length === 0) return;
+
+    const visibleFieldNames = collection.fields
+      .filter((f: any) => !f.hidden && f.name)
+      .map((f: any) => f.name);
+
+    // If all visible fields are in hiddenColumns, reset to show all
+    const allHidden = visibleFieldNames.length > 0 && visibleFieldNames.every((name: string) => hiddenColumns.includes(name));
+
+    if (allHidden) {
+      setHiddenColumns([]);
+    }
+  }, [collection.fields, hiddenColumns, setHiddenColumns]);
 
   // sort state
   const [sortField, setSortField] = React.useState<string>('');
@@ -823,9 +840,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               {/* sort button */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className={cn("h-6 w-6", (sortField || isManualOrderActive) && "text-primary")}
                     title={isManualOrderActive ? "manual order active" : (sortField ? `sorted by ${sortField} (${sortDirection})` : "sort")}
                   >
@@ -933,7 +950,15 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 <PopoverContent align="end" className="w-56">
                   <div className="space-y-2">
                     <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2 lowercase">view settings</h4>
-                    <div className="text-xs text-muted-foreground mb-2 lowercase">check to unhide properties</div>
+                    <div className="text-xs text-muted-foreground mb-2 lowercase">check to show properties</div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs lowercase"
+                      onClick={() => setHiddenColumns([])}
+                    >
+                      show all properties
+                    </Button>
                     <div className="max-h-60 overflow-y-auto space-y-1">
                       {(() => {
                         // figure out which fields to show in the settings menu.  if we
@@ -1030,7 +1055,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     if (activeId.startsWith('row-')) {
       const fromIndex = rows.findIndex((r: any) => `row-${r.original.id}` === activeId);
       const toIndex = rows.findIndex((r: any) => `row-${r.original.id}` === overId);
-      
+
       if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
         handleRowReorder(fromIndex, toIndex);
       }
@@ -1117,8 +1142,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     data: sortedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  enableColumnResizing: true,
-  columnResizeMode: 'onEnd',
+    enableColumnResizing: true,
+    columnResizeMode: 'onEnd',
     onColumnSizingChange: setColumnSizing,
     state: {
       columnSizing,
