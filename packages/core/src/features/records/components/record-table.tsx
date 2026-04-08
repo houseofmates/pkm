@@ -306,15 +306,23 @@ className={cn(
       </PropertyContextMenu>
       {/* resize handler */}
       <div
-        onMouseDown={header.getResizeHandler()}
-        onTouchStart={header.getResizeHandler()}
+        onMouseDown={(e) => {
+          setIsResizing(true);
+          onResizeStart?.();
+          header.getResizeHandler()(e);
+        }}
+        onTouchStart={(e) => {
+          setIsResizing(true);
+          onResizeStart?.();
+          header.getResizeHandler()(e);
+        }}
         onPointerDown={(e) => e.stopPropagation()}
         className={cn(
           "absolute -right-0.5 top-0 h-full w-1 z-30 cursor-col-resize touch-none select-none group",
           "transition-colors duration-150"
         )}
         style={{
-          background: header.column.getIsResizing()
+          background: isResizing
             ? 'rgba(59, 130, 246, 0.6)'
             : 'transparent'
         }}
@@ -323,7 +331,7 @@ className={cn(
           className={cn(
             "absolute top-0 right-0 h-full w-px",
             "transition-all duration-150",
-            header.column.getIsResizing()
+            isResizing
               ? "bg-primary"
               : "bg-[#222] group-hover:bg-white/30"
           )}
