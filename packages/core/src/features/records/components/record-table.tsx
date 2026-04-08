@@ -86,10 +86,11 @@ import { cn } from '@/lib/utils';
 import { secureLogger } from '@/lib/secure-logger';
 
 // sortable header component
-function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, fieldIcons, valueColorRules, setMetadata, onHide }: any) {
+function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, fieldIcons, valueColorRules, setMetadata, onHide, onResizeStart, onResizeEnd }: any) {
   const { client } = useAuth();
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftTitle, setDraftTitle] = React.useState<string>('');
+  const [isResizing, setIsResizing] = React.useState(false);
 
   const field = (header.column.columnDef as any).meta?.field;
   const iconInfo = field && fieldIcons ? fieldIcons[field.name] || {} : {};
