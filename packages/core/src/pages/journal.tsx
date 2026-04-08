@@ -13000,7 +13000,7 @@ summary:`;
 
 
 
-                    backgroundColor: emotions.has(emotion) ? `${emotionColors[emotion]}33` : 'transparent',
+                    backgroundColor: emotions.has(emotion) ? `${emotionColors[emotion]}33` : '#121212',
 
 
 
