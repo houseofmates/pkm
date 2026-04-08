@@ -309,21 +309,24 @@ className={cn(
         onTouchStart={header.getResizeHandler()}
         onPointerDown={(e) => e.stopPropagation()}
         className={cn(
-          "absolute -right-2 top-0 h-full w-4 z-30 cursor-col-resize touch-none select-none group",
-          "transition-all duration-75 ease-out"
+          "absolute -right-0.5 top-0 h-full w-1 z-30 cursor-col-resize touch-none select-none group",
+          "transition-colors duration-150"
         )}
+        style={{
+          background: header.column.getIsResizing()
+            ? 'rgba(59, 130, 246, 0.6)'
+            : 'transparent'
+        }}
       >
         <div
           className={cn(
-            "absolute top-0 right-1/2 -translate-x-1/2 h-full w-0.5 rounded-full transition-all duration-75",
+            "absolute top-0 right-0 h-full w-px",
+            "transition-all duration-150",
             header.column.getIsResizing()
-              ? "bg-primary/80 scale-y-100 opacity-100"
-              : "bg-white/20 group-hover:bg-white/40 group-hover:scale-y-100 scale-y-60 opacity-60 group-hover:opacity-100"
+              ? "bg-primary"
+              : "bg-[#222] group-hover:bg-white/30"
           )}
         />
-        {header.column.getIsResizing() && (
-          <div className="absolute inset-0 bg-primary/5" />
-        )}
       </div>
     </div>
   );
