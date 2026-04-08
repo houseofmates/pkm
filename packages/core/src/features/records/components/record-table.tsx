@@ -1145,8 +1145,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     data: sortedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    enableColumnResizing: true,
-    columnResizeMode: 'onEnd',
+  enableColumnResizing: true,
+  columnResizeMode: 'onChange',
     onColumnSizingChange: setColumnSizing,
     state: {
       columnSizing,
