@@ -18,8 +18,8 @@ import { humanizeFieldName } from '@/features/records/components/record-table';
 import type { Record as SchemaRecord, TableDefinition, FieldDefinition } from '@/schema/types';
 
 interface CollectionDetailPageProps {
-  collectionName?: string;
-  onBack?: () => void;
+    collectionName?: string;
+    onBack?: () => void;
 }
 
 
@@ -30,10 +30,10 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 import { Star } from 'lucide-react';
 import { secureLogger } from '@/lib/secure-logger';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -55,18 +55,18 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
     // data-layer hook replaces the old manual state and handlers
     const {
-      collection,
-      records,
-      loading,
-      fetchError,
-      handleDirectCreate,
-      handleUpdateRecord,
-      handleDeleteRecord,
-      handleUndoDelete,
-      restoreRecord,
-      fetchData,
-      setCollection,
-      setRecords
+        collection,
+        records,
+        loading,
+        fetchError,
+        handleDirectCreate,
+        handleUpdateRecord,
+        handleDeleteRecord,
+        handleUndoDelete,
+        restoreRecord,
+        fetchData,
+        setCollection,
+        setRecords
     } = useCollectionData(client, collectionName, activeFronters);
     // get collection color for header using metadata (source of truth)
     const collectionColor = metadata[collectionName]?.color;
@@ -229,26 +229,28 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         <Button variant="ghost" size="icon" className="h-10 w-10" onClick={onBack}>
                             <ArrowLeft className="h-5 w-5" />
                         </Button>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <button
-                                className="text-xl font-bold tracking-tight hover:opacity-70 transition-opacity cursor-pointer bg-transparent border-none p-0"
-                                style={{ color: collectionColor }}
-                            >
-                                {metadata[collectionName]?.title || collection.label || collection.name}
-                            </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                            <DatabaseSettingsForm
-                                collectionName={collectionName}
-                                title={metadata[collectionName]?.title || collection.label || collectionName}
-                                viewConfig={viewConfig}
-                                fields={collection.fields}
-                                currentView={currentView}
-                                onUpdateConfig={handleConfigChange}
-                            />
-                        </PopoverContent>
-                    </Popover>
+                        {collectionName !== 'headmates' && (
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <button
+                                        className="text-xl font-bold tracking-tight hover:opacity-70 transition-opacity cursor-pointer bg-transparent border-none p-0"
+                                        style={{ color: collectionColor }}
+                                    >
+                                        {metadata[collectionName]?.title || collection.label || collection.name}
+                                    </button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80">
+                                    <DatabaseSettingsForm
+                                        collectionName={collectionName}
+                                        title={metadata[collectionName]?.title || collection.label || collectionName}
+                                        viewConfig={viewConfig}
+                                        fields={collection.fields}
+                                        currentView={currentView}
+                                        onUpdateConfig={handleConfigChange}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        )}
                     </div>
                     <div className="flex items-center gap-2">
                         <Popover>
@@ -320,7 +322,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             </Dialog>
 
             {/* content */}
-            <div className="flex-1 overflow-auto p-4 md:p-8">
+            <div className="flex-1 overflow-auto p-2">
                 <CurrentViewComponent
                     data={records}
                     collection={collection}
