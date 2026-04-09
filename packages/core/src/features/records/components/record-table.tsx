@@ -1306,9 +1306,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     data: sortedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    enableColumnResizing: true,
-    columnResizeMode: 'onChange',
-    onColumnSizingChange: setColumnSizing,
+    // disable built-in resizing - we use custom haptic implementation
+    enableColumnResizing: false,
     state: {
       columnSizing: localColumnSizing,
       columnOrder,
