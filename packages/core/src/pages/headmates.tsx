@@ -84,7 +84,6 @@ function SortableHeadmateCard({
   member,
   isSelected,
   frontPosition,
-  selectionIndex,
   onClick,
   onKeyDown,
 }: SortableHeadmateCardProps) {
@@ -101,7 +100,7 @@ function SortableHeadmateCard({
   });
 
   const memberColor = member.content?.color || '#ffffff';
-  const zIndex = isSelected ? 100 - selectionIndex : 10;
+  const zIndex = isSelected ? 100 : 10;
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -110,23 +109,9 @@ function SortableHeadmateCard({
   };
 
   return (
-    <motion.div
+    <div
       ref={setNodeRef}
       style={style}
-      layout
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{
-        opacity: isDragging ? 0.5 : 1,
-        scale: isSelected ? 1.05 : 1,
-      }}
-      exit={{ opacity: 0, scale: 0.8 }}
-      whileHover={{ scale: isDragging ? 1 : 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{
-        type: 'spring',
-        stiffness: 400,
-        damping: 25,
-      }}
       {...attributes}
       {...listeners}
       onClick={onClick}
@@ -138,10 +123,10 @@ function SortableHeadmateCard({
       className="group relative"
     >
       <div
-        className={`aspect-square rounded-lg overflow-hidden relative transition-shadow duration-200 cursor-pointer touch-none ${
-          isSelected ? 'ring-2 ring-offset-2 ring-offset-black' : 'border border-white/10'
+        className={`aspect-square rounded-lg overflow-hidden relative cursor-pointer touch-none transition-all duration-150 ${
+          isSelected ? 'border-[3px]' : 'border border-white/10'
         }`}
-        style={isSelected ? { borderColor: memberColor, boxShadow: `0 0 20px ${memberColor}40` } : undefined}
+        style={isSelected ? { borderColor: memberColor } : undefined}
       >
         {member.content?.avatarUrl ? (
           <img
@@ -156,18 +141,15 @@ function SortableHeadmateCard({
           </div>
         )}
         {isSelected && frontPosition > 0 && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
+          <div
             className="absolute top-2 right-2 min-w-[24px] h-6 px-1.5 rounded-md flex items-center justify-center text-sm font-bold"
             style={{
               backgroundColor: memberColor,
               color: '#000',
-              textShadow: '0 1px 2px rgba(255,255,255,0.3)',
             }}
           >
             {frontPosition}
-          </motion.div>
+          </div>
         )}
       </div>
       <div className="text-center mt-1.5 px-1">
@@ -176,7 +158,7 @@ function SortableHeadmateCard({
           <p className="text-xs text-white/40 lowercase truncate">{member.content.pronouns}</p>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
