@@ -1479,7 +1479,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         onResizeMove={handleResizeMove}
                         onResizeEnd={handleResizeEnd}
                         resizeLine={resizeLine}
-                        isResizing={isResizingRef.current}
+                        isResizing={isResizing}
                         onHide={(field: any) => {
                           if (!field || !field.name) return;
                           setHiddenColumns((prev: string[]) => {
