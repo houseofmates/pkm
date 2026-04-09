@@ -573,3 +573,8 @@ input[type="range"] {
 input[type="range"]:active {
   cursor: grabbing;
 }
+
+/* --- column resize handle active state --- */
+[data-resizing="true"] > div {
+  background: #f6b012 !important;
+}
