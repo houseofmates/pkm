@@ -809,6 +809,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   const handleResizeStart = React.useCallback((columnId: string, startX: number, startWidth: number) => {
     isResizingRef.current = true;
+    setIsResizing(true);
     pristineResizeRef.current = {
       columnId,
       startX,
@@ -829,7 +830,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     const newWidth = Math.max(40, pristineResizeRef.current.startWidth + delta);
     pristineResizeRef.current.currentWidth = newWidth;
 
-    // update phantom line position - tracks cursor exactly
+    // update phantom line position - tracks cursor exactly (high frequency)
     setResizeLine(prev => ({
       ...prev,
       left: pristineResizeRef.current.startX + newWidth
@@ -846,6 +847,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     if (!isResizingRef.current) return;
 
     isResizingRef.current = false;
+    setIsResizing(false);
 
     // persist the exact current width - zero snap
     if (pristineResizeRef.current.columnId) {
