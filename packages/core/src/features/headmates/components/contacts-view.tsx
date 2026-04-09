@@ -63,7 +63,7 @@ function SortableHeadmateCard({ member, collection, isSelected, frontPosition, o
 export function ContactsView({ data, collection }: ViewProps) {
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<string[]>([]);
-  const { activeFronters, registerFrontChange, toggleFronter } = useFronter();
+  const { activeFronters, registerFrontChange } = useFronter();
 
   const titleField = collection?.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
 

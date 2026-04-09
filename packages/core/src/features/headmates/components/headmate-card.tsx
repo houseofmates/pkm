@@ -13,12 +13,15 @@ interface HeadmateCardProps {
   onClick?: () => void;
   className?: string;
   selected?: boolean;
+  isSelected?: boolean;
+  frontPosition?: number | null;
 }
 
 export type { HeadmateCardProps };
 
-export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, collection, onClick, className, ...props }, ref) => {
-  const { selected = false } = props;
+export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, collection, onClick, className, isSelected, frontPosition, ...props }, ref) => {
+  const { selected: propsSelected = false } = props;
+  const selected = isSelected ?? propsSelected;
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const handleCardClick = (_e: React.MouseEvent) => {
@@ -85,15 +88,15 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
       <Card
         style={{
           transition: "all 0.3s ease",
-          border: `3px solid ${borderColor}`,
+          border: `4px solid ${isSelected ? borderColor : borderColor + '80'}`,
           borderRadius: 0,
-          boxShadow: selected ? '0 6px 24px rgba(0,0,0,0.5)' : '0 2px 8px rgba(0,0,0,0.3)',
-          transform: selected ? 'scale(1.06)' : 'scale(1)',
-          filter: selected ? 'brightness(1.08)' : 'brightness(1)',
+          boxShadow: isSelected ? `0 8px 32px ${borderColor}66, 0 4px 16px rgba(0,0,0,0.5)` : '0 2px 8px rgba(0,0,0,0.3)',
+          transform: isSelected ? 'scale(1.08)' : 'scale(1)',
+          filter: isSelected ? 'brightness(1.12)' : 'brightness(1)',
         }}
         className={cn(
           "aspect-square relative overflow-hidden w-full rounded-none shadow-none",
-          selected && "ring-4 ring-primary"
+          isSelected && "ring-2 ring-white/50"
         )}
       >
         {/* background image */}
@@ -111,6 +114,21 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
             </div>
           )}
         </div>
+
+        {/* front position badge */}
+        {frontPosition && (
+          <div
+            className="absolute top-2 right-2 z-20 flex items-center justify-center min-w-[28px] h-7 px-1.5 rounded-full font-black text-lg"
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.5)',
+              color: 'rgba(0,0,0,0.5)',
+              textShadow: '0 0 2px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.5)',
+              border: '1px solid rgba(0,0,0,0.3)',
+            }}
+          >
+            {frontPosition}
+          </div>
+        )}
 
         {/* name at absolute bottom */}
         <div className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-end text-center pb-1 z-10">
