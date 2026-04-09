@@ -96,6 +96,9 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
     const handleMouseUp = () => {
       if (isResizingRef.current) {
         isResizingRef.current = false;
+        document.querySelectorAll('[data-resizing="true"]').forEach((el) => {
+          (el as HTMLElement).dataset.resizing = 'false';
+        });
         onResizeEnd?.();
       }
     };
