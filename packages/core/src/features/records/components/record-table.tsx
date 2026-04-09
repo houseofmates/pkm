@@ -324,7 +324,6 @@ className={cn(
       </PropertyContextMenu>
         {/* resize handler */}
         <div
-          data-resizing={isResizingRef.current ? 'true' : undefined}
           onMouseDown={(e) => {
             isResizingRef.current = true;
             const el = e.currentTarget;
@@ -342,7 +341,7 @@ className={cn(
           onPointerDown={(e) => e.stopPropagation()}
           className="absolute right-0 top-0 h-full w-2 z-30 cursor-col-resize touch-none select-none group"
         >
-          <div className="absolute top-0 right-0 h-full w-px bg-[#222] group-hover:bg-[#f6b012] data-[resizing=true]:bg-[#f6b012]" />
+          <div className="absolute top-0 right-0 h-full w-px bg-[#222] group-hover:bg-[#f6b012]" />
         </div>
     </div>
   );
