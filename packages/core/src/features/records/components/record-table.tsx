@@ -790,23 +790,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     }
   }, [persistedColumnSizing]);
 
-  const setColumnSizing = React.useCallback((updater: any) => {
-    setLocalColumnSizing((prev) => {
-      const newSizing = typeof updater === 'function' ? updater(prev) : updater;
-      return newSizing;
-    });
-  }, []);
-
-  const saveColumnSizing = React.useCallback(() => {
-    setMetadata((prev: Record<string, any>) => ({
-      ...prev,
-      [collection.name]: {
-        ...prev[collection.name],
-        columnWidths: localColumnSizing
-      }
-    }));
-  }, [collection?.name, localColumnSizing, setMetadata]);
-
   const handleResizeStart = React.useCallback((columnId: string, startX: number, startWidth: number) => {
     isResizingRef.current = true;
     setIsResizing(true);
