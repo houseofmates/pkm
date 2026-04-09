@@ -1473,7 +1473,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         valueColorRules={valueColorRules}
                         setMetadata={setMetadata}
                         onResizeStart={handleResizeStart}
+                        onResizeMove={handleResizeMove}
                         onResizeEnd={handleResizeEnd}
+                        resizeLine={resizeLine}
+                        isResizing={isResizingRef.current}
                         onHide={(field: any) => {
                           if (!field || !field.name) return;
                           setHiddenColumns((prev: string[]) => {
