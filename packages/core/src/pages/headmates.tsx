@@ -192,6 +192,7 @@ export const HeadmatesPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [frontingOrder, setFrontingOrder] = useState<string[]>([]);
   const [draggedId, setDraggedId] = useState<UniqueIdentifier | null>(null);
+  const { socket, isConnected } = useSocket();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const fetchMembers = useCallback(async (key: string) => {
@@ -210,11 +211,11 @@ export const HeadmatesPage: React.FC = () => {
       if (!membersRes.ok) throw new Error('Failed to fetch members');
       const membersData = await membersRes.json();
       
-      const persistedOrder = loadPersistedOrder();
+      const persistedMembersOrder = loadPersistedMembersOrder();
       const persistedFronting = loadPersistedFronting();
       
-      if (persistedOrder.length > 0) {
-        const orderMap = new Map(persistedOrder.map((id, i) => [id, i]));
+      if (persistedMembersOrder.length > 0) {
+        const orderMap = new Map(persistedMembersOrder.map((id, i) => [id, i]));
         membersData.sort((a: HeadmateMember, b: HeadmateMember) => {
           const aIndex = orderMap.get(a.id) ?? Infinity;
           const bIndex = orderMap.get(b.id) ?? Infinity;
@@ -240,6 +241,36 @@ export const HeadmatesPage: React.FC = () => {
       fetchMembers(storedKey);
     }
   }, [fetchMembers]);
+
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    socket.emit('headmates_request_sync');
+
+    const handleSync = (data: { frontingOrder: string[]; membersOrder: string[] }) => {
+      if (data.membersOrder && data.membersOrder.length > 0) {
+        persistMembersOrder(data.membersOrder);
+        setMembers(prev => {
+          const orderMap = new Map(data.membersOrder.map((id, i) => [id, i]));
+          return [...prev].sort((a, b) => {
+            const aIndex = orderMap.get(a.id) ?? Infinity;
+            const bIndex = orderMap.get(b.id) ?? Infinity;
+            return aIndex - bIndex;
+          });
+        });
+      }
+      if (data.frontingOrder) {
+        persistFronting(data.frontingOrder);
+        setFrontingOrder(data.frontingOrder);
+      }
+    };
+
+    socket.on('headmates_sync', handleSync);
+
+    return () => {
+      socket.off('headmates_sync', handleSync);
+    };
+  }, [socket, isConnected]);
 
   const handleSaveKey = async () => {
     if (!apiKey) return;
@@ -283,6 +314,15 @@ export const HeadmatesPage: React.FC = () => {
     }
   };
 
+  const broadcastSync = useCallback((fronting: string[], membersOrder: string[]) => {
+    if (socket && isConnected) {
+      socket.emit('headmates_update', {
+        frontingOrder: fronting,
+        membersOrder: membersOrder,
+      });
+    }
+  }, [socket, isConnected]);
+
   const toggleMember = useCallback((memberId: string) => {
     setFrontingOrder(prev => {
       const newOrder = prev.includes(memberId)
@@ -290,9 +330,12 @@ export const HeadmatesPage: React.FC = () => {
         : [...prev, memberId];
       persistFronting(newOrder);
       updateFrontingAPI(newOrder);
+      const membersOrder = members.map(m => m.id);
+      persistMembersOrder(membersOrder);
+      broadcastSync(newOrder, membersOrder);
       return newOrder;
     });
-  }, [apiKey]);
+  }, [apiKey, members, broadcastSync]);
 
   const getFrontPosition = (memberId: string): number => {
     const index = frontingOrder.indexOf(memberId);
