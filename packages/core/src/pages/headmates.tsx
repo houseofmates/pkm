@@ -56,11 +56,9 @@ export const HeadmatesPage: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold lowercase">headmates</h1>
-
+    <div className="h-full w-full p-4">
       {!hasKey ? (
-        <div className="space-y-4 p-6 bg-white/5 rounded-xl border border-white/10">
+        <div className="space-y-4 p-6 bg-white/5 rounded-xl border border-white/10 max-w-md mx-auto mt-20">
           <p className="text-sm text-white/60 lowercase">enter your simplyplural api key to sync your headmates.</p>
           <input
             type="password"
@@ -77,13 +75,13 @@ export const HeadmatesPage: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 h-full">
           {loading ? (
             <p className="text-white/40 lowercase col-span-full">loading members...</p>
           ) : members.length > 0 ? (
             members.map(m => (
               <div key={m.id} className="group flex flex-col gap-2">
-                <div className="aspect-[3/4] rounded-xl border border-white/10 bg-white/5 overflow-hidden relative">
+                <div className="aspect-square rounded-xl border border-white/10 bg-white/5 overflow-hidden relative">
                   {m.content?.avatarUrl ? (
                     <img
                       src={m.content.avatarUrl}
@@ -107,18 +105,20 @@ export const HeadmatesPage: React.FC = () => {
           ) : (
             <p className="text-white/40 lowercase col-span-full">no members found.</p>
           )}
-          <button
-            onClick={() => {
-              storageManager.removeItem('pk_api_key');
-              setHasKey(false);
-              setApiKey('');
-              setMembers([]);
-            }}
-            className="col-span-full mt-4 text-xs text-white/20 hover:text-white/60 underline lowercase"
-          >
-            reset api key
-          </button>
         </div>
+      )}
+      {hasKey && (
+        <button
+          onClick={() => {
+            storageManager.removeItem('pk_api_key');
+            setHasKey(false);
+            setApiKey('');
+            setMembers([]);
+          }}
+          className="fixed bottom-4 right-4 text-xs text-white/20 hover:text-white/60 underline lowercase"
+        >
+          reset api key
+        </button>
       )}
     </div>
   );
