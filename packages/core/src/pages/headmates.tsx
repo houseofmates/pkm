@@ -272,6 +272,36 @@ export const HeadmatesPage: React.FC = () => {
     };
   }, [socket, isConnected]);
 
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    socket.emit('headmates_request_sync');
+
+    const handleSync = (data: { frontingOrder: string[]; membersOrder: string[] }) => {
+      if (data.membersOrder && data.membersOrder.length > 0) {
+        persistMembersOrder(data.membersOrder);
+        setMembers(prev => {
+          const orderMap = new Map(data.membersOrder.map((id, i) => [id, i]));
+          return [...prev].sort((a, b) => {
+            const aIndex = orderMap.get(a.id) ?? Infinity;
+            const bIndex = orderMap.get(b.id) ?? Infinity;
+            return aIndex - bIndex;
+          });
+        });
+      }
+      if (data.frontingOrder) {
+        persistFronting(data.frontingOrder);
+        setFrontingOrder(data.frontingOrder);
+      }
+    };
+
+    socket.on('headmates_sync', handleSync);
+
+    return () => {
+      socket.off('headmates_sync', handleSync);
+    };
+  }, [socket, isConnected]);
+
   const handleSaveKey = async () => {
     if (!apiKey) return;
     try {
