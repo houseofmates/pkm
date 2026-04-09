@@ -760,14 +760,75 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     }));
   }, [collection?.name, localColumnSizing, setMetadata]);
 
-  const handleResizeStart = React.useCallback(() => {
+  const handleResizeStart = React.useCallback((columnId: string, startX: number, startWidth: number) => {
     isResizingRef.current = true;
+    pristineResizeRef.current = {
+      columnId,
+      startX,
+      startWidth,
+      currentWidth: startWidth
+    };
+    setResizeLine({
+      visible: true,
+      left: startX + startWidth,
+      columnId
+    });
+  }, []);
+
+  const handleResizeMove = React.useCallback((clientX: number) => {
+    if (!isResizingRef.current || !pristineResizeRef.current.columnId) return;
+
+    const delta = clientX - pristineResizeRef.current.startX;
+    const newWidth = Math.max(40, pristineResizeRef.current.startWidth + delta);
+    pristineResizeRef.current.currentWidth = newWidth;
+
+    // update phantom line position - tracks cursor exactly
+    setResizeLine(prev => ({
+      ...prev,
+      left: pristineResizeRef.current.startX + newWidth
+    }));
+
+    // update column sizing immediately for live feedback
+    setLocalColumnSizing(prev => ({
+      ...prev,
+      [pristineResizeRef.current.columnId!]: newWidth
+    }));
   }, []);
 
   const handleResizeEnd = React.useCallback(() => {
+    if (!isResizingRef.current) return;
+
     isResizingRef.current = false;
-    saveColumnSizing();
-  }, [saveColumnSizing]);
+
+    // persist the exact current width - zero snap
+    if (pristineResizeRef.current.columnId) {
+      const finalWidth = pristineResizeRef.current.currentWidth;
+
+      setLocalColumnSizing(prev => ({
+        ...prev,
+        [pristineResizeRef.current.columnId!]: finalWidth
+      }));
+
+      // save to metadata
+      setMetadata((prev: Record<string, any>) => ({
+        ...prev,
+        [collection.name]: {
+          ...prev[collection.name],
+          columnWidths: {
+            ...(prev[collection.name]?.columnWidths || {}),
+            [pristineResizeRef.current.columnId!]: finalWidth
+          }
+        }
+      }));
+    }
+
+    // hide phantom line with delay for smooth fade
+    setTimeout(() => {
+      setResizeLine({ visible: false, left: 0, columnId: null });
+    }, 50);
+
+    pristineResizeRef.current = { columnId: null, startX: 0, startWidth: 0, currentWidth: 0 };
+  }, [collection.name, setMetadata]);
 
   // stable refs for callbacks used inside column definitions
   const onEditRef = React.useRef(onEdit);
