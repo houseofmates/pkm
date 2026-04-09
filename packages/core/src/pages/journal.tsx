@@ -12578,7 +12578,7 @@ summary:`;
 
 
 
-                  {new Date(viewingEntry.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                  {formatTimestamp(viewingEntry.timestamp)}
 
 
 

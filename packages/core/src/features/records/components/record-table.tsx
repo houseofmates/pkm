@@ -766,6 +766,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   }, [collection?.name, setMetadata]);
 
   const [localColumnSizing, setLocalColumnSizing] = React.useState<Record<string, number>>(persistedColumnSizing);
+  const [isResizing, setIsResizing] = React.useState(false);
   const isResizingRef = React.useRef(false);
 
   // phantom resize line state - tracks exact cursor position for haptic feel
