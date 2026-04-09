@@ -1095,20 +1095,43 @@ app.get('/api/ics-proxy', requireAuth, async (req, res) => {
     }
 });
 
+const headmatesState = {
+  frontingOrder: [],
+  membersOrder: [],
+  lastUpdated: null,
+};
+
 // socket.io
 io.on('connection', (socket) => {
-    console.log('[Socket] Client connected:', socket.id);
+  console.log('[Socket] Client connected:', socket.id);
 
-    socket.emit('minecraft_update', {
-        type: 'ping',
-        online: lastServerStats.online,
-        count: lastServerStats.players,
-        timestamp: new Date().toISOString()
-    });
+  socket.emit('minecraft_update', {
+    type: 'ping',
+    online: lastServerStats.online,
+    count: lastServerStats.players,
+    timestamp: new Date().toISOString()
+  });
 
-    socket.on('disconnect', (reason) => {
-        // quiet disconnect
-    });
+  if (headmatesState.lastUpdated) {
+    socket.emit('headmates_sync', headmatesState);
+  }
+
+  socket.on('headmates_update', (data) => {
+    headmatesState.frontingOrder = data.frontingOrder || [];
+    headmatesState.membersOrder = data.membersOrder || [];
+    headmatesState.lastUpdated = new Date().toISOString();
+    socket.broadcast.emit('headmates_sync', headmatesState);
+  });
+
+  socket.on('headmates_request_sync', () => {
+    if (headmatesState.lastUpdated) {
+      socket.emit('headmates_sync', headmatesState);
+    }
+  });
+
+  socket.on('disconnect', (reason) => {
+    // quiet disconnect
+  });
 });
 
 
