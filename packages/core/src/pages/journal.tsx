@@ -1309,16 +1309,18 @@ function getWeekStart(): string {
 
 function formatDate(dateStr: string): string {
 
-
-
   const d = new Date(dateStr);
-
-
 
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
+}
 
-
+function formatTimestamp(isoString: string): string {
+  const d = new Date(isoString);
+  const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
+  const month = d.toLocaleDateString('en-US', { month: 'short' }).toLowerCase();
+  const day = d.getDate();
+  return `${time} ${month} ${day}`;
 }
 
 
