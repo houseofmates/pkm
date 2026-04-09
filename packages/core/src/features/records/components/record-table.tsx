@@ -86,29 +86,75 @@ import { cn } from '@/lib/utils';
 import { secureLogger } from '@/lib/secure-logger';
 
 // sortable header component
-function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, fieldIcons, valueColorRules, setMetadata, onHide, onResizeStart, onResizeEnd }: any) {
+interface SortableHeaderProps {
+  header: any;
+  collectionName: string;
+  onFieldUpdated?: () => void;
+  onOpenFieldSettings?: (field: any) => void;
+  fieldColors: Record<string, string>;
+  fieldIcons: Record<string, any>;
+  valueColorRules: Record<string, Record<string, string>>;
+  setMetadata: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  onHide?: (field: any) => void;
+  onResizeStart?: (columnId: string, startX: number, startWidth: number) => void;
+  onResizeMove?: (clientX: number) => void;
+  onResizeEnd?: () => void;
+  resizeLine?: { visible: boolean; left: number; columnId: string | null };
+  isResizing?: boolean;
+}
+
+function SortableHeader({
+  header,
+  collectionName,
+  onFieldUpdated,
+  onOpenFieldSettings,
+  fieldColors,
+  fieldIcons,
+  valueColorRules,
+  setMetadata,
+  onHide,
+  onResizeStart,
+  onResizeMove,
+  onResizeEnd,
+  resizeLine,
+  isResizing
+}: SortableHeaderProps) {
   const { client } = useAuth();
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftTitle, setDraftTitle] = React.useState<string>('');
-  const isResizingRef = React.useRef(false);
+  const resizeHandleRef = React.useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
-    const handleMouseUp = () => {
-      if (isResizingRef.current) {
-        isResizingRef.current = false;
-        document.querySelectorAll('[data-resizing="true"]').forEach((el) => {
-          (el as HTMLElement).dataset.resizing = 'false';
-        });
-        onResizeEnd?.();
-      }
+  // pointer capture-based resize with zero snap
+  const handlePointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const target = e.currentTarget as HTMLElement;
+    target.setPointerCapture(e.pointerId);
+
+    const rect = target.getBoundingClientRect();
+    const columnWidth = header.getSize() || DEFAULT_COL_WIDTH;
+    const columnId = header.id;
+
+    onResizeStart?.(columnId, rect.left, columnWidth);
+
+    const handlePointerMove = (moveEvent: PointerEvent) => {
+      moveEvent.preventDefault();
+      onResizeMove?.(moveEvent.clientX);
     };
-    window.addEventListener('mouseup', handleMouseUp);
-    window.addEventListener('touchend', handleMouseUp);
-    return () => {
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('touchend', handleMouseUp);
+
+    const handlePointerUp = (upEvent: PointerEvent) => {
+      target.releasePointerCapture(upEvent.pointerId);
+      target.removeEventListener('pointermove', handlePointerMove);
+      target.removeEventListener('pointerup', handlePointerUp);
+      target.removeEventListener('pointercancel', handlePointerUp);
+      onResizeEnd?.();
     };
-  }, [onResizeEnd]);
+
+    target.addEventListener('pointermove', handlePointerMove);
+    target.addEventListener('pointerup', handlePointerUp);
+    target.addEventListener('pointercancel', handlePointerUp);
+  };
 
   const field = (header.column.columnDef as any).meta?.field;
   const iconInfo = field && fieldIcons ? fieldIcons[field.name] || {} : {};
