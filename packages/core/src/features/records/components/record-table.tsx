@@ -183,10 +183,10 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         maxWidth: header.getSize() || DEFAULT_COL_WIDTH,
         background: 'transparent',
       }}
-className={cn(
-  "group select-none relative text-left p-0 transition-colors border-b border-b-[#222] flex-shrink-0 h-10 align-middle font-medium text-foreground text-sm",
-  isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
-)}
+      className={cn(
+        "group select-none relative text-left p-0 transition-colors border-b border-b-[#222] flex-shrink-0 h-10 align-middle font-medium text-foreground text-sm",
+        isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
+      )}
     >
       <PropertyContextMenu
         collectionName={collectionName}
@@ -322,27 +322,27 @@ className={cn(
           )}
         </div>
       </PropertyContextMenu>
-        {/* resize handler */}
-        <div
-          onMouseDown={(e) => {
-            isResizingRef.current = true;
-            const el = e.currentTarget;
-            el.dataset.resizing = 'true';
-            onResizeStart?.();
-            header.getResizeHandler()(e);
-          }}
-          onTouchStart={(e) => {
-            isResizingRef.current = true;
-            const el = e.currentTarget;
-            el.dataset.resizing = 'true';
-            onResizeStart?.();
-            header.getResizeHandler()(e);
-          }}
-          onPointerDown={(e) => e.stopPropagation()}
-          className="absolute right-0 top-0 h-full w-2 z-30 cursor-col-resize touch-none select-none group"
-        >
-          <div className="absolute top-0 right-0 h-full w-px bg-[#222] group-hover:bg-[#f6b012]" />
-        </div>
+      {/* resize handler */}
+      <div
+        onMouseDown={(e) => {
+          isResizingRef.current = true;
+          const el = e.currentTarget;
+          el.dataset.resizing = 'true';
+          onResizeStart?.();
+          header.getResizeHandler()(e);
+        }}
+        onTouchStart={(e) => {
+          isResizingRef.current = true;
+          const el = e.currentTarget;
+          el.dataset.resizing = 'true';
+          onResizeStart?.();
+          header.getResizeHandler()(e);
+        }}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="absolute right-0 top-0 h-full w-2 z-30 cursor-col-resize touch-none select-none group"
+      >
+        <div className="absolute top-0 right-0 h-full w-px bg-[#222] group-hover:bg-[#f6b012]" />
+      </div>
     </div>
   );
 };
@@ -721,6 +721,21 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   const [localColumnSizing, setLocalColumnSizing] = React.useState<Record<string, number>>(persistedColumnSizing);
   const isResizingRef = React.useRef(false);
+
+  // phantom resize line state - tracks exact cursor position for haptic feel
+  const [resizeLine, setResizeLine] = React.useState<{
+    visible: boolean;
+    left: number;
+    columnId: string | null;
+  }>({ visible: false, left: 0, columnId: null });
+
+  // pristine resize state - holds exact pixel values during drag
+  const pristineResizeRef = React.useRef<{
+    columnId: string | null;
+    startX: number;
+    startWidth: number;
+    currentWidth: number;
+  }>({ columnId: null, startX: 0, startWidth: 0, currentWidth: 0 });
 
   React.useEffect(() => {
     if (!isResizingRef.current) {
@@ -1337,22 +1352,22 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     strategy={horizontalListSortingStrategy}
                   >
                     {headerGroup.headers.map((header) => (
-                <SortableHeader
-                  key={header.id}
-                  header={header}
-                  collectionName={collection?.name}
-                  onFieldUpdated={onFieldUpdatedCb}
-                  onOpenFieldSettings={(field: any) => {
-                    setSettingsField(field);
-                    setIsSettingsOpen(true);
-                  }}
-                  fieldColors={fieldColors}
-                  fieldIcons={fieldIcons}
-                  valueColorRules={valueColorRules}
-                  setMetadata={setMetadata}
-                  onResizeStart={handleResizeStart}
-                  onResizeEnd={handleResizeEnd}
-                  onHide={(field: any) => {
+                      <SortableHeader
+                        key={header.id}
+                        header={header}
+                        collectionName={collection?.name}
+                        onFieldUpdated={onFieldUpdatedCb}
+                        onOpenFieldSettings={(field: any) => {
+                          setSettingsField(field);
+                          setIsSettingsOpen(true);
+                        }}
+                        fieldColors={fieldColors}
+                        fieldIcons={fieldIcons}
+                        valueColorRules={valueColorRules}
+                        setMetadata={setMetadata}
+                        onResizeStart={handleResizeStart}
+                        onResizeEnd={handleResizeEnd}
+                        onHide={(field: any) => {
                           if (!field || !field.name) return;
                           setHiddenColumns((prev: string[]) => {
                             if (prev.includes(field.name)) {
