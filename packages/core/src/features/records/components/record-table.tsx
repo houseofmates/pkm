@@ -319,39 +319,26 @@ className={cn(
           )}
         </div>
       </PropertyContextMenu>
-      {/* resize handler */}
-      <div
-        onMouseDown={(e) => {
-          setIsResizing(true);
-          onResizeStart?.();
-          header.getResizeHandler()(e);
-        }}
-        onTouchStart={(e) => {
-          setIsResizing(true);
-          onResizeStart?.();
-          header.getResizeHandler()(e);
-        }}
-        onPointerDown={(e) => e.stopPropagation()}
-        className={cn(
-          "absolute right-0 top-0 h-full w-2 z-30 cursor-col-resize touch-none select-none group",
-          "transition-colors duration-150"
-        )}
-        style={{
-          background: isResizing
-            ? 'rgba(246, 176, 18, 0.3)'
-            : 'transparent'
-        }}
-      >
+        {/* resize handler */}
         <div
-          className={cn(
-            "absolute top-0 right-0 h-full w-px",
-            "transition-all duration-150",
-            isResizing
-              ? "bg-[#f6b012]"
-              : "bg-[#222] group-hover:bg-white/30"
-          )}
-        />
-      </div>
+          onMouseDown={(e) => {
+            isResizingRef.current = true;
+            onResizeStart?.();
+            header.getResizeHandler()(e);
+          }}
+          onTouchStart={(e) => {
+            isResizingRef.current = true;
+            onResizeStart?.();
+            header.getResizeHandler()(e);
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="absolute right-0 top-0 h-full w-2 z-30 cursor-col-resize touch-none select-none group"
+        >
+          <div
+            className="absolute top-0 right-0 h-full w-px bg-[#222] group-hover:bg-[#f6b012]"
+            style={{ background: isResizingRef.current ? '#f6b012' : undefined }}
+          />
+        </div>
     </div>
   );
 };
