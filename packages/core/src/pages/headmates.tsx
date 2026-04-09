@@ -187,8 +187,12 @@ function DragOverlayCard({ member }: { member: HeadmateMember }) {
   const memberColor = member.content?.color || '#ffffff';
   return (
     <div
-      className="aspect-square rounded-lg overflow-hidden relative ring-2"
-      style={{ borderColor: memberColor, opacity: 0.9 }}
+      className="aspect-square rounded-lg overflow-hidden relative ring-4 shadow-2xl"
+      style={{ 
+        borderColor: memberColor,
+        boxShadow: `0 0 30px ${memberColor}60, 0 0 60px ${memberColor}30`,
+        opacity: 0.95
+      }}
     >
       {member.content?.avatarUrl ? (
         <img
