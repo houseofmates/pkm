@@ -374,9 +374,9 @@ function SortableHeader({
       <div
         ref={resizeHandleRef}
         onPointerDown={handlePointerDown}
-        className="absolute right-0 top-0 h-full w-2 z-30 cursor-col-resize touch-none select-none group"
+        className="absolute right-0 top-0 h-full w-2 z-30 cursor-col-resize touch-none select-none"
       >
-        <div className="absolute top-0 right-0 h-full w-px bg-[#222] group-hover:bg-[#f6b012]" />
+        <div className="absolute top-0 right-0 h-full w-px bg-[#222] hover:bg-[#f6b012]" />
       </div>
 
       {/* phantom resize line - visual indicator that tracks cursor exactly */}
