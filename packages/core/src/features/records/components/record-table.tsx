@@ -177,13 +177,15 @@ function SortableHeader({
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: header.id,
+    disabled: isResizing
   });
 
   const style: React.CSSProperties = {
-    transform: CSS.Translate.toString(transform),
-    transition,
+    // disable dnd-kit transforms during resize to prevent snap-back
+    transform: isResizing ? undefined : CSS.Translate.toString(transform),
+    transition: isResizing ? undefined : transition,
     opacity: isDragging ? 0.8 : 1,
-    zIndex: isDragging ? 100 : undefined,
+    zIndex: isDragging ? 100 : (isResizing ? 50 : undefined),
     position: 'relative' as const,
     touchAction: 'none',
   };
@@ -368,27 +370,25 @@ function SortableHeader({
           )}
         </div>
       </PropertyContextMenu>
-      {/* resize handler */}
+      {/* resize handler with pointer capture */}
       <div
-        onMouseDown={(e) => {
-          isResizingRef.current = true;
-          const el = e.currentTarget;
-          el.dataset.resizing = 'true';
-          onResizeStart?.();
-          header.getResizeHandler()(e);
-        }}
-        onTouchStart={(e) => {
-          isResizingRef.current = true;
-          const el = e.currentTarget;
-          el.dataset.resizing = 'true';
-          onResizeStart?.();
-          header.getResizeHandler()(e);
-        }}
-        onPointerDown={(e) => e.stopPropagation()}
+        ref={resizeHandleRef}
+        onPointerDown={handlePointerDown}
         className="absolute right-0 top-0 h-full w-2 z-30 cursor-col-resize touch-none select-none group"
       >
         <div className="absolute top-0 right-0 h-full w-px bg-[#222] group-hover:bg-[#f6b012]" />
       </div>
+
+      {/* phantom resize line - visual indicator that tracks cursor exactly */}
+      {resizeLine?.visible && resizeLine.columnId === header.id && (
+        <div
+          className="absolute top-0 h-full w-[2px] bg-[#f6b012] pointer-events-none z-50"
+          style={{
+            left: resizeLine.left - (header.getSize() || DEFAULT_COL_WIDTH),
+            transition: 'none'
+          }}
+        />
+      )}
     </div>
   );
 };
