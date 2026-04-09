@@ -8,6 +8,7 @@ export const HeadmatesPage: React.FC = () => {
   const [hasKey, setHasKey] = useState(false);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [frontingOrder, setFrontingOrder] = useState<string[]>([]);
 
   const fetchMembers = async (key: string) => {
     setLoading(true);
@@ -33,6 +34,39 @@ export const HeadmatesPage: React.FC = () => {
     }
   };
 
+  const updateFronting = async (newOrder: string[]) => {
+    if (!apiKey || newOrder.length === 0) return;
+    
+    try {
+      const meRes = await fetch('https://api.apparyllis.com/v1/me', {
+        headers: { 'Authorization': apiKey }
+      });
+      if (!meRes.ok) throw new Error('Failed to fetch system info');
+      const meData = await meRes.json();
+      const systemId = meData.id;
+
+      const fronters = newOrder.map((memberId, index) => ({
+        id: memberId,
+        startTime: new Date().toISOString(),
+        order: index
+      }));
+
+      await fetch(`https://api.apparyllis.com/v1/front/${systemId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': apiKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ fronters })
+      });
+
+      toast.success('fronting updated');
+    } catch (err) {
+      secureLogger.error('Failed to update fronting:', err);
+      toast.error('failed to update fronting');
+    }
+  };
+
   useEffect(() => {
     const storedKey = storageManager.getCachedSecret('pk_api_key');
     if (storedKey) {
@@ -55,8 +89,23 @@ export const HeadmatesPage: React.FC = () => {
     }
   };
 
+  const toggleMember = (memberId: string) => {
+    setFrontingOrder(prev => {
+      const newOrder = prev.includes(memberId)
+        ? prev.filter(id => id !== memberId)
+        : [...prev, memberId];
+      updateFronting(newOrder);
+      return newOrder;
+    });
+  };
+
+  const getFrontingPosition = (memberId: string): number => {
+    const index = frontingOrder.indexOf(memberId);
+    return index === -1 ? 0 : index + 1;
+  };
+
   return (
-    <div className="h-full w-full p-4">
+    <div className="h-full w-full p-2">
       {!hasKey ? (
         <div className="space-y-4 p-6 bg-white/5 rounded-xl border border-white/10 max-w-md mx-auto mt-20">
           <p className="text-sm text-white/60 lowercase">enter your simplyplural api key to sync your headmates.</p>
@@ -75,33 +124,61 @@ export const HeadmatesPage: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-10 gap-3 h-full">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-1 h-full">
           {loading ? (
             <p className="text-white/40 lowercase col-span-full">loading members...</p>
           ) : members.length > 0 ? (
-            members.map(m => (
-              <div key={m.id} className="group flex flex-col gap-2">
-                <div className="aspect-square rounded-xl border border-white/10 bg-white/5 overflow-hidden relative">
-                  {m.content?.avatarUrl ? (
-                    <img
-                      src={m.content.avatarUrl}
-                      alt={m.content.name}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-white/10">
-                      <span className="text-4xl opacity-30">👤</span>
-                    </div>
-                  )}
+            members.map(m => {
+              const position = getFrontingPosition(m.id);
+              const isSelected = position > 0;
+              const memberColor = m.content?.color || '#ffffff';
+              
+              return (
+                <div
+                  key={m.id}
+                  onClick={() => toggleMember(m.id)}
+                  className="group flex flex-col gap-1 cursor-pointer"
+                >
+                  <div
+                    className={`aspect-square rounded-lg overflow-hidden relative transition-all duration-200 ${
+                      isSelected 
+                        ? 'scale-105 border-2' 
+                        : 'border border-white/10'
+                    }`}
+                    style={isSelected ? { borderColor: memberColor } : undefined}
+                  >
+                    {m.content?.avatarUrl ? (
+                      <img
+                        src={m.content.avatarUrl}
+                        alt={m.content.name}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-white/10">
+                        <span className="text-4xl opacity-30">👤</span>
+                      </div>
+                    )}
+                    {isSelected && (
+                      <div 
+                        className="absolute top-1 right-1 text-sm font-bold"
+                        style={{ 
+                          color: 'rgba(255,255,255,0.5)',
+                          textShadow: '0 0 2px rgba(0,0,0,0.5), 0 0 4px rgba(0,0,0,0.5)'
+                        }}
+                      >
+                        {position}
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-center px-1">
+                    <p className="font-medium lowercase text-xs truncate">{m.content?.name || 'unknown'}</p>
+                    {m.content?.pronouns && (
+                      <p className="text-[10px] text-white/40 lowercase truncate">{m.content.pronouns}</p>
+                    )}
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="font-medium lowercase text-sm truncate">{m.content?.name || 'unknown'}</p>
-                  {m.content?.pronouns && (
-                    <p className="text-xs text-white/40 lowercase truncate">{m.content.pronouns}</p>
-                  )}
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <p className="text-white/40 lowercase col-span-full">no members found.</p>
           )}
@@ -114,6 +191,7 @@ export const HeadmatesPage: React.FC = () => {
             setHasKey(false);
             setApiKey('');
             setMembers([]);
+            setFrontingOrder([]);
           }}
           className="fixed bottom-4 right-4 text-xs text-white/20 hover:text-white/60 underline lowercase"
         >
