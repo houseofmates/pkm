@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from '@/lib/secure-logger';
 import { toast } from 'sonner';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useSocket } from '@/hooks/use-socket';
 import {
   DndContext,
   closestCenter,
@@ -13,9 +13,6 @@ import {
   DragEndEvent,
   DragStartEvent,
   DragOverlay,
-  useDroppable,
-  pointerWithin,
-  CollisionDetection,
   UniqueIdentifier,
 } from '@dnd-kit/core';
 import {
@@ -37,25 +34,8 @@ interface HeadmateMember {
   };
 }
 
-const STORAGE_KEY = 'headmates_order';
 const FRONTING_KEY = 'headmates_fronting';
-
-function persistOrder(order: string[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(order));
-  } catch (e) {
-    secureLogger.warn('Failed to persist headmate order:', e);
-  }
-}
-
-function loadPersistedOrder(): string[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
+const MEMBERS_KEY = 'headmates_members_order';
 
 function persistFronting(order: string[]) {
   try {
@@ -68,6 +48,23 @@ function persistFronting(order: string[]) {
 function loadPersistedFronting(): string[] {
   try {
     const raw = localStorage.getItem(FRONTING_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistMembersOrder(order: string[]) {
+  try {
+    localStorage.setItem(MEMBERS_KEY, JSON.stringify(order));
+  } catch (e) {
+    secureLogger.warn('Failed to persist members order:', e);
+  }
+}
+
+function loadPersistedMembersOrder(): string[] {
+  try {
+    const raw = localStorage.getItem(MEMBERS_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
