@@ -90,13 +90,14 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   const { client } = useAuth();
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftTitle, setDraftTitle] = React.useState<string>('');
-  const [isResizing, setIsResizing] = React.useState(false);
+  const isResizingRef = React.useRef(false);
 
   React.useEffect(() => {
-    if (!isResizing) return;
     const handleMouseUp = () => {
-      setIsResizing(false);
-      onResizeEnd?.();
+      if (isResizingRef.current) {
+        isResizingRef.current = false;
+        onResizeEnd?.();
+      }
     };
     window.addEventListener('mouseup', handleMouseUp);
     window.addEventListener('touchend', handleMouseUp);
@@ -104,7 +105,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
       window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('touchend', handleMouseUp);
     };
-  }, [isResizing, onResizeEnd]);
+  }, [onResizeEnd]);
 
   const field = (header.column.columnDef as any).meta?.field;
   const iconInfo = field && fieldIcons ? fieldIcons[field.name] || {} : {};
