@@ -25,6 +25,7 @@ process.env.ADMIN_SECRET = 'test-secret';
 // also override broadcast key in case it's set in environment
 process.env.BROADCAST_AUTH_KEY = 'test-secret';
 process.env.MOCK_NOTION_IMPORT = 'true';
+process.env.ALLOWED_ORIGINS = 'https://foo.example';
 
 // import the server after configuring env vars to ensure they are picked up
 import { app as server } from '@pkm/backend/server.js';
