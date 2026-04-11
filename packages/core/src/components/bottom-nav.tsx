@@ -31,7 +31,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
             className="flex flex-col items-center justify-center h-[56px] w-[56px] min-w-[56px] rounded-3xl gap-0.5 hover:bg-white/10"
             onClick={handleOpenChat}
           >
-            <MessageSquare className="h-8 w-8" />
+            <MessageSquare className="h-10 w-10" />
             <span className="text-[12px] font-medium lowercase">chat</span>
           </Button>
  
@@ -40,7 +40,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
             className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] min-w-[56px] rounded-3xl gap-0.5 hover:bg-white/10", activeTab === 'home' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('home')}
           >
-            <Home className="h-8 w-8" />
+            <Home className="h-10 w-10" />
             <span className="text-[12px] font-medium lowercase">home</span>
           </Button>
  
@@ -49,7 +49,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
             className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] min-w-[56px] rounded-3xl gap-0.5 hover:bg-white/10", activeTab === 'databases' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('databases')}
           >
-            <Database className="h-8 w-8" />
+            <Database className="h-10 w-10" />
             <span className="text-[12px] font-medium lowercase">data</span>
           </Button>
  
@@ -58,7 +58,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
             className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] min-w-[56px] rounded-3xl gap-0.5 hover:bg-white/10", activeTab === 'captures' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('captures')}
           >
-            <Inbox className="h-8 w-8" />
+            <Inbox className="h-10 w-10" />
             <span className="text-[12px] font-medium lowercase">inbox</span>
           </Button>
  
@@ -69,7 +69,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
             className="h-[56px] w-[56px] min-w-[56px] rounded-full bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30"
             onClick={handleOpenSearch}
           >
-            <Search className="h-9 w-9" />
+            <Search className="h-11 w-11" />
           </Button>
  
           <Button
@@ -77,7 +77,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
             className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] min-w-[56px] rounded-3xl gap-0.5 hover:bg-white/10", activeTab === 'calendar' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('calendar')}
           >
-            <Calendar className="h-8 w-8" />
+            <Calendar className="h-10 w-10" />
             <span className="text-[12px] font-medium lowercase">cal</span>
           </Button>
  
@@ -86,7 +86,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
             className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] min-w-[56px] rounded-3xl gap-0.5 hover:bg-white/10", activeTab === 'journal' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('journal')}
           >
-            <BookOpen className="h-8 w-8" />
+            <BookOpen className="h-10 w-10" />
             <span className="text-[12px] font-medium lowercase">journal</span>
           </Button>
  
@@ -95,7 +95,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
             className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] min-w-[56px] rounded-3xl gap-0.5 hover:bg-white/10", activeTab === 'headmates' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('headmates')}
           >
-            <Users className="h-8 w-8" />
+            <Users className="h-10 w-10" />
             <span className="text-[12px] font-medium lowercase">mates</span>
           </Button>
  
