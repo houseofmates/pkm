@@ -1042,53 +1042,28 @@ const Journal: React.FC = () => {
 
             </CardHeader>
 
-            <CardContent className="space-y-3 max-h-96 overflow-auto">
-
-              {filteredPastEntries.length === 0 ? (
-
-                <div className="text-sm text-amber-700 text-center py-8">no entries yet</div>
-
-              ) : (
-
-                Object.entries(groupedPast).map(([month, monthEntries]) => (
-
-                  <div key={month}>
-
-                    <div className="text-xs text-amber-600 mb-2">{month}</div>
-
-                    <div className="space-y-2">
-
-                      {monthEntries.slice(-5).map((savedEntry) => (
-
-                        <div key={savedEntry.id} className="flex items-start gap-2 p-2 bg-zinc-950/70 rounded hover:bg-zinc-900/90">
-
-                          <span className="text-lg">{savedEntry.mood}</span>
-
-                          <div className="flex-1 min-w-0">
-
-                            <div className="text-sm truncate">{savedEntry.note || 'no note'}</div>
-
-                            <div className="text-xs text-amber-700">{savedEntry.emotions.slice(0, 3).join(', ') || 'no emotions tagged'}</div>
-
-                          </div>
-
-                          <Badge variant="secondary" className="text-xs bg-amber-500/20 text-amber-200 border-amber-800">
-
-                            +{savedEntry.xpEarned}
-
-                          </Badge>
-
-                        </div>
-
-                      ))}
-
-                    </div>
-
-                  </div>
-
-                ))
-
-              )}
+             <CardContent className="space-y-3 max-h-96 overflow-auto">
+               <ListView
+                 data={filteredPastEntries}
+                 collection={{ name: 'journal_entries', fields: [] }}
+                 config={{ titleField: 'note' }}
+                 onUpdateRecord={(id, updates) => {
+                   // Update journal entry locally (not typically needed for journal)
+                   setEntries(prev => prev.map(entry => entry.id === id ? { ...entry, ...updates } : entry))
+                   // Persist to localStorage
+                   try {
+                     window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...prev.map(entry => entry.id === id ? { ...entry, ...updates } : entry)].slice(-MAX_ENTRIES)))
+                   } catch (e) { console.error(e) }
+                 }}
+                 onDelete={(id) => {
+                   setEntries(prev => prev.filter(entry => entry.id !== id))
+                   try {
+                     window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...prev.filter(entry => entry.id !== id)].slice(-MAX_ENTRIES)))
+                   } catch (e) { console.error(e) }
+                 }}
+                 onEdit={() => {}} // No edit functionality for journal entries in this view
+                 onCreate={() => {}} // No create functionality for journal entries in this view
+               />
 
             </CardContent>
 
