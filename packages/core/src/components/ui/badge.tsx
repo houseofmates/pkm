@@ -5,7 +5,7 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 export const Badge: React.FC<BadgeProps> = React.memo(({ variant = 'default', className = '', children, ...props }) => {
-    const base = 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium';
+    const base = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium';
     const variantClass = variant === 'outline' ? 'border border-muted text-muted-foreground bg-transparent' : 'bg-muted text-muted-foreground';
     return (
         <span className={`${base} ${variantClass} ${className}`} {...props}>
