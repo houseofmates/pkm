@@ -102,12 +102,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       electron.syncState({ token: normalized });
     }
 
-    try {
-      await client.ensureBackendCollection();
-      secureLogger.info('[auth] backend ready');
-    } catch (error) {
-      secureLogger.warn('backend setup failed:', error);
-    }
+try {
+await client.ensureBackendCollection();
+await client.ensureCanvasCollection();
+secureLogger.info('[auth] backend ready');
+} catch (error) {
+secureLogger.warn('backend setup failed:', error);
+}
   };
 
   const logout = async () => {

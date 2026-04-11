@@ -345,49 +345,70 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
 
   setActiveLayer: (id) => set({ activeLayerId: id }),
 
-  // element actions ─── all keep elementmap in sync ──────────────────────────
-  addElement: (el) =>
-    set((state) => {
-      const newEl: EdgelessElement = { ...el, id: uuidv4(), layerId: el.layerId || state.activeLayerId }
-      const newElements = [...state.elements, newEl]
-      const newMap = new Map(state.elementMap)
-      newMap.set(newEl.id, newEl)
-      return { elements: newElements, elementMap: newMap }
-    }),
+// element actions ─── all keep elementmap in sync ──────────────────────────
+addElement: (el) => {
+const state = get()
+const newEl: EdgelessElement = { ...el, id: uuidv4(), layerId: el.layerId || state.activeLayerId }
+const newElements = [...state.elements, newEl]
+const newMap = new Map(state.elementMap)
+newMap.set(newEl.id, newEl)
+set({ elements: newElements, elementMap: newMap })
+// record op for persistence
+void state.recordOp({
+type: 'element-add',
+element: newEl,
+layerId: newEl.layerId || state.activeLayerId,
+} as any)
+},
 
-  setElements: (elements) => set({ elements, elementMap: buildMap(elements) }),
+setElements: (elements) => set({ elements, elementMap: buildMap(elements) }),
 
-  updateElement: (id, patch) =>
-    set((state) => {
-      const existing = state.elementMap.get(id)
-      if (!existing) return state
-      const updated = { ...existing, ...patch }
-      // only create a new array if something actually changed
-      if (updated === existing) return state
-      const newMap = new Map(state.elementMap)
-      newMap.set(id, updated)
-      const newElements = state.elements.map((el) => (el.id === id ? updated : el))
-      return { elements: newElements, elementMap: newMap }
-    }),
+updateElement: (id, patch) => {
+const state = get()
+const existing = state.elementMap.get(id)
+if (!existing) return
+const updated = { ...existing, ...patch }
+if (updated === existing) return
+const newMap = new Map(state.elementMap)
+newMap.set(id, updated)
+const newElements = state.elements.map((el) => (el.id === id ? updated : el))
+set({ elements: newElements, elementMap: newMap })
+// record op for persistence
+void state.recordOp({
+type: 'element-update',
+targetId: id,
+layerId: existing.layerId || state.activeLayerId,
+patch,
+} as any)
+},
 
-  toggleElementLock: (id) =>
-    set((state) => {
-      const existing = state.elementMap.get(id)
-      if (!existing) return state
-      const updated = { ...existing, locked: !existing.locked }
-      const newMap = new Map(state.elementMap)
-      newMap.set(id, updated)
-      const newElements = state.elements.map((el) => (el.id === id ? updated : el))
-      return { elements: newElements, elementMap: newMap }
-    }),
+toggleElementLock: (id) =>
+set((state) => {
+const existing = state.elementMap.get(id)
+if (!existing) return state
+const updated = { ...existing, locked: !existing.locked }
+const newMap = new Map(state.elementMap)
+newMap.set(id, updated)
+const newElements = state.elements.map((el) => (el.id === id ? updated : el))
+return { elements: newElements, elementMap: newMap }
+}),
 
-  removeElement: (id) =>
-    set((state) => {
-      const newElements = state.elements.filter((el) => el.id !== id)
-      const newMap = new Map(state.elementMap)
-      newMap.delete(id)
-      return { elements: newElements, elementMap: newMap }
-    }),
+removeElement: (id) => {
+const state = get()
+const existing = state.elementMap.get(id)
+const newElements = state.elements.filter((el) => el.id !== id)
+const newMap = new Map(state.elementMap)
+newMap.delete(id)
+set({ elements: newElements, elementMap: newMap })
+// record op for persistence
+if (existing) {
+void state.recordOp({
+type: 'element-remove',
+targetId: id,
+layerId: existing.layerId || state.activeLayerId,
+} as any)
+}
+},
 
   // mode actions
   setMode: (mode) => set({ mode }),

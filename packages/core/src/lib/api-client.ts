@@ -97,18 +97,25 @@ apiClient.interceptors.response.use(
     }
 
     if (typeof window !== 'undefined' && (window as any).toast) {
-      (window as any).toast.error('session expired - please log in again');
-    }
-  } else if (error.code === 'ECONNABORTED') {
-    secureLogger.error('[api] request timeout', error.config?.url);
-  } else {
-    // silently log other errors to prevent ui crashes while maintaining traceability
-    secureLogger.debug('[api] unexpected error', {
-      status: error.response?.status,
-      url: error.config?.url,
-      message: error.message
-    });
-  }
+(window as any).toast.error('session expired - please log in again');
+}
+} else if (error.code === 'ECONNABORTED') {
+secureLogger.error('[api] request timeout', error.config?.url);
+} else {
+// silently log other errors to prevent ui crashes while maintaining traceability
+// suppress 500 errors for pkm_canvases (collection may not exist yet)
+const url = error.config?.url || '';
+const status = error.response?.status;
+if (url.includes('pkm_canvases') && status === 500) {
+// collection doesn't exist - expected on first run
+} else {
+secureLogger.debug('[api] unexpected error', {
+status,
+url,
+message: error.message
+});
+}
+}
 
   return Promise.reject(error);
  }

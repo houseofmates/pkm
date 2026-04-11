@@ -96,7 +96,7 @@ interface SortableHeaderProps {
   valueColorRules: Record<string, Record<string, string>>;
   setMetadata: React.Dispatch<React.SetStateAction<Record<string, any>>>;
   onHide?: (field: any) => void;
-  onResizeStart?: (columnId: string, startX: number, startWidth: number) => void;
+  onResizeStart?: (columnId: string, clientX: number, startWidth: number, columnLeft: number) => void;
   onResizeMove?: (clientX: number) => void;
   onResizeEnd?: () => void;
   resizeLine?: { visible: boolean; left: number; columnId: string | null };
@@ -132,11 +132,14 @@ function SortableHeader({
     const target = e.currentTarget as HTMLElement;
     target.setPointerCapture(e.pointerId);
 
-    const rect = target.getBoundingClientRect();
     const columnWidth = header.getSize() || DEFAULT_COL_WIDTH;
     const columnId = header.id;
+    // get the column header div (parent of resize handle)
+    const headerEl = target.parentElement;
+    const headerRect = headerEl?.getBoundingClientRect();
 
-    onResizeStart?.(columnId, rect.left, columnWidth);
+    // pass column left position and current column width
+    onResizeStart?.(columnId, e.clientX, columnWidth, headerRect?.left ?? 0);
 
     const handlePointerMove = (moveEvent: PointerEvent) => {
       moveEvent.preventDefault();
@@ -232,7 +235,7 @@ function SortableHeader({
         background: 'transparent',
       }}
       className={cn(
-        "group select-none relative text-left p-0 transition-colors border-b border-b-[#222] flex-shrink-0 h-10 align-middle font-medium text-foreground text-sm",
+        "group select-none relative text-left p-0 border-b border-b-[#222] flex-shrink-0 h-10 align-middle font-medium text-foreground text-sm",
         isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
       )}
     >
@@ -318,16 +321,16 @@ function SortableHeader({
           {...(!isEditing ? attributes : {})}
           {...(!isEditing ? listeners : {})}
         >
-          {!isEditing ? (
-            <div
-              className="relative z-20 h-full w-full flex items-center select-none cursor-pointer hover:bg-white/5 transition-colors py-2"
-              onClick={() => {
-                if (!isSystemColumn) {
-                  onOpenFieldSettings?.(field);
-                }
-              }}
-              onDoubleClick={startEditing}
-            >
+{!isEditing ? (
+          <div
+            className="relative z-20 h-full w-full flex items-center select-none cursor-pointer hover:bg-white/5 transition-colors py-2"
+            onClick={() => {
+              if (!isSystemColumn) {
+                onOpenFieldSettings?.(field);
+              }
+            }}
+            onDoubleClick={startEditing}
+          >
               <div
                 className="whitespace-nowrap overflow-hidden text-ellipsis font-medium leading-[1.2] text-base text-center w-full flex items-center justify-center gap-1"
                 style={{ minWidth: '40px', maxWidth: '200px', color: fieldColors[field?.name] || undefined }}
@@ -379,12 +382,12 @@ function SortableHeader({
         <div className="absolute top-0 right-0 h-full w-px bg-[#222] hover:bg-[#f6b012]" />
       </div>
 
-      {/* phantom resize line - visual indicator that tracks cursor exactly */}
+      {/* phantom resize line - positioned at cursor x relative to column */}
       {resizeLine?.visible && resizeLine.columnId === header.id && (
         <div
-          className="absolute top-0 h-full w-[2px] bg-[#f6b012] pointer-events-none z-50"
+          className="absolute top-0 h-10 w-[2px] bg-[#f6b012] pointer-events-none z-50"
           style={{
-            left: resizeLine.left - (header.getSize() || DEFAULT_COL_WIDTH),
+            left: resizeLine.left - resizeLine.columnLeft,
             transition: 'none'
           }}
         />
@@ -774,7 +777,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     visible: boolean;
     left: number;
     columnId: string | null;
-  }>({ visible: false, left: 0, columnId: null });
+    columnLeft: number;
+  }>({ visible: false, left: 0, columnId: null, columnLeft: 0 });
 
   // pristine resize state - holds exact pixel values during drag
   const pristineResizeRef = React.useRef<{
@@ -782,27 +786,45 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     startX: number;
     startWidth: number;
     currentWidth: number;
-  }>({ columnId: null, startX: 0, startWidth: 0, currentWidth: 0 });
+    columnLeft: number;
+  }>({ columnId: null, startX: 0, startWidth: 0, currentWidth: 0, columnLeft: 0 });
 
+  // track columns that were just resized to prevent sync effect from overwriting
+  const recentlyResizedRef = React.useRef<Set<string>>(new Set());
+
+  // sync persisted sizing only when not actively resizing - prevents snap-back during drag
   React.useEffect(() => {
-    if (!isResizingRef.current) {
-      setLocalColumnSizing(persistedColumnSizing);
-    }
+    if (isResizingRef.current) return;
+    // don't overwrite columns that were just resized
+    setLocalColumnSizing(prev => {
+      const merged = { ...prev };
+      for (const colId of recentlyResizedRef.current) {
+        if (prev[colId] != null) {
+          merged[colId] = prev[colId];
+        }
+      }
+      return { ...persistedColumnSizing, ...merged };
+    });
+    // clear recently resized after a frame
+    const timer = setTimeout(() => recentlyResizedRef.current.clear(), 100);
+    return () => clearTimeout(timer);
   }, [persistedColumnSizing]);
 
-  const handleResizeStart = React.useCallback((columnId: string, startX: number, startWidth: number) => {
+  const handleResizeStart = React.useCallback((columnId: string, clientX: number, startWidth: number, columnLeft: number) => {
     isResizingRef.current = true;
     setIsResizing(true);
     pristineResizeRef.current = {
       columnId,
-      startX,
+      startX: clientX,
       startWidth,
-      currentWidth: startWidth
+      currentWidth: startWidth,
+      columnLeft
     };
     setResizeLine({
       visible: true,
-      left: startX + startWidth,
-      columnId
+      left: clientX,
+      columnId,
+      columnLeft
     });
   }, []);
 
@@ -813,10 +835,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     const newWidth = Math.max(40, pristineResizeRef.current.startWidth + delta);
     pristineResizeRef.current.currentWidth = newWidth;
 
-    // update phantom line position - tracks cursor exactly (high frequency)
+    // update phantom line to follow cursor exactly
     setResizeLine(prev => ({
       ...prev,
-      left: pristineResizeRef.current.startX + newWidth
+      left: clientX
     }));
 
     // update column sizing immediately for live feedback
@@ -829,16 +851,20 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const handleResizeEnd = React.useCallback(() => {
     if (!isResizingRef.current) return;
 
+    const columnId = pristineResizeRef.current.columnId;
+    const finalWidth = pristineResizeRef.current.currentWidth;
+
     isResizingRef.current = false;
     setIsResizing(false);
 
-    // persist the exact current width - zero snap
-    if (pristineResizeRef.current.columnId) {
-      const finalWidth = pristineResizeRef.current.currentWidth;
-
+    // persist the exact current width
+    if (columnId && finalWidth > 0) {
+      // mark as recently resized to prevent sync effect overwriting
+      recentlyResizedRef.current.add(columnId);
+      
       setLocalColumnSizing(prev => ({
         ...prev,
-        [pristineResizeRef.current.columnId!]: finalWidth
+        [columnId]: finalWidth
       }));
 
       // save to metadata
@@ -848,18 +874,16 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           ...prev[collection.name],
           columnWidths: {
             ...(prev[collection.name]?.columnWidths || {}),
-            [pristineResizeRef.current.columnId!]: finalWidth
+            [columnId]: finalWidth
           }
         }
       }));
     }
 
-    // hide phantom line with delay for smooth fade
-    setTimeout(() => {
-      setResizeLine({ visible: false, left: 0, columnId: null });
-    }, 50);
+    // hide phantom line immediately
+    setResizeLine({ visible: false, left: 0, columnId: null, columnLeft: 0 });
 
-    pristineResizeRef.current = { columnId: null, startX: 0, startWidth: 0, currentWidth: 0 };
+    pristineResizeRef.current = { columnId: null, startX: 0, startWidth: 0, currentWidth: 0, columnLeft: 0 };
   }, [collection.name, setMetadata]);
 
   // stable refs for callbacks used inside column definitions

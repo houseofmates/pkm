@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from '@/lib/secure-logger';
 import { toast } from 'sonner';
@@ -106,6 +107,7 @@ function SortableHeadmateCard({
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 200 : zIndex,
+    opacity: isDragging ? 0 : 1,
   };
 
   return (
@@ -123,9 +125,8 @@ function SortableHeadmateCard({
       className="group relative"
     >
       <div
-        className={`aspect-square rounded-lg overflow-hidden relative cursor-pointer touch-none transition-all duration-150 ${
-          isSelected ? 'border-[3px]' : 'border border-white/10'
-        }`}
+        className={`aspect-square rounded-lg overflow-hidden relative cursor-pointer touch-none transition-all duration-150 ${isSelected ? 'border-[3px]' : 'border border-white/10'
+          }`}
         style={isSelected ? { borderColor: memberColor } : undefined}
       >
         {member.content?.avatarUrl ? (
@@ -145,7 +146,7 @@ function SortableHeadmateCard({
             className="absolute top-2 right-2 min-w-[24px] h-6 px-1.5 rounded-md flex items-center justify-center text-sm font-bold"
             style={{
               backgroundColor: memberColor,
-              color: '#000',
+              color: member.content?.name === 'S' ? '#fff' : '#000',
             }}
           >
             {frontPosition}
@@ -210,10 +211,10 @@ export const HeadmatesPage: React.FC = () => {
       });
       if (!membersRes.ok) throw new Error('Failed to fetch members');
       const membersData = await membersRes.json();
-      
+
       const persistedMembersOrder = loadPersistedMembersOrder();
       const persistedFronting = loadPersistedFronting();
-      
+
       if (persistedMembersOrder.length > 0) {
         const orderMap = new Map(persistedMembersOrder.map((id, i) => [id, i]));
         membersData.sort((a: HeadmateMember, b: HeadmateMember) => {
@@ -222,7 +223,7 @@ export const HeadmatesPage: React.FC = () => {
           return aIndex - bIndex;
         });
       }
-      
+
       setMembers(membersData);
       setFrontingOrder(persistedFronting);
     } catch (err) {
@@ -317,7 +318,7 @@ export const HeadmatesPage: React.FC = () => {
 
   const updateFrontingAPI = async (newOrder: string[]) => {
     if (!apiKey || newOrder.length === 0) return;
-    
+
     try {
       const meRes = await fetch('https://api.apparyllis.com/v1/me', {
         headers: { 'Authorization': apiKey }
@@ -396,7 +397,7 @@ export const HeadmatesPage: React.FC = () => {
         const oldIndex = prev.findIndex(m => m.id === active.id);
         const newIndex = prev.findIndex(m => m.id === over.id);
         const newOrder = arrayMove(prev, oldIndex, newIndex);
-        persistOrder(newOrder.map(m => m.id));
+        persistMembersOrder(newOrder.map(m => m.id));
         return newOrder;
       });
 
@@ -506,7 +507,7 @@ export const HeadmatesPage: React.FC = () => {
             setApiKey('');
             setMembers([]);
             setFrontingOrder([]);
-            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(MEMBERS_KEY);
             localStorage.removeItem(FRONTING_KEY);
           }}
           className="fixed bottom-4 right-4 text-xs text-white/20 hover:text-white/60 underline lowercase focus:outline-none focus:ring-2 focus:ring-white/40 rounded px-2 py-1"

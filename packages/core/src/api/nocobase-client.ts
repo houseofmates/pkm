@@ -107,44 +107,85 @@ export class NocoBaseClient {
     return ActionResponseSchema.parse(res.data);
   }
 
-  async ensureBackendCollection() {
-    const COL_NAME = 'pkm_settings';
-    const SCHEMA_VERSION = '1.0.1';
-    const schemaKey = `schema_version_${COL_NAME}`;
+async ensureBackendCollection() {
+const COL_NAME = 'pkm_settings';
+const SCHEMA_VERSION = '1.0.1';
+const schemaKey = `schema_version_${COL_NAME}`;
 
-    if (typeof localStorage !== 'undefined' && storageManager.getItem(schemaKey) === SCHEMA_VERSION) {
-      return true;
-    }
+if (typeof localStorage !== 'undefined' && storageManager.getItem(schemaKey) === SCHEMA_VERSION) {
+return true;
+}
 
-    try {
-      await this.getCollection(COL_NAME);
-      if (typeof localStorage !== 'undefined') {
-        storageManager.setItem(schemaKey, SCHEMA_VERSION);
-      }
-      return true;
-    } catch {
-      // not found
-    }
+try {
+await this.getCollection(COL_NAME);
+if (typeof localStorage !== 'undefined') {
+storageManager.setItem(schemaKey, SCHEMA_VERSION);
+}
+return true;
+} catch {
+// not found
+}
 
-    secureLogger.info(`[NocoBase] Creating ${COL_NAME} collection...`);
-    try {
-      await this.createCollection({
-        name: COL_NAME,
-        title: 'PKM Settings',
-        fields: [
-          { name: 'key', type: 'string', unique: true },
-          { name: 'value', type: 'json' }
-        ]
-      });
-      if (typeof localStorage !== 'undefined') {
-        storageManager.setItem(schemaKey, SCHEMA_VERSION);
-      }
-      return true;
-    } catch (err) {
-      secureLogger.error(`[NocoBase] Failed to create ${COL_NAME}:`, err);
-      return false;
-    }
-  }
+secureLogger.info(`[NocoBase] Creating ${COL_NAME} collection...`);
+try {
+await this.createCollection({
+name: COL_NAME,
+title: 'PKM Settings',
+fields: [
+{ name: 'key', type: 'string', unique: true },
+{ name: 'value', type: 'json' }
+]
+});
+if (typeof localStorage !== 'undefined') {
+storageManager.setItem(schemaKey, SCHEMA_VERSION);
+}
+return true;
+} catch (err) {
+secureLogger.error(`[NocoBase] Failed to create ${COL_NAME}:`, err);
+return false;
+}
+}
+
+async ensureCanvasCollection() {
+const COL_NAME = 'pkm_canvases';
+const SCHEMA_VERSION = '1.0.0';
+const schemaKey = `schema_version_${COL_NAME}`;
+
+if (typeof localStorage !== 'undefined' && storageManager.getItem(schemaKey) === SCHEMA_VERSION) {
+return true;
+}
+
+try {
+await this.getCollection(COL_NAME);
+if (typeof localStorage !== 'undefined') {
+storageManager.setItem(schemaKey, SCHEMA_VERSION);
+}
+return true;
+} catch {
+// not found
+}
+
+secureLogger.info(`[NocoBase] Creating ${COL_NAME} collection...`);
+try {
+await this.createCollection({
+name: COL_NAME,
+title: 'PKM Canvases',
+fields: [
+{ name: 'drawingId', type: 'string', unique: true },
+{ name: 'title', type: 'string' },
+{ name: 'content', type: 'json' },
+{ name: 'clientId', type: 'string' }
+]
+});
+if (typeof localStorage !== 'undefined') {
+storageManager.setItem(schemaKey, SCHEMA_VERSION);
+}
+return true;
+} catch (err) {
+secureLogger.error(`[NocoBase] Failed to create ${COL_NAME}:`, err);
+return false;
+}
+}
 
   // --- field methods ---
   async listFields(collectionName: string): Promise<Field[]> {

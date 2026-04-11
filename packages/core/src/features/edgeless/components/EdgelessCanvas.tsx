@@ -626,14 +626,36 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
     };
 
-    const handleLoadOplog = async (e: Event) => {
-      const detail = (e as CustomEvent).detail as { drawingId: string; checkpoint: unknown; ops: unknown[] };
-      const { drawingId: id, checkpoint, ops } = detail;
-      if (id !== useEdgelessStore.getState().drawingId) return;
-      await loadFromOplogData(id, checkpoint, ops);
-    };
+const handleLoadOplog = async (e: Event) => {
+const detail = (e as CustomEvent).detail as { drawingId: string; checkpoint: unknown; ops: unknown[] };
+const { drawingId: id, checkpoint, ops } = detail;
+if (id !== useEdgelessStore.getState().drawingId) return;
+await loadFromOplogData(id, checkpoint, ops);
+};
 
-    window.addEventListener('pkm:load-oplog', handleLoadOplog);
+const handleLoadServerState = async (e: Event) => {
+const detail = (e as CustomEvent).detail as { drawingId: string; state: { canvas: unknown; elements: unknown[] } };
+const { drawingId: id, state } = detail;
+if (id !== useEdgelessStore.getState().drawingId) return;
+
+isLoadingStateRef.current = true;
+try {
+if (state.canvas) {
+await fabricCanvas.loadFromJSON(state.canvas);
+useEdgelessStore.getState().setElements(state.elements as any[]);
+fabricCanvas.requestRenderAll();
+historyRef.current = [];
+secureLogger.debug('[canvas] loaded state from server');
+}
+} catch (err) {
+secureLogger.error('[canvas] failed to load server state:', err);
+} finally {
+isLoadingStateRef.current = false;
+}
+};
+
+window.addEventListener('pkm:load-oplog', handleLoadOplog);
+window.addEventListener('pkm:load-server-state', handleLoadServerState);
     
     (window as any).__pkmCurrentDrawingId = useEdgelessStore.getState().drawingId;
 
@@ -643,12 +665,13 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       void loadFromOplogData(pendingLoad.drawingId, pendingLoad.checkpoint, pendingLoad.ops);
     }
 
-    return () => {
-      delete (window as any).pkmGetCanvasJSON;
-      delete (window as any).pkmGetCanvasThumbnail;
-      window.removeEventListener('pkm:load-oplog', handleLoadOplog);
-      (window as any).__pkmCurrentDrawingId = null;
-    };
+return () => {
+delete (window as any).pkmGetCanvasJSON;
+delete (window as any).pkmGetCanvasThumbnail;
+window.removeEventListener('pkm:load-oplog', handleLoadOplog);
+window.removeEventListener('pkm:load-server-state', handleLoadServerState);
+(window as any).__pkmCurrentDrawingId = null;
+};
   }, [fabricCanvas]);
 
   // tool configuration (drawing / eraser)
@@ -1592,20 +1615,20 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       const pathId = `path-${Math.random().toString(36).slice(2, 9)}`;
       path.set({ data: { id: pathId, layerId: useEdgelessStore.getState().activeLayerId } });
 
-      // record op for persistence
-      const op = {
-        type: 'path',
-        layerId: useEdgelessStore.getState().activeLayerId,
-        pathData: (path as any).path || [],
-        stroke: path.stroke,
-        strokeWidth: path.strokeWidth,
-        left: path.left,
-        top: path.top,
-        targetId: pathId, // although not in interface, good for reference
-        data: { id: pathId }
-      };
-      // useedgelessstore.getstate().recordop(op as any); // test: commented out to isolate indexeddb lag
-    }
+// record op for persistence
+const op = {
+type: 'path',
+layerId: useEdgelessStore.getState().activeLayerId,
+pathData: (path as any).path || [],
+stroke: path.stroke,
+strokeWidth: path.strokeWidth,
+left: path.left,
+top: path.top,
+targetId: pathId,
+data: { id: pathId }
+};
+useEdgelessStore.getState().recordOp(op as any);
+}
 
     // save state after object modifications (move, scale, rotate)
     const handleObjectModified = (e: any) => {

@@ -298,8 +298,38 @@ export async function listPendingDrawings() {
 }
 
 export async function deleteDrawing(id: string): Promise<void> {
-  const db = await getCanvasDB()
-  await db.delete('drawings', id)
+const db = await getCanvasDB()
+await db.delete('drawings', id)
+}
+
+// server sync helpers
+export async function clearOplog(drawingId: string): Promise<void> {
+const db = await getCanvasDB()
+const tx = db.transaction('oplog', 'readwrite')
+const index = tx.store.index('by-drawing')
+const range = IDBKeyRange.only(drawingId)
+
+let cursor = await index.openCursor(range)
+while (cursor) {
+await cursor.delete()
+cursor = await cursor.advance(1)
+}
+
+await tx.done
+}
+
+export async function saveServerState(
+drawingId: string,
+state: { canvas: unknown; elements: unknown[] }
+): Promise<void> {
+// save as checkpoint
+await saveCheckpoint(drawingId, state)
+
+// clear old ops since we're loading from server
+await clearOplog(drawingId)
+
+// mark as synced
+await updateDrawingMeta(drawingId, { syncState: 'synced' })
 }
 
 // token operations (with in-memory cache)

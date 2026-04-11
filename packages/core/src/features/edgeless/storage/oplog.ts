@@ -4,7 +4,7 @@
 import type { Canvas as FabricCanvas, Object as FabricObject, Image as FabricImage } from 'fabric'
 import { secureLogger } from '@/lib/secure-logger'
 
-export type OpType = 'path' | 'erase' | 'transform' | 'delete' | 'layer-create' | 'layer-delete' | 'bitmap-replace'
+export type OpType = 'path' | 'erase' | 'transform' | 'delete' | 'layer-create' | 'layer-delete' | 'bitmap-replace' | 'element-add' | 'element-remove' | 'element-update'
 
 export interface PathOp {
   type: 'path'
@@ -59,21 +59,57 @@ export interface LayerDeleteOp {
 }
 
 export interface BitmapReplaceOp {
-  type: 'bitmap-replace'
-  targetId: string
-  layerId: string
-  dataUrl: string
-  width: number
-  height: number
-  left: number
-  top: number
-  scaleX: number
-  scaleY: number
-  angle: number
-  opacity?: number
+type: 'bitmap-replace'
+targetId: string
+layerId: string
+dataUrl: string
+width: number
+height: number
+left: number
+top: number
+scaleX: number
+scaleY: number
+angle: number
+opacity?: number
 }
 
-export type DrawOp = PathOp | EraseOp | TransformOp | DeleteOp | LayerCreateOp | LayerDeleteOp | BitmapReplaceOp
+export interface ElementAddOp {
+type: 'element-add'
+element: {
+id: string
+type: string
+x: number
+y: number
+width: number
+height: number
+data: unknown
+layerId?: string
+locked?: boolean
+}
+layerId: string
+}
+
+export interface ElementRemoveOp {
+type: 'element-remove'
+targetId: string
+layerId: string
+}
+
+export interface ElementUpdateOp {
+type: 'element-update'
+targetId: string
+layerId: string
+patch: {
+x?: number
+y?: number
+width?: number
+height?: number
+data?: unknown
+locked?: boolean
+}
+}
+
+export type DrawOp = PathOp | EraseOp | TransformOp | DeleteOp | LayerCreateOp | LayerDeleteOp | BitmapReplaceOp | ElementAddOp | ElementRemoveOp | ElementUpdateOp
 
 export interface OpLogEntry {
   id: string // client-generated uuid: drawingid-timestamp-random

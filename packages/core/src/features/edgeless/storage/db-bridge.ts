@@ -42,23 +42,25 @@ function callWorkerOrDirect<T>(method: string, ...args: unknown[]): Promise<T> {
   initWorkerIfNeeded()
   if (!worker) {
     // map lowercased worker method names to camelcase direct exports
-    const mapping: Record<string, string> = {
-      Appendop: 'appendOp',
-      Appendops: 'appendOps',
-      Getunsyncedops: 'getUnsyncedOps',
-      Getrecentops: 'getRecentOps',
-      Markopssynced: 'markOpsSynced',
-      Pruneoldops: 'pruneOldOps',
-      Savecheckpoint: 'saveCheckpoint',
-      Getlatestcheckpoint: 'getLatestCheckpoint',
-      Getdrawingmeta: 'getDrawingMeta',
-      Updatedrawingmeta: 'updateDrawingMeta',
-      Listpendingdrawings: 'listPendingDrawings',
-      Deletedrawing: 'deleteDrawing',
-      Gettoken: 'getToken',
-      Settoken: 'setToken',
-      Cleartoken: 'clearToken',
-    }
+const mapping: Record<string, string> = {
+Appendop: 'appendOp',
+Appendops: 'appendOps',
+Getunsyncedops: 'getUnsyncedOps',
+Getrecentops: 'getRecentOps',
+Markopssynced: 'markOpsSynced',
+Pruneoldops: 'pruneOldOps',
+Savecheckpoint: 'saveCheckpoint',
+Getlatestcheckpoint: 'getLatestCheckpoint',
+Getdrawingmeta: 'getDrawingMeta',
+Updatedrawingmeta: 'updateDrawingMeta',
+Listpendingdrawings: 'listPendingDrawings',
+Deletedrawing: 'deleteDrawing',
+Gettoken: 'getToken',
+Settoken: 'setToken',
+Cleartoken: 'clearToken',
+Clearoplog: 'clearOplog',
+Saveserverstate: 'saveServerState',
+}
     const directName = mapping[method] || method
     const fn = (directDb as any)[directName]
     if (!fn) return Promise.reject(new Error(`method not found on direct db: ${directName}`))
@@ -135,11 +137,22 @@ export function setToken(key: string, value: string, ttlminutes?: number): Promi
 }
 
 export function clearToken(key: string): Promise<void> {
-  return callWorkerOrDirect<void>('Cleartoken', key)
+return callWorkerOrDirect<void>('Cleartoken', key)
 }
 
 export function clearMemoryTokens(): void {
-  // synchronous, no worker needed
-  const fn = (directDb as any).clearMemoryTokens
-  if (fn) fn()
+// synchronous, no worker needed
+const fn = (directDb as any).clearMemoryTokens
+if (fn) fn()
+}
+
+export async function clearOplog(drawingId: string): Promise<void> {
+return callWorkerOrDirect<void>('Clearoplog', drawingId)
+}
+
+export async function saveServerState(
+drawingId: string,
+state: { canvas: unknown; elements: unknown[] }
+): Promise<void> {
+return callWorkerOrDirect<void>('Saveserverstate', drawingId, state)
 }
