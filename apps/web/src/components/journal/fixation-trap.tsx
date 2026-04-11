@@ -66,19 +66,19 @@ const FixationTrap: React.FC = () => {
     localStorage.setItem('fixation-quests', JSON.stringify(fixations))
   }, [fixations])
 
-  const completeSession = (id: string) => {
-    setFixations(prev => prev.map(f => 
-      f.id === id 
-        ? { ...f, completedSessions: f.completedSessions + 1 }
-        : f
-    ))
-    earnXp(100, `fixation ${id}`)
-    
-    // chain reward
-    if (Math.random() > 0.7) {
-      earnXp(50, 'bonus chain')
-    }
-  }
+   const completeSession = useCallback((id: string) => {
+     setFixations(prev => prev.map(f => 
+       f.id === id 
+         ? { ...f, completedSessions: f.completedSessions + 1 }
+         : f
+     ))
+     earnXp(100, `fixation ${id}`)
+     
+     // chain reward
+     if (Math.random() > 0.7) {
+       earnXp(50, 'bonus chain')
+     }
+   }, [earnXp])
 
   const addCustom = () => {
     if (customName) {
