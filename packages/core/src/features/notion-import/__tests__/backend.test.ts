@@ -28,6 +28,8 @@ process.env.MOCK_NOTION_IMPORT = 'true';
 process.env.ALLOWED_ORIGINS = 'https://foo.example';
 
 // import the server after configuring env vars to ensure they are picked up
+// Clear the module cache to ensure fresh import with new env vars
+jest.resetModules();
 import { app as server } from '@pkm/backend/server.js';
 
 // ensure the public upload directory exists
