@@ -360,21 +360,16 @@ const Journal: React.FC = () => {
 
 
 
-  const filteredPastEntries = useMemo(
-
-    () =>
-
-      entries.filter((savedEntry) =>
-
-        (!filterMood || savedEntry.mood === filterMood) &&
-
-        (!deferredSearchTerm || savedEntry.note.toLowerCase().includes(deferredSearchTerm.toLowerCase()))
-
-      ),
-
-    [deferredSearchTerm, entries, filterMood]
-
-  )
+   const filteredPastEntries = useMemo(() => {
+     if (!deferredSearchTerm && !filterMood) return entries;
+     
+     return entries.filter((savedEntry) => {
+       const matchesMood = !filterMood || savedEntry.mood === filterMood;
+       const matchesSearch = !deferredSearchTerm || 
+         savedEntry.note.toLowerCase().includes(deferredSearchTerm.toLowerCase());
+       return matchesMood && matchesSearch;
+     });
+   }, [deferredSearchTerm, entries, filterMood])
 
 
 
