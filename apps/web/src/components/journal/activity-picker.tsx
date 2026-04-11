@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { ListView } from '@/components/views/list-view'
 
 interface Activity {
   id: string
@@ -59,15 +60,15 @@ const ActivityPicker: React.FC<Props> = ({ value, onChange }) => {
   return (
     <div>
       <div className="flex gap-2 items-center">
-        <select value={value ?? ''} onChange={(e) => onChange?.(e.target.value)} className="bg-slate-900 border border-slate-700 rounded p-2 w-full">
-          <option value="">select activity</option>
-          {activities.map(a => (
-            <option key={a.id} value={a.id}>{a.name}</option>
-          ))}
-        </select>
-        <button className="px-2 py-1 bg-emerald-600 rounded text-white" onClick={() => setCreating(v => !v)}>
-          {creating ? 'cancel' : 'new'}
-        </button>
+        <ListView
+          data={activities}
+          collection={{ name: 'activities', fields: [{ name: 'name', primary: true }] }}
+          config={{ titleField: 'name' }}
+          onUpdateRecord={() => {}} // No update needed for activity picker
+          onDelete={() => {}} // No delete needed for activity picker
+          onEdit={onChange}
+          onCreate={() => {}} // No create needed for activity picker
+        />
       </div>
       {creating && (
         <div className="mt-2 flex gap-2">
