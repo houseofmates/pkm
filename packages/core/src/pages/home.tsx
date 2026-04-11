@@ -1,5 +1,6 @@
 import { EdgelessCanvas } from '@/features/edgeless/components/EdgelessCanvas'
 import { Toolbar } from '@/features/edgeless/components/Toolbar'
+import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { useAppSetting } from '@/hooks/use-app-setting'
 import { useEffect, useState } from 'react'
 import { updateDrawingMeta, getLatestCheckpoint, saveServerState } from '@/features/edgeless/storage'
