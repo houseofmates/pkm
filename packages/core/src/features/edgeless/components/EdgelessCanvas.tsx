@@ -31,6 +31,7 @@ import type { OpLogEntry } from '../storage/oplog'
 
 // --- canvas element pooling (reduces gc and keeps redraws snappy) ---
 const canvasPool: HTMLCanvasElement[] = []
+const MAX_POOL_SIZE = 10
 
 function borrowCanvas(): HTMLCanvasElement {
   const c = canvasPool.pop() || document.createElement('canvas')
@@ -40,6 +41,9 @@ function borrowCanvas(): HTMLCanvasElement {
 }
 
 function releaseCanvas(canvas: HTMLCanvasElement) {
+  if (canvasPool.length >= MAX_POOL_SIZE) {
+    return
+  }
   const ctx = canvas.getContext('2d')
   if (ctx) {
     ctx.setTransform(1, 0, 0, 1, 0, 0)
