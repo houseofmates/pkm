@@ -79,15 +79,15 @@ describe('AuthProvider', () => {
   expect(stub.token).toBe('stored-token');
   expect(stub.isAuthenticated).toBe(true);
 
-    // spy on reload + clear storage
-    // jsdom/node may not expose `window`, so operate on globalThis.
-    const origLoc = (globalThis as any).location;
-    const fakeReload = vi.fn();
-    (globalThis as any).location = { reload: fakeReload } as any;
-    // instead of poking at localStorage directly we spy on the
-    // shared storageManager which the provider uses.
-    const setSpy = vi.spyOn(storageManager, 'setItem');
-    setSpy.mockImplementation(() => {});
+// spy on reload + clear storage
+  // jsdom/node may not expose `window`, so operate on globalThis.
+  const origLoc = (globalThis as any).location;
+  const fakeReload = vi.fn();
+  (globalThis as any).location = { reload: fakeReload } as any;
+  // instead of poking at localStorage directly we spy on the
+  // shared storageManager which the provider uses.
+  const setSpy = vi.spyOn(storageManager, 'setEncryptedItem');
+  setSpy.mockImplementation(() => {});
 
     stub.login('test-token');
 
