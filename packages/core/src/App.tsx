@@ -243,6 +243,12 @@ function AppContent() {
   }, [updateChecked, token])
   const [setupNeeded, setSetupNeeded] = useState<boolean | null>(null)
 
+  // swipe navigation for mobile
+  useSwipeNavigation({
+    threshold: 50,
+    timeout: 300
+  });
+
   // handle ctrl+e to toggle login mode on public domains
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
