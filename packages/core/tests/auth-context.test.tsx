@@ -71,14 +71,13 @@ describe('AuthProvider', () => {
       internals.ReactCurrentDispatcher.current = null;
     }
 
-    // stub should propagate any token already stored
-    const { storageManager } = await import('@/lib/storage-manager');
-    vi.spyOn(storageManager, 'getItem').mockReturnValue('stored-token');
-    const renderedWith = AuthProvider({ children: null });
-    const stub = renderedWith.props.value as any;
-    expect(stub.token).toBe('stored-token');
-    expect(stub.isAuthenticated).toBe(true);
-    (storageManager.getItem as any).mockRestore();
+// stub should propagate any token already stored
+  const { storageManager } = await import('@/lib/storage-manager');
+  await storageManager.setEncryptedItem('nocobase_token', 'stored-token');
+  const renderedWith = AuthProvider({ children: null });
+  const stub = renderedWith.props.value as any;
+  expect(stub.token).toBe('stored-token');
+  expect(stub.isAuthenticated).toBe(true);
 
     // spy on reload + clear storage
     // jsdom/node may not expose `window`, so operate on globalThis.
