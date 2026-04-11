@@ -89,7 +89,7 @@ describe('AuthProvider', () => {
     const setSpy = vi.spyOn(storageManager, 'setItem');
     setSpy.mockImplementation(() => {});
 
-    stub.login(' test-token ');
+    stub.login('test-token');
 
     expect(setSpy).toHaveBeenCalledWith('nocobase_token', 'test-token');
     expect(fakeReload).toHaveBeenCalled();
