@@ -495,25 +495,20 @@ const Journal: React.FC = () => {
 
 
 
-  const groupedPast = useMemo(() => {
-
-    return filteredPastEntries.reduce((acc, savedEntry) => {
-
-      const month = new Date(savedEntry.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-
-      if (!acc[month]) {
-
-        acc[month] = []
-
-      }
-
-      acc[month].push(savedEntry)
-
-      return acc
-
-    }, {} as Record<string, JournalEntry[]>)
-
-  }, [filteredPastEntries])
+   const groupedPast = useMemo(() => {
+     if (filteredPastEntries.length === 0) return {};
+     
+     return filteredPastEntries.reduce((acc, savedEntry) => {
+       const month = new Date(savedEntry.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+       
+       if (!acc[month]) {
+         acc[month] = []
+       }
+       
+       acc[month].push(savedEntry)
+       return acc
+     }, {} as Record<string, JournalEntry[]>)
+   }, [filteredPastEntries])
 
 
 
