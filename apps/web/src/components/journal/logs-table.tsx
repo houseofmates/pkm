@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Card, CardHeader, CardContent, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
-import { Input } from '../ui/input'
 import { ListView } from '@/components/views/list-view'
 import { syncAllLocalLogs } from '../../lib/activity-sync'
 import { toast } from 'sonner'
@@ -25,14 +24,26 @@ function loadLogs(): LogItem[] {
 }
 
 const LogsTable: React.FC = () => {
-  const [logs, setLogs] = useState<LogItem[]>([])
-  const [syncing, setSyncing] = useState(false)
-  const [activityServerMap, setActivityServerMap] = useState<Record<string,string>>({})
-  const [logServerMap, setLogServerMap] = useState<Record<string,string>>({})
+   const [logs, setLogs] = useState<LogItem[]>([])
+   const [loading, setLoading] = useState(false)
+   const [syncing, setSyncing] = useState(false)
+   const [activityServerMap, setActivityServerMap] = useState<Record<string,string>>({})
+   const [logServerMap, setLogServerMap] = useState<Record<string,string>>({})
+   const [error, setError] = useState<string | null>(null)
 
-  const refresh = useCallback(() => {
-    setLogs(loadLogs())
-  }, [])
+   const refresh = useCallback(() => {
+     setLoading(true)
+     setError(null)
+     try {
+       const loadedLogs = loadLogs()
+       setLogs(loadedLogs)
+     } catch (err) {
+       setError('Failed to load logs')
+       console.error(err)
+     } finally {
+       setLoading(false)
+     }
+   }, [])
 
   useEffect(() => {
     refresh()
