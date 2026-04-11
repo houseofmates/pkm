@@ -48,7 +48,7 @@
     "build:linux": "node scripts/build-all.cjs --linux",
     "analyze": "vite build --mode analyzer",
     "analyze:web": "vite build --mode analyzer --config apps/web/vite.config.ts",
-    "analyze:core": "vite build --mode analyzer --config packages/core/vite.config.ts"
+    "analyze:core": "vite build --mode analyzer --config packages/core/vite.config.ts",
     "build:apk": "node scripts/build-all.cjs --apk",
     "releases:clean": "node scripts/clean-releases.cjs",
     "notion:import": "node scripts/notion-import.js",
