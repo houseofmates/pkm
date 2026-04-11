@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { Card, CardHeader, CardContent, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { ListView } from '@/components/views/list-view'
 import { syncAllLocalLogs } from '../../lib/activity-sync'
 import { toast } from 'sonner'
 
@@ -123,30 +124,24 @@ const LogsTable: React.FC = () => {
           }}>export</Button>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <div className="divide-y divide-slate-800">
-          {logs.length === 0 && <div className="p-4 text-sm text-slate-500">no logs yet</div>}
-          {logs.map(l => (
-            <div key={l.id} className="flex items-center justify-between p-3">
-              <div>
-                <div className="text-sm text-slate-200">
-                  {l.activityId}{activityServerMap[l.activityId] ? ` • server:${activityServerMap[l.activityId]}` : ''}
-                </div>
-                <div className="text-xs text-slate-400 truncate">{l.note}</div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="text-xs text-emerald-400">{l.rating ? `⭐ ${l.rating}` : ''}</div>
-                <div className="text-xs text-slate-500">{new Date(l.createdAt).toLocaleString()}</div>
-                {logServerMap[l.id]
-                  ? <div className="text-xs text-slate-400">synced</div>
-                  : <Button variant="ghost" size="sm" onClick={() => handleSyncOne(l)}>sync</Button>
-                }
-                <Button variant="ghost" size="sm" onClick={() => handleDelete(l.id)}>delete</Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
+       <CardContent className="p-0">
+         <ListView
+           data={logs}
+           collection={{ name: 'activity_logs', fields: [] }}
+           config={{ titleField: 'activityId' }}
+           onUpdateRecord={(id, updates) => {
+             // Update log locally
+             setLogs(prev => prev.map(log => log.id === id ? { ...log, ...updates } : log))
+             // Persist to localStorage
+             try {
+               localStorage.setItem('pkm_activity_logs', JSON.stringify([...prev.map(log => log.id === id ? { ...log, ...updates } : log)]))
+             } catch (e) { console.error(e) }
+           }}
+           onDelete={handleDelete}
+           onEdit={() => {}} // No edit functionality for logs
+           onCreate={() => {}} // No create functionality for logs
+         />
+       </CardContent>
       <div className="p-3 border-t border-slate-800 bg-slate-900/20 flex items-center justify-end gap-2">
         <Button variant="ghost" size="sm" onClick={refresh}>refresh</Button>
         <Button size="sm" onClick={handleSync} disabled={syncing}>{syncing ? 'syncing…' : 'sync to nocobase'}</Button>
