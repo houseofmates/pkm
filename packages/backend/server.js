@@ -1,8 +1,24 @@
 import { loadChatHistory, saveChatHistory, addChatEntry, isDuplicateEntry } from './chat-history.js';
+import * as Sentry from '@sentry/node';
+import { Integrations } from '@sentry/tracing';
 
 // typer: removing ts-node dependency; import js version of importer script instead
 
 import express from 'express';
+
+// Initialize Sentry for backend error tracking
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    integrations: [
+      new Integrations.NodeTracing(),
+    ],
+    tracesSampleRate: 0.1,
+    environment: process.env.NODE_ENV || 'production',
+    release: process.env.APP_VERSION || 'unknown',
+    attachStacktrace: true,
+  });
+}
 
 // guard against unzipper (or other event emitters) emitting 'error' with no
 // listener. failing to handle these leads to the whole backend crashing with
