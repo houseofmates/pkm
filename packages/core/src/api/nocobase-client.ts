@@ -225,10 +225,15 @@ return false;
     return GetRecordResponseSchema.parse(res.data);
   }
 
-  async createRecord(collection: string, data: Record<string, unknown>): Promise<Record<string, unknown>> {
-    const res = await this._axios.post(`/${collection}:create`, data);
-    return GetRecordResponseSchema.parse(res.data);
-  }
+async createRecord(collection: string, data: Record<string, unknown>): Promise<Record<string, unknown>> {
+     // inject entity_type: "note" when creating notes if missing
+     const finalData = collection === 'notes' && !('entity_type' in data) 
+       ? { ...data, entity_type: 'note' } 
+       : data;
+     
+     const res = await this._axios.post(`/${collection}:create`, finalData);
+     return GetRecordResponseSchema.parse(res.data);
+   }
 
   async updateRecord(collection: string, id: string | number, data: Record<string, unknown>): Promise<Record<string, unknown>> {
     const res = await this._axios.post(`/${collection}:update?filterByTk=${id}`, data);
