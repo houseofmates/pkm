@@ -81,7 +81,7 @@ describe('detectFieldType', () => {
   });
 
   it('infers url from values', () => {
-  expect(detectFieldType('Website', ['https://google.com', 'http://test.com']).type).tobe('url');
+  expect(detectFieldType('Website', ['https://google.com', 'http://test.com']).type).toBe('url');
   });
 
   // 4. edge cases
