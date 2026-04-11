@@ -89,10 +89,10 @@ describe('AuthProvider', () => {
   const setSpy = vi.spyOn(storageManager, 'setEncryptedItem');
   setSpy.mockImplementation(() => {});
 
-    stub.login('test-token');
-
-    expect(setSpy).toHaveBeenCalledWith('nocobase_token', 'test-token');
-    expect(fakeReload).toHaveBeenCalled();
+     await stub.login('test-token');
+ 
+     expect(setSpy).toHaveBeenCalledWith('nocobase_token', 'test-token');
+     expect(fakeReload).toHaveBeenCalled();
     setSpy.mockRestore();
 
     // restore location to avoid side effects
