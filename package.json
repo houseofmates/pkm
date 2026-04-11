@@ -215,8 +215,22 @@
   },
   "prepare": "husky install",
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,cjs,mjs}": [
-      "eslint --fix"
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ],
+    "package*.json": [
+      "npm test -- --run"
+    ],
+    "*.{css,scss}": [
+      "prettier --write"
     ]
   }
 }
