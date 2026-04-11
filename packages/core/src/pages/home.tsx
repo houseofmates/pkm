@@ -105,11 +105,13 @@ return (
 }
 
 return (
-<div className="w-full h-[100dvh] relative overflow-hidden bg-background">
-<div className="absolute inset-0 z-10">
-<Toolbar />
-<EdgelessCanvas />
-</div>
-</div>
-)
+  <div className="w-full h-[100dvh] relative overflow-hidden bg-background">
+  <div className="absolute inset-0 z-10">
+  <Toolbar />
+  <ErrorBoundary fallback={<div className="p-6 text-center">Canvas is temporarily unavailable. Please try again later.</div>}>
+    <EdgelessCanvas />
+  </ErrorBoundary>
+  </div>
+  </div>
+  )
 }
