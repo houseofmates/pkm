@@ -45,26 +45,29 @@ const LogsTable: React.FC = () => {
      }
    }, [])
 
-  useEffect(() => {
-    refresh()
-    // load server maps
-    try {
-      const m = JSON.parse(localStorage.getItem('pkm_activity_server_map') || '{}')
-      setActivityServerMap(m.byName || m)
-      const lm = JSON.parse(localStorage.getItem('pkm_activity_log_server_map') || '{}')
-      setLogServerMap(lm)
-    } catch {}
-    const onSaved = () => refresh()
-    window.addEventListener('pkm:activity-log-saved', onSaved as EventListener)
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === 'pkm_activity_logs') refresh()
-    }
-    window.addEventListener('storage', onStorage)
-    return () => {
-      window.removeEventListener('pkm:activity-log-saved', onSaved as EventListener)
-      window.removeEventListener('storage', onStorage)
-    }
-  }, [refresh])
+   useEffect(() => {
+     refresh()
+     // load server maps
+     try {
+       const m = JSON.parse(localStorage.getItem('pkm_activity_server_map') || '{}')
+       setActivityServerMap(m.byName || m)
+       const lm = JSON.parse(localStorage.getItem('pkm_activity_log_server_map') || '{}')
+       setLogServerMap(lm)
+     } catch (err) {
+       setError('Failed to load server maps')
+       console.error(err)
+     }
+     const onSaved = () => refresh()
+     window.addEventListener('pkm:activity-log-saved', onSaved as EventListener)
+     const onStorage = (e: StorageEvent) => {
+       if (e.key === 'pkm_activity_logs') refresh()
+     }
+     window.addEventListener('storage', onStorage)
+     return () => {
+       window.removeEventListener('pkm:activity-log-saved', onSaved as EventListener)
+       window.removeEventListener('storage', onStorage)
+     }
+   }, [refresh])
 
   const handleDelete = (id: string) => {
     const next = logs.filter(l => l.id !== id)
@@ -135,24 +138,27 @@ const LogsTable: React.FC = () => {
           }}>export</Button>
         </div>
       </CardHeader>
-       <CardContent className="p-0">
-         <ListView
-           data={logs}
-           collection={{ name: 'activity_logs', fields: [] }}
-           config={{ titleField: 'activityId' }}
-           onUpdateRecord={(id, updates) => {
-             // Update log locally
-             setLogs(prev => prev.map(log => log.id === id ? { ...log, ...updates } : log))
-             // Persist to localStorage
-             try {
-               localStorage.setItem('pkm_activity_logs', JSON.stringify([...prev.map(log => log.id === id ? { ...log, ...updates } : log)]))
-             } catch (e) { console.error(e) }
-           }}
-           onDelete={handleDelete}
-           onEdit={() => {}} // No edit functionality for logs
-           onCreate={() => {}} // No create functionality for logs
-         />
-       </CardContent>
+       {error && <div className="p-4 text-sm text-destructive">{error}</div>}
+       {loading ? <div className="p-4 text-center">Loading logs...</div> : (
+         <CardContent className="p-0">
+           <ListView
+             data={logs}
+             collection={{ name: 'activity_logs', fields: [] }}
+             config={{ titleField: 'activityId' }}
+             onUpdateRecord={(id, updates) => {
+               // Update log locally
+               setLogs(prev => prev.map(log => log.id === id ? { ...log, ...updates } : log))
+               // Persist to localStorage
+               try {
+                 localStorage.setItem('pkm_activity_logs', JSON.stringify([...prev.map(log => log.id === id ? { ...log, ...updates } : log)]))
+               } catch (e) { console.error(e) }
+             }}
+             onDelete={handleDelete}
+             onEdit={() => {}} // No edit functionality for logs
+             onCreate={() => {}} // No create functionality for logs
+           />
+         </CardContent>
+       )}
       <div className="p-3 border-t border-slate-800 bg-slate-900/20 flex items-center justify-end gap-2">
         <Button variant="ghost" size="sm" onClick={refresh}>refresh</Button>
         <Button size="sm" onClick={handleSync} disabled={syncing}>{syncing ? 'syncing…' : 'sync to nocobase'}</Button>
