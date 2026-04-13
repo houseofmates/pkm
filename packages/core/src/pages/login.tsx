@@ -1,53 +1,31 @@
-
-import React, { useState } from 'react';
-import { secureLogger } from '@/lib/secure-logger';
-import { useAuth } from '@/contexts/auth-context';
-import { Button } from '@/components/ui/button';
-import { isPublicDomain } from '@/utils/subdomain-router';
-import { Database } from 'lucide-react';
-import { NocoBaseClient } from '@/api/nocobase-client';
-import { normalizeAuthToken, toAuthorizationHeaderValue } from '@/lib/auth-token';
+import React, { useState } from "react";
+import { secureLogger } from "@/lib/secure-logger";
+import { useAuth } from "@/contexts/auth-context";
+import { Button } from "@/components/ui/button";
+import { isPublicDomain } from "@/utils/subdomain-router";
+import { Database, Mail, Lock } from "lucide-react";
+import { pocketBaseClient } from "@/lib/pocketbase";
 
 export function LoginPage() {
   const { login } = useAuth();
-  const [inputToken, setInputToken] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // performs a quick sanity check against the backend before
-  // actually storing the token. previously we unconditionally saved the
-  // value and relied on the first api call to fail, which would dispatch
-  // an `auth-error` event and drop the token. this caused a confusing
-  // experience where users would paste a *bad* token and then immediately
-  // be asked to paste it again even though nothing looked wrong. instead we
-  // hit a lightweight endpoint and only resolve when the token appears to be
-  // valid.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const normalizedToken = normalizeAuthToken(inputToken);
-    if (!normalizedToken) return;
+    if (!email || !password) return;
 
     setIsValidating(true);
     setError(null);
     try {
-      // validate the token by making a simple collection list request. the
-      // endpoint itself doesn't matter much, it just has to be protected by
-      // nocobase so that an invalid/expired token returns 401/403.
-      const client = new NocoBaseClient();
-      // pass the token directly in headers so we don't rely on storage yet.
-      await client.client.get('/collections:list', {
-        headers: {
-          Authorization: toAuthorizationHeaderValue(normalizedToken),
-        },
-        params: { pageSize: 1 },
-      });
-
-      // token validated, store & initialize synchronously
-      login(normalizedToken);
+      await login(email, password);
     } catch (err: any) {
-      secureLogger.error('token validation failed:', err);
+      secureLogger.error("login failed:", err);
       setError(
-        'token appears invalid or expired; please double-check and try again.'
+        err?.message ||
+          "login failed. please check your credentials and try again.",
       );
     } finally {
       setIsValidating(false);
@@ -62,58 +40,65 @@ export function LoginPage() {
         <div className="flex flex-col items-center gap-4">
           {isPublic ? (
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-              {/* use the new transparent database icon as the login image */}
-              <img src="/favicon.png" className="w-10 h-10 object-contain" alt="house of mates" />
+              <img
+                src="/favicon.png"
+                className="w-10 h-10 object-contain"
+                alt="house of mates"
+              />
             </div>
           ) : (
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
               <Database className="w-10 h-10 text-primary" />
             </div>
           )}
-          <h1 className="text-2xl font-bold text-center">login to {isPublic ? 'house of mates' : 'pkm'}</h1>
+          <h1 className="text-2xl font-bold text-center">
+            login to {isPublic ? "house of mates" : "pkm"}
+          </h1>
         </div>
 
-        <p className="text-sm text-center text-muted-foreground">enter your nocobase jwt token</p>
+        <p className="text-sm text-center text-muted-foreground">
+          enter your pocketbase credentials
+        </p>
 
         {error && (
-          <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">{error}</div>
-        )}
-
-        {inputToken.startsWith('ey') && (
-          <div className="text-xs text-muted-foreground break-all">
-            {(() => {
-              try {
-                const payload = JSON.parse(atob(inputToken.split('.')[1] || '{}'));
-                if (payload.exp) {
-                  const date = new Date(payload.exp * 1000);
-                  const isExpired = date < new Date();
-                  return (
-                    <div className={`mt-2 p-2 rounded ${isExpired ? 'bg-yellow-50 text-yellow-800' : 'bg-green-50 text-green-800'}`}>
-                      <p><strong>token type:</strong> jwt</p>
-                      <p><strong>expires:</strong> {date.toLocaleString()}</p>
-                      {isExpired && <p className="font-bold text-red-600">⚠️ this token has expired!</p>}
-                    </div>
-                  );
-                }
-              } catch (e) {
-                return null;
-              }
-              return null;
-            })()}
+          <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
+            {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <textarea
-            className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            placeholder="paste jwt token here..."
-            value={inputToken}
-            onChange={(e) => setInputToken(e.target.value)}
-            disabled={isValidating}
-          />
+          <div className="relative">
+            <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <input
+              type="email"
+              className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isValidating}
+              required
+            />
+          </div>
 
-          <Button type="submit" className="w-full" disabled={isValidating || !inputToken}>
-            {isValidating ? 'validating...' : 'login'}
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <input
+              type="password"
+              className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isValidating}
+              required
+            />
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isValidating || !email || !password}
+          >
+            {isValidating ? "logging in..." : "login"}
           </Button>
         </form>
       </div>
