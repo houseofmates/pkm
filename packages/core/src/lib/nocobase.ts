@@ -1,16 +1,13 @@
-// nocobase.ts - Re-exports from pocketbase.ts for cleaner imports
-// The pocketBaseClient is now a NocoBase-compatible wrapper
+// nocobase.ts - Re-exports from nocobase-client.ts for cleaner imports
 
 export {
+  nocobaseClient,
   pocketBaseClient,
   pb,
-  PocketBaseClient,
+  NocoBaseClient,
+  type NocoBaseRecord,
   type PocketBaseRecord,
-  type PocketBaseQueryParams,
-  type PocketBaseListResult,
-} from "./pocketbase";
+  type PocketBaseClient,
+} from "./nocobase-client";
 
-export { pocketBaseClient as nocobaseClient } from "./pocketbase";
-
-import { pocketBaseClient } from "./pocketbase";
-export default pocketBaseClient;
+export { nocobaseClient as default } from "./nocobase-client";
