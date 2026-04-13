@@ -308,13 +308,13 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       secureLogger.info("Current active front:", currentActive);
       if (currentActive) {
         secureLogger.info("Closing current front:", currentActive.id);
-    const updateResult = await pocketBaseClient.updateRecord(
-      "front_history",
-      currentActive.id,
-      {
-        endTime: timestamp,
-      },
-    );
+        const updateResult = await pocketBaseClient.updateRecord(
+          "front_history",
+          currentActive.id,
+          {
+            endTime: timestamp,
+          },
+        );
         secureLogger.info("Current front closed, result:", updateResult);
       }
 
