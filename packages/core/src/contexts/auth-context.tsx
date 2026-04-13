@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       token: initialToken,
       isAuthenticated: !!initialToken,
       login: async () => {},
+      loginWithApiKey: async () => {},
       logout: async () => {
         pb.authStore.clear();
         (globalThis as any).location?.reload?.();
