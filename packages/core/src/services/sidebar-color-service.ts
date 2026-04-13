@@ -2,11 +2,11 @@
 // service for syncing sidebar item colors with nocobase
 // enables cross-platform color persistence (web, electron, apk, exe)
 
-import { nocobaseClient, pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 
-// use nocobaseClient (pocketBaseClient is the same NocoBase-compatible wrapper)
-const client = nocobaseClient || pocketBaseClient;
+// use nocobaseClient for NocoBase API calls
+const client = nocobaseClient;
 
 export type SidebarItemType = 'collection' | 'folder' | 'document' | 'drawing';
 
@@ -107,7 +107,7 @@ export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
  */
 export async function getSidebarColor(itemId: string): Promise<SidebarColorRecord | null> {
   try {
-    const response = await pocketBaseClient.listRecords(COLLECTION_NAME, {
+    const response = await client.listRecords(COLLECTION_NAME, {
       filter: { item_id: { $eq: itemId } },
       pageSize: 1
     });
@@ -155,10 +155,10 @@ export async function saveSidebarColor(
 
     if (existing?.id) {
       // update existing
-      await pocketBaseClient.updateRecord(COLLECTION_NAME, existing.id, payload);
+      await client.updateRecord(COLLECTION_NAME, existing.id, payload);
     } else {
       // create new
-      await pocketBaseClient.createRecord(COLLECTION_NAME, payload);
+      await client.createRecord(COLLECTION_NAME, payload);
     }
 
     return true;
@@ -180,9 +180,9 @@ export async function updateSidebarItemColor(
     const existing = await getSidebarColor(itemId);
 
     if (existing?.id) {
-      await pocketBaseClient.updateRecord(COLLECTION_NAME, existing.id, { color });
+      await client.updateRecord(COLLECTION_NAME, existing.id, { color });
     } else {
-      await pocketBaseClient.createRecord(COLLECTION_NAME, {
+      await client.createRecord(COLLECTION_NAME, {
         item_id: itemId,
         item_type: itemType,
         color
@@ -206,7 +206,7 @@ export async function deleteSidebarColor(itemId: string): Promise<boolean> {
   try {
     const existing = await getSidebarColor(itemId);
     if (existing?.id) {
-      await pocketBaseClient.deleteRecord(COLLECTION_NAME, existing.id);
+      await client.deleteRecord(COLLECTION_NAME, existing.id);
     }
     return true;
   } catch (error) {
