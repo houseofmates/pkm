@@ -632,31 +632,31 @@ const Journal: React.FC = () => {
 
             <div className="flex flex-wrap gap-2">
 
-                <input
+              <input
 
-                  type="text"
+                type="text"
 
-                  placeholder="search emotions..."
+                placeholder="search emotions..."
 
-                  value={emotionSearch}
+                value={emotionSearch}
 
-                  onChange={(e) => setEmotionSearch(e.target.value)}
+                onChange={(e) => setEmotionSearch(e.target.value)}
 
-                  className="w-full mb-2 p-2 bg-zinc-950 border border-amber-900/60 rounded text-sm placeholder-amber-500"
+                className="w-full mb-2 p-2 bg-zinc-950 border border-amber-900/60 rounded text-sm placeholder-amber-500"
 
-                />
+              />
 
-                <div className="h-48 overflow-y-auto flex flex-wrap gap-2">
+              <div className="h-48 overflow-y-auto flex flex-wrap gap-2">
 
-                  {EMOTIONS.filter(emotion => emotion.toLowerCase().includes(emotionSearch.toLowerCase())).map((emotion) => (                <Button key={emotion} variant={entry.emotions.includes(emotion) ? 'default' : 'outline'} size="sm" onClick={() => toggleEmotion(emotion)} className="border-amber-800" aria-pressed={entry.emotions.includes(emotion)}>
+                {EMOTIONS.filter(emotion => emotion.toLowerCase().includes(emotionSearch.toLowerCase())).map((emotion) => (<Button key={emotion} variant={entry.emotions.includes(emotion) ? 'default' : 'outline'} size="sm" onClick={() => toggleEmotion(emotion)} className="border-amber-800" aria-pressed={entry.emotions.includes(emotion)}>
 
                   {emotion}
 
                 </Button>
 
-              ))}
+                ))}
 
-            </div>
+              </div>
 
           </CollapsibleSection>
 
@@ -666,31 +666,31 @@ const Journal: React.FC = () => {
 
             <div className="flex flex-wrap gap-2">
 
-                <input
+              <input
 
-                  type="text"
+                type="text"
 
-                  placeholder="search activities..."
+                placeholder="search activities..."
 
-                  value={activitySearch}
+                value={activitySearch}
 
-                  onChange={(e) => setActivitySearch(e.target.value)}
+                onChange={(e) => setActivitySearch(e.target.value)}
 
-                  className="w-full mb-2 p-2 bg-zinc-950 border border-amber-900/60 rounded text-sm placeholder-amber-500"
+                className="w-full mb-2 p-2 bg-zinc-950 border border-amber-900/60 rounded text-sm placeholder-amber-500"
 
-                />
+              />
 
-                <div className="h-48 overflow-y-auto flex flex-wrap gap-2">
+              <div className="h-48 overflow-y-auto flex flex-wrap gap-2">
 
-                  {ACTIVITIES.filter(activity => activity.toLowerCase().includes(activitySearch.toLowerCase())).map((activity) => (                <Button key={activity} variant={entry.activities.includes(activity) ? 'default' : 'outline'} size="sm" onPressStart={() => selectionStart()} onClick={() => toggleActivity(activity)} className="border-amber-800" aria-pressed={entry.activities.includes(activity)}>
+                {ACTIVITIES.filter(activity => activity.toLowerCase().includes(activitySearch.toLowerCase())).map((activity) => (<Button key={activity} variant={entry.activities.includes(activity) ? 'default' : 'outline'} size="sm" onPressStart={() => selectionStart()} onClick={() => toggleActivity(activity)} className="border-amber-800" aria-pressed={entry.activities.includes(activity)}>
 
                   {activity}
 
                 </Button>
 
-              ))}
+                ))}
 
-            </div>
+              </div>
 
           </CollapsibleSection>
 
@@ -957,21 +957,11 @@ const Journal: React.FC = () => {
 
 
           <CollapsibleSection title="tools" isOpen={focusTabSection === 'tools'} onToggle={() => setFocusTabSection(focusTabSection === 'tools' ? null : 'tools')} panelId="tools-panel">
-
             <div className="space-y-3">
-
               <FixationTrap />
-
               <VoiceInput onTranscribe={(text) => setEntry((prev) => ({ ...prev, note: text }))} />
-
-                </div>
-
-                </div>
-
               <GamifiedPets />
-
             </div>
-
           </CollapsibleSection>
 
         </TabsContent>
@@ -1038,28 +1028,28 @@ const Journal: React.FC = () => {
 
             </CardHeader>
 
-             <CardContent className="space-y-3 max-h-96 overflow-auto">
-               <ListView
-                 data={filteredPastEntries}
-                 collection={{ name: 'journal_entries', fields: [] }}
-                 config={{ titleField: 'note' }}
-                 onUpdateRecord={(id, updates) => {
-                   // Update journal entry locally (not typically needed for journal)
-                   setEntries(prev => prev.map(entry => entry.id === id ? { ...entry, ...updates } : entry))
-                   // Persist to localStorage
-                   try {
-                     window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...prev.map(entry => entry.id === id ? { ...entry, ...updates } : entry)].slice(-MAX_ENTRIES)))
-                   } catch (e) { console.error(e) }
-                 }}
-                 onDelete={(id) => {
-                   setEntries(prev => prev.filter(entry => entry.id !== id))
-                   try {
-                     window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...prev.filter(entry => entry.id !== id)].slice(-MAX_ENTRIES)))
-                   } catch (e) { console.error(e) }
-                 }}
-                 onEdit={() => {}} // No edit functionality for journal entries in this view
-                 onCreate={() => {}} // No create functionality for journal entries in this view
-               />
+            <CardContent className="space-y-3 max-h-96 overflow-auto">
+              <ListView
+                data={filteredPastEntries}
+                collection={{ name: 'journal_entries', fields: [] }}
+                config={{ titleField: 'note' }}
+                onUpdateRecord={(id, updates) => {
+                  // Update journal entry locally (not typically needed for journal)
+                  setEntries(prev => prev.map(entry => entry.id === id ? { ...entry, ...updates } : entry))
+                  // Persist to localStorage
+                  try {
+                    window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...prev.map(entry => entry.id === id ? { ...entry, ...updates } : entry)].slice(-MAX_ENTRIES)))
+                  } catch (e) { console.error(e) }
+                }}
+                onDelete={(id) => {
+                  setEntries(prev => prev.filter(entry => entry.id !== id))
+                  try {
+                    window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...prev.filter(entry => entry.id !== id)].slice(-MAX_ENTRIES)))
+                  } catch (e) { console.error(e) }
+                }}
+                onEdit={() => { }} // No edit functionality for journal entries in this view
+                onCreate={() => { }} // No create functionality for journal entries in this view
+              />
 
             </CardContent>
 
