@@ -8,8 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 
 import { Progress } from '../ui/progress'
 
-import { Badge } from '../ui/badge'
-
 import { Flame, ChevronDown, ChevronRight, Search } from 'lucide-react'
 
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
@@ -276,7 +274,7 @@ const Journal: React.FC = () => {
 
   const [entry, setEntry] = useState<JournalEntry>(EMPTY_ENTRY)
 
-  const { selectionStart, success } = useHaptics();
+  const { selectionStart } = useHaptics();
 
   const [entries, setEntries] = useState<JournalEntry[]>(() => loadStoredEntries())
 
@@ -490,29 +488,7 @@ const Journal: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown)
 
     return () => window.removeEventListener('keydown', handleKeyDown)
-
-    return () => window.removeEventListener('keydown', handleKeyDown)
-
   }, [entry.mood, handleSave])
-
-
-
-  const groupedPast = useMemo(() => {
-    if (filteredPastEntries.length === 0) return {};
-
-    return filteredPastEntries.reduce((acc, savedEntry) => {
-      const month = new Date(savedEntry.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-
-      if (!acc[month]) {
-        acc[month] = []
-      }
-
-      acc[month].push(savedEntry)
-      return acc
-    }, {} as Record<string, JournalEntry[]>)
-  }, [filteredPastEntries])
-
-
 
   return (
     <div className="min-h-screen bg-black p-4 md:p-8 space-y-6 text-amber-50">
