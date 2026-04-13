@@ -2,7 +2,6 @@
 // The pocketBaseClient is now a NocoBase-compatible wrapper
 
 export {
-  nocobaseClient,
   pocketBaseClient,
   pb,
   PocketBaseClient,
@@ -11,5 +10,7 @@ export {
   type PocketBaseListResult,
 } from "./pocketbase";
 
-import { nocobaseClient as _nocobaseClient } from "./pocketbase";
-export default _nocobaseClient;
+export { pocketBaseClient as nocobaseClient } from "./pocketbase";
+
+import { pocketBaseClient } from "./pocketbase";
+export default pocketBaseClient;
