@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Progress } from '../ui/progress'
 import { Badge } from '../ui/badge'
 import { useGamificationStore } from '../../stores/gamification-store'
-import { useHaptics } from '../../../../packages/core/src/hooks/useHaptics'
+import { useHaptics } from '@pkm/core/src/hooks/useHaptics'
 import { Heart, Fish, Moon, Sun, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -29,20 +29,20 @@ const PETS_DATA: Pet[] = [
 const wiggleAnimation = {
   wiggle: {
     rotate: [0, -5, 5, -5, 5, 0],
-    transition: { duration: 0.4, ease: 'easeInOut' }
+    transition: { duration: 0.4, ease: 'easeInOut' as const }
   },
   bounce: {
     y: [0, -10, 0],
     scale: [1, 1.1, 1],
-    transition: { duration: 0.3, ease: 'easeOut' }
+    transition: { duration: 0.3, ease: 'easeOut' as const }
   },
   idle: {
     y: [0, -2, 0],
-    transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+    transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' as const }
   },
   sleep: {
     scale: [1, 0.98, 1],
-    transition: { duration: 3, repeat: Infinity, ease: 'easeInOut' }
+    transition: { duration: 3, repeat: Infinity, ease: 'easeInOut' as const }
   }
 }
 
@@ -110,7 +110,7 @@ const PetAvatar: React.FC<{
 
       <div className="text-center">
         <div className="font-medium text-amber-100">{pet.name}</div>
-        <Badge variant={pet.hunger > 50 ? 'default' : 'destructive'} className="text-xs mt-1">
+        <Badge variant={pet.hunger > 50 ? 'default' : 'secondary'} className={`text-xs mt-1 ${pet.hunger <= 30 ? 'text-rose-400' : ''}`}>
           {pet.hunger > 70 ? 'full' : pet.hunger > 30 ? 'hungry' : 'starving'}
         </Badge>
       </div>
