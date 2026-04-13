@@ -89,9 +89,9 @@ apiClient.interceptors.response.use(
 
       if (kind === "hom_api_key") {
         storageManager.removeItem("hom_api_key");
-      } else if (kind === "pocketbase_token") {
-        storageManager.removeItem("pocketbase_token");
-        storageManager.removeItem("pocketbase_user");
+      } else if (kind === "nocobase_token") {
+        storageManager.removeItem("nocobase_token");
+        storageManager.removeItem("nocobase_user");
         if (typeof window !== "undefined") {
           window.dispatchEvent(new Event("auth-error"));
         }
