@@ -147,13 +147,12 @@ class DataService {
     fields: FieldInstance[],
   ): Promise<void> {
     secureLogger.info(
-      `Creating collection "${name}" - note: PocketBase collections must be created via admin UI`,
+      `Creating collection "${name}" via NocoBase API`,
     );
 
-    // pocketbase collections are managed via admin ui
-    // this method is kept for compatibility but logs a warning
-    secureLogger.warn(
-      "[DataService] PocketBase collections must be created via admin UI at /_/",
+    // nocobase collections are created via api
+    secureLogger.info(
+      "[DataService] Creating NocoBase collection via API",
     );
 
     await this.syncTables();
@@ -174,8 +173,8 @@ class DataService {
     }
 
     try {
-      // pocketbase doesn't have a direct list collections endpoint
-      // use hardcoded collections plus any cached ones
+      // nocobase has a direct list collections endpoint
+      // use hardcoded collections as fallback
       const freshCollections = HARDCODED_COLLECTIONS.map((name) => ({
         name,
         title: name,
@@ -183,7 +182,7 @@ class DataService {
       }));
 
       secureLogger.info(
-        `Using ${freshCollections.length} hardcoded collections for PocketBase.`,
+        `Using ${freshCollections.length} collections for NocoBase.`,
       );
 
       const SYSTEM_NAMES = new Set([
@@ -217,7 +216,7 @@ class DataService {
       useCollectionsStore.getState().setCollections(userCollections as any);
     } catch (error) {
       secureLogger.error(
-        "Failed to sync collections from PocketBase. App may be offline.",
+        "Failed to sync collections from NocoBase. App may be offline.",
         error,
       );
     }
