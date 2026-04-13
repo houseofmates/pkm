@@ -8,10 +8,10 @@ const NOCOBASE_URL =
 // mock pb object for compatibility (deprecated but kept for imports)
 export const pb = {
   authStore: {
-    onChange: () => { },
+    onChange: () => {},
     isValid: false,
     model: null,
-    clear: () => { },
+    clear: () => {},
   },
   collection: () => ({
     getList: async () => ({ items: [], totalItems: 0 }),
@@ -19,9 +19,9 @@ export const pb = {
     getOne: async () => ({}),
     create: async () => ({}),
     update: async () => ({}),
-    delete: async () => { },
-    subscribe: () => () => { },
-    unsubscribe: () => { },
+    delete: async () => {},
+    subscribe: () => () => {},
+    unsubscribe: () => {},
   }),
   getFileUrl: () => "",
   send: async () => ({}),
@@ -76,7 +76,7 @@ export class PocketBaseClient {
       isValid: !!this._token,
       model: this._user,
       token: this._token,
-      onChange: () => { },
+      onChange: () => {},
       clear: () => this.logout(),
     };
   }
@@ -92,13 +92,34 @@ export class PocketBaseClient {
         this._token = token;
         this._user = user;
         await storageManager.setEncryptedItem("nocobase_token", token);
-        await storageManager.setEncryptedItem("nocobase_user", JSON.stringify(user));
+        await storageManager.setEncryptedItem(
+          "nocobase_user",
+          JSON.stringify(user),
+        );
         this._axios.defaults.headers["Authorization"] = `Bearer ${token}`;
       }
       secureLogger.info("[NocoBase] login successful");
       return { token, user };
     } catch (error) {
       secureLogger.error("[NocoBase] login failed:", error);
+      throw error;
+    }
+  }
+
+  async loginWithApiKey(apiKey: string) {
+    try {
+      this._token = apiKey;
+      this._user = { apiKey: true };
+      await storageManager.setEncryptedItem("nocobase_token", apiKey);
+      await storageManager.setEncryptedItem(
+        "nocobase_user",
+        JSON.stringify({ apiKey: true }),
+      );
+      this._axios.defaults.headers["Authorization"] = `Bearer ${apiKey}`;
+      secureLogger.info("[NocoBase] api key login successful");
+      return { token: apiKey, user: { apiKey: true } };
+    } catch (error) {
+      secureLogger.error("[NocoBase] api key login failed:", error);
       throw error;
     }
   }
@@ -166,8 +187,11 @@ export class PocketBaseClient {
     collection: string,
     id: string | number,
   ): Promise<{ data: T }> {
-    const response = await this._axios.get(`/${collection}:get?filter[id]=${id}`);
-    const data = response.data?.data?.[0] || response.data?.data || response.data;
+    const response = await this._axios.get(
+      `/${collection}:get?filter[id]=${id}`,
+    );
+    const data =
+      response.data?.data?.[0] || response.data?.data || response.data;
     return { data };
   }
 
@@ -184,7 +208,10 @@ export class PocketBaseClient {
     id: string | number,
     data: Record<string, unknown>,
   ): Promise<{ data: T }> {
-    const response = await this._axios.post(`/${collection}:update?filter[id]=${id}`, data);
+    const response = await this._axios.post(
+      `/${collection}:update?filter[id]=${id}`,
+      data,
+    );
     return { data: response.data?.data || response.data };
   }
 
@@ -220,8 +247,10 @@ export class PocketBaseClient {
   ): () => void {
     // nocobase doesn't have realtime subscriptions like pocketbase
     // return a no-op unsubscribe function
-    secureLogger.warn(`[NocoBase] subscriptions not supported, polling recommended for ${collection}`);
-    return () => { };
+    secureLogger.warn(
+      `[NocoBase] subscriptions not supported, polling recommended for ${collection}`,
+    );
+    return () => {};
   }
 
   unsubscribe(collection: string) {
