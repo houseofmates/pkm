@@ -10,7 +10,7 @@ app.post('/api/gamification/award-xp', requireAuth, async (req, res) => {
   }
 
   try {
-    const base = process.env.POCKETBASE_URL || 'http://localhost:8090';
+    const base = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
     const client = axios.create({
       baseURL: base.replace(/\/$/, ''),
       headers: {
@@ -76,7 +76,7 @@ app.get('/api/gamification/stats/:user_id', requireAuth, async (req, res) => {
   const { user_id } = req.params;
 
   try {
-    const base = process.env.POCKETBASE_URL || 'http://localhost:8090';
+    const base = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
     const client = axios.create({
       baseURL: base.replace(/\/$/, ''),
       headers: { 'Authorization': req.headers.authorization }
@@ -111,7 +111,7 @@ app.post('/api/gamification/unlock-achievement', requireAuth, async (req, res) =
   }
 
   try {
-    const base = process.env.POCKETBASE_URL || 'http://localhost:8090';
+    const base = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
     const client = axios.create({
       baseURL: base.replace(/\/$/, ''),
       headers: {
