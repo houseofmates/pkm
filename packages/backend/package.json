@@ -24,6 +24,7 @@
     "pocketbase": "^0.26.8"
   },
   "devDependencies": {
+    "@sentry/node": "^10.48.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.15.0",
