@@ -1,8 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { api } from '@/api/nocobase-client';
-import { toast } from 'sonner';
-import { secureLogger } from '@/lib/secure-logger';
-import { storageManager } from '@/lib/storage-manager';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
+import { pocketBaseClient } from "@/lib/pocketbase";
+import { toast } from "sonner";
+import { secureLogger } from "@/lib/secure-logger";
+import { storageManager } from "@/lib/storage-manager";
 
 export interface Headmate {
   id: string;
@@ -52,19 +58,21 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   // member colors state
-  const [memberColors, setMemberColors] = useState<Record<string, string>>(() => {
-    try {
-      const stored = storageManager.getItem('member_colors');
-      return stored ? JSON.parse(stored) : {};
-    } catch {
-      return {};
-    }
-  });
+  const [memberColors, setMemberColors] = useState<Record<string, string>>(
+    () => {
+      try {
+        const stored = storageManager.getItem("member_colors");
+        return stored ? JSON.parse(stored) : {};
+      } catch {
+        return {};
+      }
+    },
+  );
 
   // overrides for simplyplural integration
   const [overrides, setOverridesState] = useState<Record<string, any>>(() => {
     try {
-      const stored = storageManager.getItem('headmate_overrides');
+      const stored = storageManager.getItem("headmate_overrides");
       return stored ? JSON.parse(stored) : {};
     } catch {
       return {};
@@ -73,13 +81,13 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
   const setOverrides = (newOverrides: Record<string, any>) => {
     setOverridesState(newOverrides);
-    storageManager.setItem('headmate_overrides', JSON.stringify(newOverrides));
+    storageManager.setItem("headmate_overrides", JSON.stringify(newOverrides));
   };
 
   const updateOverride = (id: string, data: any) => {
     const newOverrides = {
       ...overrides,
-      [id]: { ...overrides[id], ...data }
+      [id]: { ...overrides[id], ...data },
     };
     setOverrides(newOverrides);
   };
@@ -98,7 +106,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       }
     });
     setMemberColors(colorCache);
-    storageManager.setItem('member_colors', JSON.stringify(colorCache));
+    storageManager.setItem("member_colors", JSON.stringify(colorCache));
   };
 
   const updateFronters = (fronters: string[]) => {
@@ -116,8 +124,13 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       // fetch headmates
       let headmatesData: any[] = [];
       try {
-        const res = await api.listRecords('headmates', { sort: 'name', pageSize: 100 });
-        headmatesData = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
+        const res = await api.listRecords("headmates", {
+          sort: "name",
+          pageSize: 100,
+        });
+        headmatesData = Array.isArray(res)
+          ? res
+          : (res as { data?: any[] })?.data || [];
       } catch (e) {
         secureLogger.warn("Headmates collection missing?", e);
         // create if missing?
@@ -129,13 +142,23 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       // fetch history (keep existing if fetch fails)
       let historyData: any[] | null = null;
       try {
-        const res = await api.listRecords('front_history', { sort: '-startTime', pageSize: 50 });
-        historyData = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
+        const res = await api.listRecords("front_history", {
+          sort: "-startTime",
+          pageSize: 50,
+        });
+        historyData = Array.isArray(res)
+          ? res
+          : (res as { data?: any[] })?.data || [];
       } catch (e: any) {
         // axios aborts (e.g. hmr / navigation) often show as econnaborted.
         // this is not fatal; keep existing history instead of wiping it.
-        const isAbort = e?.code === 'ECONNABORTED' || e?.message?.toLowerCase()?.includes('aborted');
-        secureLogger.warn('Front history fetch failed (will keep cached history):', e);
+        const isAbort =
+          e?.code === "ECONNABORTED" ||
+          e?.message?.toLowerCase()?.includes("aborted");
+        secureLogger.warn(
+          "Front history fetch failed (will keep cached history):",
+          e,
+        );
         if (isAbort) {
           historyData = null;
         }
@@ -144,11 +167,11 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       // parse members
       const parsedMembers: Headmate[] = headmatesData.map((m: any) => ({
         id: m.id?.toString(), // ensure string id
-        name: m.name || 'Unnamed',
+        name: m.name || "Unnamed",
         avatar: m.avatar?.[0]?.url || m.avatarUrl, // nocobase attachment vs direct url
         pronouns: m.pronouns,
         color: m.color,
-        description: m.description
+        description: m.description,
       }));
       setMembers(parsedMembers);
 
@@ -158,47 +181,61 @@ export function FronterProvider({ children }: { children: ReactNode }) {
           id: h.id?.toString(),
           startTime: h.startTime || h.createdAt,
           endTime: h.endTime,
-          members: typeof h.members === 'string' ? JSON.parse(h.members) : (h.members || []),
-          comment: h.comment
+          members:
+            typeof h.members === "string"
+              ? JSON.parse(h.members)
+              : h.members || [],
+          comment: h.comment,
         }));
         setHistory(parsedHistory);
 
         // derive active fronters
         const latest = parsedHistory[0];
-        secureLogger.info('Latest front history entry:', latest);
-        secureLogger.info('All history entries:', parsedHistory);
+        secureLogger.info("Latest front history entry:", latest);
+        secureLogger.info("All history entries:", parsedHistory);
         if (latest && !latest.endTime) {
-          const fronterIds = latest.members.map(m => m.id);
-          secureLogger.info('Setting active fronters from history:', fronterIds);
+          const fronterIds = latest.members.map((m) => m.id);
+          secureLogger.info(
+            "Setting active fronters from history:",
+            fronterIds,
+          );
           setActiveFronters(fronterIds);
 
           // also cache to storage manager as backup
           try {
-            storageManager.setItem('pkm_active_fronters', JSON.stringify(fronterIds));
+            storageManager.setItem(
+              "pkm_active_fronters",
+              JSON.stringify(fronterIds),
+            );
           } catch (e) {
-            secureLogger.warn('Failed to cache fronters to storage manager:', e);
+            secureLogger.warn(
+              "Failed to cache fronters to storage manager:",
+              e,
+            );
           }
         } else {
-          secureLogger.info('No active front found in history, checking localStorage backup');
+          secureLogger.info(
+            "No active front found in history, checking localStorage backup",
+          );
           // try to restore from localstorage if database has no active front
           try {
-            const cached = storageManager.getItem('pkm_active_fronters');
+            const cached = storageManager.getItem("pkm_active_fronters");
             if (cached) {
               const cachedIds = JSON.parse(cached);
-              secureLogger.info('Restoring fronters from storage manager:', cachedIds);
+              secureLogger.info(
+                "Restoring fronters from storage manager:",
+                cachedIds,
+              );
               setActiveFronters(cachedIds);
             } else {
               setActiveFronters([]);
             }
           } catch (e) {
-            secureLogger.warn('Failed to restore from storage manager:', e);
+            secureLogger.warn("Failed to restore from storage manager:", e);
             setActiveFronters([]);
           }
         }
       }
-
-
-
     } catch (e) {
       secureLogger.error("Failed to refresh fronter data", e);
       toast.error("failed to load system core data");
@@ -210,29 +247,40 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   // simplyplural sync: pull front status
   const syncFrontFromSimplyPlural = async () => {
     try {
-      const apiKey = storageManager.getItem('pk_api_key');
+      const apiKey = storageManager.getItem("pk_api_key");
       if (!apiKey) return;
       // get system id
-      const meRes = await fetch(require('@/lib/simply-plural-client').SimplyPluralClient.url('/me'), {
-        headers: { 'Authorization': apiKey }
-      });
+      const meRes = await fetch(
+        require("@/lib/simply-plural-client").SimplyPluralClient.url("/me"),
+        {
+          headers: { Authorization: apiKey },
+        },
+      );
       if (!meRes.ok) return;
       const meData = await meRes.json();
       const systemId = meData.id;
       // get front status
-      const frontRes = await fetch(require('@/lib/simply-plural-client').SimplyPluralClient.url(`/front/${systemId}`), {
-        headers: { 'Authorization': apiKey }
-      });
+      const frontRes = await fetch(
+        require("@/lib/simply-plural-client").SimplyPluralClient.url(
+          `/front/${systemId}`,
+        ),
+        {
+          headers: { Authorization: apiKey },
+        },
+      );
       if (!frontRes.ok) return;
       const frontData = await frontRes.json();
       if (frontData && Array.isArray(frontData.fronters)) {
         const spFronters = frontData.fronters.map((f: any) => f.id);
         setActiveFronters(spFronters);
-        storageManager.setItem('pkm_active_fronters', JSON.stringify(spFronters));
-        secureLogger.info('Synced fronters from SimplyPlural:', spFronters);
+        storageManager.setItem(
+          "pkm_active_fronters",
+          JSON.stringify(spFronters),
+        );
+        secureLogger.info("Synced fronters from SimplyPlural:", spFronters);
       }
     } catch (err) {
-      secureLogger.error('SimplyPlural front pull error:', err);
+      secureLogger.error("SimplyPlural front pull error:", err);
     }
   };
 
@@ -253,86 +301,108 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
   const registerFrontChange = async (memberIds: string[], comment?: string) => {
     const timestamp = new Date().toISOString();
-    secureLogger.info('registerFrontChange called with:', { memberIds, timestamp });
+    secureLogger.info("registerFrontChange called with:", {
+      memberIds,
+      timestamp,
+    });
 
     try {
       // 1. close current front if exists
-      const currentActive = history.find(h => !h.endTime);
-      secureLogger.info('Current active front:', currentActive);
+      const currentActive = history.find((h) => !h.endTime);
+      secureLogger.info("Current active front:", currentActive);
       if (currentActive) {
-        secureLogger.info('Closing current front:', currentActive.id);
-        const updateResult = await api.updateRecord('front_history', currentActive.id, {
-          endTime: timestamp
-        });
-        secureLogger.info('Current front closed, result:', updateResult);
+        secureLogger.info("Closing current front:", currentActive.id);
+        const updateResult = await api.updateRecord(
+          "front_history",
+          currentActive.id,
+          {
+            endTime: timestamp,
+          },
+        );
+        secureLogger.info("Current front closed, result:", updateResult);
       }
 
       // 2. create new front
       if (memberIds.length > 0) {
-        const newEntry: Record<string, string | number | boolean | undefined> = {
-          startTime: timestamp,
-          members: JSON.stringify(memberIds.map((id, index) => ({
-            id,
-            role: index === 0 ? 'primary' : 'secondary',
-            order: index
-          }))),
-          comment
-        };
-        secureLogger.info('Creating new front entry:', newEntry);
-        const createResult = await api.createRecord('front_history', newEntry);
-        secureLogger.info('New front entry created, result:', createResult);
+        const newEntry: Record<string, string | number | boolean | undefined> =
+          {
+            startTime: timestamp,
+            members: JSON.stringify(
+              memberIds.map((id, index) => ({
+                id,
+                role: index === 0 ? "primary" : "secondary",
+                order: index,
+              })),
+            ),
+            comment,
+          };
+        secureLogger.info("Creating new front entry:", newEntry);
+        const createResult = await api.createRecord("front_history", newEntry);
+        secureLogger.info("New front entry created, result:", createResult);
 
         // --- simplyplural sync ---
         try {
-          const apiKey = storageManager.getItem('pk_api_key');
+          const apiKey = storageManager.getItem("pk_api_key");
           if (apiKey) {
             // get system id
             const meRes = await fetch(
-              require('@/lib/simply-plural-client').SimplyPluralClient.url('/me'),
-              { headers: { 'Authorization': apiKey } }
+              require("@/lib/simply-plural-client").SimplyPluralClient.url(
+                "/me",
+              ),
+              { headers: { Authorization: apiKey } },
             );
-            if (!meRes.ok) throw new Error('Failed to fetch system info from SimplyPlural');
+            if (!meRes.ok)
+              throw new Error("Failed to fetch system info from SimplyPlural");
             const meData = await meRes.json();
             const systemId = meData.id;
             // push fronters
             const frontPayload = {
-              fronters: memberIds.map((id, idx) => ({ id, role: idx === 0 ? 'primary' : 'secondary' }))
+              fronters: memberIds.map((id, idx) => ({
+                id,
+                role: idx === 0 ? "primary" : "secondary",
+              })),
             };
             const frontRes = await fetch(
-              require('@/lib/simply-plural-client').SimplyPluralClient.url(`/front/${systemId}`),
+              require("@/lib/simply-plural-client").SimplyPluralClient.url(
+                `/front/${systemId}`,
+              ),
               {
-                method: 'PATCH',
+                method: "PATCH",
                 headers: {
-                  'Authorization': apiKey,
-                  'Content-Type': 'application/json'
+                  Authorization: apiKey,
+                  "Content-Type": "application/json",
                 },
-                body: JSON.stringify(frontPayload)
-              }
+                body: JSON.stringify(frontPayload),
+              },
             );
             if (!frontRes.ok) {
               const errText = await frontRes.text();
-              secureLogger.warn(`SimplyPlural front sync failed (${frontRes.status}):`, errText);
-              toast.warning(`front updated locally, but SimplyPlural sync failed: ${frontRes.status} - ${errText}`);
+              secureLogger.warn(
+                `SimplyPlural front sync failed (${frontRes.status}):`,
+                errText,
+              );
+              toast.warning(
+                `front updated locally, but SimplyPlural sync failed: ${frontRes.status} - ${errText}`,
+              );
             } else {
-              toast.success('front updated and synced to SimplyPlural');
+              toast.success("front updated and synced to SimplyPlural");
             }
           }
         } catch (spErr) {
-          secureLogger.error('SimplyPlural sync error:', spErr);
+          secureLogger.error("SimplyPlural sync error:", spErr);
         }
         // --- end simplyplural sync ---
       } else {
-        secureLogger.info('No members specified, just closing previous front');
+        secureLogger.info("No members specified, just closing previous front");
       }
 
       // 3. refresh
-      secureLogger.info('Calling refresh...');
+      secureLogger.info("Calling refresh...");
       await refresh();
-      secureLogger.info('Refresh complete');
+      secureLogger.info("Refresh complete");
       toast.success("front updated");
-
     } catch (e) {
-      secureLogger.error('registerFrontChange error:', e);
+      secureLogger.error("registerFrontChange error:", e);
       toast.error("failed to update front");
     }
   };
@@ -342,47 +412,55 @@ export function FronterProvider({ children }: { children: ReactNode }) {
     const stringFronters = activeFronters.map(String);
     const isCnt = stringFronters.includes(stringId);
     const newIds = isCnt
-      ? activeFronters.filter(fid => String(fid) !== stringId)
+      ? activeFronters.filter((fid) => String(fid) !== stringId)
       : [...activeFronters, stringId];
-    secureLogger.info('toggleFronter:', { id: stringId, wasFronting: isCnt, newFronters: newIds });
+    secureLogger.info("toggleFronter:", {
+      id: stringId,
+      wasFronting: isCnt,
+      newFronters: newIds,
+    });
 
     // optimistic update: set state immediately
     setActiveFronters(newIds);
 
     // cache to localstorage immediately
     try {
-      storageManager.setItem('pkm_active_fronters', JSON.stringify(newIds));
-      secureLogger.info('Cached to localStorage:', newIds);
+      storageManager.setItem("pkm_active_fronters", JSON.stringify(newIds));
+      secureLogger.info("Cached to localStorage:", newIds);
     } catch (e) {
-      secureLogger.warn('Failed to cache fronters:', e);
+      secureLogger.warn("Failed to cache fronters:", e);
     }
 
     // then sync to backend (don't await, it refreshes internally)
-    registerFrontChange(newIds).catch(err => {
-      secureLogger.error('failed to register front change:', err);
+    registerFrontChange(newIds).catch((err) => {
+      secureLogger.error("failed to register front change:", err);
       // revert optimistic update on failure using functional update to avoid stale closure
-      setActiveFronters((prev) => prev.filter(fid => String(fid) !== stringId));
-      toast.error('front sync failed, reverted locally');
+      setActiveFronters((prev) =>
+        prev.filter((fid) => String(fid) !== stringId),
+      );
+      toast.error("front sync failed, reverted locally");
     });
   };
 
   return (
-    <FronterContext.Provider value={{
-      activeFronters,
-      members,
-      history,
-      loading,
-      refresh,
-      registerFrontChange,
-      overrides,
-      updateOverride,
-      setOverrides,
-      flushOverrides,
-      cacheMemberColors,
-      updateFronters,
-      toggleFronter,
-      memberColors
-    }}>
+    <FronterContext.Provider
+      value={{
+        activeFronters,
+        members,
+        history,
+        loading,
+        refresh,
+        registerFrontChange,
+        overrides,
+        updateOverride,
+        setOverrides,
+        flushOverrides,
+        cacheMemberColors,
+        updateFronters,
+        toggleFronter,
+        memberColors,
+      }}
+    >
       {children}
     </FronterContext.Provider>
   );
@@ -391,7 +469,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 export function useFronter() {
   const context = useContext(FronterContext);
   if (context === undefined) {
-    throw new Error('useFronter must be used within a FronterProvider');
+    throw new Error("useFronter must be used within a FronterProvider");
   }
   return context;
 }
