@@ -647,17 +647,20 @@ const Journal: React.FC = () => {
               />
 
               <div className="h-48 overflow-y-auto flex flex-wrap gap-2">
-
-                {EMOTIONS.filter(emotion => emotion.toLowerCase().includes(emotionSearch.toLowerCase())).map((emotion) => (<Button key={emotion} variant={entry.emotions.includes(emotion) ? 'default' : 'outline'} size="sm" onClick={() => toggleEmotion(emotion)} className="border-amber-800" aria-pressed={entry.emotions.includes(emotion)}>
-
-                  {emotion}
-
-                </Button>
-
+                {EMOTIONS.filter(emotion => emotion.toLowerCase().includes(emotionSearch.toLowerCase())).map((emotion) => (
+                  <Button
+                    key={emotion}
+                    variant={entry.emotions.includes(emotion) ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => toggleEmotion(emotion)}
+                    className="border-amber-800"
+                    aria-pressed={entry.emotions.includes(emotion)}
+                  >
+                    {emotion}
+                  </Button>
                 ))}
-
               </div>
-
+            </div>
           </CollapsibleSection>
 
 
