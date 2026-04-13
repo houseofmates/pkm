@@ -2,10 +2,8 @@
 
 export {
   nocobaseClient,
-  nocobaseClient,
   pb,
   NocoBaseClient,
-  type NocoBaseRecord,
   type NocoBaseRecord,
   type NocoBaseClient,
 } from "./nocobase-client";
