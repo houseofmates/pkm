@@ -54,11 +54,11 @@ describe('Environment Validator', () => {
             expect(env).toBeDefined();
         });
 
-        it('should validate POCKETBASE_URL is valid URL', () => {
+        it('should validate NOCOBASE_URL is valid URL', () => {
             process.env.NODE_ENV = 'test';
             process.env.ADMIN_SECRET = 'test-secret-key-12345678';
-            process.env.POCKETBASE_URL = 'not-a-url';
-            process.env.POCKETBASE_ADMIN_TOKEN = 'test-admin-token';
+            process.env.NOCOBASE_URL = 'not-a-url';
+            process.env.NOCOBASE_API_KEY = 'test-api-key';
 
             const env = loadEnvironment();
             expect(env).toBeDefined();
