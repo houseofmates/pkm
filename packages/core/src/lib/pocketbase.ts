@@ -124,24 +124,22 @@ export class PocketBaseClient {
     collection: string,
     params: Record<string, unknown> = {},
   ): Promise<{ data: T[]; meta?: { total?: number } }> {
-    const { page = 1, pageSize = 50, sort, filter, expand } = params;
+    const { page = 1, pageSize = 50, sort, filter } = params;
 
-    const resultList = await this._pb
-      .collection(collection)
-      .getList(
-        typeof page === "number" ? page : 1,
-        typeof pageSize === "number" ? pageSize : 50,
-        {
-          sort: sort as string | undefined,
-          filter: filter as string | undefined,
-          expand: expand as string | undefined,
-        },
-      );
+    const response = await this._axios.get(`/${collection}:list`, {
+      params: {
+        page,
+        pageSize,
+        sort,
+        filter,
+      },
+    });
 
+    const result = response.data?.data || response.data || [];
     return {
-      data: resultList.items as T[],
+      data: Array.isArray(result) ? result : result.items || [],
       meta: {
-        total: resultList.totalItems,
+        total: response.data?.meta?.count || result.length,
       },
     };
   }
@@ -150,51 +148,51 @@ export class PocketBaseClient {
     collection: string,
     params: Record<string, unknown> = {},
   ): Promise<T[]> {
-    const { sort, filter, expand } = params;
+    const { sort, filter } = params;
 
-    const records = await this._pb.collection(collection).getFullList({
-      sort: sort as string | undefined,
-      filter: filter as string | undefined,
-      expand: expand as string | undefined,
+    const response = await this._axios.get(`/${collection}:list`, {
+      params: {
+        pageSize: 1000,
+        sort,
+        filter,
+      },
     });
 
-    return records as T[];
+    const result = response.data?.data || response.data || [];
+    return Array.isArray(result) ? result : result.items || [];
   }
 
   async getRecord<T = PocketBaseRecord>(
     collection: string,
-    id: string,
+    id: string | number,
   ): Promise<{ data: T }> {
-    const record = await this._pb.collection(collection).getOne<T>(id);
-    return { data: record };
+    const response = await this._axios.get(`/${collection}:get?filter[id]=${id}`);
+    const data = response.data?.data?.[0] || response.data?.data || response.data;
+    return { data };
   }
 
   async createRecord<T = PocketBaseRecord>(
     collection: string,
     data: Record<string, unknown>,
   ): Promise<{ data: T }> {
-    const record = await this._pb
-      .collection(collection)
-      .create<T>(data as Record<string, unknown>);
-    return { data: record };
+    const response = await this._axios.post(`/${collection}:create`, data);
+    return { data: response.data?.data || response.data };
   }
 
   async updateRecord<T = PocketBaseRecord>(
     collection: string,
-    id: string,
+    id: string | number,
     data: Record<string, unknown>,
   ): Promise<{ data: T }> {
-    const record = await this._pb
-      .collection(collection)
-      .update<T>(id, data as Record<string, unknown>);
-    return { data: record };
+    const response = await this._axios.post(`/${collection}:update?filter[id]=${id}`, data);
+    return { data: response.data?.data || response.data };
   }
 
   async deleteRecord(
     collection: string,
-    id: string,
+    id: string | number,
   ): Promise<{ success: boolean }> {
-    await this._pb.collection(collection).delete(id);
+    await this._axios.post(`/${collection}:destroy?filter[id]=${id}`);
     return { success: true };
   }
 
@@ -205,29 +203,40 @@ export class PocketBaseClient {
   ): Promise<{ data: PocketBaseRecord }> {
     const formData = new FormData();
     formData.append(field, file);
-    const record = await this._pb.collection(collection).create(formData);
-    return { data: record };
+    const response = await this._axios.post(`/${collection}:create`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return { data: response.data?.data || response.data };
   }
 
   getFileUrl(record: PocketBaseRecord, filename: string): string {
-    return this._pb.getFileUrl(record, filename);
+    // nocobase file urls are constructed differently
+    return `${NOCOBASE_URL}/${record.id}/${filename}`;
   }
 
   subscribe<T = PocketBaseRecord>(
     collection: string,
     callback: (e: { action: string; record: T }) => void,
-  ) {
-    return this._pb.collection(collection).subscribe<T>("*", (e) => {
-      callback({ action: e.action, record: e.record });
-    });
+  ): () => void {
+    // nocobase doesn't have realtime subscriptions like pocketbase
+    // return a no-op unsubscribe function
+    secureLogger.warn(`[NocoBase] subscriptions not supported, polling recommended for ${collection}`);
+    return () => { };
   }
 
   unsubscribe(collection: string) {
-    this._pb.collection(collection).unsubscribe();
+    // no-op for nocobase
   }
 
   async request(path: string, options?: Record<string, unknown>) {
-    return this._pb.send(path, options);
+    const { method = "GET", body, ...rest } = options || {};
+    const response = await this._axios.request({
+      method: method as string,
+      url: path,
+      data: body,
+      ...rest,
+    });
+    return response.data;
   }
 }
 
