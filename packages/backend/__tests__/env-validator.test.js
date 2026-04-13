@@ -14,8 +14,8 @@ describe('Environment Validator', () => {
         it('should load environment variables successfully', () => {
             process.env.NODE_ENV = 'test';
             process.env.ADMIN_SECRET = 'test-secret-key-12345678';
-            process.env.POCKETBASE_URL = 'https://test.example.com/api';
-            process.env.POCKETBASE_ADMIN_TOKEN = 'test-admin-token';
+            process.env.NOCOBASE_URL = 'https://test.example.com/api';
+            process.env.NOCOBASE_API_KEY = 'test-api-key';
 
             const env = loadEnvironment();
             expect(env).toBeDefined();
@@ -24,8 +24,8 @@ describe('Environment Validator', () => {
         it('should use default values for optional variables', () => {
             process.env.NODE_ENV = 'test';
             process.env.ADMIN_SECRET = 'test-secret-key-12345678';
-            process.env.POCKETBASE_URL = 'https://test.example.com/api';
-            process.env.POCKETBASE_ADMIN_TOKEN = 'test-admin-token';
+            process.env.NOCOBASE_URL = 'https://test.example.com/api';
+            process.env.NOCOBASE_API_KEY = 'test-api-key';
 
             const env = loadEnvironment();
             expect(env.PORT).toBe('4100');
@@ -35,8 +35,8 @@ describe('Environment Validator', () => {
         it('should validate NODE_ENV is valid value', () => {
             process.env.NODE_ENV = 'invalid';
             process.env.ADMIN_SECRET = 'test-secret-key-12345678';
-            process.env.POCKETBASE_URL = 'https://test.example.com/api';
-            process.env.POCKETBASE_ADMIN_TOKEN = 'test-admin-token';
+            process.env.NOCOBASE_URL = 'https://test.example.com/api';
+            process.env.NOCOBASE_API_KEY = 'test-api-key';
 
             // should not throw in test mode
             const env = loadEnvironment();
@@ -46,8 +46,8 @@ describe('Environment Validator', () => {
         it('should validate ADMIN_SECRET minimum length', () => {
             process.env.NODE_ENV = 'test';
             process.env.ADMIN_SECRET = 'short';
-            process.env.POCKETBASE_URL = 'https://test.example.com/api';
-            process.env.POCKETBASE_ADMIN_TOKEN = 'test-admin-token';
+            process.env.NOCOBASE_URL = 'https://test.example.com/api';
+            process.env.NOCOBASE_API_KEY = 'test-api-key';
 
             // should handle validation error gracefully in test mode
             const env = loadEnvironment();
