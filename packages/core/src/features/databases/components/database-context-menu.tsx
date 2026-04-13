@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
-import type { Collection } from '@/types/nocobase';
+import type { Collection } from '@/types';
 import { secureLogger } from '@/lib/secure-logger';
 import {
   ContextMenu,
@@ -44,7 +44,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
 
   // metadata for cosmetics (legacy localstorage fallback)
   const [metadata, setMetadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
-  
+
   // synced colors from nocobase (cross-device persistence)
   const { updateMetadata: syncColorToServer, getMetadata: getSyncedMetadata } = useSidebarColors();
   const syncedMeta = getSyncedMetadata(collection.name);
@@ -58,7 +58,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
         [key]: value
       }
     });
-    
+
     // sync to nocobase for cross-device persistence
     if (key === 'color') {
       await syncColorToServer(collection.name, {
@@ -67,7 +67,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
         iconType: syncedMeta?.iconType
       });
     }
-    
+
     onUpdate();
   };
 

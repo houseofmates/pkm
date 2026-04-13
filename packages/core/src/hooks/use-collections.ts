@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/auth-context';
-import type { Collection } from '@/types/nocobase';
+import type { Collection } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -24,31 +24,31 @@ const SYSTEM_COLLECTIONS_SET = new Set([
 ]);
 
 // discover additional collections from localstorage cache
-function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
-  const discovered: Array<{name: string, title: string}> = [];
+function discoverCollectionsFromCache(): Array<{ name: string, title: string }> {
+  const discovered: Array<{ name: string, title: string }> = [];
   try {
     // check sidebar items for collection references
     const sidebarItems = localStorage.getItem('sidebar_items');
     if (sidebarItems) {
       const items = JSON.parse(sidebarItems);
       items.forEach((item: any) => {
-        if (item.type === 'collection' && item.id && 
-            !item.id.startsWith('doc_') && 
-            !item.id.startsWith('drawing_') &&
-            !item.id.startsWith('folder_') &&
-            !SYSTEM_COLLECTIONS_SET.has(item.id.toLowerCase())) {
+        if (item.type === 'collection' && item.id &&
+          !item.id.startsWith('doc_') &&
+          !item.id.startsWith('drawing_') &&
+          !item.id.startsWith('folder_') &&
+          !SYSTEM_COLLECTIONS_SET.has(item.id.toLowerCase())) {
           discovered.push({ name: item.id, title: item.name || item.id });
         }
       });
     }
-    
+
     // check database order setting
     const dbOrder = localStorage.getItem('database_order');
     if (dbOrder) {
       const order = JSON.parse(dbOrder);
       order.forEach((name: string) => {
         if (!discovered.some(d => d.name === name) &&
-            !SYSTEM_COLLECTIONS_SET.has(name.toLowerCase())) {
+          !SYSTEM_COLLECTIONS_SET.has(name.toLowerCase())) {
           discovered.push({ name, title: name });
         }
       });
@@ -113,10 +113,10 @@ export function useCollections() {
       // merge with hardcoded collections that may be missing from api response
       const existingNames = new Set(filtered.map((c: Collection) => c.name.toLowerCase()));
       const cachedCollections = discoverCollectionsFromCache();
-      
+
       // normalize names for dedup (handles hygiene-log vs hygiene_log etc.)
       const normalizedExisting = new Set(filtered.map((c: Collection) => (c.name || '').toLowerCase().replace(/[-_]/g, '')));
-      
+
       // first add hardcoded collections that are missing from api
       const hardcodedMissing = HARDCODED_COLLECTIONS
         .filter(name => !normalizedExisting.has(name.toLowerCase().replace(/[-_]/g, '')))

@@ -31,7 +31,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { Collection } from '@/types/nocobase';
+import type { Collection } from '@/types';
 
 interface DatabasesPageProps {
   onSelect?: (name: string) => void;
@@ -173,14 +173,14 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
               params: { pageSize: 1, fields: ['id'] }
             }) as any;
             // Handle various NocoBase API response structures
-            const total = res?.data?.meta?.count ?? 
-                          res?.data?.meta?.total ?? 
-                          res?.data?.meta?.totalCount ?? 
-                          res?.meta?.count ?? 
-                          res?.meta?.total ?? 
-                          res?.meta?.totalCount ?? 
-                          res?.total ?? 
-                          0;
+            const total = res?.data?.meta?.count ??
+              res?.data?.meta?.total ??
+              res?.data?.meta?.totalCount ??
+              res?.meta?.count ??
+              res?.meta?.total ??
+              res?.meta?.totalCount ??
+              res?.total ??
+              0;
             counts[col.name] = total;
             secureLogger.debug(`[Databases] ${col.name} count:`, total);
           } catch (err) {

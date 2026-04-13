@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { Collection } from '@/types/nocobase';
+import type { Collection } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from "@/components/ui/button";
 import { Settings as SettingsIcon, RotateCw } from "lucide-react";
