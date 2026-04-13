@@ -23,7 +23,7 @@ import {
 import { toast } from 'sonner';
 import { Image as ImageIcon, Plus, Smartphone, Monitor, Database, FileText, ArrowLeft, Zap } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
-import type { Collection } from '@/types/nocobase';
+import type { Collection } from '@/types';
 import { detectFieldType } from '@/utils/csv-detector';
 import { type ViewType } from '@/components/views/registry';
 import { useNavigate } from 'react-router-dom';

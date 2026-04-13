@@ -1,6 +1,6 @@
 
 import React from 'react';
-import type { Collection } from "@/types/nocobase";
+import type { Collection } from "@/types";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { storageManager } from '@/lib/storage-manager';
