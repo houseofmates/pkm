@@ -333,7 +333,10 @@ export function FronterProvider({ children }: { children: ReactNode }) {
             comment,
           };
         secureLogger.info("Creating new front entry:", newEntry);
-        const createResult = await api.createRecord("front_history", newEntry);
+        const createResult = await pocketBaseClient.createRecord(
+          "front_history",
+          newEntry,
+        );
         secureLogger.info("New front entry created, result:", createResult);
 
         // --- simplyplural sync ---
