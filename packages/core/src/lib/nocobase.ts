@@ -11,4 +11,5 @@ export {
   type PocketBaseListResult,
 } from "./pocketbase";
 
-export default nocobaseClient;
+import { nocobaseClient as _nocobaseClient } from "./pocketbase";
+export default _nocobaseClient;
