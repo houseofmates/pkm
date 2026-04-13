@@ -2,6 +2,7 @@
 import { useCollections } from '@/hooks/use-collections';
 import { CollectionCard } from '@/features/collections/components/collection-card';
 import { useAuth } from '@/contexts/auth-context';
+import { useHiddenCollections } from '@/hooks/use-hidden-collections';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CollectionDialog } from '@/features/collections/components/collection-dialog';
 import { Input } from '@/components/ui/input';
@@ -41,9 +42,12 @@ interface SortableDatabaseItemProps {
   collection: Collection;
   onSelect: (name: string) => void;
   onRefresh: () => void;
+  onHide?: () => void;
+  onUnhide?: () => void;
+  isHidden?: boolean;
 }
 
-function SortableDatabaseItem({ collection, onSelect, onRefresh }: SortableDatabaseItemProps) {
+function SortableDatabaseItem({ collection, onSelect, onRefresh, onHide, onUnhide, isHidden }: SortableDatabaseItemProps) {
   const {
     attributes,
     listeners,
@@ -66,7 +70,13 @@ function SortableDatabaseItem({ collection, onSelect, onRefresh }: SortableDatab
       {...attributes}
       {...listeners}
     >
-      <DatabaseContextMenu collection={collection} onUpdate={onRefresh}>
+      <DatabaseContextMenu
+        collection={collection}
+        onUpdate={onRefresh}
+        onHide={onHide}
+        onUnhide={onUnhide}
+        isHidden={isHidden}
+      >
         <div onClick={() => onSelect(collection.name)} className="cursor-pointer">
           <CollectionCard collection={collection} />
         </div>
