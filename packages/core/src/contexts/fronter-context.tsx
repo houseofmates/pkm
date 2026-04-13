@@ -124,13 +124,11 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       // fetch headmates
       let headmatesData: any[] = [];
       try {
-        const res = await api.listRecords("headmates", {
+        const res = await pocketBaseClient.listRecords("headmates", {
           sort: "name",
           pageSize: 100,
         });
-        headmatesData = Array.isArray(res)
-          ? res
-          : (res as { data?: any[] })?.data || [];
+        headmatesData = res.data || [];
       } catch (e) {
         secureLogger.warn("Headmates collection missing?", e);
         // create if missing?
