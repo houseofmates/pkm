@@ -280,12 +280,12 @@ const requireAuth = (req, res, next) => {
     return next();
   }
 
-  // also accept a configured pocketbase admin token if present
-  if (process.env.POCKETBASE_ADMIN_TOKEN && token === process.env.POCKETBASE_ADMIN_TOKEN) {
+  // also accept a configured nocobase api key if present
+  if (process.env.NOCOBASE_API_KEY && token === process.env.NOCOBASE_API_KEY) {
     return next();
   }
 
-  // note: we could eventually validate against pocketbase auth store,
+  // note: we could eventually validate against nocobase_token in storage,
   // but for now we only honour the environment variable to avoid leaking
   // secrets from request bodies.
 
