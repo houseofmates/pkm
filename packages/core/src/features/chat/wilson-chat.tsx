@@ -515,7 +515,7 @@ export function WilsonChat() {
           </div>
           <div className="text-[10px] text-primary/30 mt-2 flex items-center gap-2">
             <Image size={10} />
-            <span className="lowercase">supports: jpg, png, gif, webp, mp4, mov</span>
+            <span className="lowercase">supports: jpg, png, gif, webp, mp3, wav, m4a</span>
             <span className="ml-auto lowercase" title={RAW_MODEL_NAME}>model: {friendlyModelName(RAW_MODEL_NAME).toLowerCase()}</span>
           </div>
         </div>
