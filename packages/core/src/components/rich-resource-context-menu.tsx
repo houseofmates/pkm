@@ -396,7 +396,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   );
 }
 
-function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: RichResourceContextMenuProps) {
+function renderMenu({ currentName, currentColor, onUpdate, onHide, children, itemId }: RichResourceContextMenuProps) {
   const [search, setSearch] = useState('');
   const FALLBACK_ICONS = ['Folder', 'File', 'Database', 'Layout', 'Settings', 'User', 'Users', 'Home', 'Search', 'Plus', 'Minus'];
   const [allIcons, setAllIcons] = useState<string[]>(FALLBACK_ICONS);
