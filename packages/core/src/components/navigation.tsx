@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { secureLogger } from '@/lib/secure-logger';
 import { detectFieldType } from '@/utils/csv-detector';
 import { useCollections } from '@/hooks/use-collections';
+import { useHiddenCollections } from '@/hooks/use-hidden-collections';
 import { useNavigate } from 'react-router-dom';
 import { formatHeadmateName, getCapitalizationClass } from '@/utils/text-formatting';
 import { getSidebarColors } from '@/utils/getSidebarColors';
@@ -282,7 +283,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
 export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems }: NavigationProps) {
   // provide a no-op setter if the caller didn't supply one (mobile drawer sometimes omits it)
-  const safeSetItems = setItems ?? (() => {});
+  const safeSetItems = setItems ?? (() => { });
 
   // synced colors from nocobase (cross-device persistence)
   const { colors: syncedColors, updateMetadata, isUpdating: isSyncingColors } = useSidebarColors({
@@ -294,6 +295,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   const deletedItemsRef = useRef<Set<string>>(new Set());
 
   const { collections, refresh } = useCollections();
+  const { isHidden } = useHiddenCollections();
   const navigate = useNavigate();
 
   // hide the internal dashboard background drawing from the sidebar
@@ -364,7 +366,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     // sync color/icon changes to nocobase for cross-device persistence
     if (updates.color || updates.icon || updates.iconType) {
       const itemType = updates.itemType || (id.startsWith('folder_') ? 'folder' : id.startsWith('doc_') ? 'document' : id.startsWith('drawing_') ? 'drawing' : 'collection');
-      
+
       // save to nocobase (async, fire and forget with error handling)
       updateMetadata(id, {
         color: updates.color,
@@ -453,9 +455,12 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   useEffect(() => {
     if (collections.length === 0) return;
 
-    // only hide system/internal collections - all user collections should be visible
+    // only hide system/internal collections and user-hidden collections
     const forbiddenCollections = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'users', 'roles'];
-    const visibleCollections = collections.filter((c: any) => !forbiddenCollections.includes(String(c.name).toLowerCase()));
+    const visibleCollections = collections.filter((c: any) =>
+      !forbiddenCollections.includes(String(c.name).toLowerCase()) &&
+      !isHidden(c.name)
+    );
 
     // clear any stored deleted state for collections that exist on server
     // this ensures newly created collections always appear
