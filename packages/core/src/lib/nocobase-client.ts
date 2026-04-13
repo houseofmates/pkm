@@ -8,10 +8,11 @@ const NOCOBASE_URL =
 // mock pb object for compatibility (deprecated but kept for imports)
 export const pb = {
   authStore: {
-    onChange: () => {},
+    onChange: () => { },
     isValid: false,
     model: null,
-    clear: () => {},
+    clear: () => { },
+    save: (_token: string, _user: any) => { },
   },
   collection: () => ({
     getList: async () => ({ items: [], totalItems: 0 }),
@@ -19,9 +20,9 @@ export const pb = {
     getOne: async () => ({}),
     create: async () => ({}),
     update: async () => ({}),
-    delete: async () => {},
-    subscribe: () => () => {},
-    unsubscribe: () => {},
+    delete: async () => { },
+    subscribe: () => () => { },
+    unsubscribe: () => { },
   }),
   getFileUrl: () => "",
   send: async () => ({}),
@@ -76,7 +77,7 @@ export class PocketBaseClient {
       isValid: !!this._token,
       model: this._user,
       token: this._token,
-      onChange: () => {},
+      onChange: () => { },
       clear: () => this.logout(),
     };
   }
@@ -250,7 +251,7 @@ export class PocketBaseClient {
     secureLogger.warn(
       `[NocoBase] subscriptions not supported, polling recommended for ${collection}`,
     );
-    return () => {};
+    return () => { };
   }
 
   unsubscribe(collection: string) {
