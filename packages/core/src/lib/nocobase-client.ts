@@ -5,6 +5,10 @@ import { storageManager } from "./storage-manager";
 const NOCOBASE_URL =
   import.meta.env.VITE_NOCOBASE_URL || "https://db.houseofmates.space/api";
 
+// environment token that may be injected at build time - we should NOT use it
+// if the user has explicitly entered a different key in the UI
+const BUILD_TIME_TOKEN = import.meta.env.VITE_NOCOBASE_API_TOKEN || "";
+
 // mock pb object for compatibility (deprecated but kept for imports)
 export const pb = {
   authStore: {
