@@ -154,6 +154,7 @@ export function useAuth() {
       token: null,
       isAuthenticated: false,
       login: async () => {},
+      loginWithApiKey: async () => {},
       logout: async () => {},
       client: pocketBaseClient,
     } as AuthContextType;
