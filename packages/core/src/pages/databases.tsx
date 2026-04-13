@@ -403,6 +403,9 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
                   collection={collection}
                   onSelect={handleSelect}
                   onRefresh={refresh}
+                  onHide={() => hideCollection(collection.name)}
+                  onUnhide={() => unhideCollection(collection.name)}
+                  isHidden={isHidden(collection.name)}
                 />
               </div>
             ))}
