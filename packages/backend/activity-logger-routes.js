@@ -24,13 +24,13 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
       notes: notes || ''
     };
 
-    await axios.post(`${process.env.POCKETBASE_URL || 'http://localhost:8090'}/activity_logs:create`, logPayload, {
+    await axios.post(`${process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api'}/activity_logs:create`, logPayload, {
       headers: { 'Authorization': req.headers.authorization }
     });
 
     // update streak
     const streakRes = await axios.get(
-      `${process.env.POCKETBASE_URL || 'http://localhost:8090'}/streaks:list?filter[activity_id]=${activity_id}`,
+      `${process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api'}/streaks:list?filter[activity_id]=${activity_id}`,
       { headers: { 'Authorization': req.headers.authorization } }
     );
 
@@ -41,7 +41,7 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
 
     if (!streak) {
       // create new streak
-      await axios.post(`${process.env.POCKETBASE_URL || 'http://localhost:8090'}/streaks:create`, {
+      await axios.post(`${process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api'}/streaks:create`, {
         activity_id,
         activity_name,
         current_streak: 1,
@@ -69,7 +69,7 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
       const longestStreak = Math.max(newStreak, streak.longest_streak);
 
       await axios.post(
-        `${process.env.POCKETBASE_URL || 'http://localhost:8090'}/streaks:update?filterByTk=${streak.id}`,
+        `${process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api'}/streaks:update?filterByTk=${streak.id}`,
         {
           current_streak: newStreak,
           longest_streak: longestStreak,
@@ -94,7 +94,7 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
 // get streaks for all activities
 app.get('/api/activities/streaks', requireAuth, async (req, res) => {
   try {
-    const streakRes = await axios.get(`${process.env.POCKETBASE_URL || 'http://localhost:8090'}/streaks:list?pageSize=100`, {
+    const streakRes = await axios.get(`${process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api'}/streaks:list?pageSize=100`, {
       headers: { 'Authorization': req.headers.authorization }
     });
     res.json(streakRes.data?.data || []);
@@ -119,7 +119,7 @@ app.get('/api/activities/history', requireAuth, async (req, res) => {
     }
 
     const logsRes = await axios.get(
-      `${process.env.POCKETBASE_URL || 'http://localhost:8090'}/activity_logs:list?${filter}&sort=-timestamp&pageSize=500`,
+      `${process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api'}/activity_logs:list?${filter}&sort=-timestamp&pageSize=500`,
       { headers: { 'Authorization': req.headers.authorization } }
     );
 
