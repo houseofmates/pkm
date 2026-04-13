@@ -2,7 +2,7 @@
 
 This lightweight backend starts a small express server to handle:
 
-- `/sync-webhook` - accept nocobase record(s), generate embeddings via ollama, and upsert into lancedb
+- `/sync-webhook` - accept pocketbase record(s), generate embeddings via ollama, and upsert into lancedb
 - `/search` - run semantic search against lancedb
 
 Requirements:

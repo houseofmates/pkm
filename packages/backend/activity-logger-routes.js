@@ -4,7 +4,7 @@
 // log activity endpoint
 app.post('/api/activities/log', requireAuth, async (req, res) => {
   const { activity_id, activity_name, values, notes } = req.body;
-  
+
   if (!activity_id || !activity_name) {
     return res.status(400).json({ error: 'activity_id and activity_name required' });
   }
@@ -24,13 +24,13 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
       notes: notes || ''
     };
 
-    await axios.post(`${process.env.NOCOBASE_URL}/activity_logs:create`, logPayload, {
+    await axios.post(`${process.env.POCKETBASE_URL || 'http://localhost:8090'}/activity_logs:create`, logPayload, {
       headers: { 'Authorization': req.headers.authorization }
     });
 
     // update streak
     const streakRes = await axios.get(
-      `${process.env.NOCOBASE_URL}/streaks:list?filter[activity_id]=${activity_id}`,
+      `${process.env.POCKETBASE_URL || 'http://localhost:8090'}/streaks:list?filter[activity_id]=${activity_id}`,
       { headers: { 'Authorization': req.headers.authorization } }
     );
 
@@ -41,19 +41,19 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
 
     if (!streak) {
       // create new streak
-      await axios.post(`${process.env.NOCOBASE_URL}/streaks:create`, {
+      await axios.post(`${process.env.POCKETBASE_URL || 'http://localhost:8090'}/streaks:create`, {
         activity_id,
         activity_name,
         current_streak: 1,
         longest_streak: 1,
         last_log_date: date
       }, { headers: { 'Authorization': req.headers.authorization } });
-      
+
       res.json({ logged: true, streak: 1, new_record: true });
     } else {
       // update existing streak
       let newStreak = streak.current_streak;
-      
+
       if (streak.last_log_date === date) {
         // already logged today, no streak change
         res.json({ logged: true, streak: newStreak, already_logged_today: true });
@@ -69,7 +69,7 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
       const longestStreak = Math.max(newStreak, streak.longest_streak);
 
       await axios.post(
-        `${process.env.NOCOBASE_URL}/streaks:update?filterByTk=${streak.id}`,
+        `${process.env.POCKETBASE_URL || 'http://localhost:8090'}/streaks:update?filterByTk=${streak.id}`,
         {
           current_streak: newStreak,
           longest_streak: longestStreak,
@@ -78,9 +78,9 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
         { headers: { 'Authorization': req.headers.authorization } }
       );
 
-      res.json({ 
-        logged: true, 
-        streak: newStreak, 
+      res.json({
+        logged: true,
+        streak: newStreak,
         longest: longestStreak,
         streak_increased: newStreak > streak.current_streak
       });
@@ -94,7 +94,7 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
 // get streaks for all activities
 app.get('/api/activities/streaks', requireAuth, async (req, res) => {
   try {
-    const streakRes = await axios.get(`${process.env.NOCOBASE_URL}/streaks:list?pageSize=100`, {
+    const streakRes = await axios.get(`${process.env.POCKETBASE_URL || 'http://localhost:8090'}/streaks:list?pageSize=100`, {
       headers: { 'Authorization': req.headers.authorization }
     });
     res.json(streakRes.data?.data || []);
@@ -107,7 +107,7 @@ app.get('/api/activities/streaks', requireAuth, async (req, res) => {
 // get activity history
 app.get('/api/activities/history', requireAuth, async (req, res) => {
   const { activity_id, days = 30 } = req.query;
-  
+
   try {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - parseInt(days));
@@ -119,7 +119,7 @@ app.get('/api/activities/history', requireAuth, async (req, res) => {
     }
 
     const logsRes = await axios.get(
-      `${process.env.NOCOBASE_URL}/activity_logs:list?${filter}&sort=-timestamp&pageSize=500`,
+      `${process.env.POCKETBASE_URL || 'http://localhost:8090'}/activity_logs:list?${filter}&sort=-timestamp&pageSize=500`,
       { headers: { 'Authorization': req.headers.authorization } }
     );
 
