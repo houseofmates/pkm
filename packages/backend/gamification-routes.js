@@ -4,13 +4,13 @@
 // award xp and update user stats
 app.post('/api/gamification/award-xp', requireAuth, async (req, res) => {
   const { user_id, amount, source, source_id, description } = req.body;
-  
+
   if (!user_id || !amount) {
     return res.status(400).json({ error: 'user_id and amount required' });
   }
 
   try {
-    const base = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
+    const base = process.env.POCKETBASE_URL || 'http://localhost:8090';
     const client = axios.create({
       baseURL: base.replace(/\/$/, ''),
       headers: {
@@ -48,20 +48,20 @@ app.post('/api/gamification/award-xp', requireAuth, async (req, res) => {
     } else {
       const newXp = stats.total_xp + amount;
       const newLevel = calculateLevelFromXp(newXp);
-      
+
       await client.post(`/user_stats:update?filterByTk=${stats.id}`, {
         total_xp: newXp,
         level: newLevel,
         last_updated: new Date().toISOString()
       });
-      
+
       stats.total_xp = newXp;
       stats.level = newLevel;
     }
 
-    res.json({ 
-      success: true, 
-      new_xp: stats.total_xp, 
+    res.json({
+      success: true,
+      new_xp: stats.total_xp,
       level: stats.level,
       level_up: false // todo: detect level changes
     });
@@ -74,9 +74,9 @@ app.post('/api/gamification/award-xp', requireAuth, async (req, res) => {
 // get user stats
 app.get('/api/gamification/stats/:user_id', requireAuth, async (req, res) => {
   const { user_id } = req.params;
-  
+
   try {
-    const base = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
+    const base = process.env.POCKETBASE_URL || 'http://localhost:8090';
     const client = axios.create({
       baseURL: base.replace(/\/$/, ''),
       headers: { 'Authorization': req.headers.authorization }
@@ -86,9 +86,9 @@ app.get('/api/gamification/stats/:user_id', requireAuth, async (req, res) => {
     const stats = statsRes.data?.data?.[0];
 
     if (!stats) {
-      return res.json({ 
-        total_xp: 0, 
-        level: 1, 
+      return res.json({
+        total_xp: 0,
+        level: 1,
         activities_logged: 0,
         unlocked_themes: [],
         unlocked_colors: []
@@ -105,13 +105,13 @@ app.get('/api/gamification/stats/:user_id', requireAuth, async (req, res) => {
 // unlock achievement
 app.post('/api/gamification/unlock-achievement', requireAuth, async (req, res) => {
   const { user_id, achievement_id, achievement_name, xp_reward } = req.body;
-  
+
   if (!user_id || !achievement_id) {
     return res.status(400).json({ error: 'user_id and achievement_id required' });
   }
 
   try {
-    const base = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
+    const base = process.env.POCKETBASE_URL || 'http://localhost:8090';
     const client = axios.create({
       baseURL: base.replace(/\/$/, ''),
       headers: {
@@ -124,7 +124,7 @@ app.post('/api/gamification/unlock-achievement', requireAuth, async (req, res) =
     const existingRes = await client.get(
       `/achievements:list?filter[user_id]=${user_id}&filter[achievement_id]=${achievement_id}`
     );
-    
+
     if (existingRes.data?.data?.length > 0) {
       return res.json({ already_unlocked: true });
     }
@@ -183,7 +183,7 @@ function calculateLevelFromXp(xp) {
     { level: 11, xp: 10000 },
     { level: 12, xp: 15000 }
   ];
-  
+
   for (let i = levels.length - 1; i >= 0; i--) {
     if (xp >= levels[i].xp) return levels[i].level;
   }
