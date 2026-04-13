@@ -104,6 +104,8 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
       type = file.type === 'image/gif' ? 'gif' : 'image';
     } else if (file.type.startsWith('video/')) {
       type = 'video';
+    } else if (file.type.startsWith('audio/')) {
+      type = 'audio';
     }
 
     // create attachment object
@@ -248,7 +250,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
     // check if we're using local ollama (no api key needed)
     const ollamaBase = getOllamaBase();
     const isOllama = !ollamaBase.includes('googleapis.com') && !ollamaBase.includes('gemini');
-    
+
     if (!isOllama) {
       const apiKey = await get().ensureGeminiApiKey();
       if (!apiKey) {
@@ -315,12 +317,12 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
       } catch { /* ignore parse errors */ }
 
       const { activeModel, apiUrl } = get()
-      
+
       // use local ollama directly - no api key needed
       const resolvedUrl = apiUrl;
-      
+
       secureLogger.info('[wilson] using endpoint:', resolvedUrl)
-      
+
       const worker = await getAIWorkerProxy()
       if (!worker) {
         throw new Error('AI worker failed to initialize')
