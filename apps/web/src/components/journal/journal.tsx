@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback, useDeferredValue, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 
@@ -38,7 +37,7 @@ import LogsCalendar from './logs-calendar'
 import ReflectionTimer from './reflection-timer'
 
 import { useGamificationStore } from '../../stores/gamification-store'
-import { useHaptics } from '../../../../packages/core/src/hooks/useHaptics'
+import { useHaptics } from '@pkm/core/src/hooks/useHaptics'
 
 import { toast } from 'sonner'
 
@@ -102,11 +101,6 @@ const ACTIVITIES = ['walk', 'read', 'meditate', 'work']
 
 const EMPTY_ENTRY: JournalEntry = { id: '', date: '', mood: '', emotions: [], activities: [], note: '', xpEarned: 0 }
 
-const tabVariants = {
-  initial: { opacity: 0, x: 20 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -20 }
-}
 
 
 
@@ -282,7 +276,7 @@ const Journal: React.FC = () => {
 
   const [entry, setEntry] = useState<JournalEntry>(EMPTY_ENTRY)
 
-  const { impact, selectionStart, selectionChanged, complete, light, medium, heavy, success, error } = useHaptics();
+  const { selectionStart, success } = useHaptics();
 
   const [entries, setEntries] = useState<JournalEntry[]>(() => loadStoredEntries())
 
@@ -497,6 +491,8 @@ const Journal: React.FC = () => {
 
     return () => window.removeEventListener('keydown', handleKeyDown)
 
+    return () => window.removeEventListener('keydown', handleKeyDown)
+
   }, [entry.mood, handleSave])
 
 
@@ -519,7 +515,6 @@ const Journal: React.FC = () => {
 
 
   return (
-
     <div className="min-h-screen bg-black p-4 md:p-8 space-y-6 text-amber-50">
 
       <div className="flex items-center justify-between text-sm text-amber-200/80">
