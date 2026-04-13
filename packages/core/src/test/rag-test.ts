@@ -6,7 +6,7 @@ import { searchKnowledgeBase } from '@/lib/vector-store';
 import { getAutoSuggestions, getStarterSuggestions } from '@/services/auto-suggest-service';
 import { scheduler, previewScheduledRecords } from '@/services/scheduled-generation';
 import { findRelatedDupemates } from '@/services/dupemates-integration';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 
 export interface TestResult {
   name: string;

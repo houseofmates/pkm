@@ -5,7 +5,7 @@ import React, {
   useEffect,
   type ReactNode,
 } from "react";
-import { pocketBaseClient } from "@/lib/pocketbase";
+import { pocketBaseClient } from "@/lib/nocobase";
 import { toast } from "sonner";
 import { secureLogger } from "@/lib/secure-logger";
 import { storageManager } from "@/lib/storage-manager";

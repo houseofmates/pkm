@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
 import { BlogCanvas } from './BlogCanvas';

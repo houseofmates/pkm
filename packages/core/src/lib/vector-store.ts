@@ -1,7 +1,7 @@
 // vector store client for rag retrieval
 // supports nocobase ai knowledge base or local lancedb
 
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 import { normalizeListResponse, extractRecords } from '@/lib/nocobase-utils';
 

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useFronter } from '@/contexts/fronter-context';
 import { formatHeadmateName } from '@/utils/text-formatting';
 import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';

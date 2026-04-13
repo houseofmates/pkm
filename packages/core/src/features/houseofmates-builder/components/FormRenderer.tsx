@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Star, Send, Loader2 } from 'lucide-react';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
 import { getSubdomain } from '@/utils/subdomain-router';

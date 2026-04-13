@@ -3,7 +3,7 @@
 
 import { searchKnowledgeBase, formatChunksForPrompt, type SearchResult } from '@/lib/vector-store';
 import { getWilsonRagPrompt, getAiFieldPrompt } from '@/lib/rag-prompts';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export interface RagContext {

@@ -1,4 +1,4 @@
-import { pocketBaseClient } from "@/lib/pocketbase";
+import { pocketBaseClient } from "@/lib/nocobase";
 import { localDbService } from "./local-db.service";
 import { useCollectionsStore } from "@/store/useCollectionsStore";
 import { useGamificationStore } from "@/store/useGamificationStore";
@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import "./field-types";
 import type { FieldInstance } from "./schema.service";
 import { io, Socket } from "socket.io-client";
-import { pb } from "@/lib/pocketbase";
+import { pb } from "@/lib/nocobase";
 
 const SYNC_THEME_COLOR = "#f6b012";
 

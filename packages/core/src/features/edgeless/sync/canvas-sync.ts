@@ -2,7 +2,7 @@
 // syncs checkpoints to nocobase using upsert pattern
 // instant sync on save, load from server on init
 
-import { pocketBaseClient } from '@/lib/pocketbase'
+import { pocketBaseClient } from '@/lib/nocobase'
 import {
 getUnsyncedOps,
 markOpsSynced,

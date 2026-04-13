@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, createContext, useContext, useRef, us
 import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from '@/lib/secure-logger';
 import { useParams } from 'react-router-dom';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { toast } from 'sonner';
 import { getSubdomain, isPublicDomain } from '@/utils/subdomain-router';
 import { AdminLoginModal } from './components/AdminLoginModal';

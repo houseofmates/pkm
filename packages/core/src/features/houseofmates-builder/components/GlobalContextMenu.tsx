@@ -5,7 +5,7 @@ import {
   MousePointerClick, Database, ChevronRight, X, Upload, Link, Volume2,
   ClipboardPaste
 } from 'lucide-react';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { toast } from 'sonner';
 import { CollectionPickerModal } from './CollectionPickerModal';
 import { secureLogger } from '@/lib/secure-logger';

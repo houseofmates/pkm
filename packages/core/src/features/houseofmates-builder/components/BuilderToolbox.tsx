@@ -8,7 +8,7 @@ import {
   BarChart, ListOrdered, ShoppingBag, StickyNote, Flame, Coins, Moon, Terminal
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 import { storageManager } from '@/lib/storage-manager';
 

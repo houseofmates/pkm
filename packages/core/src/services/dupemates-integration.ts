@@ -2,7 +2,7 @@
 // indexes dupemate interactions and provides relationship context
 
 import { indexRecord, deleteRecordFromIndex, searchKnowledgeBase } from '@/lib/vector-store';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export interface DupemateInteraction {

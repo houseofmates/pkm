@@ -3,7 +3,7 @@ import type { Editor } from '@tiptap/core';
 import tippy, { type Instance } from 'tippy.js';
 import { SlashMenu } from './SlashMenu';
 
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export const getWikilinkItems = async ({ query }: { query: string }) => {

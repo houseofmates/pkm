@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { useDebounce } from 'react-use';
 import { useSocket } from '@/hooks/use-socket';
 import { Wifi, WifiOff } from 'lucide-react';

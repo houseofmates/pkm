@@ -2,7 +2,7 @@
 // one-time migration to scan all existing documents and populate the link registry
 
 import { registry } from './link-registry'
-import { pocketBaseClient } from '@/lib/pocketbase'
+import { pocketBaseClient } from '@/lib/nocobase'
 import { storageManager } from './storage-manager'
 import { secureLogger } from './secure-logger'
 

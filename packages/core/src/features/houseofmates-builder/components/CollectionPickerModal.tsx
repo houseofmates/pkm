@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { Database, Table, LayoutGrid, Calendar, BarChart3, Layers, X, Loader2, AlertCircle, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';

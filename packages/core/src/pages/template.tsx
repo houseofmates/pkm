@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from 'sonner';
 import { Play, Eye, Database, Layout, Info, Maximize2, FilePlus, X, Wand2, ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { generateSlug } from '@/features/blog-builder/utils/blog-utils';

@@ -1,4 +1,4 @@
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';

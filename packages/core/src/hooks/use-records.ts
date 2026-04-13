@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { walWrite, walCommit, walFail } from "@/lib/write-ahead-log";
 import { registry } from "@/lib/link-registry";
 import { secureLogger } from "@/lib/secure-logger";
-import type { PocketBaseRecord } from "@/lib/pocketbase";
+import type { PocketBaseRecord } from "@/lib/nocobase";
 
 export interface RecordPayload {
   [key: string]: unknown;

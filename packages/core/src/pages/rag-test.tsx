@@ -8,7 +8,7 @@ import { generateAndSaveAiField, previewAiFieldContent } from '@/services/ai-fie
 import { AiFieldButton } from '@/components/ai-field-button';
 import { useAiGeneration } from '@/hooks/use-ai-generation';
 import { useLLMStore } from '@/stores/llm-store';
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { pocketBaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export default function RagTestPage() {
