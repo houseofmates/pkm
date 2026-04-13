@@ -268,6 +268,10 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
             currentName={item.name}
             currentColor={item.color || metaColor}
             onUpdate={(updates) => onUpdate(id, updates)}
+            onHide={() => {
+              // hide from sidebar by adding to deleted items
+              onUpdate(id, { delete: true });
+            }}
           >
             {/* "rename" menu item removed as it opens a dialog we want to avoid */}
             <ContextMenuSeparator />
