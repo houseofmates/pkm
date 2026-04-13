@@ -1,12 +1,16 @@
-export interface NocoBaseResponse<T = any> {
+export interface ApiListResponse<T = any> {
   data: T;
   meta?: {
-  count: number;
-  page: number;
-  pageSize: number;
-  totalPage: number;
+    count: number;
+    page: number;
+    pageSize: number;
+    totalPage: number;
+    total?: number;
   };
 }
+
+// @deprecated use ApiListResponse instead
+export type NocoBaseResponse<T = any> = ApiListResponse<T>;
 
 export interface RequestOptions {
   params?: Record<string, any>;
@@ -40,4 +44,19 @@ export interface Collection {
   hidden?: boolean;
 }
 
-export type ApiResponse<T> = NocoBaseResponse<T>;
+export type ApiResponse<T> = ApiListResponse<T>;
+
+// pocketbase-specific types
+export interface PocketBaseRecord {
+  id: string;
+  created: string;
+  updated: string;
+  [key: string]: any;
+}
+
+export interface PocketBaseAuthModel {
+  id: string;
+  email: string;
+  verified: boolean;
+  [key: string]: any;
+}
