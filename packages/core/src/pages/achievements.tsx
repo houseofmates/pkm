@@ -111,7 +111,7 @@ export function AchievementsPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
+        const res: any = await pocketBaseClient.listRecords('journal', { sort: '-date', pageSize: 1000 });
         setEntries(res?.data || []);
       } catch (e) {
         secureLogger.error('failed to load journal entries', e);

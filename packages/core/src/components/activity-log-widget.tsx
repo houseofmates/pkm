@@ -34,7 +34,7 @@ export function ActivityLogWidget({ onClose, onLogged }: ActivityLogWidgetProps)
 
   const loadActivities = async () => {
     try {
-      const res: any = await api.listRecords('activities', { 
+      const res: any = await pocketBaseClient.listRecords('activities', { 
         filter: { loggable: true },
         pageSize: 100 
       });

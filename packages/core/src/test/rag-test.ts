@@ -6,7 +6,7 @@ import { searchKnowledgeBase } from '@/lib/vector-store';
 import { getAutoSuggestions, getStarterSuggestions } from '@/services/auto-suggest-service';
 import { scheduler, previewScheduledRecords } from '@/services/scheduled-generation';
 import { findRelatedDupemates } from '@/services/dupemates-integration';
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 
 export interface TestResult {
   name: string;
@@ -145,7 +145,7 @@ async function testAiFieldGeneration(): Promise<TestResult> {
 
   try {
     // first, try to get a real record to test with
-    const collectionsRes: any = await api.listCollections();
+    const collectionsRes: any = await pocketBaseClient.listCollections();
     const collections = Array.isArray(collectionsRes.data)
       ? collectionsRes.data
       : collectionsRes.data?.data || [];
@@ -162,7 +162,7 @@ async function testAiFieldGeneration(): Promise<TestResult> {
     }
 
     // get a record from the collection
-    const recordsRes: any = await api.listRecords(testCollection, { pageSize: 1 });
+    const recordsRes: any = await pocketBaseClient.listRecords(testCollection, { pageSize: 1 });
     const records = Array.isArray(recordsRes.data)
       ? recordsRes.data
       : recordsRes.data?.data || [];

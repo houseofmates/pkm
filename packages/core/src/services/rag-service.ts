@@ -3,7 +3,7 @@
 
 import { searchKnowledgeBase, formatChunksForPrompt, type SearchResult } from '@/lib/vector-store';
 import { getWilsonRagPrompt, getAiFieldPrompt } from '@/lib/rag-prompts';
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export interface RagContext {
@@ -68,7 +68,7 @@ export async function buildRowContext(
 ): Promise<RowContext> {
   try {
     // fetch the record
-    const recordRes = await api.getRecord(collection, recordId);
+    const recordRes = await pocketBaseClient.getRecord(collection, recordId);
     const record: Record<string, string | number | boolean | null | undefined> = (recordRes as { data?: unknown }).data as any || (recordRes as any);
 
     // fetch related records if relations exist

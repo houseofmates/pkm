@@ -47,7 +47,7 @@ export function useFinanceTracker() {
       setLoading(true)
       try {
         // try to load from finance_daily collection
-        const res: any = await api.listRecords('finance_daily', {
+        const res: any = await pocketBaseClient.listRecords('finance_daily', {
           filter: { date: today },
           pageSize: 1
         })
@@ -93,7 +93,7 @@ export function useFinanceTracker() {
     
     // try to save to server
     try {
-      const existing: any = await api.listRecords('finance_daily', {
+      const existing: any = await pocketBaseClient.listRecords('finance_daily', {
         filter: { date: today },
         pageSize: 1
       })
@@ -115,9 +115,9 @@ export function useFinanceTracker() {
       payload[categoryMap[categoryId]] = value
       
       if (existing?.data?.[0]) {
-        await api.updateRecord('finance_daily', existing.data[0].id, payload)
+        await pocketBaseClient.updateRecord('finance_daily', existing.data[0].id, payload)
       } else {
-        await api.createRecord('finance_daily', payload)
+        await pocketBaseClient.createRecord('finance_daily', payload)
       }
     } catch (e) {
       secureLogger.warn('failed to save finance to server', e)

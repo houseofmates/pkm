@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from '@/lib/secure-logger';
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
 
 /**

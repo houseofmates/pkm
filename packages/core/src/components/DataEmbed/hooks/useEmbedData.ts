@@ -37,7 +37,7 @@ export function useEmbedData({ collection, view, limit = 20, filters, enabled = 
         ...filters
       };
 
-      const res: any = await api.listRecords(collection, params);
+      const res: any = await pocketBaseClient.listRecords(collection, params);
       return res;
     },
     getNextPageParam: (lastPage: any) => {

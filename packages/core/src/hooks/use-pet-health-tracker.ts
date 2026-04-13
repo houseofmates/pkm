@@ -33,7 +33,7 @@ export function usePetHealthTracker() {
     const loadPetData = async () => {
       setLoading(true)
       try {
-        const res: any = await api.listRecords('pet_interactions', {
+        const res: any = await pocketBaseClient.listRecords('pet_interactions', {
           filter: { date: today },
           pageSize: 100
         })
@@ -113,7 +113,7 @@ export function usePetHealthTracker() {
     
     // try to save to server
     try {
-      await api.createRecord('pet_interactions', {
+      await pocketBaseClient.createRecord('pet_interactions', {
         date: today,
         pet_id: petId,
         type,

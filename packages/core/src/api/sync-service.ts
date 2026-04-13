@@ -31,7 +31,7 @@ export class SyncService {
       // 1. get last known sync time (most recent starttime in db)
       let lastSyncTime = new Date('2020-01-01').toISOString();
       try {
-        const res = await api.listRecords(this.COLLECTION, {
+        const res = await pocketBaseClient.listRecords(this.COLLECTION, {
           sort: ['-startTime'],
           pageSize: 1
         });
@@ -79,7 +79,7 @@ export class SyncService {
 
         // check if exists
         try {
-          const existingRes = await api.listRecords(this.COLLECTION, {
+          const existingRes = await pocketBaseClient.listRecords(this.COLLECTION, {
             filter: { sp_id: { $eq: sp_id } },
             pageSize: 1
           });
@@ -91,7 +91,7 @@ export class SyncService {
             // update if changed
             const record = existingData[0];
             if (record.endTime !== endTime || record.live !== live) {
-              await api.request(this.COLLECTION, 'update', {
+              await pocketBaseClient.request(this.COLLECTION, 'update', {
                 method: 'POST',
                 params: {
                   filter: { sp_id: { $eq: sp_id } }
@@ -107,7 +107,7 @@ export class SyncService {
           } else {
             // create new
             // securelogger.info(`sync: writing new entry [${sp_id}] to nocobase...`);
-            await api.createRecord(this.COLLECTION, {
+            await pocketBaseClient.createRecord(this.COLLECTION, {
               sp_id,
               member_id,
               startTime,
@@ -176,7 +176,7 @@ export class SyncService {
 
       secureLogger.info(`syncOplog: Compacted to ${allCompactedOps.length} operations. Syncing to server...`);
 
-      // 3. simulate syncing to server (in reality: api.request('canvas_oplog', 'create', { ... }))
+      // 3. simulate syncing to server (in reality: pocketBaseClient.request('canvas_oplog', 'create', { ... }))
       // we assume a successful sync for this implementation.
 
       // 4. mark all original unsynced ops as synced.

@@ -231,10 +231,10 @@ export function HabitsDashboard({
     const loadHabits = async () => {
       try {
         // fetch habits collection
-        const habitsRes: any = await api.listRecords('habits', { pageSize: 100 });
+        const habitsRes: any = await pocketBaseClient.listRecords('habits', { pageSize: 100 });
         
         // fetch activity logs for metrics
-        const logsRes: any = await api.listRecords('habit_logs', { 
+        const logsRes: any = await pocketBaseClient.listRecords('habit_logs', { 
           pageSize: 1000,
           sort: '-timestamp'
         });

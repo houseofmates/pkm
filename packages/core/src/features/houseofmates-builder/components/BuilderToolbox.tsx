@@ -8,7 +8,7 @@ import {
   BarChart, ListOrdered, ShoppingBag, StickyNote, Flame, Coins, Moon, Terminal
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 import { secureLogger } from '@/lib/secure-logger';
 import { storageManager } from '@/lib/storage-manager';
 
@@ -350,7 +350,7 @@ export function BuilderToolbox() {
 
   toast.info('uploading image...');
   try {
- const uploaded = await api.upload(file);
+ const uploaded = await pocketBaseClient.upload(file);
    const uploadedany = uploaded as any;
    const url = uploadedany?.url || uploadedany?.data?.url;
  if (url) {
@@ -376,7 +376,7 @@ export function BuilderToolbox() {
 
   toast.info('uploading video...');
   try {
- const uploaded = await api.upload(file);
+ const uploaded = await pocketBaseClient.upload(file);
    const uploadedany = uploaded as any;
    const url = uploadedany?.url || uploadedany?.data?.url;
  if (url) {

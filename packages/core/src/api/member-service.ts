@@ -21,7 +21,7 @@ export const MemberService = {
   try {
   // 1. upload to nocobase
   secureLogger.info("MemberService: Uploading file to NocoBase...");
-  const uploadRes = await api.upload(file);
+  const uploadRes = await pocketBaseClient.upload(file);
 
   // extract url (nocobase returns { data: { url: ... } })
   const fileData = (uploadRes as any).data || uploadRes;

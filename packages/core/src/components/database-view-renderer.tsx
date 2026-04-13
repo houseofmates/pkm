@@ -31,7 +31,7 @@ export function DatabaseView({
   const loadData = async () => {
     setLoading(true);
     try {
-      const res: any = await api.listRecords(collection, {
+      const res: any = await pocketBaseClient.listRecords(collection, {
         filter,
         pageSize: limit,
         sort: '-createdAt'

@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from 'sonner';
 import { Play, Eye, Database, Layout, Info, Maximize2, FilePlus, X, Wand2, ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { generateSlug } from '@/features/blog-builder/utils/blog-utils';
@@ -209,7 +209,7 @@ export function TemplatePage() {
         } catch { /* collection doesn't exist, will create */ }
 
         if (!collection) {
-          await api.createCollection({
+          await pocketBaseClient.createCollection({
             name: collectionName,
             title: db.key,
           });
@@ -313,7 +313,7 @@ export function TemplatePage() {
       } catch {
         // create collection if doesn't exist
         try {
-          await api.createCollection({
+          await pocketBaseClient.createCollection({
             name: collectionName,
             title: 'Documents',
           });

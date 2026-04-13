@@ -89,7 +89,7 @@ export function ShowerLoggerModal({ isOpen, onClose }: ShowerLoggerModalProps) {
       // continue to creation
     }
 
-    await api.createCollection({
+    await pocketBaseClient.createCollection({
       name: 'products',
       title: 'products',
       fields: [
@@ -105,7 +105,7 @@ export function ShowerLoggerModal({ isOpen, onClose }: ShowerLoggerModalProps) {
     setProductsLoading(true);
     try {
       await ensureProductsCollection();
-      const res: any = await api.listRecords('products', { pageSize: 500, sort: 'name' });
+      const res: any = await pocketBaseClient.listRecords('products', { pageSize: 500, sort: 'name' });
       const records = (res?.data || []) as any[];
       const mapped: ProductRecord[] = records
         .filter((p) => p?.name)
@@ -165,7 +165,7 @@ export function ShowerLoggerModal({ isOpen, onClose }: ShowerLoggerModalProps) {
     if (!name) return;
     setAddingProduct(true);
     try {
-      const created: any = await api.createRecord('products', { name });
+      const created: any = await pocketBaseClient.createRecord('products', { name });
       const createdId = created?.data?.id;
       await loadProducts();
       if (createdId !== undefined && createdId !== null) {
@@ -231,9 +231,9 @@ export function ShowerLoggerModal({ isOpen, onClose }: ShowerLoggerModalProps) {
       };
 
       try {
-        await api.createRecord('hygiene_logs', fullPayload);
+        await pocketBaseClient.createRecord('hygiene_logs', fullPayload);
       } catch {
-        await api.createRecord('hygiene_logs', {
+        await pocketBaseClient.createRecord('hygiene_logs', {
           date: fullPayload.date,
           products_used: fullPayload.products_used,
           shaved: fullPayload.shaved,

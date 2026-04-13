@@ -1,5 +1,5 @@
 import { useState, useEffect, type ReactNode } from 'react';
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 import { Database, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -31,7 +31,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   setFields(colFields.filter((f: any) => !f.hidden && !f.name.startsWith('_')));
 
   // fetch records with sort and filter
-  const res = await api.listRecords(collectionName, {
+  const res = await pocketBaseClient.listRecords(collectionName, {
  pageSize: 50,
  sort,
  filter

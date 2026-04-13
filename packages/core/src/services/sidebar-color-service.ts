@@ -2,7 +2,7 @@
 // service for syncing sidebar item colors with nocobase
 // enables cross-platform color persistence (web, electron, apk, exe)
 
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export type SidebarItemType = 'collection' | 'folder' | 'document' | 'drawing';
@@ -34,7 +34,7 @@ export async function ensureSidebarColorsCollection(): Promise<boolean> {
   try {
     // check if collection exists by attempting to list
     try {
-      await api.listRecords(COLLECTION_NAME, { pageSize: 1 });
+      await pocketBaseClient.listRecords(COLLECTION_NAME, { pageSize: 1 });
       return true;
     } catch (e: any) {
       if (e?.response?.status !== 404) {
@@ -46,7 +46,7 @@ export async function ensureSidebarColorsCollection(): Promise<boolean> {
     // collection doesn't exist, create it
     secureLogger.info('[sidebar-color-service] creating sidebar_item_colors collection...');
     
-    await api.createCollection({
+    await pocketBaseClient.createCollection({
       name: COLLECTION_NAME,
       title: 'sidebar item colors',
       fields: [
@@ -78,7 +78,7 @@ export async function ensureSidebarColorsCollection(): Promise<boolean> {
  */
 export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
   try {
-    const response = await api.listRecords(COLLECTION_NAME, {
+    const response = await pocketBaseClient.listRecords(COLLECTION_NAME, {
       pageSize: 1000 // get all records
     });
     
@@ -104,7 +104,7 @@ export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
  */
 export async function getSidebarColor(itemId: string): Promise<SidebarColorRecord | null> {
   try {
-    const response = await api.listRecords(COLLECTION_NAME, {
+    const response = await pocketBaseClient.listRecords(COLLECTION_NAME, {
       filter: { item_id: { $eq: itemId } },
       pageSize: 1
     });
@@ -152,10 +152,10 @@ export async function saveSidebarColor(
 
     if (existing?.id) {
       // update existing
-      await api.updateRecord(COLLECTION_NAME, existing.id, payload);
+      await pocketBaseClient.updateRecord(COLLECTION_NAME, existing.id, payload);
     } else {
       // create new
-      await api.createRecord(COLLECTION_NAME, payload);
+      await pocketBaseClient.createRecord(COLLECTION_NAME, payload);
     }
     
     return true;
@@ -177,9 +177,9 @@ export async function updateSidebarItemColor(
     const existing = await getSidebarColor(itemId);
     
     if (existing?.id) {
-      await api.updateRecord(COLLECTION_NAME, existing.id, { color });
+      await pocketBaseClient.updateRecord(COLLECTION_NAME, existing.id, { color });
     } else {
-      await api.createRecord(COLLECTION_NAME, {
+      await pocketBaseClient.createRecord(COLLECTION_NAME, {
         item_id: itemId,
         item_type: itemType,
         color
@@ -203,7 +203,7 @@ export async function deleteSidebarColor(itemId: string): Promise<boolean> {
   try {
     const existing = await getSidebarColor(itemId);
     if (existing?.id) {
-      await api.deleteRecord(COLLECTION_NAME, existing.id);
+      await pocketBaseClient.deleteRecord(COLLECTION_NAME, existing.id);
     }
     return true;
   } catch (error) {

@@ -2,7 +2,7 @@
 // runs periodic updates for stale or empty ai content
 
 import { batchGenerateAiFields } from './ai-field-generator';
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export interface ScheduledJobConfig {

@@ -62,7 +62,7 @@ async function setupPublicCollections() {
   // 1. check physical table existence via list
   let tableExists = false;
   try {
-  await api.request(colReq.name, 'list', { params: { pageSize: 1 } });
+  await pocketBaseClient.request(colReq.name, 'list', { params: { pageSize: 1 } });
   tableExists = true;
   secureLogger.info(`[Setup] Table ${colReq.name} exists physically.`);
   } catch (e: unknown) {
@@ -74,7 +74,7 @@ async function setupPublicCollections() {
   if (!tableExists) {
   secureLogger.info(`[Setup] Nuking metadata for ${colReq.name}...`);
   try {
- await api.request('collections', 'destroy', {
+ await pocketBaseClient.request('collections', 'destroy', {
  params: { filterByTk: colReq.name }
  });
  secureLogger.info(`[Setup] Metadata destroyed for ${colReq.name}.`);
@@ -87,7 +87,7 @@ async function setupPublicCollections() {
   // 3. create collection fresh
   secureLogger.info(`[Setup] Creating fresh collection ${colReq.name}...`);
  try {
- await api.request('collections', 'create', {
+ await pocketBaseClient.request('collections', 'create', {
  method: 'POST',
  data: {
  name: colReq.name,
@@ -107,7 +107,7 @@ async function setupPublicCollections() {
   secureLogger.info(`[Setup] Ensuring fields for ${colReq.name}...`);
   for (const field of colReq.fields) {
  try {
- await api.request(`collections/${colReq.name}/fields`, 'create', {
+ await pocketBaseClient.request(`collections/${colReq.name}/fields`, 'create', {
  method: 'POST',
  data: field
  });

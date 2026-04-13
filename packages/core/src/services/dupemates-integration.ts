@@ -2,7 +2,7 @@
 // indexes dupemate interactions and provides relationship context
 
 import { indexRecord, deleteRecordFromIndex, searchKnowledgeBase } from '@/lib/vector-store';
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export interface DupemateInteraction {
@@ -62,7 +62,7 @@ export async function indexAllDupemateInteractions(): Promise<{
 
   try {
     // fetch all dupemates
-    const response = await api.listRecords('dupemates', { paginate: false });
+    const response = await pocketBaseClient.listRecords('dupemates', { paginate: false });
     const dupemates: Array<{
       id: string;
       name: string;
@@ -116,7 +116,7 @@ export async function indexAllDupemateInteractions(): Promise<{
 export async function getDupemateContext(dupemateId: string): Promise<DupemateContext | null> {
   try {
     // fetch dupemate record
-    const response = await api.getRecord('dupemates', dupemateId);
+    const response = await pocketBaseClient.getRecord('dupemates', dupemateId);
     const dupemate: {
       id: string;
       name: string;
@@ -210,7 +210,7 @@ export async function getAllDupematesSummary(): Promise<{
   recentActivity: number;
 }> {
   try {
-    const response = await api.listRecords('dupemates', { paginate: false });
+    const response = await pocketBaseClient.listRecords('dupemates', { paginate: false });
     const dupemates: Array<{
       relationshipHealth?: number;
       lastInteraction?: string;

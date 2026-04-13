@@ -7987,7 +7987,7 @@ export function JournalPage() {
 
 
 
-      const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
+      const res: any = await pocketBaseClient.listRecords('journal', { sort: '-date', pageSize: 1000 });
 
 
 
@@ -8827,7 +8827,7 @@ export function JournalPage() {
 
 
 
-      await api.request('journal', 'destroy', { filterByTk: entry.id });
+      await pocketBaseClient.request('journal', 'destroy', { filterByTk: entry.id });
 
 
 
@@ -8911,7 +8911,7 @@ export function JournalPage() {
 
 
 
-      const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
+      const res: any = await pocketBaseClient.listRecords('journal', { sort: '-date', pageSize: 1000 });
 
 
 
@@ -9067,7 +9067,7 @@ export function JournalPage() {
 
 
 
-      const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
+      const res: any = await pocketBaseClient.listRecords('journal', { sort: '-date', pageSize: 1000 });
 
 
 
@@ -9791,7 +9791,7 @@ ${entriesText}`;
 
 
 
-        await api.request('journal', 'update', { filterByTk: editingEntry.id, ...payload });
+        await pocketBaseClient.request('journal', 'update', { filterByTk: editingEntry.id, ...payload });
 
 
 
@@ -9803,7 +9803,7 @@ ${entriesText}`;
 
 
 
-        await api.createRecord('journal', payload);
+        await pocketBaseClient.createRecord('journal', payload);
 
 
 

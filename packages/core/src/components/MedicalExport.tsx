@@ -86,7 +86,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
         }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
         // fetch habit logs
-        const habitLogsRes = await api.listRecords('habit_logs', {
+        const habitLogsRes = await pocketBaseClient.listRecords('habit_logs', {
           filter: {
             createdAt: {
               $gte: dateRange.start.toISOString(),
@@ -98,7 +98,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
         const habitLogs = (habitLogsRes.data as any[]) || [];
 
         // fetch medications
-        const medsRes = await api.listRecords('medication_logs', {
+        const medsRes = await pocketBaseClient.listRecords('medication_logs', {
           filter: {
             date: {
               $gte: dateRange.start.toLocaleDateString('en-CA'),

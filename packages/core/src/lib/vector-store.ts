@@ -1,7 +1,7 @@
 // vector store client for rag retrieval
 // supports nocobase ai knowledge base or local lancedb
 
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 import { secureLogger } from '@/lib/secure-logger';
 import { normalizeListResponse, extractRecords } from '@/lib/nocobase-utils';
 
@@ -133,7 +133,7 @@ export async function searchKnowledgeBase(
 async function fallbackLocalSearch(query: string, topK: number): Promise<SearchResult[]> {
   try {
     // fetch all collections from nocobase and normalize the response
-    const collectionsRes = await api.listCollections();
+    const collectionsRes = await pocketBaseClient.listCollections();
     const normalizedCollections = normalizeListResponse(collectionsRes);
     const collections: NocoBaseCollectionSummary[] = (normalizedCollections.data ?? [])
       .filter((c): c is NocoBaseCollectionSummary => typeof c === 'object' && c !== null);
@@ -152,7 +152,7 @@ async function fallbackLocalSearch(query: string, topK: number): Promise<SearchR
       if (!colName) continue;
 
 try {
-        const recordsRes = await api.listRecords(colName, {
+        const recordsRes = await pocketBaseClient.listRecords(colName, {
           pageSize: 50,
           sort: ['-updatedAt'],
         });
@@ -364,7 +364,7 @@ async function cursorPaginate(collection: string, pageSize = 200): Promise<NocoB
   let page = 1;
 
   while (true) {
-    const response = await api.listRecords(collection, { page, pageSize });
+    const response = await pocketBaseClient.listRecords(collection, { page, pageSize });
     const normalized = normalizeListResponse(response);
     const batch = extractRecords(normalized) as NocoBaseRecord[];
 
@@ -386,7 +386,7 @@ export async function indexAllCollections(): Promise<Record<string, { indexed: n
   const results: Record<string, { indexed: number; failed: number }> = {};
 
   try {
-    const colRes = await api.listCollections();
+    const colRes = await pocketBaseClient.listCollections();
     const allCols: { name?: string; hidden?: boolean }[] = Array.isArray((colRes as { data?: unknown }).data)
       ? ((colRes as { data: unknown[] }).data as { name?: string; hidden?: boolean }[])
       : ((((colRes as { data?: { data?: unknown[] } }).data as { data?: unknown[] })?.data as { name?: string; hidden?: boolean }[]) || []);

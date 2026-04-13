@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useFronter } from '@/contexts/fronter-context';
 import { formatHeadmateName } from '@/utils/text-formatting';
 import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
@@ -88,7 +88,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   // handle save
   const handleSave = async () => {
     try {
-      await api.updateRecord('headmates', member.id, {
+      await pocketBaseClient.updateRecord('headmates', member.id, {
         name,
         color: favColor,
         description,

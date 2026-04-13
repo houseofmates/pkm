@@ -317,7 +317,7 @@ export function HabitLoggerWidget({
   useEffect(() => {
     const loadHabits = async () => {
       try {
-        const res: any = await api.listRecords('habits', { pageSize: 100 });
+        const res: any = await pocketBaseClient.listRecords('habits', { pageSize: 100 });
         if (res?.data) {
           const habits: Habit[] = res.data.map((h: any) => ({
             id: h.id,
@@ -391,7 +391,7 @@ export function HabitLoggerWidget({
     
     try {
       // save to nocobase
-      await api.createRecord('habit_logs', log as unknown as Record<string, unknown>);
+      await pocketBaseClient.createRecord('habit_logs', log as unknown as Record<string, unknown>);
       
       // update local streak cache
       const streakKey = `habit:streak:${selectedHabit.id}`;
@@ -436,7 +436,7 @@ export function HabitLoggerWidget({
     };
     
     try {
-      await api.createRecord('habit_logs', log as unknown as Record<string, unknown>);
+      await pocketBaseClient.createRecord('habit_logs', log as unknown as Record<string, unknown>);
       
       toast.success(
         <div className="flex items-center gap-2">

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
-import { api } from '@/api/nocobase-client';
+import { pocketBaseClient } from '@/lib/pocketbase';
 import { useDebounce } from 'react-use';
 import { useSocket } from '@/hooks/use-socket';
 import { Wifi, WifiOff } from 'lucide-react';
@@ -36,7 +36,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
     }
 
     try {
-      const res = await api.getRecord(collectionName, recordId);
+      const res = await pocketBaseClient.getRecord(collectionName, recordId);
       const recordData = (res as any)?.data || res;
 
       // only update if we're not actively typing
@@ -117,7 +117,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
       if (!isLocalChange.current) return;
 
       try {
-        await api.updateRecord(collectionName, recordId, {
+        await pocketBaseClient.updateRecord(collectionName, recordId, {
           content: content
         });
         setIsSyncing(false);

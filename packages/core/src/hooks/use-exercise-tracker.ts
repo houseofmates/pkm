@@ -38,7 +38,7 @@ export function useExerciseTracker() {
   useEffect(() => {
     const loadExercise = async () => {
       try {
-        const res: any = await api.listRecords('exercise_sessions', {
+        const res: any = await pocketBaseClient.listRecords('exercise_sessions', {
           filter: { date: today },
           pageSize: 1,
           sort: '-createdAt'
@@ -88,7 +88,7 @@ export function useExerciseTracker() {
     
     // try to save to server
     try {
-      const existing: any = await api.listRecords('exercise_sessions', {
+      const existing: any = await pocketBaseClient.listRecords('exercise_sessions', {
         filter: { date: today },
         pageSize: 1
       })
@@ -101,9 +101,9 @@ export function useExerciseTracker() {
       }
       
       if (existing?.data?.[0]) {
-        await api.updateRecord('exercise_sessions', existing.data[0].id, payload)
+        await pocketBaseClient.updateRecord('exercise_sessions', existing.data[0].id, payload)
       } else {
-        await api.createRecord('exercise_sessions', payload)
+        await pocketBaseClient.createRecord('exercise_sessions', payload)
       }
     } catch (e) {
       // localstorage fallback already done

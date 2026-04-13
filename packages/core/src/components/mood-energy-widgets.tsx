@@ -24,7 +24,7 @@ export function MoodLogger({ onLogged }: { onLogged?: () => void }) {
     setLogging(true);
     try {
       const now = new Date();
-      await api.createRecord('mood_logs', {
+      await pocketBaseClient.createRecord('mood_logs', {
         mood: selectedMood,
         timestamp: now.toISOString(),
         date: now.toISOString().split('T')[0],
@@ -107,7 +107,7 @@ export function EnergyBattery({ onLogged }: { onLogged?: () => void }) {
     setLogging(true);
     try {
       const now = new Date();
-      await api.createRecord('energy_logs', {
+      await pocketBaseClient.createRecord('energy_logs', {
         physical_energy: physicalEnergy,
         mental_energy: mentalEnergy,
         timestamp: now.toISOString(),
@@ -231,11 +231,11 @@ export function EnergyCorrelations() {
       const cutoffStr = cutoff.toISOString().split('T')[0];
 
       const [energyRes, activityRes]: any[] = await Promise.all([
-        api.listRecords('energy_logs', { 
+        pocketBaseClient.listRecords('energy_logs', { 
           filter: { date: { $gte: cutoffStr } },
           pageSize: 500 
         }),
-        api.listRecords('activity_logs', { 
+        pocketBaseClient.listRecords('activity_logs', { 
           filter: { date: { $gte: cutoffStr } },
           pageSize: 500 
         })
