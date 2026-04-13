@@ -8,11 +8,10 @@ const NOCOBASE_URL =
 // mock pb object for compatibility (deprecated but kept for imports)
 export const pb = {
   authStore: {
-    onChange: () => { },
+    onChange: () => {},
     isValid: false,
     model: null,
-    clear: () => { },
-    save: (_token: string, _user: any) => { },
+    clear: () => {},
   },
   collection: () => ({
     getList: async () => ({ items: [], totalItems: 0 }),
@@ -20,22 +19,25 @@ export const pb = {
     getOne: async () => ({}),
     create: async () => ({}),
     update: async () => ({}),
-    delete: async () => { },
-    subscribe: () => () => { },
-    unsubscribe: () => { },
+    delete: async () => {},
+    subscribe: () => () => {},
+    unsubscribe: () => {},
   }),
   getFileUrl: () => "",
   send: async () => ({}),
 };
 
-export interface PocketBaseRecord {
+export interface NocoBaseRecord {
   id: string;
   created: string;
   updated: string;
   [key: string]: unknown;
 }
 
-export class PocketBaseClient {
+// deprecated: use NocoBaseRecord
+export type PocketBaseRecord = NocoBaseRecord;
+
+export class NocoBaseClient {
   private _axios: AxiosInstance;
   private _token: string | null = null;
   private _user: any = null;
@@ -48,7 +50,6 @@ export class PocketBaseClient {
       },
     });
 
-    // load token from storage
     this._loadAuth();
   }
 
@@ -77,7 +78,7 @@ export class PocketBaseClient {
       isValid: !!this._token,
       model: this._user,
       token: this._token,
-      onChange: () => { },
+      onChange: () => {},
       clear: () => this.logout(),
     };
   }
@@ -142,13 +143,13 @@ export class PocketBaseClient {
     return this._user;
   }
 
-  async listRecords<T = PocketBaseRecord>(
+  async listRecords<T = NocoBaseRecord>(
     collection: string,
     params: Record<string, unknown> = {},
   ): Promise<{ data: T[]; meta?: { total?: number } }> {
     const { page = 1, pageSize = 50, sort, filter } = params;
 
-    const response = await this._axios.get(`/${collection}:list`, {
+    const response = await this._axios.get(\`/\${collection}:list\`, {
       params: {
         page,
         pageSize,
@@ -166,13 +167,13 @@ export class PocketBaseClient {
     };
   }
 
-  async getFullList<T = PocketBaseRecord>(
+  async getFullList<T = NocoBaseRecord>(
     collection: string,
     params: Record<string, unknown> = {},
   ): Promise<T[]> {
     const { sort, filter } = params;
 
-    const response = await this._axios.get(`/${collection}:list`, {
+    const response = await this._axios.get(\`/\${collection}:list\`, {
       params: {
         pageSize: 1000,
         sort,
@@ -184,33 +185,33 @@ export class PocketBaseClient {
     return Array.isArray(result) ? result : result.items || [];
   }
 
-  async getRecord<T = PocketBaseRecord>(
+  async getRecord<T = NocoBaseRecord>(
     collection: string,
     id: string | number,
   ): Promise<{ data: T }> {
     const response = await this._axios.get(
-      `/${collection}:get?filter[id]=${id}`,
+      \`/\${collection}:get?filter[id]=\${id}\`,
     );
     const data =
       response.data?.data?.[0] || response.data?.data || response.data;
     return { data };
   }
 
-  async createRecord<T = PocketBaseRecord>(
+  async createRecord<T = NocoBaseRecord>(
     collection: string,
     data: Record<string, unknown>,
   ): Promise<{ data: T }> {
-    const response = await this._axios.post(`/${collection}:create`, data);
+    const response = await this._axios.post(\`/\${collection}:create\`, data);
     return { data: response.data?.data || response.data };
   }
 
-  async updateRecord<T = PocketBaseRecord>(
+  async updateRecord<T = NocoBaseRecord>(
     collection: string,
     id: string | number,
     data: Record<string, unknown>,
   ): Promise<{ data: T }> {
     const response = await this._axios.post(
-      `/${collection}:update?filter[id]=${id}`,
+      \`/\${collection}:update?filter[id]=\${id}\`,
       data,
     );
     return { data: response.data?.data || response.data };
@@ -220,7 +221,7 @@ export class PocketBaseClient {
     collection: string,
     id: string | number,
   ): Promise<{ success: boolean }> {
-    await this._axios.post(`/${collection}:destroy?filter[id]=${id}`);
+    await this._axios.post(\`/\${collection}:destroy?filter[id]=\${id}\`);
     return { success: true };
   }
 
@@ -228,35 +229,30 @@ export class PocketBaseClient {
     collection: string,
     field: string,
     file: File,
-  ): Promise<{ data: PocketBaseRecord }> {
+  ): Promise<{ data: NocoBaseRecord }> {
     const formData = new FormData();
     formData.append(field, file);
-    const response = await this._axios.post(`/${collection}:create`, formData, {
+    const response = await this._axios.post(\`/\${collection}:create\`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return { data: response.data?.data || response.data };
   }
 
-  getFileUrl(record: PocketBaseRecord, filename: string): string {
-    // nocobase file urls are constructed differently
-    return `${NOCOBASE_URL}/${record.id}/${filename}`;
+  getFileUrl(record: NocoBaseRecord, filename: string): string {
+    return \`\${NOCOBASE_URL}/\${record.id}/\${filename}\`;
   }
 
-  subscribe<T = PocketBaseRecord>(
+  subscribe<T = NocoBaseRecord>(
     collection: string,
     callback: (e: { action: string; record: T }) => void,
   ): () => void {
-    // nocobase doesn't have realtime subscriptions like pocketbase
-    // return a no-op unsubscribe function
     secureLogger.warn(
-      `[NocoBase] subscriptions not supported, polling recommended for ${collection}`,
+      \`[NocoBase] subscriptions not supported, polling recommended for \${collection}\`,
     );
-    return () => { };
+    return () => {};
   }
 
-  unsubscribe(collection: string) {
-    // no-op for nocobase
-  }
+  unsubscribe(collection: string) {}
 
   async request(path: string, options?: Record<string, unknown>) {
     const { method = "GET", body, ...rest } = options || {};
@@ -268,8 +264,34 @@ export class PocketBaseClient {
     });
     return response.data;
   }
+
+  async upload(file: File): Promise<{ url: string }> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await this._axios.post("/files:create", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    const data = response.data?.data || response.data;
+    return { url: data?.url || data?.path || "" };
+  }
+
+  async listCollections(): Promise<string[]> {
+    const response = await this._axios.get("/collections:list");
+    const data = response.data?.data || response.data || [];
+    return Array.isArray(data) ? data.map((c: any) => c.name) : [];
+  }
+
+  async createCollection(schema: {
+    name: string;
+    fields?: any[];
+    inherits?: string[];
+  }): Promise<void> {
+    await this._axios.post("/collections:create", schema);
+  }
 }
 
-export const pocketBaseClient = new PocketBaseClient();
-export const nocobaseClient = pocketBaseClient;
-export default pocketBaseClient;
+export type PocketBaseClient = NocoBaseClient;
+
+export const nocobaseClient = new NocoBaseClient();
+export const pocketBaseClient = nocobaseClient;
+export default nocobaseClient;
