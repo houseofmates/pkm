@@ -10,3 +10,9 @@ export type SearchHit = {
   id: string;
   score: number;
 };
+
+// re-export pocketbase compat types
+export * from './pocketbase-compat';
+
+// @deprecated backward compatibility - use pocketbase-compat.ts instead
+export * as NocoBaseTypes from './pocketbase-compat';
