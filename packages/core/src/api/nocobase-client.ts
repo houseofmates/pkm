@@ -4,9 +4,9 @@ import {
   ActionResponseSchema,
   ListCollectionsResponseSchema
 } from "@/lib/api/schemas";
+import axios, { AxiosInstance, AxiosError } from 'axios';
 import { secureLogger } from '@/lib/secure-logger';
 import { storageManager } from '@/lib/storage-manager';
-import { pocketBaseClient, pb } from '@/lib/pocketbase';
 import { normalizeListResponse } from '@/lib/nocobase-utils';
 
 // deprecated: these types are kept for backward compatibility during migration to pocketbase
@@ -43,14 +43,40 @@ interface ApiError {
 }
 
 /**
- * @deprecated use pocketBaseClient from @/lib/pocketbase instead
- * this class now delegates to pocketbase for data operations
+ * NocoBase API client for interacting with NocoBase backend
+ * Provides methods for collections, fields, and records management
  */
 export class NocoBaseClient {
-  private _pb = pocketBaseClient;
+  private axios: AxiosInstance;
+  private baseURL: string;
+  private apiKey: string;
+
+  constructor() {
+    this.baseURL = process.env.NOCOBASE_URL || 'http://localhost:13000/api';
+    this.apiKey = process.env.NOCOBASE_API_KEY || '';
+
+    this.axios = axios.create({
+      baseURL: this.baseURL,
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Add response interceptor for error handling
+    this.axios.interceptors.response.use(
+      (response) => response,
+      (error: AxiosError) => {
+        if (error.response?.status === 401) {
+          secureLogger.error('[NocoBase] Authentication failed - check API key');
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
 
   get client() {
-    return this._pb.client;
+    return this.axios;
   }
 
   // --- collection methods ---
