@@ -7,10 +7,14 @@ import { toast } from 'sonner'
 import { secureLogger } from '@/lib/secure-logger'
 import { VoiceChat, useWilsonVoice } from '@/components/VoiceChat'
 
-const RAW_MODEL_NAME = 'qwen2.5-coder:7b-instruct-q4_K_S';
+const RAW_MODEL_NAME = 'gemma4:e4b';
 
 function friendlyModelName(raw: string): string {
   const map: Record<string, string> = {
+    'gemma4:e4b': 'Wilson',
+    'gemma4': 'Wilson',
+    'gemma 4': 'Wilson',
+    'gemma4:e4': 'Wilson',
     'qwen2.5-coder:7b-instruct-q4_K_S': 'Wilson',
     'qwen2.5-coder:7b': 'Wilson',
     'qwen 2.5 coder 7b': 'Wilson',
@@ -76,7 +80,7 @@ async function capturePageScreenshot(): Promise<HTMLCanvasElement | null> {
       // limit dimensions for performance (max 4k resolution)
       const maxDimension = 3840;
       const scale = Math.min(1, maxDimension / Math.max(width, height));
-      
+
       canvas.width = width * scale;
       canvas.height = height * scale;
 
@@ -100,7 +104,7 @@ async function capturePageScreenshot(): Promise<HTMLCanvasElement | null> {
         // fallback: capture viewport only using simpler approach
         captureViewportScreenshot().then(resolve).catch(reject);
       };
-      
+
       const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
       const url = URL.createObjectURL(svgBlob);
       img.src = url;
@@ -147,7 +151,7 @@ async function captureViewportScreenshot(): Promise<HTMLCanvasElement | null> {
           resolve(canvas);
         };
         img.onerror = () => reject(new Error('Failed to load SVG'));
-        
+
         const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
         img.src = URL.createObjectURL(svgBlob);
       } else {
@@ -503,7 +507,7 @@ export function WilsonChat() {
                 <Send size={16} />
               </button>
             </div>
-            <VoiceChat 
+            <VoiceChat
               onTranscript={handleVoiceTranscript}
               disabled={isThinking}
               wilsonPersonality={true}
