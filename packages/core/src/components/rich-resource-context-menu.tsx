@@ -11,7 +11,8 @@ import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check
 // cache the result.  additionally we trigger a background import as soon as
 // this file loads so that the first time the context menu is opened the icons
 // are already available.
-import { ContextMenuContent } from "@/components/ui/context-menu";
+import { ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu";
+import { EyeOff } from 'lucide-react';
 
 // --- lazy loader helpers ----------------------------------------------------
 
@@ -47,6 +48,7 @@ interface RichResourceContextMenuProps {
   currentName?: string;
   currentColor?: string;
   onUpdate: (data: { name?: string; color?: string; icon?: string; iconType?: 'emoji' | 'lucide' | 'image' }) => void;
+  onHide?: () => void;
   children?: React.ReactNode;
   itemId?: string; // for syncing with nocobase
 }
@@ -396,7 +398,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
 function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: RichResourceContextMenuProps) {
   const [search, setSearch] = useState('');
-  const FALLBACK_ICONS = ['Folder','File','Database','Layout','Settings','User','Users','Home','Search','Plus','Minus'];
+  const FALLBACK_ICONS = ['Folder', 'File', 'Database', 'Layout', 'Settings', 'User', 'Users', 'Home', 'Search', 'Plus', 'Minus'];
   const [allIcons, setAllIcons] = useState<string[]>(FALLBACK_ICONS);
   const [activeTab, setActiveTab] = useState<'icons' | 'emojis' | 'color'>('icons');
   const [localColor, setLocalColor] = useState(currentColor || '#f5af12');
