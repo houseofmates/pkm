@@ -26,7 +26,7 @@ export interface ChatMessage {
 export interface Attachment {
     id: string;
     file: File;
-    type: 'image' | 'video' | 'gif' | 'other';
+    type: 'image' | 'video' | 'gif' | 'audio' | 'other';
     dataUrl?: string; // base64 data url for preview and sending
     name: string;
 }
