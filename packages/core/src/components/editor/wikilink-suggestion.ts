@@ -3,7 +3,7 @@ import type { Editor } from '@tiptap/core';
 import tippy, { type Instance } from 'tippy.js';
 import { SlashMenu } from './SlashMenu';
 
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export const getWikilinkItems = async ({ query }: { query: string }) => {
@@ -24,7 +24,7 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
   const results = [];
 
   // 1. search notes
-  const notes = await pocketBaseClient.listRecords('notes', {
+  const notes = await nocobaseClient.listRecords('notes', {
   filter: { title: { $includes: query } } as any,
   pageSize: 5
   });
@@ -39,7 +39,7 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
   }
 
   // 2. search tasks
-  const tasks = await pocketBaseClient.listRecords('tasks', {
+  const tasks = await nocobaseClient.listRecords('tasks', {
   filter: { title: { $includes: query } } as any,
   pageSize: 3
   });

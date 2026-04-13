@@ -2,7 +2,7 @@
 // one-time migration to scan all existing documents and populate the link registry
 
 import { registry } from './link-registry'
-import { pocketBaseClient } from '@/lib/nocobase'
+import { nocobaseClient } from '@/lib/nocobase'
 import { storageManager } from './storage-manager'
 import { secureLogger } from './secure-logger'
 
@@ -20,7 +20,7 @@ export async function backfillLinkRegistry(): Promise<{ documents: number, links
 
     try {
         // 1. discover all user collections
-        const colRes = await pocketBaseClient.listCollections()
+        const colRes = await nocobaseClient.listCollections()
         const allCols = Array.isArray(colRes?.data) ? colRes.data : []
         const userCols = allCols
             .filter((c: { name?: string; hidden?: boolean }) =>
@@ -35,7 +35,7 @@ export async function backfillLinkRegistry(): Promise<{ documents: number, links
             try {
                 // get all records for this collection
                 // we'll fetch in batches if possible, but simplest is to just list
-                const res = await pocketBaseClient.listRecords(col, { pageSize: 1000 })
+                const res = await nocobaseClient.listRecords(col, { pageSize: 1000 })
                 const records = Array.isArray(res) ? res : ((res as any)?.data?.data || [])
 
                 for (const record of records) {

@@ -382,7 +382,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
     
     try {
       // save daily snapshot
-      await pocketBaseClient.createRecord('gamification_daily', {
+      await nocobaseClient.createRecord('gamification_daily', {
         date: today,
         quest_rows: JSON.stringify(questRows),
         pets: JSON.stringify(pets),
@@ -392,7 +392,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       })
       
       // save persistent profile state
-      const stateRes: any = await pocketBaseClient.listRecords('gamification_state', {
+      const stateRes: any = await nocobaseClient.listRecords('gamification_state', {
         filter: { user_key: 'default' },
         pageSize: 1
       })
@@ -410,9 +410,9 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       }
       
       if (stateRes?.data?.[0]) {
-        await pocketBaseClient.updateRecord('gamification_state', stateRes.data[0].id, stateData)
+        await nocobaseClient.updateRecord('gamification_state', stateRes.data[0].id, stateData)
       } else {
-        await pocketBaseClient.createRecord('gamification_state', stateData)
+        await nocobaseClient.createRecord('gamification_state', stateData)
       }
     } catch (e) {
       secureLogger.error('failed to save gamification state', e)
@@ -441,13 +441,13 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
     
     try {
       // load daily snapshot
-      const dailyRes: any = await pocketBaseClient.listRecords('gamification_daily', {
+      const dailyRes: any = await nocobaseClient.listRecords('gamification_daily', {
         filter: { date: today },
         pageSize: 1
       })
       
       // load persistent profile
-      const stateRes: any = await pocketBaseClient.listRecords('gamification_state', {
+      const stateRes: any = await nocobaseClient.listRecords('gamification_state', {
         filter: { user_key: 'default' },
         pageSize: 1
       })

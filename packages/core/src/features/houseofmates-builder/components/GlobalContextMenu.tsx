@@ -5,7 +5,7 @@ import {
   MousePointerClick, Database, ChevronRight, X, Upload, Link, Volume2,
   ClipboardPaste
 } from 'lucide-react';
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { toast } from 'sonner';
 import { CollectionPickerModal } from './CollectionPickerModal';
 import { secureLogger } from '@/lib/secure-logger';
@@ -75,7 +75,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   securelogger.info('[globalcontextmenu] uploading file:', file.name, file.type, file.size);
   toast.info('uploading background...');
   try {
- const uploaded = await pocketBaseClient.upload(file);
+ const uploaded = await nocobaseClient.upload(file);
    const uploadedany = uploaded as any;
  securelogger.info('[globalcontextmenu] upload response:', uploaded);
 
@@ -354,7 +354,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   if (!file) return;
   toast.info('uploading open sound...');
   try {
-  const uploaded = await pocketBaseClient.upload(file);
+  const uploaded = await nocobaseClient.upload(file);
   const uploadedany = uploaded as any;
   const url = uploadedany?.url || uploadedany?.data?.url;
   if (url) {
@@ -384,7 +384,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   if (!file) return;
   toast.info('uploading close sound...');
   try {
-  const uploaded = await pocketBaseClient.upload(file);
+  const uploaded = await nocobaseClient.upload(file);
   const uploadedany = uploaded as any;
   const url = uploadedany?.url || uploadedany?.data?.url;
   if (url) {

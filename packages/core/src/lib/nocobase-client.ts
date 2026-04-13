@@ -293,5 +293,5 @@ export class NocoBaseClient {
 export type PocketBaseClient = NocoBaseClient;
 
 export const nocobaseClient = new NocoBaseClient();
-export const pocketBaseClient = nocobaseClient;
+export const nocobaseClient = nocobaseClient;
 export default nocobaseClient;

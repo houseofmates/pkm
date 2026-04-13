@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Star, Send, Loader2 } from 'lucide-react';
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
 import { getSubdomain } from '@/utils/subdomain-router';
@@ -71,7 +71,7 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
         try {
             const ratingField = content.fields.find(f => f.type === 'rating');
             const ratingValue = ratingField ? rating : undefined;
-            await pocketBaseClient.createRecord('forms', {
+            await nocobaseClient.createRecord('forms', {
                 site: site_identifier,
                 form_name: content.formName,
                 data: JSON.stringify(formData),

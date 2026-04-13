@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
 import { BlogCanvas } from './BlogCanvas';
@@ -36,7 +36,7 @@ function BlogDashboard() {
   const loadPosts = async () => {
   setLoading(true);
   try {
-  const res = await pocketBaseClient.request('blog_posts', 'list', {
+  const res = await nocobaseClient.request('blog_posts', 'list', {
  params: {
  sort: '-created_at',
  pageSize: 50
@@ -56,7 +56,7 @@ function BlogDashboard() {
   // let's redirect to 'new' and handle creation purely client-side until save?
   // or create draft on server. server draft is safer.
   try {
-  const res = await pocketBaseClient.createRecord('blog_posts', {
+  const res = await nocobaseClient.createRecord('blog_posts', {
  title: 'Untitled Post',
  slug: `draft-${Date.now()}`,
  content: [],
@@ -72,7 +72,7 @@ function BlogDashboard() {
   e.stopPropagation();
   if (!confirm('delete this post?')) return;
   try {
-  await pocketBaseClient.deleteRecord('blog_posts', id);
+  await nocobaseClient.deleteRecord('blog_posts', id);
   toast.success('post deleted');
   loadPosts();
   } catch (e) {
@@ -175,7 +175,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
  elements: [] // sync
  });
  } else {
- const res = await pocketBaseClient.request('blog_posts', 'list', {
+ const res = await nocobaseClient.request('blog_posts', 'list', {
  params: {
    filter: { slug },
    pageSize: 1
@@ -260,11 +260,11 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   };
 
   if (post.id === 'temp-new') {
- const res = await pocketBaseClient.createRecord('blog_posts', payload);
+ const res = await nocobaseClient.createRecord('blog_posts', payload);
  setPost({ ...(res.data as any), elements: payload.content ? JSON.parse(payload.content) : [] });
  toast.success('post created');
   } else {
- await pocketBaseClient.updateRecord('blog_posts', post.id, payload as any);
+ await nocobaseClient.updateRecord('blog_posts', post.id, payload as any);
  toast.success('saved');
   }
   } catch (e) {

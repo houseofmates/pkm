@@ -2,7 +2,7 @@
 
 export {
   nocobaseClient,
-  pocketBaseClient,
+  nocobaseClient,
   pb,
   NocoBaseClient,
   type NocoBaseRecord,

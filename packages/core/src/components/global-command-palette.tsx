@@ -120,7 +120,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   // in producton: use a backend search index
   const promises = targets.map(async (col: any) => {
  try {
- const res = await pocketBaseClient.listRecords(col.name, {
+ const res = await nocobaseClient.listRecords(col.name, {
  filter: {
    $or: [
    { title: { $includes: value } },

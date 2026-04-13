@@ -4,7 +4,7 @@
 import { generateAiFieldContent } from './rag-service';
 import { generateText } from '@/lib/llm-service';
 import { getOllamaGenerateUrl, DEFAULT_OLLAMA_MODEL } from '@/lib/llm-config';
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export interface AiGenerationOptions {
@@ -72,7 +72,7 @@ export async function generateAndSaveAiField(
     const cleanedContent = cleanAiResponse(response);
 
     // 4. save to the record
-    await pocketBaseClient.updateRecord(collection, recordId, {
+    await nocobaseClient.updateRecord(collection, recordId, {
       [fieldName]: cleanedContent,
     });
 

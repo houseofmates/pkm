@@ -50,9 +50,9 @@ export function FinancialHub() {
     setLoading(true);
     try {
       const [accountsRes, transactionsRes, budgetsRes]: any[] = await Promise.all([
-        pocketBaseClient.listRecords('accounts', { pageSize: 100 }),
-        pocketBaseClient.listRecords('transactions', { pageSize: 500, sort: '-date' }),
-        pocketBaseClient.listRecords('budgets', { pageSize: 100 })
+        nocobaseClient.listRecords('accounts', { pageSize: 100 }),
+        nocobaseClient.listRecords('transactions', { pageSize: 500, sort: '-date' }),
+        nocobaseClient.listRecords('budgets', { pageSize: 100 })
       ]);
       
       setAccounts(accountsRes?.data || []);
@@ -330,7 +330,7 @@ function AddTransactionModal({
     setLoading(true);
     try {
       const now = new Date();
-      await pocketBaseClient.createRecord('transactions', {
+      await nocobaseClient.createRecord('transactions', {
         account_id: accountId,
         amount: type === 'expense' ? -Math.abs(parseFloat(amount)) : Math.abs(parseFloat(amount)),
         category,

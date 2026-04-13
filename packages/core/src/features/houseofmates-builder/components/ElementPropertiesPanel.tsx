@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useBuilder } from '../HouseofmatesBuilder';
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { Link, ExternalLink, FileText, X, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
@@ -36,7 +36,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   const fetchPages = async () => {
   setLoadingPages(true);
   try {
- const res = await pocketBaseClient.listRecords(collectionNames.website, {
+ const res = await nocobaseClient.listRecords(collectionNames.website, {
  filter: { site: site_identifier },
  fields: ['slug', 'title'],
  pageSize: 100

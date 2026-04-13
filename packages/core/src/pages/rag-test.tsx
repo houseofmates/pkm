@@ -8,7 +8,7 @@ import { generateAndSaveAiField, previewAiFieldContent } from '@/services/ai-fie
 import { AiFieldButton } from '@/components/ai-field-button';
 import { useAiGeneration } from '@/hooks/use-ai-generation';
 import { useLLMStore } from '@/stores/llm-store';
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export default function RagTestPage() {
@@ -55,7 +55,7 @@ export default function RagTestPage() {
       // test 5: check for sample records
       addResult('\n5️⃣ checking for sample records...');
       try {
-        const records: { data: any[] } = await pocketBaseClient.listRecords('notes', { pageSize: 1 }) as { data: any[] };
+        const records: { data: any[] } = await nocobaseClient.listRecords('notes', { pageSize: 1 }) as { data: any[] };
         const hasRecords = records.data && records.data.length > 0;
         addResult(`   ${hasRecords ? '✅' : '⚠️'} notes collection: ${hasRecords ? 'has records' : 'empty'}`);
         if (hasRecords) {

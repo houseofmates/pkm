@@ -1,4 +1,4 @@
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
@@ -44,7 +44,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   secureLogger.info(`Found ${members.length} SimplyPlural members to sync`);
 
   // 2. fetch existing nocobase headmates
-  const existing = await pocketBaseClient.listRecords('headmates', { pageSize: 500 });
+  const existing = await nocobaseClient.listRecords('headmates', { pageSize: 500 });
   const existingMap = new Map();
   const existingArray = Array.isArray(existing) ? existing : (existing?.data as any[] || []);
   existingArray.forEach((h: any) => {
@@ -87,13 +87,13 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
  existing.description !== headmateData.description;
 
  if (needsUpdate) {
- await pocketBaseClient.updateRecord('headmates', existing.id, headmateData);
+ await nocobaseClient.updateRecord('headmates', existing.id, headmateData);
  updated++;
  secureLogger.info(`Updated headmate: ${headmateData.name}`);
  }
  } else {
  // create new
- await pocketBaseClient.createRecord('headmates', headmateData);
+ await nocobaseClient.createRecord('headmates', headmateData);
  created++;
  secureLogger.info(`Created headmate: ${headmateData.name}`);
  }

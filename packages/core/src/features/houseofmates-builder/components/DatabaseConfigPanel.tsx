@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useBuilder } from '../HouseofmatesBuilder';
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { Database, Filter, ArrowUpDown, X, ChevronDown, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';

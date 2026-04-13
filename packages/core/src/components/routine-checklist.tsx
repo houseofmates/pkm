@@ -35,7 +35,7 @@ export function RoutineChecklist() {
   const loadRoutines = async () => {
     setLoading(true);
     try {
-      const routinesRes: any = await pocketBaseClient.listRecords('routine_templates', { 
+      const routinesRes: any = await nocobaseClient.listRecords('routine_templates', { 
         filter: { active: true },
         pageSize: 100 
       });
@@ -45,7 +45,7 @@ export function RoutineChecklist() {
 
       // load today's completions
       const today = new Date().toISOString().split('T')[0];
-      const completionsRes: any = await pocketBaseClient.listRecords('routine_completions', {
+      const completionsRes: any = await nocobaseClient.listRecords('routine_completions', {
         filter: { date: today },
         pageSize: 100
       });
@@ -74,7 +74,7 @@ export function RoutineChecklist() {
         newCompletedItems = [itemId];
         const percentage = (newCompletedItems.length / routine.items.length) * 100;
         
-        const res: any = await pocketBaseClient.createRecord('routine_completions', {
+        const res: any = await nocobaseClient.createRecord('routine_completions', {
           routine_id: routine.id,
           date: today,
           completed_items: newCompletedItems,
@@ -95,7 +95,7 @@ export function RoutineChecklist() {
         
         const percentage = (newCompletedItems.length / routine.items.length) * 100;
 
-        await pocketBaseClient.request('routine_completions', 'update', {
+        await nocobaseClient.request('routine_completions', 'update', {
           filterByTk: completion.id,
           completed_items: newCompletedItems,
           completion_percentage: percentage,
@@ -252,7 +252,7 @@ function AddRoutineModal({ onClose, onSuccess }: { onClose: () => void; onSucces
 
     setLoading(true);
     try {
-      await pocketBaseClient.createRecord('routine_templates', {
+      await nocobaseClient.createRecord('routine_templates', {
         name: name.trim(),
         type,
         items,

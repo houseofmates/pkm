@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { Loader2 } from 'lucide-react';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -37,7 +37,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
  }
  }
 
- const res = await pocketBaseClient.listRecords(collectionName, {
+ const res = await nocobaseClient.listRecords(collectionName, {
  filter: queryFilter,
  pageSize: 12, // limit for dashboard view
  sort: '-createdAt'

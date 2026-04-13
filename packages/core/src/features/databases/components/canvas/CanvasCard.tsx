@@ -91,7 +91,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
 
     try {
       // upload to nocobase
-      const uploaded = await pocketBaseClient.upload(file);
+      const uploaded = await nocobaseClient.upload(file);
       secureLogger.info("Uploaded:", uploaded);
 
       // structure expected by nocobase attachment field is usually an array of objects

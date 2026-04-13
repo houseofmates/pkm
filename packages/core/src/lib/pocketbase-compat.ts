@@ -2,12 +2,12 @@
 // this file provides backward-compatible exports to ease migration from nocobase
 
 export {
-  pocketBaseClient,
+  nocobaseClient,
   pb,
-  pocketBaseClient as api,
+  nocobaseClient as api,
   type PocketBaseRecord,
   type PocketBaseClient,
 } from "./pocketbase";
 
-// deprecated: use pocketBaseClient directly
-export default pocketBaseClient;
+// deprecated: use nocobaseClient directly
+export default nocobaseClient;

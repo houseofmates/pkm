@@ -213,13 +213,13 @@ class OfflineService {
     
     switch (change.action) {
       case 'create':
-        await pocketBaseClient.createRecord(change.collection, change.data);
+        await nocobaseClient.createRecord(change.collection, change.data);
         break;
       case 'update':
-        await pocketBaseClient.updateRecord(change.collection, change.data.id, change.data);
+        await nocobaseClient.updateRecord(change.collection, change.data.id, change.data);
         break;
       case 'delete':
-        await pocketBaseClient.deleteRecord(change.collection, change.data.id);
+        await nocobaseClient.deleteRecord(change.collection, change.data.id);
         break;
     }
   }

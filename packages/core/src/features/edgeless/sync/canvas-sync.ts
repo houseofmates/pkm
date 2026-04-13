@@ -2,7 +2,7 @@
 // syncs checkpoints to nocobase using upsert pattern
 // instant sync on save, load from server on init
 
-import { pocketBaseClient } from '@/lib/nocobase'
+import { nocobaseClient } from '@/lib/nocobase'
 import {
 getUnsyncedOps,
 markOpsSynced,
@@ -159,7 +159,7 @@ encryptedPayload: await encryptObject(payload),
 
 // try to find existing record using list with filter
 const filter = JSON.stringify({ drawingId: payload.drawingId })
-const existing = await pocketBaseClient.request('pkm_canvases', 'list', {
+const existing = await nocobaseClient.request('pkm_canvases', 'list', {
 method: 'GET',
 params: {
 filter,
@@ -171,7 +171,7 @@ const existingRecord = (existing as any)?.data?.[0]
 
 if (existingRecord) {
 // update existing
-await pocketBaseClient.request('pkm_canvases', 'update', {
+await nocobaseClient.request('pkm_canvases', 'update', {
 method: 'POST',
 params: { filterByTk: existingRecord.id },
 data: {
@@ -185,7 +185,7 @@ updatedAt: new Date().toISOString(),
 return { success: true, serverId: existingRecord.id }
 } else {
 // create new
-const res = await pocketBaseClient.request('pkm_canvases', 'create', {
+const res = await nocobaseClient.request('pkm_canvases', 'create', {
 method: 'POST',
 data: {
 title: payload.title,
@@ -205,7 +205,7 @@ return { success: false, error: err.message }
 async loadFromServer(drawingId: string): Promise<CanvasState | null> {
 try {
 const filter = JSON.stringify({ drawingId })
-const res = await pocketBaseClient.request('pkm_canvases', 'list', {
+const res = await nocobaseClient.request('pkm_canvases', 'list', {
 method: 'GET',
 params: {
 filter,

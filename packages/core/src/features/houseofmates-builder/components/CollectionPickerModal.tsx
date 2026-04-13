@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { Database, Table, LayoutGrid, Calendar, BarChart3, Layers, X, Loader2, AlertCircle, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
@@ -38,7 +38,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
       setLoading(true);
       setError(null);
       try {
-        const res = await pocketBaseClient.listCollections();
+        const res = await nocobaseClient.listCollections();
         const data = Array.isArray(res) ? res : (res as { data?: any[] }).data || [];
         // filter out system collections
         const userCollections = data.filter((c: any) =>

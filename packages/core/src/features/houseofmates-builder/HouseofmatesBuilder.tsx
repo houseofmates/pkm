@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, createContext, useContext, useRef, us
 import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from '@/lib/secure-logger';
 import { useParams } from 'react-router-dom';
-import { pocketBaseClient } from '@/lib/nocobase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { toast } from 'sonner';
 import { getSubdomain, isPublicDomain } from '@/utils/subdomain-router';
 import { AdminLoginModal } from './components/AdminLoginModal';
@@ -211,7 +211,7 @@ export function HouseofmatesBuilder() {
       toast.info('undo', { duration: 1000 });
 
       // sync with backend (debounced ideally, but here direct)
-      pocketBaseClient.updateRecord(collectionNames.website, previousPage.id, {
+      nocobaseClient.updateRecord(collectionNames.website, previousPage.id, {
         ...previousPage,
         elements: JSON.stringify(previousPage.elements)
       }).catch(secureLogger.error);
@@ -227,12 +227,12 @@ export function HouseofmatesBuilder() {
     try {
       secureLogger.info('[HouseofmatesBuilder] About to make API request to:', collectionNames.website);
       secureLogger.info('[HouseofmatesBuilder] api object:', api);
-      secureLogger.info('[HouseofmatesBuilder] pocketBaseClient.request:', typeof pocketBaseClient.request);
+      secureLogger.info('[HouseofmatesBuilder] nocobaseClient.request:', typeof nocobaseClient.request);
 
       let pageRes;
       try {
-        secureLogger.info('[HouseofmatesBuilder] Calling pocketBaseClient.request...');
-        pageRes = await pocketBaseClient.request(collectionNames.website, 'list', {
+        secureLogger.info('[HouseofmatesBuilder] Calling nocobaseClient.request...');
+        pageRes = await nocobaseClient.request(collectionNames.website, 'list', {
           params: {
             filter: {
               slug,
@@ -262,7 +262,7 @@ export function HouseofmatesBuilder() {
       // if no page found and we're looking for home, try is_home and site_identifier
       if (!foundPage && (slug === 'home' || !slug)) {
         secureLogger.info('[HouseofmatesBuilder] No page found with slug, trying is_home filter');
-        pageRes = await pocketBaseClient.request(collectionNames.website, 'list', {
+        pageRes = await nocobaseClient.request(collectionNames.website, 'list', {
           params: {
             filter: {
               is_home: true,
@@ -384,7 +384,7 @@ export function HouseofmatesBuilder() {
 
     try {
       secureLogger.info(`[ensureWebsiteCollection] Checking for ${colName}...`);
-      const collectionsRes = await pocketBaseClient.listCollections();
+      const collectionsRes = await nocobaseClient.listCollections();
       const collectionsData = Array.isArray(collectionsRes) ? collectionsRes : (collectionsRes as { data?: any[] }).data;
       const col = collectionsData?.find((c: any) => c.name === colName);
 
@@ -404,7 +404,7 @@ export function HouseofmatesBuilder() {
 
       if (!col) {
         secureLogger.info(`[ensureWebsiteCollection] Creating ${colName} collection...`);
-        await pocketBaseClient.createCollection({
+        await nocobaseClient.createCollection({
           name: colName,
           title: colTitle,
           hidden: true,
@@ -413,13 +413,13 @@ export function HouseofmatesBuilder() {
       } else {
         // important: check for broken inheritance (often cause of 500 errors)
         if (col.inherits && col.inherits.length > 0) {
-          const parentRes = await pocketBaseClient.listCollections();
+          const parentRes = await nocobaseClient.listCollections();
           const parentData = Array.isArray(parentRes) ? parentRes : (parentRes as { data?: any[] }).data;
           const parent = parentData?.find((p: any) => col.inherits.includes(p.name));
           if (!parent) {
             secureLogger.warn(`[ensureWebsiteCollection] Broken inheritance detected for ${colName}! Resetting inherits.`);
             try {
-              await pocketBaseClient.request('collections', 'update', { params: { filterByTk: colName }, data: { inherits: [] } });
+              await nocobaseClient.request('collections', 'update', { params: { filterByTk: colName }, data: { inherits: [] } });
             } catch (e) {
               secureLogger.error(`Failed to reset broken inheritance for ${colName}:`, e);
             }
@@ -430,7 +430,7 @@ export function HouseofmatesBuilder() {
         try {
           await api.updateCollection(colName, { title: colTitle, hidden: true }).catch((err) => {
             secureLogger.warn(`Primary update metadata failed for ${colName}, trying fallback:`, err.message);
-            return pocketBaseClient.request('collections', 'update', {
+            return nocobaseClient.request('collections', 'update', {
               method: 'POST',
               params: { filterByTk: colName },
               data: { title: colTitle, hidden: true }
@@ -448,7 +448,7 @@ export function HouseofmatesBuilder() {
         } catch (e) {
           secureLogger.warn(`Failed to get fields for ${colName} via getCollection, trying listFields fallback`);
           try {
-            const fieldListRes = await pocketBaseClient.request('fields', 'list', { params: { 'filter[collectionName]': colName } });
+            const fieldListRes = await nocobaseClient.request('fields', 'list', { params: { 'filter[collectionName]': colName } });
             const fieldListResAny = fieldListRes as any;
             existingFields = fieldListResAny?.data || [];
           } catch (fe) {
@@ -486,7 +486,7 @@ export function HouseofmatesBuilder() {
     const colTitle = site_identifier === 'dupe' ? 'dupe forms' : 'form submissions';
 
     try {
-      const collectionsRes = await pocketBaseClient.listCollections();
+      const collectionsRes = await nocobaseClient.listCollections();
       const collectionsData = Array.isArray(collectionsRes) ? collectionsRes : (collectionsRes as { data?: any[] }).data;
       const col = collectionsData?.find((c: any) => c.name === colName);
 
@@ -501,7 +501,7 @@ export function HouseofmatesBuilder() {
       ];
 
       if (!col) {
-        await pocketBaseClient.createCollection({
+        await nocobaseClient.createCollection({
           name: colName,
           title: colTitle,
           hidden: true,
@@ -510,11 +510,11 @@ export function HouseofmatesBuilder() {
       } else {
         // check inheritance
         if (col.inherits && col.inherits.length > 0) {
-          const parentRes = await pocketBaseClient.listCollections();
+          const parentRes = await nocobaseClient.listCollections();
           const parentData = Array.isArray(parentRes) ? parentRes : (parentRes as { data?: any[] }).data;
           if (!parentData?.find((p: any) => col.inherits.includes(p.name))) {
             secureLogger.warn(`[ensureFormsCollection] Broken inheritance detected for ${colName}! Resetting inherits.`);
-            await pocketBaseClient.request('collections', 'update', { params: { filterByTk: colName }, data: { inherits: [] } }).catch(secureLogger.error);
+            await nocobaseClient.request('collections', 'update', { params: { filterByTk: colName }, data: { inherits: [] } }).catch(secureLogger.error);
           }
         }
 
@@ -533,7 +533,7 @@ export function HouseofmatesBuilder() {
           const colDetail = await api.getCollection(colName);
           existingFields = colDetail.data?.fields || [];
         } catch (e) {
-          const flr = await pocketBaseClient.request('fields', 'list', { params: { 'filter[collectionName]': colName } }).catch(() => ({ data: [] }));
+          const flr = await nocobaseClient.request('fields', 'list', { params: { 'filter[collectionName]': colName } }).catch(() => ({ data: [] }));
           const flrAny = flr as any;
           existingFields = flrAny?.data || [];
         }
@@ -607,7 +607,7 @@ export function HouseofmatesBuilder() {
     addToHistory(newPage);
     setPage(newPage);
     secureLogger.info('[updateElements] Saving to database:', { pageId: page.id, elementCount: newElements.length, updates: batchUpdates });
-    pocketBaseClient.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
+    nocobaseClient.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => {
         secureLogger.info('[updateElements] ✓ Successfully saved to database');
       })
@@ -627,7 +627,7 @@ export function HouseofmatesBuilder() {
     addToHistory(newPage);
     setPage(newPage);
     setSelectedElementIds([]);
-    pocketBaseClient.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
+    nocobaseClient.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => toast.success(`${ids.length} element(s) deleted`))
       .catch(secureLogger.error);
   }, [page, collectionNames]);
@@ -657,7 +657,7 @@ export function HouseofmatesBuilder() {
     addToHistory(newPage);
     setPage(newPage);
 
-    pocketBaseClient.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
+    nocobaseClient.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => toast.success('element added'))
       .catch(secureLogger.error);
   }, [page, collectionNames, previewMode, addToHistory]);
@@ -712,7 +712,7 @@ export function HouseofmatesBuilder() {
     setSelectedElementIds(newIds);
     setPasteCount(prev => prev + 1);
 
-    pocketBaseClient.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
+    nocobaseClient.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => toast.success(`${clipboard.length} element(s) pasted`))
       .catch(secureLogger.error);
   }, [page, clipboard, pasteCount, collectionNames, addToHistory]);
@@ -740,7 +740,7 @@ export function HouseofmatesBuilder() {
 
     secureLogger.info('[Builder] Updating page:', page.id, 'with payload:', payload);
 
-    pocketBaseClient.updateRecord(collectionNames.website, page.id, payload)
+    nocobaseClient.updateRecord(collectionNames.website, page.id, payload)
       .then((res) => {
         secureLogger.info('[Builder] Update successful:', res);
         toast.success('page updated');
@@ -861,7 +861,7 @@ export function HouseofmatesBuilder() {
       toast.info(`uploading ${file.name}...`);
       try {
         // upload file
-        const uploaded = await pocketBaseClient.upload(file);
+        const uploaded = await nocobaseClient.upload(file);
         const uploadedAny = uploaded as any;
         const fileUrl = uploadedAny?.url || uploadedAny?.data?.url;
 
@@ -1045,7 +1045,7 @@ export function HouseofmatesBuilder() {
                   <button
                     onClick={async () => {
                       try {
-                        await pocketBaseClient.createRecord(collectionNames.website, {
+                        await nocobaseClient.createRecord(collectionNames.website, {
                           title: 'home',
                           slug: 'home',
                           site: site_identifier,

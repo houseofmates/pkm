@@ -50,7 +50,7 @@ function MonthlyCoverageMap({ className }: { className?: string }) {
         const today = new Date();
         const thirtyDaysAgo = new Date(today);
         thirtyDaysAgo.setDate(today.getDate() - 30);
-        const res: any = await pocketBaseClient.listRecords('journal', {
+        const res: any = await nocobaseClient.listRecords('journal', {
           filter: { date: { $gte: thirtyDaysAgo.toISOString().split('T')[0], $lte: today.toISOString().split('T')[0] }},
           pageSize: 100
         });
@@ -112,7 +112,7 @@ function JournalStatusCard({ className }: { className?: string }) {
       try {
         const api = (await import('@/api/nocobase-client')).default;
         const today = new Date().toISOString().split('T')[0];
-        const res: any = await pocketBaseClient.listRecords('journal', { filter: { date: today }, pageSize: 1 });
+        const res: any = await nocobaseClient.listRecords('journal', { filter: { date: today }, pageSize: 1 });
         if (res?.data?.[0]) setTodayEntry(res.data[0]);
       } catch (e) { secureLogger.error('Failed to load journal', e); }
     };
@@ -211,7 +211,7 @@ export function TodayPage() {
         const today = new Date();
         const sevenDaysAgo = new Date(today);
         sevenDaysAgo.setDate(today.getDate() - 7);
-        const res: any = await pocketBaseClient.listRecords('journal', {
+        const res: any = await nocobaseClient.listRecords('journal', {
           filter: { date: { $gte: sevenDaysAgo.toISOString().split('T')[0], $lte: today.toISOString().split('T')[0] }},
           pageSize: 100
         });

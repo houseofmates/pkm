@@ -9,7 +9,7 @@ describe('nocobase client createRecord', () => {
   it('should inject entity_type: "note" when creating notes if missing', async () => {
     const spy = vi.spyOn(api.client, 'post').mockResolvedValue({ data: { data: { id: 'ok' } } })
 
-    await pocketBaseClient.createRecord('notes', { title: 'my note' } as any)
+    await nocobaseClient.createRecord('notes', { title: 'my note' } as any)
 
     expect(spy).toHaveBeenCalled()
     const callArgs = spy.mock.calls[0]
@@ -20,7 +20,7 @@ describe('nocobase client createRecord', () => {
   it('should not overwrite existing entity_type when provided', async () => {
     const spy = vi.spyOn(api.client, 'post').mockResolvedValue({ data: { data: { id: 'ok' } } })
 
-    await pocketBaseClient.createRecord('notes', { title: 'x', entity_type: 'custom' } as any)
+    await nocobaseClient.createRecord('notes', { title: 'x', entity_type: 'custom' } as any)
 
     expect(spy).toHaveBeenCalled()
     const callArgs = spy.mock.calls[0]
@@ -46,7 +46,7 @@ describe('nocobase client createRecord', () => {
     shapes.forEach(({ raw, expected }, idx) => {
       it(`should normalize response shape #${idx + 1}`, async () => {
         vi.spyOn(api.client, 'get').mockResolvedValueOnce({ data: raw });
-        const res: any = await pocketBaseClient.listRecords('foo');
+        const res: any = await nocobaseClient.listRecords('foo');
         expect(res.data).toEqual(expected);
       });
     });

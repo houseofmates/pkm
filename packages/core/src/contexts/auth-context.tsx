@@ -5,7 +5,7 @@ import React, {
   useEffect,
   type ReactNode,
 } from "react";
-import { pocketBaseClient, pb } from "@/lib/nocobase";
+import { nocobaseClient, pb } from "@/lib/nocobase";
 import { secureLogger } from "@/lib/secure-logger";
 import { storageManager } from "@/lib/storage-manager";
 
@@ -15,7 +15,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   loginWithApiKey: (apiKey: string) => Promise<void>;
   logout: () => Promise<void>;
-  client: typeof pocketBaseClient;
+  client: typeof nocobaseClient;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         pb.authStore.clear();
         (globalThis as any).location?.reload?.();
       },
-      client: pocketBaseClient,
+      client: nocobaseClient,
     };
 
     if (process.env.NODE_ENV !== "production") {
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      await pocketBaseClient.login(email, password);
+      await nocobaseClient.login(email, password);
       const newToken = pb.authStore.token;
       setToken(newToken);
       secureLogger.info("[auth] login successful");
@@ -98,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginWithApiKey = async (apiKey: string) => {
     try {
-      await pocketBaseClient.loginWithApiKey(apiKey);
+      await nocobaseClient.loginWithApiKey(apiKey);
       const newToken = apiKey;
       setToken(newToken);
       secureLogger.info("[auth] api key login successful");
@@ -114,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    pocketBaseClient.logout();
+    nocobaseClient.logout();
     setToken(null);
 
     const electron = (window as any).electron;
@@ -131,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         loginWithApiKey,
         logout,
-        client: pocketBaseClient,
+        client: nocobaseClient,
       }}
     >
       {children}
@@ -156,7 +156,7 @@ export function useAuth() {
       login: async () => {},
       loginWithApiKey: async () => {},
       logout: async () => {},
-      client: pocketBaseClient,
+      client: nocobaseClient,
     } as AuthContextType;
   }
   return context;

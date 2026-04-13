@@ -1,4 +1,4 @@
-import { pocketBaseClient } from "@/lib/nocobase";
+import { nocobaseClient } from "@/lib/nocobase";
 import { localDbService } from "./local-db.service";
 import { useCollectionsStore } from "@/store/useCollectionsStore";
 import { useGamificationStore } from "@/store/useGamificationStore";
@@ -230,13 +230,13 @@ class DataService {
       return this.subscriptions.get(collectionName)!;
     }
 
-    const unsubscribe = pocketBaseClient.subscribe(collectionName, callback);
+    const unsubscribe = nocobaseClient.subscribe(collectionName, callback);
     this.subscriptions.set(collectionName, unsubscribe);
     return unsubscribe;
   }
 
   public unsubscribeFromCollection(collectionName: string): void {
-    pocketBaseClient.unsubscribe(collectionName);
+    nocobaseClient.unsubscribe(collectionName);
     this.subscriptions.delete(collectionName);
   }
 }

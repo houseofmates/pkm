@@ -5,7 +5,7 @@ import React, {
   useEffect,
   type ReactNode,
 } from "react";
-import { pocketBaseClient } from "@/lib/nocobase";
+import { nocobaseClient } from "@/lib/nocobase";
 import { toast } from "sonner";
 import { secureLogger } from "@/lib/secure-logger";
 import { storageManager } from "@/lib/storage-manager";
@@ -124,7 +124,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       // fetch headmates
       let headmatesData: any[] = [];
       try {
-        const res = await pocketBaseClient.listRecords("headmates", {
+        const res = await nocobaseClient.listRecords("headmates", {
           sort: "name",
           pageSize: 100,
         });
@@ -140,7 +140,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       // fetch history (keep existing if fetch fails)
       let historyData: any[] | null = null;
       try {
-        const res = await pocketBaseClient.listRecords("front_history", {
+        const res = await nocobaseClient.listRecords("front_history", {
           sort: "-startTime",
           pageSize: 50,
         });
@@ -308,7 +308,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       secureLogger.info("Current active front:", currentActive);
       if (currentActive) {
         secureLogger.info("Closing current front:", currentActive.id);
-        const updateResult = await pocketBaseClient.updateRecord(
+        const updateResult = await nocobaseClient.updateRecord(
           "front_history",
           currentActive.id,
           {
@@ -333,7 +333,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
             comment,
           };
         secureLogger.info("Creating new front entry:", newEntry);
-        const createResult = await pocketBaseClient.createRecord(
+        const createResult = await nocobaseClient.createRecord(
           "front_history",
           newEntry,
         );
