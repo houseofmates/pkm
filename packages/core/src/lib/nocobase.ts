@@ -5,7 +5,6 @@ export {
   pb,
   NocoBaseClient,
   type NocoBaseRecord,
-  type NocoBaseClient,
 } from "./nocobase-client";
 
 export { nocobaseClient as default } from "./nocobase-client";

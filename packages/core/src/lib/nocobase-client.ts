@@ -290,9 +290,5 @@ export class NocoBaseClient {
   }
 }
 
-// backwards compat type alias
-type _NocoBaseClient = NocoBaseClient;
-export type { _NocoBaseClient as NocoBaseClient };
-
 export const nocobaseClient = new NocoBaseClient();
 export default nocobaseClient;
