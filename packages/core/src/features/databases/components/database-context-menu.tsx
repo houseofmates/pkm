@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
-import { Trash2, Edit } from 'lucide-react';
+import { Trash2, Edit, EyeOff, Eye } from 'lucideide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { useSidebarColors } from '@/hooks/use-sidebar-colors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -34,9 +34,12 @@ interface DatabaseContextMenuProps {
   children: React.ReactNode;
   onUpdate: () => void;
   onDelete?: () => void;
+  onHide?: () => void;
+  onUnhide?: () => void;
+  isHidden?: boolean;
 }
 
-export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }: DatabaseContextMenuProps) {
+export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, onHide, onUnhide, isHidden }: DatabaseContextMenuProps) {
   const { client } = useAuth();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [colorOpen, setColorOpen] = useState(false);
@@ -136,6 +139,17 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
             <Edit className="mr-2 h-4 w-4" />
             rename
           </ContextMenuItem>
+          {isHidden ? (
+            <ContextMenuItem onSelect={onUnhide}>
+              <Eye className="mr-2 h-4 w-4" />
+              unhide
+            </ContextMenuItem>
+          ) : (
+            <ContextMenuItem onSelect={onHide}>
+              <EyeOff className="mr-2 h-4 w-4" />
+              hide
+            </ContextMenuItem>
+          )}
           <ContextMenuItem
             className="text-destructive focus:text-destructive"
             onSelect={() => setDeleteOpen(true)}
