@@ -140,13 +140,11 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       // fetch history (keep existing if fetch fails)
       let historyData: any[] | null = null;
       try {
-        const res = await api.listRecords("front_history", {
+        const res = await pocketBaseClient.listRecords("front_history", {
           sort: "-startTime",
           pageSize: 50,
         });
-        historyData = Array.isArray(res)
-          ? res
-          : (res as { data?: any[] })?.data || [];
+        historyData = res.data || [];
       } catch (e: any) {
         // axios aborts (e.g. hmr / navigation) often show as econnaborted.
         // this is not fatal; keep existing history instead of wiping it.
