@@ -494,7 +494,7 @@ export function WilsonChat() {
         )}
         <div className="p-4 border-t border-primary bg-background">
           <div className="relative flex items-center gap-2">
-            <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,.gif" onChange={handleFileSelect} className="hidden" />
+            <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,.gif,audio/*" onChange={handleFileSelect} className="hidden" />
             <button onClick={handleAttachmentClick} disabled={isThinking} className="text-primary hover:text-white disabled:opacity-30 p-2 rounded-lg hover:bg-primary/10 transition-colors" title="attach files">
               <Paperclip size={18} />
             </button>
