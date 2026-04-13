@@ -170,6 +170,11 @@ interface AttachmentPreviewProps {
 
 const AttachmentPreview = memo(function AttachmentPreview({ attachment, onRemove }: AttachmentPreviewProps) {
   const isImage = attachment.type === 'image' || attachment.type === 'gif';
+  const getIcon = () => {
+    if (attachment.type === 'video') return <Film size={20} />;
+    if (attachment.type === 'audio') return <Mic size={20} />;
+    return <FileText size={20} />;
+  };
   return (
     <div className="relative group">
       <div className="w-16 h-16 rounded-lg overflow-hidden border border-primary/30 bg-black/50 flex items-center justify-center">
@@ -177,7 +182,7 @@ const AttachmentPreview = memo(function AttachmentPreview({ attachment, onRemove
           <img src={attachment.dataUrl} alt={attachment.name} className="w-full h-full object-cover" />
         ) : (
           <div className="flex flex-col items-center justify-center text-primary/60">
-            {attachment.type === 'video' ? <Film size={20} /> : <FileText size={20} />}
+            {getIcon()}
             <span className="text-[8px] mt-1 uppercase truncate max-w-[60px]">{attachment.type}</span>
           </div>
         )}
@@ -211,7 +216,7 @@ const ChatBubble = memo(function ChatBubble({ message }: ChatBubbleProps) {
                 <img src={att.dataUrl} alt={att.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-black/50 flex items-center justify-center text-primary/40">
-                  {att.type === 'video' ? <Film size={14} /> : <FileText size={14} />}
+                  {att.type === 'video' ? <Film size={14} /> : att.type === 'audio' ? <Mic size={14} /> : <FileText size={14} />}
                 </div>
               )}
             </div>
