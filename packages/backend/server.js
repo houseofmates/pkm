@@ -1245,6 +1245,7 @@ const PREFERRED_QWEN_MODELS = [
   process.env.OLLAMA_QWEN_MODEL,
   process.env.PKM_LLM_MODEL,
   process.env.QWEN_MODEL,
+  'gemma4:e4b',
   'qwen2.5-coder:7b-instruct-q4_K_S',
   'qwen2.5vl:latest',
   'qwen2.5vl:7b-q4_K_M',
@@ -1261,7 +1262,7 @@ const PREFERRED_VISION_MODELS = [
 let resolvedQwenModel = null;
 let resolvedVisionModel = null;
 
-const AI_PERSONA_PROMPT = 'you are wilson, a pkm intelligence agent powered by qwen2.5-coder:7b-instruct-q4_k_s. stay in character and keep responses short and lowercase.';
+const AI_PERSONA_PROMPT = 'you are wilson, a pkm intelligence agent powered by gemma4:e4b. stay in character and keep responses short and lowercase.';
 
 async function resolveOllamaModelSelection() {
   const ollamaUrl = getOllamaUrl();
@@ -1293,11 +1294,13 @@ function getOllamaUrl() {
 }
 
 function getQwenModel() {
-  return resolvedQwenModel || PREFERRED_QWEN_MODELS[0] || 'qwen2.5-coder:7b-instruct-q4_K_S';
+  return resolvedQwenModel || PREFERRED_QWEN_MODELS[0] || 'gemma4:e4b';
 }
 
 function getVisionModel() {
-  return resolvedVisionModel || PREFERRED_VISION_MODELS[0] || 'moondream:v2';
+  // gemma4:e4b supports vision, so we can use it as both llm and vision model
+  const visionModel = resolvedVisionModel || PREFERRED_VISION_MODELS[0] || resolvedQwenModel || PREFERRED_QWEN_MODELS[0] || 'gemma4:e4b';
+  return visionModel;
 }
 
 app.post('/api/ai/chat', requireAuth, async (req, res) => {
