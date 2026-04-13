@@ -2,8 +2,11 @@
 // service for syncing sidebar item colors with nocobase
 // enables cross-platform color persistence (web, electron, apk, exe)
 
-import { nocobaseClient } from '@/lib/nocobase';
+import { nocobaseClient, pocketBaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
+
+// use nocobaseClient (pocketBaseClient is the same NocoBase-compatible wrapper)
+const client = nocobaseClient || pocketBaseClient;
 
 export type SidebarItemType = 'collection' | 'folder' | 'document' | 'drawing';
 

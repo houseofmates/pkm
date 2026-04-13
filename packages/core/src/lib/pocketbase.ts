@@ -241,4 +241,5 @@ export class PocketBaseClient {
 }
 
 export const pocketBaseClient = new PocketBaseClient();
+export const nocobaseClient = pocketBaseClient;
 export default pocketBaseClient;
