@@ -37,7 +37,7 @@ export async function ensureSidebarColorsCollection(): Promise<boolean> {
   try {
     // check if collection exists by attempting to list
     try {
-      await pocketBaseClient.listRecords(COLLECTION_NAME, { pageSize: 1 });
+      await client.listRecords(COLLECTION_NAME, { pageSize: 1 });
       return true;
     } catch (e: any) {
       if (e?.response?.status !== 404) {
@@ -49,7 +49,7 @@ export async function ensureSidebarColorsCollection(): Promise<boolean> {
     // collection doesn't exist, create it
     secureLogger.info('[sidebar-color-service] creating sidebar_item_colors collection...');
 
-    await pocketBaseClient.createCollection({
+    await client.createCollection({
       name: COLLECTION_NAME,
       title: 'sidebar item colors',
       fields: [
@@ -81,7 +81,7 @@ export async function ensureSidebarColorsCollection(): Promise<boolean> {
  */
 export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
   try {
-    const response = await pocketBaseClient.listRecords(COLLECTION_NAME, {
+    const response = await client.listRecords(COLLECTION_NAME, {
       pageSize: 1000 // get all records
     });
 
