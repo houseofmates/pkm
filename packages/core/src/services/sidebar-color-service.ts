@@ -2,7 +2,7 @@
 // service for syncing sidebar item colors with nocobase
 // enables cross-platform color persistence (web, electron, apk, exe)
 
-import { pocketBaseClient } from '@/lib/pocketbase';
+import { nocobaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export type SidebarItemType = 'collection' | 'folder' | 'document' | 'drawing';
@@ -45,7 +45,7 @@ export async function ensureSidebarColorsCollection(): Promise<boolean> {
 
     // collection doesn't exist, create it
     secureLogger.info('[sidebar-color-service] creating sidebar_item_colors collection...');
-    
+
     await pocketBaseClient.createCollection({
       name: COLLECTION_NAME,
       title: 'sidebar item colors',
@@ -81,7 +81,7 @@ export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
     const response = await pocketBaseClient.listRecords(COLLECTION_NAME, {
       pageSize: 1000 // get all records
     });
-    
+
     const data = Array.isArray(response.data) ? response.data : [];
     return data.map((record: any) => ({
       id: record.id,
@@ -108,7 +108,7 @@ export async function getSidebarColor(itemId: string): Promise<SidebarColorRecor
       filter: { item_id: { $eq: itemId } },
       pageSize: 1
     });
-    
+
     const data = Array.isArray(response.data) ? response.data : [];
     if (data.length > 0) {
       const record = data[0];
@@ -141,7 +141,7 @@ export async function saveSidebarColor(
   try {
     // check if record exists
     const existing = await getSidebarColor(itemId);
-    
+
     const payload = {
       item_id: itemId,
       item_type: itemType,
@@ -157,7 +157,7 @@ export async function saveSidebarColor(
       // create new
       await pocketBaseClient.createRecord(COLLECTION_NAME, payload);
     }
-    
+
     return true;
   } catch (error) {
     secureLogger.error('[sidebar-color-service] failed to save color:', error);
@@ -175,7 +175,7 @@ export async function updateSidebarItemColor(
 ): Promise<boolean> {
   try {
     const existing = await getSidebarColor(itemId);
-    
+
     if (existing?.id) {
       await pocketBaseClient.updateRecord(COLLECTION_NAME, existing.id, { color });
     } else {
@@ -185,10 +185,10 @@ export async function updateSidebarItemColor(
         color
       });
     }
-    
+
     // broadcast change to other tabs/windows
     broadcastColorChange(itemId, color);
-    
+
     return true;
   } catch (error) {
     secureLogger.error('[sidebar-color-service] failed to update color:', error);
@@ -251,7 +251,7 @@ function broadcastColorChange(itemId: string, color: string) {
       color,
       timestamp: Date.now()
     };
-    
+
     try {
       localStorage.setItem('pkm_sidebar_color_broadcast', JSON.stringify(eventData));
       // remove immediately to allow future broadcasts
@@ -271,9 +271,9 @@ export function subscribeToColorChanges(
   callback: (itemId: string, color: string) => void
 ): () => void {
   if (typeof window === 'undefined') {
-    return () => {};
+    return () => { };
   }
-  
+
   const handler = (e: StorageEvent) => {
     if (e.key === 'pkm_sidebar_color_broadcast' && e.newValue) {
       try {
@@ -286,7 +286,7 @@ export function subscribeToColorChanges(
       }
     }
   };
-  
+
   window.addEventListener('storage', handler);
   return () => window.removeEventListener('storage', handler);
 }
