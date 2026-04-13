@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
-import { Trash2, Edit, EyeOff, Eye } from 'lucideide-react';
+import { Trash2, Edit, EyeOff, Eye } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { useSidebarColors } from '@/hooks/use-sidebar-colors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
