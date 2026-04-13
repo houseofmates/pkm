@@ -40,7 +40,7 @@ export function loadConfig(overrides: Partial<WeaveConfig> = {}): WeaveConfig {
     dataDir: path.resolve(process.env.PKM_DATA_DIR || './data/weave'),
     ollamaUrl: process.env.OLLAMA_URL || process.env.OLLAMA_HOST || 'http://localhost:11434',
     embeddingModel: process.env.PKM_EMBED_MODEL || 'nomic-embed-text',
-    llmModel: process.env.PKM_LLM_MODEL || 'qwen2.5-coder:7b-instruct-q4_K_S',
+    llmModel: process.env.PKM_LLM_MODEL || 'gemma4:e4b',
     watchDebounceMs: 2000,
     bm25K1: 1.5,
     bm25B: 0.75,
