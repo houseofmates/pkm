@@ -7,7 +7,7 @@ import { storageManager } from './storage-manager';
 /**
  * the default gemini model wilson should use
  */
-export const DEFAULT_OLLAMA_MODEL = 'qwen2.5-coder:7b-instruct-q4_K_S';
+export const DEFAULT_OLLAMA_MODEL = 'gemma4:e4b';
 export const DEFAULT_OLLAMA_URL = 'http://192.168.4.250:11434';
 
 export async function getStoredGeminiApiKey(): Promise<string | null> {
