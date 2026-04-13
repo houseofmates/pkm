@@ -35,7 +35,7 @@ export interface NocoBaseRecord {
 }
 
 // deprecated: use NocoBaseRecord
-export type PocketBaseRecord = NocoBaseRecord;
+export type NocoBaseRecord = NocoBaseRecord;
 
 export class NocoBaseClient {
   private _axios: AxiosInstance;
@@ -290,7 +290,7 @@ export class NocoBaseClient {
   }
 }
 
-export type PocketBaseClient = NocoBaseClient;
+export type NocoBaseClient = NocoBaseClient;
 
 export const nocobaseClient = new NocoBaseClient();
 export const nocobaseClient = nocobaseClient;

@@ -47,7 +47,7 @@ export interface Collection {
 export type ApiResponse<T> = ApiListResponse<T>;
 
 // pocketbase-specific types
-export interface PocketBaseRecord {
+export interface NocoBaseRecord {
   id: string;
   created: string;
   updated: string;

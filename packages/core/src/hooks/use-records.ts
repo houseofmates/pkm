@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { walWrite, walCommit, walFail } from "@/lib/write-ahead-log";
 import { registry } from "@/lib/link-registry";
 import { secureLogger } from "@/lib/secure-logger";
-import type { PocketBaseRecord } from "@/lib/nocobase";
+import type { NocoBaseRecord } from "@/lib/nocobase";
 
 export interface RecordPayload {
   [key: string]: unknown;
@@ -41,7 +41,7 @@ export function useRecords(
   });
 
   const fetchRecords = async () => {
-    const response = await client.listRecords<PocketBaseRecord>(
+    const response = await client.listRecords<NocoBaseRecord>(
       collectionName,
       queryParams,
     );
@@ -159,10 +159,10 @@ export function useRecords(
         queryKey: ["records", collectionName],
       });
       const previousData = queryClient.getQueryData<{
-        data: PocketBaseRecord[];
+        data: NocoBaseRecord[];
       }>(["records", collectionName, queryParams]);
 
-      queryClient.setQueryData<{ data: PocketBaseRecord[] }>(
+      queryClient.setQueryData<{ data: NocoBaseRecord[] }>(
         ["records", collectionName, queryParams],
         (old) => {
           if (!old || !old.data) return old;
@@ -230,7 +230,7 @@ export function useRecord(collectionName: string, recordId: string | number) {
   const activeFronterId = activeFronters[0] || null;
 
   const fetchRecord = async () => {
-    return client.getRecord<PocketBaseRecord>(collectionName, String(recordId));
+    return client.getRecord<NocoBaseRecord>(collectionName, String(recordId));
   };
 
   const { data, isLoading, error, refetch } = useQuery({

@@ -5,8 +5,8 @@ export {
   nocobaseClient,
   pb,
   nocobaseClient as api,
-  type PocketBaseRecord,
-  type PocketBaseClient,
+  type NocoBaseRecord,
+  type NocoBaseClient,
 } from "./pocketbase";
 
 // deprecated: use nocobaseClient directly
