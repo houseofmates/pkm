@@ -15,7 +15,7 @@ export const apiClient = axios.create({
 
 type TokenKind =
   | "hom_api_key"
-  | "pocketbase_token"
+  | "nocobase_token"
   | "hom_guest_key"
   | "public";
 
@@ -28,16 +28,16 @@ apiClient.interceptors.request.use(async (config) => {
     config.data = sanitizeForLogging(config.data);
   }
 
-  const pt = await storageManager.getEncryptedItem("pocketbase_token");
+  const nt = await storageManager.getEncryptedItem("nocobase_token");
   const ht = await storageManager.getEncryptedItem("hom_api_key");
   const gt = await storageManager.getEncryptedItem("hom_guest_key");
 
   let token: string | null = null;
   let tokenKind: TokenKind | null = null;
 
-  if (pt && pt.trim() !== "") {
-    token = normalizeAuthToken(pt);
-    tokenKind = "pocketbase_token";
+  if (nt && nt.trim() !== "") {
+    token = normalizeAuthToken(nt);
+    tokenKind = "nocobase_token";
   } else if (ht && ht.trim() !== "") {
     token = normalizeAuthToken(ht);
     tokenKind = "hom_api_key";
