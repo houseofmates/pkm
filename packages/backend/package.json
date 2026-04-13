@@ -20,7 +20,8 @@
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "multer": "^2.0.2",
-    "node-ical": "^0.25.6"
+    "node-ical": "^0.25.6",
+    "pocketbase": "^0.26.8"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
