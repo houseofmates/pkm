@@ -109,7 +109,11 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
 
   // 1. filter out internal collections from grid
   const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'];
-  const filteredCollections = collections.filter((c: Collection) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
+  const { hideCollection, unhideCollection, isHidden } = useHiddenCollections();
+  const filteredCollections = collections.filter((c: Collection) =>
+    !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()) &&
+    !isHidden(c.name)
+  );
 
   // 2. supplement missing field metadata for collections the api doesn't return fields for
   const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string }>> = {
