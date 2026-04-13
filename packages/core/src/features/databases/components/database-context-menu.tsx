@@ -68,11 +68,11 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
 
     // sync to nocobase for cross-device persistence
     if (key === 'color') {
-      await syncColorToServer(collection.name, {
-        color: value || undefined,
-        icon: syncedMeta?.icon || undefined,
-        iconType: syncedMeta?.iconType || undefined
-      });
+      const metadata: Parameters<typeof syncColorToServer>[1] = {};
+      if (value) metadata.color = value;
+      if (syncedMeta?.icon) metadata.icon = syncedMeta.icon;
+      if (syncedMeta?.iconType) metadata.iconType = syncedMeta.iconType;
+      await syncColorToServer(collection.name, metadata);
     }
 
     onUpdate();
