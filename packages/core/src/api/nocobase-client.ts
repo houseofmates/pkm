@@ -80,33 +80,29 @@ export class NocoBaseClient {
   }
 
   // --- collection methods ---
-  // @deprecated pocketbase collections are managed differently - use pb.client.collection()
   async listCollections(params: Record<string, unknown> = {}) {
-    secureLogger.warn('[NocoBase] listCollections is deprecated, use pocketbase directly');
-    // pocketbase doesn't have a list collections endpoint like nocobase
-    // return empty list for compatibility during migration
-    return { data: [] };
+    const response = await this.axios.get('/collections:list', { params });
+    return normalizeListResponse(response.data);
   }
 
   async getCollection(name: string): Promise<CollectionResponse> {
-    secureLogger.warn(`[NocoBase] getCollection(${name}) is deprecated, use pocketbase directly`);
-    // return a stub for backward compatibility
-    return { data: { name, title: name, fields: [] } };
+    const response = await this.axios.get(`/collections:get?filter[name]=${name}`);
+    return { data: response.data?.data?.[0] || response.data?.data };
   }
 
   async createCollection(data: Collection) {
-    secureLogger.warn('[NocoBase] createCollection is deprecated, create collections in pocketbase admin ui');
-    return { data };
+    const response = await this.axios.post('/collections:create', data);
+    return response.data;
   }
 
   async updateCollection(name: string, data: Partial<Collection>) {
-    secureLogger.warn('[NocoBase] updateCollection is deprecated');
-    return { data: { ...data, name } };
+    const response = await this.axios.post(`/collections:update?filter[name]=${name}`, data);
+    return response.data;
   }
 
   async deleteCollection(name: string) {
-    secureLogger.warn('[NocoBase] deleteCollection is deprecated');
-    return { success: true };
+    const response = await this.axios.post(`/collections:destroy?filter[name]=${name}`);
+    return response.data;
   }
 
   async ensureBackendCollection() {
@@ -118,18 +114,22 @@ export class NocoBaseClient {
       return true;
     }
 
-    secureLogger.info(`[NocoBase -> PocketBase] Checking ${COL_NAME} collection...`);
+    secureLogger.info(`[NocoBase] Checking ${COL_NAME} collection...`);
     try {
-      // check if collection exists in pocketbase
-      await this._pb.getRecord(COL_NAME, '1').catch(() => null);
+      // check if collection exists
+      await this.getCollection(COL_NAME);
       if (typeof localStorage !== 'undefined') {
         storageManager.setItem(schemaKey, SCHEMA_VERSION);
       }
       return true;
     } catch {
-      // collection may not exist - pocketbase requires admin setup
-      secureLogger.warn(`[NocoBase -> PocketBase] ${COL_NAME} collection check completed`);
-      return true; // assume migration handled separately
+      // create the collection
+      secureLogger.info(`[NocoBase] Creating ${COL_NAME} collection...`);
+      await this.createCollection({
+        name: COL_NAME,
+        title: 'PKM Settings',
+      });
+      return true;
     }
   }
 
@@ -142,39 +142,42 @@ export class NocoBaseClient {
       return true;
     }
 
-    secureLogger.info(`[NocoBase -> PocketBase] Checking ${COL_NAME} collection...`);
+    secureLogger.info(`[NocoBase] Checking ${COL_NAME} collection...`);
     try {
-      await this._pb.getRecord(COL_NAME, '1').catch(() => null);
+      await this.getCollection(COL_NAME);
       if (typeof localStorage !== 'undefined') {
         storageManager.setItem(schemaKey, SCHEMA_VERSION);
       }
       return true;
     } catch {
-      secureLogger.warn(`[NocoBase -> PocketBase] ${COL_NAME} collection check completed`);
+      secureLogger.info(`[NocoBase] Creating ${COL_NAME} collection...`);
+      await this.createCollection({
+        name: COL_NAME,
+        title: 'PKM Canvases',
+      });
       return true;
     }
   }
 
   // --- field methods ---
-  // @deprecated pocketbase fields are managed through admin ui or migrations
   async listFields(collectionName: string): Promise<Field[]> {
-    secureLogger.warn('[NocoBase] listFields is deprecated');
-    return [];
+    const response = await this.axios.get(`/collections/${collectionName}/fields:list`);
+    return normalizeListResponse(response.data).data || [];
   }
 
   async createField(collection: string, data: Field) {
-    secureLogger.warn('[NocoBase] createField is deprecated');
-    return { data };
+    const response = await this.axios.post(`/collections/${collection}/fields:create`, data);
+    return response.data;
   }
 
   async updateField(collection: string, name: string, data: Partial<Field>) {
-    secureLogger.warn('[NocoBase] updateField is deprecated');
-    return { data: { ...data, name } };
+    const response = await this.axios.post(`/collections/${collection}/fields:update?filter[name]=${name}`, data);
+    return response.data;
   }
 
   async deleteField(collection: string, name: string) {
-    secureLogger.warn('[NocoBase] deleteField is deprecated');
-    return { success: true };
+    const response = await this.axios.post(`/collections/${collection}/fields:destroy?filter[name]=${name}`);
+    return response.data;
   }
 
   // --- record methods ---
