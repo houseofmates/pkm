@@ -46,12 +46,12 @@ export function init(
 ): void {
     _apiBaseUrl = apiBaseUrl.replace(/\/+$/, '');
     _authToken = authToken;
-    
+
     // log the incoming ollamabaseurl for debugging
     secureLogger.info('[ai-worker] init called with ollamaBaseUrl:', ollamaBaseUrl);
-    
+
     _ollamaBaseUrl = (ollamaBaseUrl || _ollamaBaseUrl || 'http://localhost:11434').replace(/\/+$/, '');
-    
+
     secureLogger.info('[ai-worker] resolved _ollamaBaseUrl:', _ollamaBaseUrl);
 
     const defaultEmbeddingEndpoint = `${_ollamaBaseUrl}/api/embeddings`;
@@ -298,7 +298,7 @@ async function chatStream(
     onToken: (cumulativeContent: string) => void,
 ): Promise<string> {
     const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/generate');
-    
+
     secureLogger.info('[ai-worker] chatStream using endpoint:', resolvedEndpoint, '(input was:', endpoint + ')');
 
     const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
@@ -378,7 +378,7 @@ async function chatStreamMultimodal(
     onToken: (cumulativeContent: string) => void,
 ): Promise<string> {
     const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/chat');
-    
+
     secureLogger.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
 
     const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
@@ -393,10 +393,10 @@ async function chatStreamMultimodal(
     const response = await _fetch(resolvedEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            model, 
+        body: JSON.stringify({
+            model,
             messages,
-            stream: true 
+            stream: true
         }),
     });
 
@@ -490,11 +490,11 @@ async function askWithRag(
     onToken: (cumulativeContent: string) => void,
 ): Promise<AskWithRagResult> {
     secureLogger.info('[ai-worker] askWithRag called:', { query: query.slice(0, 50), fronterName, model, endpoint: endpoint.slice(0, 100) });
-    
+
     // vision models need the chat endpoint with messages format
-    // qwen2.5-coder:7b-instruct-q4_k_s is actually the vl model renamed for pieces os compatibility
-    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava') || model.includes('qwen2.5-coder');
-    
+    // gemma4:e4b is a multimodal model that supports images and audio
+    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava') || model.includes('gemma4') || model.includes('gemma-4');
+
     if (isVisionModel) {
         secureLogger.info('[ai-worker] Detected vision model, using chat endpoint');
         try {
@@ -512,7 +512,7 @@ async function askWithRag(
             throw e;
         }
     }
-    
+
     // non-vision models use the generate endpoint
     secureLogger.info('[ai-worker] Using generate endpoint');
     const { prompt, sources } = await buildRagPrompt(query, fronterName);
@@ -534,13 +534,13 @@ async function askWithRagAndAttachments(
 ): Promise<AskWithRagResult> {
     // build rag context for the text query
     const ragCtx = await buildRagContext(query, 8);
-    
+
     // build system message with rag context
     const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
-    
+
     // build user message content parts
     const userContent: { type: 'text'; text: string; } | Array<{ type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }> = [{ type: 'text', text: query }];
-    
+
     // add image attachments if provided
     if (attachments && attachments.length > 0) {
         for (const attachment of attachments) {
@@ -552,23 +552,24 @@ async function askWithRagAndAttachments(
             }
         }
     }
-    
+
     // build messages array for chat api
     const messages: ChatMessage[] = [
         { role: 'system', content: systemContent },
         { role: 'user', content: userContent }
     ];
-    
-    secureLogger.info('[ai-worker] askWithRagAndAttachments:', { 
-            model, 
-            query, 
-            attachmentCount: attachments?.length || 0,
-            sources: ragCtx.sources.length
-        });
-    
+
+    secureLogger.info('[ai-worker] askWithRagAndAttachments:', {
+        model,
+        query,
+        attachmentCount: attachments?.length || 0,
+        sources: ragCtx.sources.length
+    });
+
     // use multimodal streaming for vision models
-    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava');
-    
+    // gemma4:e4b supports images and audio attachments
+    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava') || model.includes('gemma4') || model.includes('gemma-4');
+
     let response: string;
     if (isVisionModel && attachments && attachments.length > 0) {
         response = await chatStreamMultimodal(messages, model, endpoint, onToken);
@@ -577,7 +578,7 @@ async function askWithRagAndAttachments(
         const { prompt } = await buildRagPrompt(query, fronterName);
         response = await chatStream(prompt, model, endpoint, onToken);
     }
-    
+
     return { response: response.toLowerCase(), sources: ragCtx.sources };
 }
 
@@ -600,13 +601,13 @@ function resolveOllamaEndpointForWorker(endpoint: string, fallbackPath: string =
     if (!endpoint) return `${normalizedBase}${fallbackPath}`;
 
     const stripped = endpoint.replace(/\/+$/, '');
-    
+
     // if endpoint is already a full url (starts with http:// or https://)
     if (/^https?:\/\//.test(stripped)) {
         // check if it ends with /api/generate but we need /api/chat (or vice versa)
         const generatePattern = /\/api\/generate$/;
         const chatPattern = /\/api\/chat$/;
-        
+
         if (fallbackPath === '/api/chat' && generatePattern.test(stripped)) {
             // replace /api/generate with /api/chat
             return stripped.replace(generatePattern, '/api/chat');
@@ -615,7 +616,7 @@ function resolveOllamaEndpointForWorker(endpoint: string, fallbackPath: string =
             // replace /api/chat with /api/generate
             return stripped.replace(chatPattern, '/api/generate');
         }
-        
+
         // only rewrite if it's localhost:11434 pointing to the default
         const localhostPattern = /^https?:\/\/localhost:11434/;
         if (localhostPattern.test(stripped)) {
