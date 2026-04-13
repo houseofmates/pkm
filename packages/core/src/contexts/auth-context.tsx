@@ -96,6 +96,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const loginWithApiKey = async (apiKey: string) => {
+    try {
+      await pocketBaseClient.loginWithApiKey(apiKey);
+      const newToken = apiKey;
+      setToken(newToken);
+      secureLogger.info("[auth] api key login successful");
+
+      const electron = (window as any).electron;
+      if (electron?.syncState) {
+        electron.syncState({ token: newToken });
+      }
+    } catch (error) {
+      secureLogger.error("[auth] api key login failed:", error);
+      throw error;
+    }
+  };
+
   const logout = async () => {
     pocketBaseClient.logout();
     setToken(null);
