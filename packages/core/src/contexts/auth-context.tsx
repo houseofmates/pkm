@@ -129,6 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token,
         isAuthenticated: pb.authStore.isValid,
         login,
+        loginWithApiKey,
         logout,
         client: pocketBaseClient,
       }}
