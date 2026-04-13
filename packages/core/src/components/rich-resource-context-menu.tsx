@@ -976,6 +976,15 @@ function renderMenu({ currentName, currentColor, onUpdate, onHide, children, ite
             {children}
           </div>
         )}
+        {onHide && (
+          <Button
+            variant="ghost"
+            className="w-full h-10 text-sm font-medium hover:bg-muted hover:text-foreground transition-all rounded-xl mt-2"
+            onClick={onHide}
+          >
+            <EyeOff className="h-4 w-4 mr-2" /> hide from sidebar
+          </Button>
+        )}
         <input
           id="icon-upload"
           type="file"
