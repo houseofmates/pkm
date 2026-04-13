@@ -54,6 +54,24 @@ export class NocoBaseClient {
       },
     });
 
+    // Add request interceptor to always use latest token from storage
+    // This ensures newly entered API keys are used immediately
+    this._axios.interceptors.request.use(async (config) => {
+      const latestToken = await storageManager.getEncryptedItem("nocobase_token");
+      if (latestToken && latestToken.trim() !== "") {
+        // Only use the token if it's different from build-time token
+        // or if build-time token is empty (dev mode)
+        if (!BUILD_TIME_TOKEN || latestToken !== BUILD_TIME_TOKEN) {
+          config.headers["Authorization"] = `Bearer ${latestToken}`;
+        } else if (BUILD_TIME_TOKEN) {
+          // If user token equals build token, still prefer user's explicitly entered token
+          // (they may have re-entered the same token, which is fine)
+          config.headers["Authorization"] = `Bearer ${latestToken}`;
+        }
+      }
+      return config;
+    });
+
     this._loadAuth();
   }
 
