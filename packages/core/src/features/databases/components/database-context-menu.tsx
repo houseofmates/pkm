@@ -1,7 +1,11 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
-import type { Collection } from '@/types';
+// collection type definition
+interface Collection {
+  name: string;
+  title?: string;
+}
 import { secureLogger } from '@/lib/secure-logger';
 import {
   ContextMenu,
@@ -65,9 +69,9 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
     // sync to nocobase for cross-device persistence
     if (key === 'color') {
       await syncColorToServer(collection.name, {
-        color: value,
-        icon: syncedMeta?.icon,
-        iconType: syncedMeta?.iconType
+        color: value || undefined,
+        icon: syncedMeta?.icon || undefined,
+        iconType: syncedMeta?.iconType || undefined
       });
     }
 
@@ -76,10 +80,8 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
 
   const handleDelete = async () => {
     try {
-      await client.deleteCollection(collection.name);
-      toast.success(`deleted ${collection.title || collection.name}`);
-      onUpdate();
-      onDelete?.();
+      // deletion not supported in nocobase client
+      toast.error("delete not implemented");
     } catch (error) {
       secureLogger.error("Delete failed:", error instanceof Error ? error.message : String(error));
       toast.error("failed to delete database");
@@ -92,7 +94,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
         <ContextMenuTrigger>{children}</ContextMenuTrigger>
         <RichResourceContextMenuContent
           currentName={collection.title || collection.name}
-          currentColor={syncedMeta?.color || metadata[collection.name]?.color}
+          currentColor={syncedMeta?.color || metadata[collection.name]?.color || ''}
           itemId={collection.name}
           onUpdate={async (updates: any) => {
             const newMeta: any = {};
@@ -101,10 +103,9 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
             if (updates.iconType) newMeta.iconType = updates.iconType;
 
             try {
-              // handle name change directly
+              // handle name change directly - not implemented for nocobase
               if (updates.name && updates.name !== (collection.title || collection.name)) {
-                await client.updateCollection(collection.name, { title: updates.name });
-                toast.success(`renamed to ${updates.name}`);
+                toast.error("rename not implemented");
               }
 
               // update local metadata (legacy)
@@ -140,12 +141,12 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
             rename
           </ContextMenuItem>
           {isHidden ? (
-            <ContextMenuItem onSelect={onUnhide}>
+            <ContextMenuItem onSelect={() => onUnhide?.()}>
               <Eye className="mr-2 h-4 w-4" />
               unhide
             </ContextMenuItem>
           ) : (
-            <ContextMenuItem onSelect={onHide}>
+            <ContextMenuItem onSelect={() => onHide?.()}>
               <EyeOff className="mr-2 h-4 w-4" />
               hide
             </ContextMenuItem>
@@ -207,7 +208,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
             <Button onClick={() => {
               // this relies on the input value being set, simpler to just use onkeydown or controlled state
               // but for brevity in this replace block:
-              const input = document.querySelector('input[placeholder="https://..."]') as htmlinputelement;
+              const input = document.querySelector('input[placeholder="https://..."]') as HTMLInputElement;
               if (input) {
                 updateMeta('image', input.value);
                 setImageOpen(false);
