@@ -1,12 +1,12 @@
 import { useCallback } from 'react';
-import { useGamificationStore } from '../../../apps/web/src/stores/gamification-store';
-import { useHaptics } from './useHaptics';
+import { useGamificationStore } from '../stores/gamification-store';
+import { useHaptics } from '@pkm/core/src/hooks/useHaptics';
 
 export function useGamificationWithHaptics() {
   const store = useGamificationStore();
   const { success, light } = useHaptics();
 
-  const earnXp = useCallback((amount: number, reason?: string) => {
+  const earnXp = useCallback((amount: number, reason: string = '') => {
     const result = store.earnXp(amount, reason);
 
     if (amount >= 10) {
