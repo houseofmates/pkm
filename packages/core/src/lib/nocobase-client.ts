@@ -8,10 +8,10 @@ const NOCOBASE_URL =
 // mock pb object for compatibility (deprecated but kept for imports)
 export const pb = {
   authStore: {
-    onChange: () => {},
+    onChange: () => { },
     isValid: false,
     model: null,
-    clear: () => {},
+    clear: () => { },
   },
   collection: () => ({
     getList: async () => ({ items: [], totalItems: 0 }),
@@ -19,9 +19,9 @@ export const pb = {
     getOne: async () => ({}),
     create: async () => ({}),
     update: async () => ({}),
-    delete: async () => {},
-    subscribe: () => () => {},
-    unsubscribe: () => {},
+    delete: async () => { },
+    subscribe: () => () => { },
+    unsubscribe: () => { },
   }),
   getFileUrl: () => "",
   send: async () => ({}),
@@ -34,8 +34,8 @@ export interface NocoBaseRecord {
   [key: string]: unknown;
 }
 
-// deprecated: use NocoBaseRecord
-export type NocoBaseRecord = NocoBaseRecord;
+// deprecated: backwards compat alias
+export type { NocoBaseRecord as PocketBaseRecord };
 
 export class NocoBaseClient {
   private _axios: AxiosInstance;
@@ -78,7 +78,7 @@ export class NocoBaseClient {
       isValid: !!this._token,
       model: this._user,
       token: this._token,
-      onChange: () => {},
+      onChange: () => { },
       clear: () => this.logout(),
     };
   }
@@ -149,7 +149,7 @@ export class NocoBaseClient {
   ): Promise<{ data: T[]; meta?: { total?: number } }> {
     const { page = 1, pageSize = 50, sort, filter } = params;
 
-    const response = await this._axios.get(\`/\${collection}:list\`, {
+    const response = await this._axios.get(`/${collection}:list`, {
       params: {
         page,
         pageSize,
@@ -173,7 +173,7 @@ export class NocoBaseClient {
   ): Promise<T[]> {
     const { sort, filter } = params;
 
-    const response = await this._axios.get(\`/\${collection}:list\`, {
+    const response = await this._axios.get(`/${collection}:list`, {
       params: {
         pageSize: 1000,
         sort,
@@ -190,7 +190,7 @@ export class NocoBaseClient {
     id: string | number,
   ): Promise<{ data: T }> {
     const response = await this._axios.get(
-      \`/\${collection}:get?filter[id]=\${id}\`,
+      `/${collection}:get?filter[id]=${id}`,
     );
     const data =
       response.data?.data?.[0] || response.data?.data || response.data;
@@ -201,7 +201,7 @@ export class NocoBaseClient {
     collection: string,
     data: Record<string, unknown>,
   ): Promise<{ data: T }> {
-    const response = await this._axios.post(\`/\${collection}:create\`, data);
+    const response = await this._axios.post(`/${collection}:create`, data);
     return { data: response.data?.data || response.data };
   }
 
@@ -211,7 +211,7 @@ export class NocoBaseClient {
     data: Record<string, unknown>,
   ): Promise<{ data: T }> {
     const response = await this._axios.post(
-      \`/\${collection}:update?filter[id]=\${id}\`,
+      `/${collection}:update?filter[id]=${id}`,
       data,
     );
     return { data: response.data?.data || response.data };
@@ -221,7 +221,7 @@ export class NocoBaseClient {
     collection: string,
     id: string | number,
   ): Promise<{ success: boolean }> {
-    await this._axios.post(\`/\${collection}:destroy?filter[id]=\${id}\`);
+    await this._axios.post(`/${collection}:destroy?filter[id]=${id}`);
     return { success: true };
   }
 
@@ -232,14 +232,14 @@ export class NocoBaseClient {
   ): Promise<{ data: NocoBaseRecord }> {
     const formData = new FormData();
     formData.append(field, file);
-    const response = await this._axios.post(\`/\${collection}:create\`, formData, {
+    const response = await this._axios.post(`/${collection}:create`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return { data: response.data?.data || response.data };
   }
 
   getFileUrl(record: NocoBaseRecord, filename: string): string {
-    return \`\${NOCOBASE_URL}/\${record.id}/\${filename}\`;
+    return `${NOCOBASE_URL}/${record.id}/${filename}`;
   }
 
   subscribe<T = NocoBaseRecord>(
@@ -247,12 +247,12 @@ export class NocoBaseClient {
     callback: (e: { action: string; record: T }) => void,
   ): () => void {
     secureLogger.warn(
-      \`[NocoBase] subscriptions not supported, polling recommended for \${collection}\`,
+      `[NocoBase] subscriptions not supported, polling recommended for ${collection}`,
     );
-    return () => {};
+    return () => { };
   }
 
-  unsubscribe(collection: string) {}
+  unsubscribe(collection: string) { }
 
   async request(path: string, options?: Record<string, unknown>) {
     const { method = "GET", body, ...rest } = options || {};
@@ -290,8 +290,9 @@ export class NocoBaseClient {
   }
 }
 
-export type NocoBaseClient = NocoBaseClient;
+// backwards compat type alias
+type _NocoBaseClient = NocoBaseClient;
+export type { _NocoBaseClient as NocoBaseClient };
 
 export const nocobaseClient = new NocoBaseClient();
-export const nocobaseClient = nocobaseClient;
 export default nocobaseClient;
