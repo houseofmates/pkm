@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useDeferredValue, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 
@@ -37,8 +38,7 @@ import LogsCalendar from './logs-calendar'
 import ReflectionTimer from './reflection-timer'
 
 import { useGamificationStore } from '../../stores/gamification-store'
-
-import { useHaptics } from '../../../../packages/core/src/hooks/useHaptics';
+import { useHaptics } from '../../../../packages/core/src/hooks/useHaptics'
 
 import { toast } from 'sonner'
 
@@ -101,6 +101,12 @@ const EMOTIONS = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust']
 const ACTIVITIES = ['walk', 'read', 'meditate', 'work']
 
 const EMPTY_ENTRY: JournalEntry = { id: '', date: '', mood: '', emotions: [], activities: [], note: '', xpEarned: 0 }
+
+const tabVariants = {
+  initial: { opacity: 0, x: 20 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -20 }
+}
 
 
 
@@ -360,16 +366,16 @@ const Journal: React.FC = () => {
 
 
 
-   const filteredPastEntries = useMemo(() => {
-     if (!deferredSearchTerm && !filterMood) return entries;
-     
-     return entries.filter((savedEntry) => {
-       const matchesMood = !filterMood || savedEntry.mood === filterMood;
-       const matchesSearch = !deferredSearchTerm || 
-         savedEntry.note.toLowerCase().includes(deferredSearchTerm.toLowerCase());
-       return matchesMood && matchesSearch;
-     });
-   }, [deferredSearchTerm, entries, filterMood])
+  const filteredPastEntries = useMemo(() => {
+    if (!deferredSearchTerm && !filterMood) return entries;
+
+    return entries.filter((savedEntry) => {
+      const matchesMood = !filterMood || savedEntry.mood === filterMood;
+      const matchesSearch = !deferredSearchTerm ||
+        savedEntry.note.toLowerCase().includes(deferredSearchTerm.toLowerCase());
+      return matchesMood && matchesSearch;
+    });
+  }, [deferredSearchTerm, entries, filterMood])
 
 
 
@@ -495,20 +501,20 @@ const Journal: React.FC = () => {
 
 
 
-   const groupedPast = useMemo(() => {
-     if (filteredPastEntries.length === 0) return {};
-     
-     return filteredPastEntries.reduce((acc, savedEntry) => {
-       const month = new Date(savedEntry.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-       
-       if (!acc[month]) {
-         acc[month] = []
-       }
-       
-       acc[month].push(savedEntry)
-       return acc
-     }, {} as Record<string, JournalEntry[]>)
-   }, [filteredPastEntries])
+  const groupedPast = useMemo(() => {
+    if (filteredPastEntries.length === 0) return {};
+
+    return filteredPastEntries.reduce((acc, savedEntry) => {
+      const month = new Date(savedEntry.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+
+      if (!acc[month]) {
+        acc[month] = []
+      }
+
+      acc[month].push(savedEntry)
+      return acc
+    }, {} as Record<string, JournalEntry[]>)
+  }, [filteredPastEntries])
 
 
 
@@ -1061,9 +1067,9 @@ const Journal: React.FC = () => {
 
         </TabsContent>
 
-      </Tabs>
+      </Tabs >
 
-    </div>
+    </div >
 
   )
 
