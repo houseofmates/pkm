@@ -23,11 +23,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const internals = (React as any)
     .__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
   if (internals?.ReactCurrentDispatcher?.current == null) {
-    const initialToken = storageManager.getCachedSecret("pocketbase_token");
+    const initialToken = storageManager.getCachedSecret("nocobase_token");
     const stub: AuthContextType = {
       token: initialToken,
       isAuthenticated: !!initialToken,
-      login: async () => {},
+      login: async () => { },
       logout: async () => {
         pb.authStore.clear();
         (globalThis as any).location?.reload?.();
@@ -44,12 +44,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const [token, setToken] = useState<string | null>(() => {
-    const stored = storageManager.getCachedSecret("pocketbase_token");
+    const stored = storageManager.getCachedSecret("nocobase_token");
     return stored || null;
   });
 
   useEffect(() => {
-    const storedUser = storageManager.getCachedSecret("pocketbase_user");
+    const storedUser = storageManager.getCachedSecret("nocobase_user");
     if (storedUser && !pb.authStore.model) {
       try {
         const user = JSON.parse(storedUser);
@@ -133,8 +133,8 @@ export function useAuth() {
     return {
       token: null,
       isAuthenticated: false,
-      login: async () => {},
-      logout: async () => {},
+      login: async () => { },
+      logout: async () => { },
       client: pocketBaseClient,
     } as AuthContextType;
   }
