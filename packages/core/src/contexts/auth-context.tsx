@@ -13,6 +13,7 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithApiKey: (apiKey: string) => Promise<void>;
   logout: () => Promise<void>;
   client: typeof pocketBaseClient;
 }
@@ -27,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const stub: AuthContextType = {
       token: initialToken,
       isAuthenticated: !!initialToken,
-      login: async () => { },
+      login: async () => {},
       logout: async () => {
         pb.authStore.clear();
         (globalThis as any).location?.reload?.();
@@ -133,8 +134,8 @@ export function useAuth() {
     return {
       token: null,
       isAuthenticated: false,
-      login: async () => { },
-      logout: async () => { },
+      login: async () => {},
+      logout: async () => {},
       client: pocketBaseClient,
     } as AuthContextType;
   }
