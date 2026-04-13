@@ -1,24 +1,31 @@
-import PocketBase from "pocketbase";
+import axios, { AxiosInstance } from "axios";
 import { secureLogger } from "./secure-logger";
 import { storageManager } from "./storage-manager";
 
-const POCKETBASE_URL =
-  import.meta.env.VITE_POCKETBASE_URL || "http://192.168.4.233:8090";
+const NOCOBASE_URL =
+  import.meta.env.VITE_NOCOBASE_URL || "https://db.houseofmates.space/api";
 
-export const pb = new PocketBase(POCKETBASE_URL);
-
-pb.authStore.onChange((token, model) => {
-  if (token) {
-    storageManager.setEncryptedItem("pocketbase_token", token);
-    if (model) {
-      storageManager.setEncryptedItem("pocketbase_user", JSON.stringify(model));
-    }
-  } else {
-    storageManager.removeItem("pocketbase_token");
-    storageManager.removeItem("pocketbase_user");
-  }
-  secureLogger.debug("[PocketBase] auth state changed", { hasToken: !!token });
-});
+// mock pb object for compatibility (deprecated but kept for imports)
+export const pb = {
+  authStore: {
+    onChange: () => { },
+    isValid: false,
+    model: null,
+    clear: () => { },
+  },
+  collection: () => ({
+    getList: async () => ({ items: [], totalItems: 0 }),
+    getFullList: async () => [],
+    getOne: async () => ({}),
+    create: async () => ({}),
+    update: async () => ({}),
+    delete: async () => { },
+    subscribe: () => () => { },
+    unsubscribe: () => { },
+  }),
+  getFileUrl: () => "",
+  send: async () => ({}),
+};
 
 export interface PocketBaseRecord {
   id: string;
@@ -28,39 +35,89 @@ export interface PocketBaseRecord {
 }
 
 export class PocketBaseClient {
-  private _pb: PocketBase;
+  private _axios: AxiosInstance;
+  private _token: string | null = null;
+  private _user: any = null;
 
   constructor() {
-    this._pb = pb;
+    this._axios = axios.create({
+      baseURL: NOCOBASE_URL,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    // load token from storage
+    this._loadAuth();
   }
 
-  get client(): PocketBase {
-    return this._pb;
+  private async _loadAuth() {
+    const token = await storageManager.getEncryptedItem("nocobase_token");
+    const user = await storageManager.getEncryptedItem("nocobase_user");
+    if (token) {
+      this._token = token;
+      this._axios.defaults.headers["Authorization"] = `Bearer ${token}`;
+    }
+    if (user) {
+      try {
+        this._user = JSON.parse(user);
+      } catch {
+        this._user = null;
+      }
+    }
+  }
+
+  get client(): AxiosInstance {
+    return this._axios;
   }
 
   get authStore() {
-    return this._pb.authStore;
+    return {
+      isValid: !!this._token,
+      model: this._user,
+      token: this._token,
+      onChange: () => { },
+      clear: () => this.logout(),
+    };
   }
 
   async login(email: string, password: string) {
-    const result = await this._pb
-      .collection("users")
-      .authWithPassword(email, password);
-    secureLogger.info("[PocketBase] login successful");
-    return result;
+    try {
+      const response = await this._axios.post("/auth:signIn", {
+        email,
+        password,
+      });
+      const { token, user } = response.data?.data || response.data || {};
+      if (token) {
+        this._token = token;
+        this._user = user;
+        await storageManager.setEncryptedItem("nocobase_token", token);
+        await storageManager.setEncryptedItem("nocobase_user", JSON.stringify(user));
+        this._axios.defaults.headers["Authorization"] = `Bearer ${token}`;
+      }
+      secureLogger.info("[NocoBase] login successful");
+      return { token, user };
+    } catch (error) {
+      secureLogger.error("[NocoBase] login failed:", error);
+      throw error;
+    }
   }
 
   logout() {
-    this._pb.authStore.clear();
-    secureLogger.info("[PocketBase] logged out");
+    this._token = null;
+    this._user = null;
+    storageManager.removeItem("nocobase_token");
+    storageManager.removeItem("nocobase_user");
+    delete this._axios.defaults.headers["Authorization"];
+    secureLogger.info("[NocoBase] logged out");
   }
 
   get isAuthenticated() {
-    return this._pb.authStore.isValid;
+    return !!this._token;
   }
 
   get user() {
-    return this._pb.authStore.model;
+    return this._user;
   }
 
   async listRecords<T = PocketBaseRecord>(
