@@ -25,9 +25,9 @@ export function loadEnvironment() {
         ADMIN_SECRET: z.string().min(16, 'ADMIN_SECRET must be at least 16 characters for security'),
         BROADCAST_AUTH_KEY: z.string().min(16).optional(),
 
-        // pocketbase integration - required
-        POCKETBASE_URL: z.string().url('POCKETBASE_URL must be a valid URL').default('http://localhost:8090'),
-        POCKETBASE_ADMIN_TOKEN: z.string().min(1, 'POCKETBASE_ADMIN_TOKEN is optional for admin operations').optional(),
+        // nocobase integration - required
+        NOCOBASE_URL: z.string().url('NOCOBASE_URL must be a valid URL'),
+        NOCOBASE_API_KEY: z.string().min(1, 'NOCOBASE_API_KEY is required'),
 
         // cors configuration
         ALLOWED_ORIGINS: z.string().default('http://localhost:3010'),
