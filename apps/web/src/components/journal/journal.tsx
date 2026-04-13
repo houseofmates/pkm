@@ -682,16 +682,20 @@ const Journal: React.FC = () => {
 
               <div className="h-48 overflow-y-auto flex flex-wrap gap-2">
 
-                {ACTIVITIES.filter(activity => activity.toLowerCase().includes(activitySearch.toLowerCase())).map((activity) => (<Button key={activity} variant={entry.activities.includes(activity) ? 'default' : 'outline'} size="sm" onPressStart={() => selectionStart()} onClick={() => toggleActivity(activity)} className="border-amber-800" aria-pressed={entry.activities.includes(activity)}>
-
-                  {activity}
-
-                </Button>
-
+                {ACTIVITIES.filter(activity => activity.toLowerCase().includes(activitySearch.toLowerCase())).map((activity) => (
+                  <Button
+                    key={activity}
+                    variant={entry.activities.includes(activity) ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => { selectionStart(); toggleActivity(activity); }}
+                    className="border-amber-800"
+                    aria-pressed={entry.activities.includes(activity)}
+                  >
+                    {activity}
+                  </Button>
                 ))}
-
               </div>
-
+            </div>
           </CollapsibleSection>
 
 
