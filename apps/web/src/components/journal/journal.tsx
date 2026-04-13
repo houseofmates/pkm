@@ -1036,28 +1036,47 @@ const Journal: React.FC = () => {
             </CardHeader>
 
             <CardContent className="space-y-3 max-h-96 overflow-auto">
-              <ListView
-                data={filteredPastEntries}
-                collection={{ name: 'journal_entries', fields: [] }}
-                config={{ titleField: 'note' }}
-                onUpdateRecord={(id, updates) => {
-                  // Update journal entry locally (not typically needed for journal)
-                  setEntries(prev => prev.map(entry => entry.id === id ? { ...entry, ...updates } : entry))
-                  // Persist to localStorage
-                  try {
-                    window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...prev.map(entry => entry.id === id ? { ...entry, ...updates } : entry)].slice(-MAX_ENTRIES)))
-                  } catch (e) { console.error(e) }
-                }}
-                onDelete={(id) => {
-                  setEntries(prev => prev.filter(entry => entry.id !== id))
-                  try {
-                    window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...prev.filter(entry => entry.id !== id)].slice(-MAX_ENTRIES)))
-                  } catch (e) { console.error(e) }
-                }}
-                onEdit={() => { }} // No edit functionality for journal entries in this view
-                onCreate={() => { }} // No create functionality for journal entries in this view
-              />
-
+              {filteredPastEntries.length === 0 ? (
+                <div className="text-center text-amber-700 py-8">no entries yet</div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredPastEntries.map((entry) => (
+                    <div key={entry.id} className="p-3 bg-zinc-950/50 border border-amber-900/30 rounded flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 text-xs text-amber-500 mb-1">
+                          <span>{new Date(entry.date).toLocaleDateString()}</span>
+                          <span>{entry.mood}</span>
+                          <span className="text-amber-700">+{entry.xpEarned}xp</span>
+                        </div>
+                        <p className="text-sm text-amber-100 truncate">{entry.note || 'no note'}</p>
+                        {entry.emotions.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {entry.emotions.map(e => (
+                              <span key={e} className="text-xs px-1.5 py-0.5 bg-amber-900/30 rounded text-amber-400">{e}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setEntries(prev => {
+                            const newEntries = prev.filter(e => e.id !== entry.id)
+                            try {
+                              window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newEntries.slice(-MAX_ENTRIES)))
+                            } catch (e) { console.error(e) }
+                            return newEntries
+                          })
+                        }}
+                        className="h-6 w-6 p-0 text-amber-700 hover:text-rose-400"
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
 
           </Card>
