@@ -61,10 +61,10 @@ export function StreakWidget({ className }: StreakWidgetProps) {
         </div>
       </div>
 
-      {wilson && (
+      {hermes && (
         <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-2">
-          <span className="text-lg">{wilson.emoji}</span>
-          <span className="text-xs text-white/40 lowercase">{wilson.name} is {wilson.visualState}</span>
+          <span className="text-lg">{hermes.emoji}</span>
+          <span className="text-xs text-white/40 lowercase">{hermes.name} is {hermes.visualState}</span>
         </div>
       )}
     </div>

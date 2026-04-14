@@ -9,7 +9,7 @@ interface PetStatusWidgetProps {
 
 export function PetStatusWidget({ className }: PetStatusWidgetProps) {
   const { pets } = useGamificationStore();
-  const wilson = pets[0];
+  const hermes = pets[0];
 
   if (!wilson) {
     return (
