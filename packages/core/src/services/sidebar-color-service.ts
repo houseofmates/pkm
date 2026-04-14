@@ -2,13 +2,13 @@
 // service for syncing sidebar item colors with nocobase
 // enables cross-platform color persistence (web, electron, apk, exe)
 
-import { nocobaseClient } from '@/lib/nocobase';
-import { secureLogger } from '@/lib/secure-logger';
+import { nocobaseClient } from "@/lib/nocobase";
+import { secureLogger } from "@/lib/secure-logger";
 
 // use nocobaseClient for NocoBase API calls
 const client = nocobaseClient;
 
-export type SidebarItemType = 'collection' | 'folder' | 'document' | 'drawing';
+export type SidebarItemType = "collection" | "folder" | "document" | "drawing";
 
 export interface SidebarColorRecord {
   id?: string | number;
@@ -16,7 +16,7 @@ export interface SidebarColorRecord {
   item_type: SidebarItemType;
   color: string;
   icon?: string;
-  icon_type?: 'lucide' | 'emoji' | 'image';
+  icon_type?: "lucide" | "emoji" | "image";
   created_at?: string;
   updated_at?: string;
 }
@@ -24,10 +24,10 @@ export interface SidebarColorRecord {
 export interface SidebarItemMetadata {
   color?: string;
   icon?: string;
-  iconType?: 'lucide' | 'emoji' | 'image';
+  iconType?: "lucide" | "emoji" | "image";
 }
 
-const COLLECTION_NAME = 'sidebar_item_colors';
+const COLLECTION_NAME = "sidebar_item_colors";
 
 /**
  * ensure the sidebar_item_colors collection exists in nocobase
@@ -47,31 +47,38 @@ export async function ensureSidebarColorsCollection(): Promise<boolean> {
     }
 
     // collection doesn't exist, create it
-    secureLogger.info('[sidebar-color-service] creating sidebar_item_colors collection...');
+    secureLogger.info(
+      "[sidebar-color-service] creating sidebar_item_colors collection...",
+    );
 
     await client.createCollection({
       name: COLLECTION_NAME,
-      title: 'sidebar item colors',
+      title: "sidebar item colors",
       fields: [
-        { name: 'item_id', type: 'string', unique: true },
-        { name: 'item_type', type: 'string' },
-        { name: 'color', type: 'string' },
-        { name: 'icon', type: 'string' },
-        { name: 'icon_type', type: 'string' }
+        { name: "item_id", type: "string", unique: true },
+        { name: "item_type", type: "string" },
+        { name: "color", type: "string" },
+        { name: "icon", type: "string" },
+        { name: "icon_type", type: "string" },
       ],
-      hidden: true
+      hidden: true,
     });
 
     // wait for collection to be ready
-    await new Promise(r => setTimeout(r, 1000));
-    secureLogger.info('[sidebar-color-service] collection created successfully');
+    await new Promise((r) => setTimeout(r, 1000));
+    secureLogger.info(
+      "[sidebar-color-service] collection created successfully",
+    );
     return true;
   } catch (error: any) {
     if (error?.response?.status === 400) {
       // already exists (race condition)
       return true;
     }
-    secureLogger.error('[sidebar-color-service] failed to create collection:', error);
+    secureLogger.error(
+      "[sidebar-color-service] failed to create collection:",
+      error,
+    );
     return false;
   }
 }
@@ -82,7 +89,7 @@ export async function ensureSidebarColorsCollection(): Promise<boolean> {
 export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
   try {
     const response = await client.listRecords(COLLECTION_NAME, {
-      pageSize: 1000 // get all records
+      pageSize: 1000,
     });
 
     const data = Array.isArray(response.data) ? response.data : [];
@@ -94,10 +101,19 @@ export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
       icon: record.icon,
       icon_type: record.icon_type,
       created_at: record.created_at,
-      updated_at: record.updated_at
+      updated_at: record.updated_at,
     }));
-  } catch (error) {
-    secureLogger.error('[sidebar-color-service] failed to fetch colors:', error);
+  } catch (error: any) {
+    if (error?.response?.status === 404 || error?.response?.status === 500) {
+      secureLogger.warn(
+        "[sidebar-color-service] collection not found or server error, returning empty array",
+      );
+      return [];
+    }
+    secureLogger.error(
+      "[sidebar-color-service] failed to fetch colors:",
+      error,
+    );
     return [];
   }
 }
@@ -105,11 +121,13 @@ export async function fetchAllSidebarColors(): Promise<SidebarColorRecord[]> {
 /**
  * get color for a specific sidebar item
  */
-export async function getSidebarColor(itemId: string): Promise<SidebarColorRecord | null> {
+export async function getSidebarColor(
+  itemId: string,
+): Promise<SidebarColorRecord | null> {
   try {
     const response = await client.listRecords(COLLECTION_NAME, {
       filter: { item_id: { $eq: itemId } },
-      pageSize: 1
+      pageSize: 1,
     });
 
     const data = Array.isArray(response.data) ? response.data : [];
@@ -123,12 +141,12 @@ export async function getSidebarColor(itemId: string): Promise<SidebarColorRecor
         icon: record.icon,
         icon_type: record.icon_type,
         created_at: record.created_at,
-        updated_at: record.updated_at
+        updated_at: record.updated_at,
       };
     }
     return null;
   } catch (error) {
-    secureLogger.error('[sidebar-color-service] failed to get color:', error);
+    secureLogger.error("[sidebar-color-service] failed to get color:", error);
     return null;
   }
 }
@@ -139,7 +157,7 @@ export async function getSidebarColor(itemId: string): Promise<SidebarColorRecor
 export async function saveSidebarColor(
   itemId: string,
   itemType: SidebarItemType,
-  metadata: SidebarItemMetadata
+  metadata: SidebarItemMetadata,
 ): Promise<boolean> {
   try {
     // check if record exists
@@ -150,7 +168,7 @@ export async function saveSidebarColor(
       item_type: itemType,
       color: metadata.color,
       icon: metadata.icon,
-      icon_type: metadata.iconType
+      icon_type: metadata.iconType,
     };
 
     if (existing?.id) {
@@ -163,7 +181,7 @@ export async function saveSidebarColor(
 
     return true;
   } catch (error) {
-    secureLogger.error('[sidebar-color-service] failed to save color:', error);
+    secureLogger.error("[sidebar-color-service] failed to save color:", error);
     return false;
   }
 }
@@ -174,7 +192,7 @@ export async function saveSidebarColor(
 export async function updateSidebarItemColor(
   itemId: string,
   itemType: SidebarItemType,
-  color: string
+  color: string,
 ): Promise<boolean> {
   try {
     const existing = await getSidebarColor(itemId);
@@ -185,7 +203,7 @@ export async function updateSidebarItemColor(
       await client.createRecord(COLLECTION_NAME, {
         item_id: itemId,
         item_type: itemType,
-        color
+        color,
       });
     }
 
@@ -194,7 +212,10 @@ export async function updateSidebarItemColor(
 
     return true;
   } catch (error) {
-    secureLogger.error('[sidebar-color-service] failed to update color:', error);
+    secureLogger.error(
+      "[sidebar-color-service] failed to update color:",
+      error,
+    );
     return false;
   }
 }
@@ -210,7 +231,10 @@ export async function deleteSidebarColor(itemId: string): Promise<boolean> {
     }
     return true;
   } catch (error) {
-    secureLogger.error('[sidebar-color-service] failed to delete color:', error);
+    secureLogger.error(
+      "[sidebar-color-service] failed to delete color:",
+      error,
+    );
     return false;
   }
 }
@@ -220,7 +244,11 @@ export async function deleteSidebarColor(itemId: string): Promise<boolean> {
  * useful for initial sync or bulk updates
  */
 export async function batchSaveSidebarColors(
-  items: Array<{ itemId: string; itemType: SidebarItemType; metadata: SidebarItemMetadata }>
+  items: Array<{
+    itemId: string;
+    itemType: SidebarItemType;
+    metadata: SidebarItemMetadata;
+  }>,
 ): Promise<boolean> {
   try {
     // process sequentially to avoid overwhelming the server
@@ -229,7 +257,10 @@ export async function batchSaveSidebarColors(
     }
     return true;
   } catch (error) {
-    secureLogger.error('[sidebar-color-service] failed to batch save colors:', error);
+    secureLogger.error(
+      "[sidebar-color-service] failed to batch save colors:",
+      error,
+    );
     return false;
   }
 }
@@ -238,28 +269,31 @@ export async function batchSaveSidebarColors(
  * convert nav item to item type
  */
 export function getItemTypeFromId(itemId: string): SidebarItemType {
-  if (itemId.startsWith('folder_')) return 'folder';
-  if (itemId.startsWith('doc_')) return 'document';
-  if (itemId.startsWith('drawing_')) return 'drawing';
-  return 'collection';
+  if (itemId.startsWith("folder_")) return "folder";
+  if (itemId.startsWith("doc_")) return "document";
+  if (itemId.startsWith("drawing_")) return "drawing";
+  return "collection";
 }
 
 /**
  * broadcast color change to other tabs/windows via storage event
  */
 function broadcastColorChange(itemId: string, color: string) {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     const eventData = {
       itemId,
       color,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     try {
-      localStorage.setItem('pkm_sidebar_color_broadcast', JSON.stringify(eventData));
+      localStorage.setItem(
+        "pkm_sidebar_color_broadcast",
+        JSON.stringify(eventData),
+      );
       // remove immediately to allow future broadcasts
       setTimeout(() => {
-        localStorage.removeItem('pkm_sidebar_color_broadcast');
+        localStorage.removeItem("pkm_sidebar_color_broadcast");
       }, 100);
     } catch {
       // ignore storage errors
@@ -271,14 +305,14 @@ function broadcastColorChange(itemId: string, color: string) {
  * subscribe to color changes from other tabs/windows
  */
 export function subscribeToColorChanges(
-  callback: (itemId: string, color: string) => void
+  callback: (itemId: string, color: string) => void,
 ): () => void {
-  if (typeof window === 'undefined') {
-    return () => { };
+  if (typeof window === "undefined") {
+    return () => {};
   }
 
   const handler = (e: StorageEvent) => {
-    if (e.key === 'pkm_sidebar_color_broadcast' && e.newValue) {
+    if (e.key === "pkm_sidebar_color_broadcast" && e.newValue) {
       try {
         const data = JSON.parse(e.newValue);
         if (data.itemId && data.color) {
@@ -290,6 +324,6 @@ export function subscribeToColorChanges(
     }
   };
 
-  window.addEventListener('storage', handler);
-  return () => window.removeEventListener('storage', handler);
+  window.addEventListener("storage", handler);
+  return () => window.removeEventListener("storage", handler);
 }
