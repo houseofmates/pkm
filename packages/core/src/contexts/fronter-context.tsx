@@ -332,22 +332,16 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         );
         secureLogger.info("New front entry created, result:", createResult);
 
-        // --- simplyplural sync ---
         try {
           const apiKey = storageManager.getItem("pk_api_key");
           if (apiKey) {
-            // get system id
-            const meRes = await fetch(
-              require("@/lib/simply-plural-client").SimplyPluralClient.url(
-                "/me",
-              ),
-              { headers: { Authorization: apiKey } },
-            );
+            const meRes = await fetch(SimplyPluralClient.url("/me"), {
+              headers: { Authorization: apiKey },
+            });
             if (!meRes.ok)
               throw new Error("Failed to fetch system info from SimplyPlural");
             const meData = await meRes.json();
             const systemId = meData.id;
-            // push fronters
             const frontPayload = {
               fronters: memberIds.map((id, idx) => ({
                 id,
@@ -355,9 +349,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
               })),
             };
             const frontRes = await fetch(
-              require("@/lib/simply-plural-client").SimplyPluralClient.url(
-                `/front/${systemId}`,
-              ),
+              SimplyPluralClient.url(`/front/${systemId}`),
               {
                 method: "PATCH",
                 headers: {
@@ -383,7 +375,6 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         } catch (spErr) {
           secureLogger.error("SimplyPlural sync error:", spErr);
         }
-        // --- end simplyplural sync ---
       } else {
         secureLogger.info("No members specified, just closing previous front");
       }
