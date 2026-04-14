@@ -83,7 +83,7 @@ interface LLMState {
     text: string,
     isBackground?: boolean,
   ) => Promise<string | null>;
-  askWilsonLegacy: (text: string) => Promise<string | null>;
+  askHermesLegacy: (text: string) => Promise<string | null>;
   getGeminiApiKey: () => string | null;
   ensureGeminiApiKey: () => Promise<string | null>;
   appendGeminiKeyToUrl: (url: string, key: string) => string;
