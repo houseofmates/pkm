@@ -395,17 +395,21 @@ function AppContent() {
       return;
     }
 
-    // try to fetch stats from the absolute api url if available, otherwise relative
-    const baseUrl =
-      import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, "") || "";
-    const statsUrl = `${baseUrl}/api/stats`;
+    // health check: verify nocobase is reachable
+    // use the nocobase API directly - any response (even 401) means the server is alive
+    const nocobaseUrl = import.meta.env.VITE_NOCOBASE_URL || 'https://db.houseofmates.space/api';
 
-    fetch(statsUrl)
+    fetch(nocobaseUrl + '/auth:check', { method: 'GET' })
       .then((r) => {
-        if (r.ok) setSetupNeeded(false);
-        else setSetupNeeded(true);
+        // any response from nocobase means the backend is reachable
+        // 401 = not logged in but server is alive, 200 = authenticated
+        // both are fine - only network errors mean setup is needed
+        setSetupNeeded(false);
       })
-      .catch(() => setSetupNeeded(true));
+      .catch(() => {
+        // network error = backend unreachable
+        setSetupNeeded(true);
+      });
   }, [token]);
 
   if (setupNeeded === null) {
