@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 // collection type definition
 interface Collection {
@@ -51,10 +51,13 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
 
   // metadata for cosmetics (legacy localstorage fallback)
   const [metadata, setMetadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+  // memoize local metadata for this collection
+  const localMeta = useMemo(() => metadata[collection.name], [metadata, collection.name]);
 
   // synced colors from nocobase (cross-device persistence)
   const { updateMetadata: syncColorToServer, getMetadata: getSyncedMetadata } = useSidebarColors();
-  const syncedMeta = getSyncedMetadata(collection.name);
+  // memoize to prevent infinite re-render loop from reference changes
+  const syncedMeta = useMemo(() => getSyncedMetadata(collection.name), [getSyncedMetadata, collection.name]);
 
   const updateMeta = async (key: 'image' | 'color', value: string | undefined) => {
     // update local state immediately
