@@ -9,6 +9,7 @@ import { nocobaseClient } from "@/lib/nocobase";
 import { toast } from "sonner";
 import { secureLogger } from "@/lib/secure-logger";
 import { storageManager } from "@/lib/storage-manager";
+import { SimplyPluralClient } from "@/lib/simply-plural-client";
 
 export interface Headmate {
   id: string;
