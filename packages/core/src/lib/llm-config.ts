@@ -86,11 +86,11 @@ export async function markKeyRateLimited(): Promise<{ key: string; model: string
   const currentKey = cachedApiKeys[currentKeyIndex];
   if (!currentKey?.id) return null;
   
-  // update in database
-  try {
-    const client = getNocobaseClient();
-    if (client) {
-      await client.request('pkm_api_keys', 'update', {
+ // update in database
+ try {
+ const client = nocobaseClient;
+ if (client) {
+ await client.request('pkm_api_keys', 'update', {
         params: { filterByTk: currentKey.id },
         values: { last429At: Date.now() },
         silent: true,
