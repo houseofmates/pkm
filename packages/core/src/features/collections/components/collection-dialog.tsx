@@ -514,7 +514,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                   <CardContent className="flex flex-col items-center justify-start !p-3 gap-1 text-center relative">
                     <Zap className="w-5 h-5 flex-shrink-0" style={{ color: template.metadata.color }} />
                     <div className="font-semibold text-xs lowercase w-full">{template.label}</div>
-                    <div className="text-[0.6rem] text-muted-foreground lowercase w-full line-clamp-2">
+                    <div className="text-[0.6rem] text-muted-foreground lowercase w-full">
                       {template.description}
                     </div>
                   </CardContent>
