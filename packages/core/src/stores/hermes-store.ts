@@ -262,6 +262,7 @@ export const useHermesStore = create<HermesState>((set, get) => ({
  if (!ws || ws.readyState !== WebSocket.OPEN) {
  // websocket not available - fall back to llm-store
  secureLogger.info('[hermes-store] websocket not available, using llm-store fallback');
+ set({ connected: true }); // show as connected since llm-store works
  
  useLLMStore.getState().askHermesWithRag(text)
  .then((response) => {
