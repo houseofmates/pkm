@@ -156,14 +156,24 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
-      '/storage': {
-        target: 'http://192.168.4.233:8091',
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
-  preview: {
+'/storage': {
+ target: 'http://192.168.4.233:8091',
+ changeOrigin: true,
+ secure: false,
+ },
+ '/ollama': {
+ target: 'http://192.168.4.250:11434',
+ changeOrigin: true,
+ rewrite: (path) => path.replace(/^\/ollama/, ''),
+ },
+ '/nvidia': {
+ target: 'https://integrate.api.nvidia.com/v1',
+ changeOrigin: true,
+ rewrite: (path) => path.replace(/^\/nvidia/, ''),
+ },
+ },
+ },
+ preview: {
     allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space", "dupe.houseofmates.space"],
     port: 3010,
     strictPort: true,
