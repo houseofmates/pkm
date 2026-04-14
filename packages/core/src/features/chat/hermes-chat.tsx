@@ -166,47 +166,56 @@ const SessionItem = memo(function SessionItem({
 });
 
 export function HermesChat() {
-  const isChatOpen = useEdgelessStore((s) => s.isChatOpen);
-  const setChatOpen = useEdgelessStore((s) => s.setChatOpen);
-  
-  const connected = useHermesStore((s) => s.connected);
-  const interactionHistory = useHermesStore((s) => s.interactionHistory);
-  const isThinking = useHermesStore((s) => s.isThinking);
-  const askHermes = useHermesStore((s) => s.askHermes);
-  const streamingContent = useHermesStore((s) => s.streamingContent);
-  const sessions = useHermesStore((s) => s.sessions);
-  const currentSessionId = useHermesStore((s) => s.currentSessionId);
-  const createNewChat = useHermesStore((s) => s.createNewChat);
-  const loadSession = useHermesStore((s) => s.loadSession);
-  const setEnabled = useHermesStore((s) => s.setEnabled);
+ const isChatOpen = useEdgelessStore((s) => s.isChatOpen);
+ const setChatOpen = useEdgelessStore((s) => s.setChatOpen);
+ 
+ const connected = useHermesStore((s) => s.connected);
+ const interactionHistory = useHermesStore((s) => s.interactionHistory);
+ const isThinking = useHermesStore((s) => s.isThinking);
+ const askHermes = useHermesStore((s) => s.askHermes);
+ const streamingContent = useHermesStore((s) => s.streamingContent);
+ const sessions = useHermesStore((s) => s.sessions);
+ const currentSessionId = useHermesStore((s) => s.currentSessionId);
+ const createNewChat = useHermesStore((s) => s.createNewChat);
+ const loadSession = useHermesStore((s) => s.loadSession);
+ const setEnabled = useHermesStore((s) => s.setEnabled);
 
-  const [userInput, setUserInput] = useState("");
-  const [showHistory, setShowHistory] = useState(false);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
+ const [userInput, setUserInput] = useState("");
+ const [showHistory, setShowHistory] = useState(false);
+ const [showApiKeySetup, setShowApiKeySetup] = useState(false);
+ const [apiKeysLoaded, setApiKeysLoaded] = useState(false);
+ const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // ensure enabled on mount
-  useEffect(() => {
-    setEnabled(true);
-  }, [setEnabled]);
+ // fetch api keys from server on mount
+ useEffect(() => {
+ fetchApiKeysFromServer().then(() => {
+ setApiKeysLoaded(true);
+ });
+ }, []);
 
-  useEffect(() => {
-    if (isChatOpen && !currentSessionId) {
-      createNewChat();
-    }
-  }, [isChatOpen, currentSessionId, createNewChat]);
+ // ensure enabled on mount
+ useEffect(() => {
+ setEnabled(true);
+ }, [setEnabled]);
 
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
-    }
-  }, [interactionHistory.length, streamingContent]);
+ useEffect(() => {
+ if (isChatOpen && !currentSessionId) {
+ createNewChat();
+ }
+ }, [isChatOpen, currentSessionId, createNewChat]);
 
-  const checkAndSend = useCallback(async () => {
-    if (!userInput.trim() || isThinking) return;
-    const text = userInput;
-    setUserInput("");
-    await askHermes(text);
+ useEffect(() => {
+ if (chatContainerRef.current) {
+ chatContainerRef.current.scrollTop =
+ chatContainerRef.current.scrollHeight;
+ }
+ }, [interactionHistory.length, streamingContent]);
+
+ const checkAndSend = useCallback(async () => {
+ if (!userInput.trim() || isThinking) return;
+ const text = userInput;
+ setUserInput("");
+ await askHermes(text);
   }, [userInput, isThinking, askHermes]);
 
   const handleKeyDown = useCallback(
