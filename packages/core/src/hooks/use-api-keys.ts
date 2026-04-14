@@ -94,7 +94,7 @@ export function useApiKeys() {
 
   // fetch on mount (ensure collection exists first)
   useEffect(() => {
-    ensureCollection().then(() => fetchKeys());
+    ensureCollection().then(() => ensureCollection().then(fetchKeys));
   }, [ensureCollection, fetchKeys]);
 
   // get current active key config
