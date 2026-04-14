@@ -64,7 +64,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
     setMetadata({
       ...metadata,
       [collection.name]: {
-        ...metadata[collection.name],
+        ...localMeta,
         [key]: value
       }
     });
@@ -176,7 +176,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
             {['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899', '#6b7280', ''].map(c => (
               <div
                 key={c || 'none'}
-                className={cn("h-8 w-8 rounded-full cursor-pointer hover:scale-110 transition-transform border-2", c === (syncedMeta?.color || metadata[collection.name]?.color || '') ? "border-foreground" : "border-transparent")}
+                className={cn("h-8 w-8 rounded-full cursor-pointer hover:scale-110 transition-transform border-2", c === (syncedMeta?.color || localMeta?.color || '') ? "border-foreground" : "border-transparent")}
                 style={{ backgroundColor: c || 'transparent' }}
                 onClick={() => {
                   updateMeta('color', c || undefined);
