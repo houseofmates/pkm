@@ -166,6 +166,12 @@ export default defineConfig({
  changeOrigin: true,
  rewrite: (path) => path.replace(/^\/ollama/, ''),
  },
+ '/hermes-bridge': {
+   target: 'ws://127.0.0.1:3101',
+   ws: true,
+   changeOrigin: true,
+   rewrite: (path) => path.replace(/^\/hermes-bridge/, ''),
+ },
  '/nvidia': {
  target: 'https://integrate.api.nvidia.com/v1',
  changeOrigin: true,
@@ -239,6 +245,12 @@ export default defineConfig({
  target: 'http://192.168.4.250:11434',
  changeOrigin: true,
  rewrite: (path) => path.replace(/^\/ollama/, ''),
+ },
+ '/hermes-bridge': {
+   target: 'ws://127.0.0.1:3101',
+   ws: true,
+   changeOrigin: true,
+   rewrite: (path) => path.replace(/^\/hermes-bridge/, ''),
  },
  '/nvidia': {
  target: 'https://integrate.api.nvidia.com/v1',
