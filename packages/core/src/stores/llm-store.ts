@@ -2,16 +2,19 @@ import { create } from "zustand";
 import { secureLogger } from "@/lib/secure-logger";
 import { storageManager } from "@/lib/storage-manager";
 import {
-  getOllamaBase,
-  getOllamaModel,
-  getOllamaGenerateUrl,
-  DEFAULT_OLLAMA_MODEL,
-  DEFAULT_OLLAMA_URL,
-  storeApiConfig,
-  getStoredApiConfig,
-  getStoredNvidiaApiKey,
-  NVIDIA_API_URL,
-  NVIDIA_MODEL,
+ getOllamaBase,
+ getOllamaModel,
+ getOllamaGenerateUrl,
+ DEFAULT_OLLAMA_MODEL,
+ DEFAULT_OLLAMA_URL,
+ storeApiConfig,
+ getStoredApiConfig,
+ getStoredNvidiaApiKey,
+ NVIDIA_API_URL,
+ NVIDIA_MODEL,
+ getCurrentApiKey,
+ markKeyRateLimited,
+ fetchApiKeysFromServer,
 } from "@/lib/llm-config";
 import { getAIWorkerProxy } from "@/hooks/use-ai-worker";
 import {
