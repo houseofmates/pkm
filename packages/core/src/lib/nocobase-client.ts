@@ -313,7 +313,7 @@ export class NocoBaseClient {
   }
 
   async deleteCollection(name: string): Promise<void> {
-    await this._axios.post(
+    await this._axios.delete(
       `/collections:destroy?filterByTk=${encodeURIComponent(name)}`,
     );
   }
