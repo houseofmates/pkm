@@ -10495,7 +10495,7 @@ ${entriesText}`;
 
 
 
-      const prompt = `you are wilson, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
+ const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.`
 
 
 
