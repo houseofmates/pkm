@@ -1,0 +1,15 @@
+[Unit]
+Description=PKM AI Proxy - forwards ai requests from public domain to private network
+After=network.target
+
+[Service]
+Type=simple
+User=house
+WorkingDirectory=/home/house/pkm/bridge
+ExecStart=/usr/bin/node ai-proxy.js
+Restart=on-failure
+RestartSec=10
+Environment=AI_PROXY_PORT=3103
+
+[Install]
+WantedBy=multi-user.target
