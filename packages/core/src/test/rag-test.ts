@@ -339,7 +339,7 @@ export async function runSmokeTest(): Promise<boolean> {
     console.log('✅ rag context building working');
 
     // test 3: can we generate a prompt?
-    await generateWilsonRagPrompt('test', 'user');
+    await generateHermesRagPrompt('test', 'user');
     console.log('✅ wilson prompt generation working');
 
     console.log('\n🎉 smoke test passed! core rag functionality is working.');
