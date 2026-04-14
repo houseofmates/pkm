@@ -7987,7 +7987,7 @@ export function JournalPage() {
 
 
 
-      const res: any = await nocobaseClient.listRecords('journal', { sort: '-date', pageSize: 1000 });
+      const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
 
 
 
@@ -8827,7 +8827,7 @@ export function JournalPage() {
 
 
 
-      await nocobaseClient.request('journal', 'destroy', { filterByTk: entry.id });
+      await api.request('journal', 'destroy', { filterByTk: entry.id });
 
 
 
@@ -8911,7 +8911,7 @@ export function JournalPage() {
 
 
 
-      const res: any = await nocobaseClient.listRecords('journal', { sort: '-date', pageSize: 1000 });
+      const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
 
 
 
@@ -9067,7 +9067,7 @@ export function JournalPage() {
 
 
 
-      const res: any = await nocobaseClient.listRecords('journal', { sort: '-date', pageSize: 1000 });
+      const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
 
 
 
@@ -9791,7 +9791,7 @@ ${entriesText}`;
 
 
 
-        await nocobaseClient.request('journal', 'update', { filterByTk: editingEntry.id, ...payload });
+        await api.request('journal', 'update', { filterByTk: editingEntry.id, ...payload });
 
 
 
@@ -9803,7 +9803,7 @@ ${entriesText}`;
 
 
 
-        await nocobaseClient.createRecord('journal', payload);
+        await api.createRecord('journal', payload);
 
 
 
@@ -10495,89 +10495,21 @@ ${entriesText}`;
 
 
 
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
+      const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
+
+
+
+
+
+
 
 transcript: "${text}"
 
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
 
-transcript: "${text}"
 
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
 
-transcript: "${text}"
 
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
 
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
-
-summary:`;
- const prompt = `you are hermes, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
-
-transcript: "${text}"
 
 summary:`;
 
