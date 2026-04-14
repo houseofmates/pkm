@@ -93,8 +93,17 @@ interface LLMState {
 
 export const useLLMStore = create<LLMState>()((set, get) => ({
   isConnected: true,
-  activeModel: getOllamaModel(),
-  apiUrl: getOllamaGenerateUrl(),
+  activeModel: (() => {
+    // check for nvidia api key first (sync check from storage)
+    const nvidiaKey = storageManager.getItem('nvidia_api_key') || import.meta.env.NVIDIA_API_KEY;
+    if (nvidiaKey) return NVIDIA_MODEL;
+    return getOllamaModel();
+  })(),
+  apiUrl: (() => {
+    const nvidiaKey = storageManager.getItem('nvidia_api_key') || import.meta.env.NVIDIA_API_KEY;
+    if (nvidiaKey) return `${NVIDIA_API_URL}/chat/completions`;
+    return getOllamaGenerateUrl();
+  })(),
   useRag: true, // default to enabled
 
   // sessions
