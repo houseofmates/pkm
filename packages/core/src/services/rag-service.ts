@@ -102,8 +102,8 @@ export async function buildRowContext(
   }
 }
 
-// generate wilson prompt with rag context
-export async function generateWilsonRagPrompt(
+// generate hermes prompt with rag context
+export async function generateHermesRagPrompt(
   userQuery: string,
   fronterName: string = 'friend'
 ): Promise<string> {
