@@ -96,19 +96,34 @@ export function isWorkerSupported(): boolean {
 /**
  * returns the correct ollama-compatible endpoint for the current platform.
  *
- * - on desktop/browser: `http://localhost:11434` (local ollama)
- * - on mobile/capacitor: proxy through the remote server
+ * - on desktop/browser localhost: uses local endpoint directly
+ * - on public domain: proxies through the ai-proxy server
  *
  * @param serverorigin - the remote server origin (e.g. from capacitor config)
  * @param localendpoint - the default local endpoint
  */
 export function resolveOllamaEndpoint(
-    localEndpoint: string,
-    _serverOrigin?: string,
+  localEndpoint: string,
+  _serverOrigin?: string,
 ): string {
-    // the wilson/llm client now targets the google gemini public api directly.
-    // we no longer proxy llm traffic through the server mobile endpoint.
-    return localEndpoint;
+  // if we're on the public domain, use the proxy
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'pkm.houseofmates.space' || host.endsWith('.houseofmates.space')) {
+      // route through the ai proxy on the same origin
+      // the proxy forwards to the actual ai service (nvidia or ollama)
+      const protocol = window.location.protocol; // https:
+      const proxyBase = `${protocol}//${host}`;
+      
+      // check if this is a nvidia api call or ollama call
+      if (localEndpoint.includes('nvidia') || localEndpoint.includes('nvapi')) {
+        return `${proxyBase}/nvidia/chat/completions`;
+      }
+      // ollama-style endpoint
+      return `${proxyBase}/ollama/api/generate`;
+    }
+  }
+  return localEndpoint;
 }
 
 /**
