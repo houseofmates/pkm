@@ -312,9 +312,9 @@ export function RootLayout() {
           <Outlet />
         </main>
 
-        <BottomNav className="lg:hidden" activeTab={activeTab} onTabChange={handleTabChange} />
-        <Spotlight />
-        <WilsonChat />
+<BottomNav className="lg:hidden" activeTab={activeTab} onTabChange={handleTabChange} />
+<Spotlight />
+<HermesChat />
         <DragOverlay>
           {activeDragItem ? (
             <div style={{ opacity: 0.5, pointerEvents: 'none', width: '16rem', minWidth: 0 }}>
