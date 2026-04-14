@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 // collection type definition
 interface Collection {
@@ -43,7 +43,7 @@ interface DatabaseContextMenuProps {
   isHidden?: boolean;
 }
 
-export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, onHide, onUnhide, isHidden }: DatabaseContextMenuProps) {
+export const DatabaseContextMenu = React.memo(function DatabaseContextMenu({ collection, children, onUpdate, onDelete, onHide, onUnhide, isHidden }: DatabaseContextMenuProps) {
   const { client } = useAuth();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [colorOpen, setColorOpen] = useState(false);
@@ -59,27 +59,27 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
   // memoize to prevent infinite re-render loop from reference changes
   const syncedMeta = useMemo(() => getSyncedMetadata(collection.name), [getSyncedMetadata, collection.name]);
 
-  const updateMeta = async (key: 'image' | 'color', value: string | undefined) => {
+  const updateMeta = useCallback(async (key: 'image' | 'color', value: string | undefined) => {
     // update local state immediately
-    setMetadata({
-      ...metadata,
+    setMetadata(prev => ({
+      ...prev,
       [collection.name]: {
-        ...localMeta,
+        ...prev[collection.name],
         [key]: value
       }
-    });
+    }));
 
     // sync to nocobase for cross-device persistence
     if (key === 'color') {
-      const metadata: Parameters<typeof syncColorToServer>[1] = {};
-      if (value) metadata.color = value;
-      if (syncedMeta?.icon) metadata.icon = syncedMeta.icon;
-      if (syncedMeta?.iconType) metadata.iconType = syncedMeta.iconType;
-      await syncColorToServer(collection.name, metadata);
+      const metaPayload: Parameters<typeof syncColorToServer>[1] = {};
+      if (value) metaPayload.color = value;
+      if (syncedMeta?.icon) metaPayload.icon = syncedMeta.icon;
+      if (syncedMeta?.iconType) metaPayload.iconType = syncedMeta.iconType;
+      await syncColorToServer(collection.name, metaPayload);
     }
 
     onUpdate();
-  };
+  }, [collection.name, syncedMeta, syncColorToServer, onUpdate, setMetadata]);
 
   const handleDelete = async () => {
     try {
@@ -97,7 +97,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
         <ContextMenuTrigger>{children}</ContextMenuTrigger>
         <RichResourceContextMenuContent
           currentName={collection.title || collection.name}
-          currentColor={syncedMeta?.color || metadata[collection.name]?.color || ''}
+          currentColor={syncedMeta?.color || localMeta?.color || ''}
           itemId={collection.name}
           onUpdate={async (updates: any) => {
             const newMeta: any = {};
@@ -116,7 +116,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
                 setMetadata({
                   ...metadata,
                   [collection.name]: {
-                    ...metadata[collection.name],
+                    ...localMeta,
                     ...newMeta
                   }
                 });
@@ -200,7 +200,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
           <div className="flex gap-2 py-4">
             <Input
               placeholder="https://..."
-              defaultValue={metadata[collection.name]?.image || ''}
+              defaultValue={localMeta?.image || ''}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   updateMeta('image', e.currentTarget.value);
@@ -241,4 +241,4 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete, 
       </AlertDialog>
     </>
   );
-}
+});
