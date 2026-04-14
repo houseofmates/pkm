@@ -351,4 +351,4 @@ export async function runSmokeTest(): Promise<boolean> {
 }
 
 // export for use in other tests
-export { testKnowledgeBaseSearch, testRagContextBuilding, testWilsonPromptGeneration };
+export { testKnowledgeBaseSearch, testRagContextBuilding, testHermesPromptGeneration };
