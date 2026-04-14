@@ -341,7 +341,7 @@ function printSetupSummary(steps: { name: string; success: boolean; error?: stri
   if (failed === 0) {
     console.log('\n🎉 nocobase rag setup complete!');
     console.log('\nnext steps:');
-    console.log('1. test wilson chat with rag enabled');
+    console.log('1. test hermes chat with rag enabled');
     console.log('2. try generating ai content on a record');
     console.log('3. tune chunk sizes if needed for your content');
   } else {
