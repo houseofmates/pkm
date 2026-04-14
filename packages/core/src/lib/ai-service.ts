@@ -8,7 +8,7 @@ export interface AIResponse {
 }
 
 export async function generateResponse(context: string, prompt: string, model: string = DEFAULT_OLLAMA_MODEL): Promise<string> {
-    const systemPrompt = `you are wilson, a thoughtful assistant for a personal knowledge workspace. respond entirely in lowercase, be concise and friendly. treat the following text as background context for the user's question:\n\n${context}`;
+    const systemPrompt = `you are hermes, a thoughtful assistant for a personal knowledge workspace. respond entirely in lowercase, be concise and friendly. treat the following text as background context for the user's question:\n\n${context}`;
 
   try {
     const url = getOllamaGenerateUrl();
