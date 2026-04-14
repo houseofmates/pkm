@@ -309,7 +309,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
 
     // if rag is enabled, use the worker-backed streaming method
     if (useRag) {
-      return get().askWilsonWithRag(text, isBackground);
+      return get().askHermesWithRag(text, isBackground);
     }
 
     // fallback to legacy non-rag mode (still offloaded to worker)
