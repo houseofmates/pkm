@@ -37,23 +37,23 @@ const RAW_MODEL_NAME = getOllamaModel();
 
 function friendlyModelName(raw: string): string {
   const map: Record<string, string> = {
-    "gemma4:e4b": "Wilson",
-    gemma4: "Wilson",
-    "gemma 4": "Wilson",
-    "gemma4:e4": "Wilson",
-    "qwen2.5-coder:7b-instruct-q4_K_S": "Wilson",
-    "qwen2.5-coder:7b": "Wilson",
-    "qwen 2.5 coder 7b": "Wilson",
+    'gemma4:e4b': 'Wilson',
+    'gemma4': 'Wilson',
+    'gemma 4': 'Wilson',
+    'gemma4:e4': 'Wilson',
+    'qwen2.5-coder:7b-instruct-q4_K_S': 'Wilson',
+    'qwen2.5-coder:7b': 'Wilson',
+    'qwen 2.5 coder 7b': 'Wilson',
+    'moonshotai/kimi-k2.5': 'Kimi',
+    'kimi-k2.5': 'Kimi',
+    'kimi': 'Kimi',
   };
-  const normalized = raw
-    .toLowerCase()
-    .trim()
-    .replace(/[-_:]/g, " ")
-    .replace(/\s+/g, " ");
+  const normalized = raw.toLowerCase().trim().replace(/[-_:]/g, ' ').replace(/\s+/g, ' ');
   for (const [pattern, name] of Object.entries(map)) {
-    if (normalized.includes(pattern.toLowerCase().replace(/[-_:]/g, " ")))
-      return name;
+    if (normalized.includes(pattern.toLowerCase().replace(/[-_:]/g, ' '))) return name;
   }
+  return raw;
+}
   return raw;
 }
 
