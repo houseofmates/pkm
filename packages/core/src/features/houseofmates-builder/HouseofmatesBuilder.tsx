@@ -754,8 +754,11 @@ export function HouseofmatesBuilder() {
 
         // ensure metadata (title/hidden) normalized
         try {
-          await api
-            .updateCollection(colName, { title: colTitle, hidden: true })
+          await nocobaseClient
+            .request("collections:update", {
+              params: { filterByTk: colName },
+              data: { title: colTitle, hidden: true },
+            })
             .catch((err) => {
               secureLogger.warn(
                 `Metadata update fail for ${colName}:`,
@@ -772,11 +775,11 @@ export function HouseofmatesBuilder() {
         // try to get fields more reliably
         let existingFields = [];
         try {
-          const colDetail = await api.getCollection(colName);
+          const colDetail = await nocobaseClient.getCollection(colName);
           existingFields = colDetail.data?.fields || [];
         } catch (e) {
           const flr = await nocobaseClient
-            .request("fields", "list", {
+            .request("fields:list", {
               params: { "filter[collectionName]": colName },
             })
             .catch(() => ({ data: [] }));
@@ -789,7 +792,7 @@ export function HouseofmatesBuilder() {
             secureLogger.info(
               `Adding missing field ${field.name} to ${colName} collection`,
             );
-            await api.createField(colName, field).catch((err) => {
+            await nocobaseClient.createField(colName, field).catch((err) => {
               if (err.response?.status !== 400)
                 secureLogger.warn(`Field add fail: ${field.name}`, err.message);
             });
