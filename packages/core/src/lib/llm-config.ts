@@ -36,7 +36,7 @@ export async function fetchApiKeysFromServer(): Promise<void> {
  const client = nocobaseClient;
  if (!client) return;
  
- const response = await client.request('pkm_api_keys', 'list', {
+ const response = await client.request('pkm_api_keys:list', {
       params: {
         filter: { enabled: { $eq: true } },
         sort: ['priority'],
@@ -90,7 +90,7 @@ export async function markKeyRateLimited(): Promise<{ key: string; model: string
  try {
  const client = nocobaseClient;
  if (client) {
- await client.request('pkm_api_keys', 'update', {
+ await client.request('pkm_api_keys:update', {
         params: { filterByTk: currentKey.id },
         values: { last429At: Date.now() },
         silent: true,
