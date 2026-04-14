@@ -5,13 +5,7 @@
 import { WebSocketServer } from 'ws';
 import { spawn } from 'child_process';
 import { v4 as uuidv4 } from 'uuid';
-import { readFileSync, existsSync } from 'fs';
-import { homedir } from 'os';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import http from 'http';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // config
 const CONFIG = {
@@ -21,9 +15,6 @@ const CONFIG = {
   contextServerUrl: 'http://localhost:3100',
 };
 
-// active hermes sessions
-const sessions = new Map<string, { ws: any; hermes: any; buffer: string }>();
-
 // ws server
 const wss = new WebSocketServer({ port: CONFIG.port });
 
@@ -31,14 +22,14 @@ console.log(`pkm chat bridge listening on ws://localhost:${CONFIG.port}`);
 
 wss.on('connection', (ws) => {
   const sessionId = uuidv4();
-  let hermesProcess: any = null;
+  let hermesProcess = null;
   let responseBuffer = '';
 
   console.log(`[${sessionId}] client connected`);
 
   // helper: send json to client
-  const sendToClient = (type: string, data: any) => {
-    if (ws.readyState === WebSocket.OPEN) {
+  const sendToClient = (type, data) => {
+    if (ws.readyState === ws.OPEN) {
       ws.send(JSON.stringify({ type, ...data }));
     }
   };
@@ -55,7 +46,7 @@ wss.on('connection', (ws) => {
       shell: true,
     });
 
-    hermesProcess.stdout.on('data', (data: Buffer) => {
+    hermesProcess.stdout.on('data', (data) => {
       const text = data.toString();
       responseBuffer += text;
       
@@ -63,24 +54,24 @@ wss.on('connection', (ws) => {
       sendToClient('stream', { content: text });
     });
 
-    hermesProcess.stderr.on('data', (data: Buffer) => {
+    hermesProcess.stderr.on('data', (data) => {
       console.error(`[${sessionId}] hermes stderr:`, data.toString());
     });
 
-    hermesProcess.on('close', (code: number) => {
+    hermesProcess.on('close', (code) => {
       console.log(`[${sessionId}] hermes exited with code ${code}`);
       sendToClient('end', { reason: code === 0 ? 'complete' : 'error' });
       hermesProcess = null;
     });
 
-    hermesProcess.on('error', (err: Error) => {
+    hermesProcess.on('error', (err) => {
       console.error(`[${sessionId}] hermes error:`, err);
       sendToClient('error', { message: err.message });
     });
   };
 
   // handle messages from pkm ui
-  ws.on('message', async (data: Buffer) => {
+  ws.on('message', async (data) => {
     try {
       const msg = JSON.parse(data.toString());
       
@@ -141,7 +132,6 @@ wss.on('connection', (ws) => {
     if (hermesProcess) {
       hermesProcess.kill();
     }
-    sessions.delete(sessionId);
   });
 
   ws.on('error', (err) => {
@@ -149,17 +139,14 @@ wss.on('connection', (ws) => {
     if (hermesProcess) {
       hermesProcess.kill();
     }
-    sessions.delete(sessionId);
   });
 });
 
 // also expose a simple http endpoint for health checks
-import http from 'http';
-
 const httpServer = http.createServer((req, res) => {
   if (req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', connections: sessions.size }));
+    res.end(JSON.stringify({ status: 'ok' }));
   } else {
     res.writeHead(404);
     res.end('not found');
