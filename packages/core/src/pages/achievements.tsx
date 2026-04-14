@@ -398,13 +398,13 @@ export function AchievementsPage() {
         )}
       </div>
 
-      {/* wilson status */}
-      {wilson && (
+      {/* hermes status */}
+      {hermes && (
         <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-2xl">{wilson.emoji}</span>
+            <span className="text-2xl">{hermes.emoji}</span>
             <div>
-              <p className="text-sm font-medium lowercase">{wilson.name}</p>
+              <p className="text-sm font-medium lowercase">{hermes.name}</p>
               <p className="text-[10px] text-white/40 lowercase">your companion</p>
             </div>
           </div>
@@ -413,21 +413,21 @@ export function AchievementsPage() {
               <span className="text-[10px] text-white/40 w-14 lowercase">happiness</span>
               <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div 
-                  className={cn("h-full rounded-full transition-all", wilson.happiness >= 70 ? 'bg-green-400' : wilson.happiness >= 40 ? 'bg-yellow-400' : 'bg-red-400')} 
-                  style={{ width: `${wilson.happiness}%` }} 
+                  className={cn("h-full rounded-full transition-all", hermes.happiness >= 70 ? 'bg-green-400' : hermes.happiness >= 40 ? 'bg-yellow-400' : 'bg-red-400')} 
+                  style={{ width: `${hermes.happiness}%` }} 
                 />
               </div>
-              <span className="text-[10px] text-white/40 w-6 text-right">{wilson.happiness}</span>
+              <span className="text-[10px] text-white/40 w-6 text-right">{hermes.happiness}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-white/40 w-14 lowercase">energy</span>
               <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div 
-                  className={cn("h-full rounded-full transition-all", wilson.energy >= 70 ? 'bg-green-400' : wilson.energy >= 40 ? 'bg-yellow-400' : 'bg-red-400')} 
-                  style={{ width: `${wilson.energy}%` }} 
+                  className={cn("h-full rounded-full transition-all", hermes.energy >= 70 ? 'bg-green-400' : hermes.energy >= 40 ? 'bg-yellow-400' : 'bg-red-400')} 
+                  style={{ width: `${hermes.energy}%` }} 
                 />
               </div>
-              <span className="text-[10px] text-white/40 w-6 text-right">{wilson.energy}</span>
+              <span className="text-[10px] text-white/40 w-6 text-right">{hermes.energy}</span>
             </div>
           </div>
         </div>
