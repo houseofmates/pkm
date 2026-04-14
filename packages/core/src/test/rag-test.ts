@@ -29,7 +29,7 @@ export async function runRagTests(): Promise<TestResult[]> {
   results.push(await testRagContextBuilding());
 
   // test 3: wilson prompt generation
-  results.push(await testWilsonPromptGeneration());
+  results.push(await testHermesPromptGeneration());
 
   // test 4: ai field content generation
   results.push(await testAiFieldGeneration());
