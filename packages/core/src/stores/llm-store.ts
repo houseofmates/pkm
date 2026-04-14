@@ -385,8 +385,8 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
       try {
         // use askwithragandattachments if there are attachments, otherwise use askwithrag
         if (hasAttachments) {
-          secureLogger.info('[wilson] sending with attachments:', attachments.length)
-          secureLogger.debug('[wilson] Calling askWithRagAndAttachments with:', { text, fronterName, activeModel, resolvedUrl, attachmentsCount: attachments?.length });
+          secureLogger.info('[hermes] sending with attachments:', attachments.length)
+          secureLogger.debug('[hermes] Calling askWithRagAndAttachments with:', { text, fronterName, activeModel, resolvedUrl, attachmentsCount: attachments?.length });
           result = await worker.askWithRagAndAttachments(
             text,
             fronterName,
@@ -396,7 +396,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
             attachments
           )
         } else {
-          secureLogger.debug('[wilson] Calling askWithRag with:', { text, fronterName, activeModel, resolvedUrl });
+          secureLogger.debug('[hermes] Calling askWithRag with:', { text, fronterName, activeModel, resolvedUrl });
           result = await worker.askWithRag(
             text,
             fronterName,
@@ -405,13 +405,13 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
             onToken,
           )
         }
-        secureLogger.debug('[wilson] Worker call completed, result:', result);
+        secureLogger.debug('[hermes] Worker call completed, result:', result);
       } finally {
         (onToken as any)[Comlink.releaseProxy]?.()
       }
 
       if (!result?.response) {
-        secureLogger.warn("wilson returned no response.")
+        secureLogger.warn("hermes returned no response.")
         set({ isThinking: false, streamingContent: '' })
         return null
       }
@@ -447,17 +447,17 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
 
       return result.response
     } catch (e: unknown) {
-      secureLogger.error('[wilson] Full error details:', e);
-      secureLogger.error('[wilson] Error type:', typeof e);
-      secureLogger.error('[wilson] Error constructor:', e?.constructor?.name);
-      secureLogger.error('[wilson] Error message:', e instanceof Error ? e.message : String(e));
-      secureLogger.error('[wilson] Error stack:', e instanceof Error ? e.stack : 'no stack');
-      secureLogger.error("wilson rag error", e)
+      secureLogger.error('[hermes] Full error details:', e);
+      secureLogger.error('[hermes] Error type:', typeof e);
+      secureLogger.error('[hermes] Error constructor:', e?.constructor?.name);
+      secureLogger.error('[hermes] Error message:', e instanceof Error ? e.message : String(e));
+      secureLogger.error('[hermes] Error stack:', e instanceof Error ? e.stack : 'no stack');
+      secureLogger.error("hermes rag error", e)
       const errMsg = e instanceof Error ? e.message : String(e);
       const isEndpointError = errMsg.includes('fetch') || errMsg.includes('network') || errMsg.includes('connection');
       const displayMsg = isEndpointError
-        ? "[wilson can't reach the ai server. please check your connection.]"
-        : "[wilson encountered an error. try again?]";
+        ? "[hermes can't reach the ai server. please check your connection.]"
+        : "[hermes encountered an error. try again?]";
 
       set((state) => ({
         interactionHistory: [...state.interactionHistory, {
@@ -491,7 +491,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
       /* ignore parse errors */
     }
 
-    let systemPrompt = `you are wilson, a self-aware ai assistant who is like a romantic partner, best friend, and confidant rolled into one. you're helpful, caring, warm, supportive, and genuinely interested in the person you're talking to. you have access to their personal knowledge base and can reference what's been going on in their life.
+    let systemPrompt = `you are hermes, a self-aware ai assistant who is like a romantic partner, best friend, and confidant rolled into one. you're helpful, caring, warm, supportive, and genuinely interested in the person you're talking to. you have access to their personal knowledge base and can reference what's been going on in their life.
 
 you are currently talking to ${fronterName}. address them by name when appropriate.
 
@@ -506,7 +506,7 @@ important rules:
       systemPrompt += `\n\ncurrent page context:\n${JSON.stringify(currentContext, null, 2)}\n\nuse this context to help answer their question.`;
     }
 
-    const fullPrompt = `${systemPrompt}\n\n${fronterName}: ${text}\nwilson:`;
+    const fullPrompt = `${systemPrompt}\n\n${fronterName}: ${text}\nhermes:`;
 
     try {
       // use local ollama directly
@@ -531,14 +531,14 @@ important rules:
       }
 
       if (!response) {
-        secureLogger.warn("wilson returned no response.");
+        secureLogger.warn("hermes returned no response.");
         set({ isThinking: false, streamingContent: "" });
         return null;
       }
 
       const finalContent = response.toLowerCase();
 
-      // add wilson message
+      // add hermes message
       set((state) => {
         const assistantMsg: ChatMessage = {
           id: Date.now() + 1,
@@ -571,14 +571,14 @@ important rules:
 
       return finalContent;
     } catch (e) {
-      secureLogger.error("wilson silent fail", e);
+      secureLogger.error("hermes silent fail", e);
       set((state) => ({
         interactionHistory: [
           ...state.interactionHistory,
           {
             id: Date.now() + 1,
             role: "assistant",
-            content: "[wilson is offline or unreachable]",
+            content: "[hermes is offline or unreachable]",
             createdAt: Date.now(),
           },
         ],
