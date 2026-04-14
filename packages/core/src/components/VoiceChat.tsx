@@ -359,7 +359,7 @@ export function VoiceChat({
 }
 
 // hook for using wilson's voice
-export function useWilsonVoice() {
+export function useHermesVoice() {
   const speak = useCallback((text: string) => {
     if (typeof window !== 'undefined' && (window as any).wilsonSpeak) {
       (window as any).wilsonSpeak(text);
