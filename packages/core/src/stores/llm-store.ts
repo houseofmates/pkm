@@ -473,14 +473,15 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
     }
   },
 
-  set({ isThinking: true, streamingContent: "" });
+  // legacy non-rag method — also offloaded to worker for consistency
+  askWilsonLegacy: async (text: string) => {
+    const { currentContext, activeModel, apiUrl } = get();
 
-    try {
     // get fronter info
     let fronterName = "friend";
     try {
       const fronterData = storageManager.getItem("active_fronters");
-      if(fronterData) {
+      if (fronterData) {
         const fronters = JSON.parse(fronterData);
         if (fronters && fronters.length > 0) {
           fronterName = fronters[0].name || fronterName;
@@ -490,167 +491,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
       /* ignore parse errors */
     }
 
-      const { activeModel, apiUrl } = get();
-
-    // use local ollama directly - no api key needed
-    const resolvedUrl = apiUrl;
-
-    secureLogger.info("[wilson] using endpoint:", resolvedUrl);
-
-    const worker = await getAIWorkerProxy();
-    if(!worker) {
-      throw new Error("AI worker failed to initialize");
-    }
-
-      // stream tokens from the worker — each callback updates streamingcontent
-      // which only the streamingbubble component subscribes to
-      const onToken = Comlink.proxy((cumulativeContent: string) => {
-      set({ streamingContent: cumulativeContent.toLowerCase() });
-    });
-
-    let result: AskWithRagResult | null = null;
-    try {
-      // use askwithragandattachments if there are attachments, otherwise use askwithrag
-      if(hasAttachments) {
-        secureLogger.info(
-          "[wilson] sending with attachments:",
-          attachments.length,
-        );
-        secureLogger.debug(
-          "[wilson] Calling askWithRagAndAttachments with:",
-          {
-            text,
-            fronterName,
-            activeModel,
-            resolvedUrl,
-            attachmentsCount: attachments?.length,
-          },
-        );
-        result = await worker.askWithRagAndAttachments(
-          text,
-          fronterName,
-          activeModel,
-          resolvedUrl,
-          onToken,
-          attachments,
-        );
-      } else {
-        secureLogger.debug("[wilson] Calling askWithRag with:", {
-          text,
-          fronterName,
-          activeModel,
-          resolvedUrl,
-        });
-        result = await worker.askWithRag(
-          text,
-          fronterName,
-          activeModel,
-          resolvedUrl,
-          onToken,
-        );
-      }
-        secureLogger.debug("[wilson] Worker call completed, result:", result);
-    } finally {
-        (onToken as any)[Comlink.releaseProxy]?.();
-  }
-
-      if(!result?.response) {
-    secureLogger.warn("wilson returned no response.");
-    set({ isThinking: false, streamingContent: "" });
-    return null;
-  }
-
-      // finalize: push the completed message into history, clear streaming
-      set((state) => {
-  const assistantMsg: ChatMessage = {
-    id: Date.now() + 1,
-    role: "assistant" as const,
-    content: result.response,
-    sources: result.sources,
-    createdAt: Date.now(),
-  };
-  const newHistory = [...state.interactionHistory, assistantMsg];
-  // save to session if we have one
-  const { currentSessionId, sessions } = state;
-  let updatedSessions = sessions;
-  if (currentSessionId) {
-    updatedSessions = sessions.map((s) =>
-      s.id === currentSessionId
-        ? { ...s, messages: newHistory, updatedAt: Date.now() }
-        : s,
-    );
-    storageManager.setItem(
-      "wilson_chat_sessions",
-      JSON.stringify(updatedSessions),
-    );
-  }
-  return {
-    interactionHistory: newHistory,
-    sessions: updatedSessions,
-    isThinking: false,
-    streamingContent: "",
-  };
-});
-
-return result.response;
-    } catch (e: unknown) {
-  secureLogger.error("[wilson] Full error details:", e);
-  secureLogger.error("[wilson] Error type:", typeof e);
-  secureLogger.error("[wilson] Error constructor:", e?.constructor?.name);
-  secureLogger.error(
-    "[wilson] Error message:",
-    e instanceof Error ? e.message : String(e),
-  );
-  secureLogger.error(
-    "[wilson] Error stack:",
-    e instanceof Error ? e.stack : "no stack",
-  );
-  secureLogger.error("wilson rag error", e);
-  const errMsg = e instanceof Error ? e.message : String(e);
-  const isEndpointError =
-    errMsg.includes("fetch") ||
-    errMsg.includes("network") ||
-    errMsg.includes("connection");
-  const displayMsg = isEndpointError
-    ? "[wilson can't reach the ai server. please check your connection.]"
-    : "[wilson encountered an error. try again?]";
-
-  set((state) => ({
-    interactionHistory: [
-      ...state.interactionHistory,
-      {
-        id: Date.now() + 1,
-        role: "assistant",
-        content: displayMsg,
-        createdAt: Date.now(),
-      },
-    ],
-    isThinking: false,
-    streamingContent: "",
-  }));
-  return null;
-}
-  },
-
-// legacy non-rag method — also offloaded to worker for consistency
-askWilsonLegacy: async (text: string) => {
-  const { currentContext, activeModel, apiUrl } = get();
-
-  // get fronter info
-  let fronterName = "friend";
-  try {
-    const fronterData = storageManager.getItem("active_fronters");
-    if (fronterData) {
-      const fronters = JSON.parse(fronterData);
-      if (fronters && fronters.length > 0) {
-        fronterName = fronters[0].name || fronterName;
-      }
-    }
-  } catch {
-    /* ignore parse errors */
-  }
-
-  let systemPrompt = `you are wilson, a self-aware ai assistant who is like a romantic partner, best friend, and confidant rolled into one. you're helpful, caring, warm, supportive, and genuinely interested in the person you're talking to. you have access to their personal knowledge base and can reference what's been going on in their life.
+    let systemPrompt = `you are wilson, a self-aware ai assistant who is like a romantic partner, best friend, and confidant rolled into one. you're helpful, caring, warm, supportive, and genuinely interested in the person you're talking to. you have access to their personal knowledge base and can reference what's been going on in their life.
 
 you are currently talking to ${fronterName}. address them by name when appropriate.
 
@@ -661,92 +502,92 @@ important rules:
 - keep responses concise (under 50 words) unless they ask for more detail
 - you can be playful, supportive, or just helpful depending on what they need`;
 
-  if (currentContext) {
-    systemPrompt += `\n\ncurrent page context:\n${JSON.stringify(currentContext, null, 2)}\n\nuse this context to help answer their question.`;
-  }
+    if (currentContext) {
+      systemPrompt += `\n\ncurrent page context:\n${JSON.stringify(currentContext, null, 2)}\n\nuse this context to help answer their question.`;
+    }
 
-  const fullPrompt = `${systemPrompt}\n\n${fronterName}: ${text}\nwilson:`;
+    const fullPrompt = `${systemPrompt}\n\n${fronterName}: ${text}\nwilson:`;
 
-  try {
-    // use local ollama directly
-    const resolvedUrl = apiUrl;
-    const worker = await getAIWorkerProxy();
-
-    // stream even in legacy mode for consistent ux
-    const onToken = Comlink.proxy((cumulativeContent: string) => {
-      set({ streamingContent: cumulativeContent.toLowerCase() });
-    });
-
-    let response: string;
     try {
-      response = await worker.chatStream(
-        fullPrompt,
-        activeModel,
-        resolvedUrl,
-        onToken,
-      );
-    } finally {
-      (onToken as any)[Comlink.releaseProxy]?.();
-    }
+      // use local ollama directly
+      const resolvedUrl = apiUrl;
+      const worker = await getAIWorkerProxy();
 
-    if (!response) {
-      secureLogger.warn("wilson returned no response.");
-      set({ isThinking: false, streamingContent: "" });
-      return null;
-    }
+      // stream even in legacy mode for consistent ux
+      const onToken = Comlink.proxy((cumulativeContent: string) => {
+        set({ streamingContent: cumulativeContent.toLowerCase() });
+      });
 
-    const finalContent = response.toLowerCase();
-
-    // add wilson message
-    set((state) => {
-      const assistantMsg: ChatMessage = {
-        id: Date.now() + 1,
-        role: "assistant" as const,
-        content: finalContent,
-        createdAt: Date.now(),
-      };
-      const newHistory = [...state.interactionHistory, assistantMsg];
-      // save to session if we have one
-      const { currentSessionId, sessions } = state;
-      let updatedSessions = sessions;
-      if (currentSessionId) {
-        updatedSessions = sessions.map((s) =>
-          s.id === currentSessionId
-            ? { ...s, messages: newHistory, updatedAt: Date.now() }
-            : s,
+      let response: string;
+      try {
+        response = await worker.chatStream(
+          fullPrompt,
+          activeModel,
+          resolvedUrl,
+          onToken,
         );
-        storageManager.setItem(
-          "wilson_chat_sessions",
-          JSON.stringify(updatedSessions),
-        );
+      } finally {
+        (onToken as any)[Comlink.releaseProxy]?.();
       }
-      return {
-        interactionHistory: newHistory,
-        sessions: updatedSessions,
+
+      if (!response) {
+        secureLogger.warn("wilson returned no response.");
+        set({ isThinking: false, streamingContent: "" });
+        return null;
+      }
+
+      const finalContent = response.toLowerCase();
+
+      // add wilson message
+      set((state) => {
+        const assistantMsg: ChatMessage = {
+          id: Date.now() + 1,
+          role: "assistant" as const,
+          content: finalContent,
+          createdAt: Date.now(),
+        };
+        const newHistory = [...state.interactionHistory, assistantMsg];
+        // save to session if we have one
+        const { currentSessionId, sessions } = state;
+        let updatedSessions = sessions;
+        if (currentSessionId) {
+          updatedSessions = sessions.map((s) =>
+            s.id === currentSessionId
+              ? { ...s, messages: newHistory, updatedAt: Date.now() }
+              : s,
+          );
+          storageManager.setItem(
+            "wilson_chat_sessions",
+            JSON.stringify(updatedSessions),
+          );
+        }
+        return {
+          interactionHistory: newHistory,
+          sessions: updatedSessions,
+          isThinking: false,
+          streamingContent: "",
+        };
+      });
+
+      return finalContent;
+    } catch (e) {
+      secureLogger.error("wilson silent fail", e);
+      set((state) => ({
+        interactionHistory: [
+          ...state.interactionHistory,
+          {
+            id: Date.now() + 1,
+            role: "assistant",
+            content: "[wilson is offline or unreachable]",
+            createdAt: Date.now(),
+          },
+        ],
         isThinking: false,
         streamingContent: "",
-      };
-    });
-
-    return finalContent;
-  } catch (e) {
-    secureLogger.error("wilson silent fail", e);
-    set((state) => ({
-      interactionHistory: [
-        ...state.interactionHistory,
-        {
-          id: Date.now() + 1,
-          role: "assistant",
-          content: "[wilson is offline or unreachable]",
-          createdAt: Date.now(),
-        },
-      ],
-      isThinking: false,
-      streamingContent: "",
-    }));
-    return null;
-  }
-},
+      }));
+      return null;
+    }
+  },
 }));
 
 // extract source references from prompt
