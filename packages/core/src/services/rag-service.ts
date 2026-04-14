@@ -1,8 +1,8 @@
-// rag service for wilson chat and ai field generation
+// rag service for hermes chat and ai field generation
 // orchestrates retrieval, context building, and prompt assembly
 
 import { searchKnowledgeBase, formatChunksForPrompt, type SearchResult } from '@/lib/vector-store';
-import { getWilsonRagPrompt, getAiFieldPrompt } from '@/lib/rag-prompts';
+import { getHermesRagPrompt, getAiFieldPrompt } from '@/lib/rag-prompts';
 import { nocobaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 
