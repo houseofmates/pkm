@@ -99,11 +99,20 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
     if (nvidiaKey) return NVIDIA_MODEL;
     return getOllamaModel();
   })(),
-  apiUrl: (() => {
-    const nvidiaKey = storageManager.getItem('nvidia_api_key') || import.meta.env.NVIDIA_API_KEY;
-    if (nvidiaKey) return `${NVIDIA_API_URL}/chat/completions`;
-    return getOllamaGenerateUrl();
-  })(),
+ apiUrl: (() => {
+ const nvidiaKey = storageManager.getItem('nvidia_api_key') || import.meta.env.NVIDIA_API_KEY;
+ if (nvidiaKey) {
+ // on public domain, route through proxy
+ if (typeof window !== 'undefined') {
+ const host = window.location.hostname;
+ if (host === 'pkm.houseofmates.space' || host.endsWith('.houseofmates.space')) {
+ return `${window.location.protocol}//${host}/nvidia/chat/completions`;
+ }
+ }
+ return `${NVIDIA_API_URL}/chat/completions`;
+ }
+ return getOllamaGenerateUrl();
+ })(),
   useRag: true, // default to enabled
 
   // sessions
