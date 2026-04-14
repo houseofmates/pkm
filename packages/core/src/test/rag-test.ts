@@ -115,7 +115,7 @@ async function testHermesPromptGeneration(): Promise<TestResult> {
   const name = 'wilson rag prompt generation';
 
   try {
-    const prompt = await generateWilsonRagPrompt('how are my projects going?', 'test user');
+    const prompt = await generateHermesRagPrompt('how are my projects going?', 'test user');
 
     return {
       name,
