@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface HermesBridgeConfig {
   wsUrl?: string; // default: ws://localhost:3101
-  enabled?: boolean; // default: false (use wilson by default)
+  enabled?: boolean; // default: false (use hermes by default)
 }
 
 export interface HermesMessage {
