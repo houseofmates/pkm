@@ -247,10 +247,11 @@ export function HermesChat() {
 
   const currentSession = sessions.find((s) => s.id === currentSessionId);
 
-  return (
-    <div
-      className={`fixed inset-y-0 right-0 bg-background border-l-2 border-primary shadow-[-4px_0_0_var(--primary)] z-[110] flex transition-transform duration-300 transform ${isChatOpen ? "translate-x-0" : "translate-x-full"} ${showHistory ? "w-[90vw] md:w-[600px]" : "w-[90vw] md:w-[400px]"}`}
-    >
+ return (
+ <>
+ <div
+ className={`fixed inset-y-0 right-0 bg-background border-l-2 border-primary shadow-[-4px_0_0_var(--primary)] z-[110] flex transition-transform duration-300 transform ${isChatOpen ? "translate-x-0" : "translate-x-full"} ${showHistory ? "w-[90vw] md:w-[600px]" : "w-[90vw] md:w-[400px]"}`}
+ >
       {showHistory && (
         <div className="w-[200px] border-r border-primary/30 flex flex-col bg-black/30">
           <div className="p-3 border-b border-primary/30 flex justify-between items-center">
