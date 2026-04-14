@@ -261,7 +261,7 @@ async function buildRagContext(query: string, topK: number = 8) {
     }
 }
 
-const WILSON_RAG_SYSTEM_PROMPT = `you are wilson, a deeply knowledgeable ai assistant with full access to the user's personal knowledge base. you have real-time awareness of their notes, tasks, projects, research, and entire pkm through retrieved context.
+const HERMES_RAG_SYSTEM_PROMPT = `you are hermes, a deeply knowledgeable ai assistant with full access to the user's personal knowledge base. you have real-time awareness of their notes, tasks, projects, research, and entire pkm through retrieved context.
 
 your personality:
 - warm, thoughtful, and genuinely helpful
@@ -282,8 +282,8 @@ each chunk starts with [source: collection:id] so you can reference where inform
 
 async function buildRagPrompt(query: string, fronterName: string = 'friend'): Promise<RagPromptResult> {
     const ragCtx = await buildRagContext(query, 8);
-    const system = WILSON_RAG_SYSTEM_PROMPT + `\n\ncurrent user: ${fronterName}`;
-    const prompt = `${system}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}\n\ncurrent query from ${fronterName}: ${query}\n\nwilson:`;
+    const system = HERMES_RAG_SYSTEM_PROMPT + `\n\ncurrent user: ${fronterName}`;
+    const prompt = `${system}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}\n\ncurrent query from ${fronterName}: ${query}\n\nhermes:`;
     return { prompt, sources: ragCtx.sources };
 }
 
@@ -499,7 +499,7 @@ async function askWithRag(
         secureLogger.info('[ai-worker] Detected vision model, using chat endpoint');
         try {
             const ragCtx = await buildRagContext(query, 8);
-            const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
+            const systemContent = `${HERMES_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
             const messages: ChatMessage[] = [
                 { role: 'system', content: systemContent },
                 { role: 'user', content: query }
@@ -536,7 +536,7 @@ async function askWithRagAndAttachments(
     const ragCtx = await buildRagContext(query, 8);
     
     // build system message with rag context
-    const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
+    const systemContent = `${HERMES_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
     
     // build user message content parts
     const userContent: { type: 'text'; text: string; } | Array<{ type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }> = [{ type: 'text', text: query }];
