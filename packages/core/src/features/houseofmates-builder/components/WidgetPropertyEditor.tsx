@@ -275,7 +275,7 @@ const Input = ({ label, value, onChange, type = 'text', textarea, placeholder }:
         <button
           title="ask hermes about this field (context included)"
           onClick={async () => {
-            const q = window.prompt('ask wilson about this field (context will be included):');
+            const q = window.prompt('ask hermes about this field (context will be included):');
             if (!q) return;
             (await import('@/stores/llm-store')).useLLMStore.getState().setContext(value || '');
             const res = await (await import('@/stores/llm-store')).useLLMStore.getState().askHermes(q);
