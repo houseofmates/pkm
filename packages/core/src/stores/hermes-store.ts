@@ -2,8 +2,8 @@
 // bypasses ollama and routes all messages through the hermes bridge
 
 import { create } from 'zustand';
-import { secureLogger } from './secure-logger';
-import { storageManager } from './storage-manager';
+import { secureLogger } from '@/lib/secure-logger';
+import { storageManager } from '@/lib/storage-manager';
 import { useLLMStore } from './llm-store';
 
 export interface HermesMessage {
