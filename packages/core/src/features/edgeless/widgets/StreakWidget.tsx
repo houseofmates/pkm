@@ -10,7 +10,7 @@ interface StreakWidgetProps {
 export function StreakWidget({ className }: StreakWidgetProps) {
   const { pets, streakDays, totalXp, level, questRows } = useGamificationStore();
   
-  const wilson = pets[0];
+  const hermes = pets[0];
   const completedQuests = questRows.filter(r => 
     r.cells.filter(c => c.completed).length === r.cells.length
   ).length;
