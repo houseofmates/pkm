@@ -154,14 +154,36 @@ export function useCollectionData(
               label: "fronter",
             });
           } catch (e: any) {
-            secureLogger.warn("failed to auto-create fronter field", e);
+            if (
+              e?.message?.includes("CORS") ||
+              e?.message?.includes("Network Error")
+            ) {
+              secureLogger.warn(
+                "cannot auto-create fronter field due to CORS/network error, skipping",
+              );
+            } else {
+              secureLogger.warn("failed to auto-create fronter field", e);
+            }
           }
         }
       }
 
-      const recRes = await client.listRecords(collectionName);
-      if (fetchId !== fetchCounterRef.current) return;
-      const recData = extractRecords(recRes);
+      let recData: SchemaRecord[] = [];
+      try {
+        const recRes = await client.listRecords(collectionName);
+        if (fetchId !== fetchCounterRef.current) return;
+        recData = extractRecords(recRes);
+      } catch (e: any) {
+        if (fetchId !== fetchCounterRef.current) return;
+        if (e?.response?.status === 404) {
+          secureLogger.warn(
+            `collection "${collectionName}" not found when listing records, returning empty`,
+          );
+          recData = [];
+        } else {
+          throw e;
+        }
+      }
       setRecords(recData);
     } catch (error: any) {
       if (fetchId !== fetchCounterRef.current) return;
