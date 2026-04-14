@@ -56,7 +56,7 @@ export async function handleRateLimit(): Promise<{ key: string; model: string; p
   // mark as rate limited in database
   if (ncClient && currentKey.id) {
     try {
-      await ncClient.request('pkm_api_keys', 'update', {
+      await ncClient.request('pkm_api_keys:update', {
         params: { filterByTk: currentKey.id },
         values: { last429At: Date.now() },
         silent: true,
@@ -87,7 +87,7 @@ export async function fetchApiKeys(): Promise<void> {
   if (!ncClient) return;
   
   try {
-    const response = await ncClient.request('pkm_api_keys', 'list', {
+    const response = await ncClient.request('pkm_api_keys:list', {
       params: {
         filter: { enabled: { $eq: true } },
         sort: ['priority'],
@@ -109,7 +109,7 @@ export async function addApiKey(config: Omit<ApiKeyEntry, 'id'>): Promise<ApiKey
   if (!ncClient) return null;
   
   try {
-    const response = await ncClient.request('pkm_api_keys', 'create', {
+    const response = await ncClient.request('pkm_api_keys:create', {
       values: config,
     });
     
