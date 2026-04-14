@@ -22,9 +22,9 @@ async function runSimpleTest() {
     console.log(`   ✅ context built with ${context.retrievedChunks.length} chunks`);
     console.log(`   sources: ${context.sources.length}`);
 
-    // test 3: generate wilson prompt
-    console.log('\n3️⃣ testing wilson prompt generation...');
-    const prompt = await generateWilsonRagPrompt('how are my projects?', 'friend');
+ // test 3: generate hermes prompt
+ console.log('\n3️⃣ testing hermes prompt generation...');
+ const prompt = await generateHermesRagPrompt('how are my projects?', 'friend');
     console.log(`   ✅ prompt generated (${prompt.length} chars)`);
     console.log(`   has context: ${prompt.includes('retrieved context')}`);
     console.log(`   has sources: ${prompt.includes('[source:')}`);
