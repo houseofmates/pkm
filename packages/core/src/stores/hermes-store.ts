@@ -151,9 +151,9 @@ function sendMessageInternal(
 export const useHermesStore = create<HermesState>((set, get) => ({
   connected: false,
   enabled: true, // default to hermes mode
-  wsUrl: typeof window !== 'undefined' 
-   ? `wss://${window.location.hostname}:3101`
-   : 'ws://localhost:3101',
+  wsUrl: typeof window !== 'undefined'
+    ? `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/hermes-bridge`
+    : 'ws://localhost:3101',
 
   sessions: (() => {
     try {
