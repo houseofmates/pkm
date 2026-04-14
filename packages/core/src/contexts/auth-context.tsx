@@ -120,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         token,
-        isAuthenticated: pb.authStore.isValid,
+        isAuthenticated: nocobaseClient.isAuthenticated,
         login,
         loginWithApiKey,
         logout,
