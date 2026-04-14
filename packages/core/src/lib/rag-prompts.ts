@@ -103,16 +103,16 @@ output format:
 - [[collection:id]] relates to [[collection:id]] because...
 - [[collection:id]] contradicts [[collection:id]] on...`;
 
-export const getWilsonRagPrompt = (fronterName: string, retrievedContext: string, userQuery: string): string => {
-  const system = WILSON_RAG_SYSTEM_PROMPT.replace('{{fronter_name}}', fronterName);
-  return `${system}
+export const getHermesRagPrompt = (fronterName: string, retrievedContext: string, userQuery: string): string => {
+ const system = HERMES_RAG_SYSTEM_PROMPT.replace('{{fronter_name}}', fronterName);
+ return `${system}
 
 retrieved context from your pkm:
 ${retrievedContext}
 
 current query from ${fronterName}: ${userQuery}
 
-wilson:`;
+hermes:`;
 };
 
 export const getAiFieldPrompt = (rowData: Record<string, any>, retrievedChunks: string[], instruction: string): string => {
