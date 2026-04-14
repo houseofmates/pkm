@@ -475,7 +475,18 @@ export function HouseofmatesBuilder() {
     let cancelled = false;
 
     const init = async () => {
-      const key = storageManager.getCachedSecret("hom_api_key");
+      // check both keys - hom_api_key is the builder's key, nocobase_token is what nocobaseClient uses
+      const homKey = storageManager.getCachedSecret("hom_api_key");
+      const nocobaseKey = storageManager.getCachedSecret("nocobase_token");
+      const key = homKey || nocobaseKey;
+
+      // sync keys if one exists but not the other
+      if (homKey && !nocobaseKey) {
+        await storageManager.setEncryptedItem("nocobase_token", homKey);
+      } else if (nocobaseKey && !homKey) {
+        await storageManager.setEncryptedItem("hom_api_key", nocobaseKey);
+      }
+
       // only set admin mode if we have an api key
       // on public domains without a key, stay in read-only public mode
       const shouldBeAdmin = !!key;
