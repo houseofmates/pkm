@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -10,12 +10,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
-import FormulaEditor from '@/components/formula-editor';
-import { Terminal } from 'lucide-react';
-import { secureLogger } from '@/lib/secure-logger';
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import FormulaEditor from "@/components/formula-editor";
+import { Terminal } from "lucide-react";
+import { secureLogger } from "@/lib/secure-logger";
 
 interface CreateFieldDialogProps {
   collectionName: string;
@@ -27,33 +33,38 @@ interface CreateFieldDialogProps {
 }
 
 const FIELD_TYPES = [
-  { value: 'input', label: 'Single Line Text' },
-  { value: 'textarea', label: 'Long Text' },
-  { value: 'markdown', label: 'Markdown' },
-  { value: 'richText', label: 'Rich Text' },
-  { value: 'number', label: 'Number' },
-  { value: 'integer', label: 'Integer' },
-  { value: 'percent', label: 'Percent' },
-  { value: 'checkbox', label: 'Checkbox' },
-  { value: 'date', label: 'Date' },
-  { value: 'datetime', label: 'Date Time' },
-  { value: 'time', label: 'Time' },
-  { value: 'attachment', label: 'Attachment' },
-  { value: 'email', label: 'Email' },
-  { value: 'phone', label: 'Phone' },
-  { value: 'url', label: 'URL' },
-  { value: 'color', label: 'Color' },
-  { value: 'icon', label: 'Icon' },
-  { value: 'password', label: 'Password' },
-  { value: 'select', label: 'Single Select' },
-  { value: 'multipleSelect', label: 'Multiple Select' },
-  { value: 'radioGroup', label: 'Radio Group' },
-  { value: 'checkboxGroup', label: 'Checkbox Group' },
-  { value: 'formula', label: 'Formula' },
-  { value: 'linkTo', label: 'Relation (Link To)' },
+  { value: "input", label: "single line text" },
+  { value: "textarea", label: "long text" },
+  { value: "markdown", label: "markdown" },
+  { value: "richText", label: "rich text" },
+  { value: "number", label: "number" },
+  { value: "integer", label: "integer" },
+  { value: "percent", label: "percent" },
+  { value: "checkbox", label: "checkbox" },
+  { value: "date", label: "date" },
+  { value: "datetime", label: "date time" },
+  { value: "time", label: "time" },
+  { value: "attachment", label: "attachment" },
+  { value: "email", label: "email" },
+  { value: "phone", label: "phone" },
+  { value: "url", label: "url" },
+  { value: "color", label: "color" },
+  { value: "icon", label: "icon" },
+  { value: "password", label: "password" },
+  { value: "select", label: "single select" },
+  { value: "multipleSelect", label: "multiple select" },
+  { value: "radioGroup", label: "radio group" },
+  { value: "checkboxGroup", label: "checkbox group" },
+  { value: "formula", label: "formula" },
+  { value: "linkTo", label: "relation (link to)" },
 ];
 
-export function CreateFieldDialog({ collectionName, onFieldCreated, open: controlledOpen, onOpenChange }: CreateFieldDialogProps) {
+export function CreateFieldDialog({
+  collectionName,
+  onFieldCreated,
+  open: controlledOpen,
+  onOpenChange,
+}: CreateFieldDialogProps) {
   const { client } = useAuth();
   const [internalOpen, setInternalOpen] = useState(false);
 
@@ -64,10 +75,10 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
     else setInternalOpen(value);
   };
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState('');
-  const [name, setName] = useState('');
-  const [interfaceType, setInterfaceType] = useState('input');
-  const [expression, setExpression] = useState('');
+  const [title, setTitle] = useState("");
+  const [name, setName] = useState("");
+  const [interfaceType, setInterfaceType] = useState("input");
+  const [expression, setExpression] = useState("");
   const [formulaEditorOpen, setFormulaEditorOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,7 +86,12 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
     setLoading(true);
 
     try {
-      const finalName = name || title.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+      const finalName =
+        name ||
+        title
+          .toLowerCase()
+          .replace(/\s+/g, "_")
+          .replace(/[^a-z0-9_]/g, "");
 
       const fieldConfig: any = {
         title,
@@ -84,11 +100,11 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
         type: getDBType(interfaceType),
         uiSchema: {
           title,
-          'x-component': getComponentType(interfaceType),
-        }
+          "x-component": getComponentType(interfaceType),
+        },
       };
 
-      if (interfaceType === 'formula') {
+      if (interfaceType === "formula") {
         fieldConfig.params = { expression };
       }
 
@@ -96,8 +112,8 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
 
       toast.success("field created");
       setIsOpen(false);
-      setTitle('');
-      setName('');
+      setTitle("");
+      setName("");
       onFieldCreated();
     } catch (error: any) {
       secureLogger.error(error);
@@ -109,22 +125,33 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
 
   const getDBType = (uiType: string) => {
     switch (uiType) {
-      case 'number': return 'integer';
-      case 'checkbox': return 'boolean';
-      case 'textarea': return 'text';
-      case 'formula': return 'formula';
-      default: return 'string';
+      case "number":
+        return "integer";
+      case "checkbox":
+        return "boolean";
+      case "textarea":
+        return "text";
+      case "formula":
+        return "formula";
+      default:
+        return "string";
     }
   };
 
   const getComponentType = (uiType: string) => {
     switch (uiType) {
-      case 'input': return 'input';
-      case 'textarea': return 'input.textarea';
-      case 'number': return 'inputNumber';
-      case 'checkbox': return 'checkbox';
-      case 'formula': return 'input'; // generic field to show formula result or define it
-      default: return 'input';
+      case "input":
+        return "input";
+      case "textarea":
+        return "input.textarea";
+      case "number":
+        return "inputNumber";
+      case "checkbox":
+        return "checkbox";
+      case "formula":
+        return "input"; // generic field to show formula result or define it
+      default:
+        return "input";
     }
   };
 
@@ -135,7 +162,8 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
           <DialogHeader>
             <DialogTitle>add new property</DialogTitle>
             <DialogDescription>
-              add a new column to the <strong>{collectionName}</strong> database.
+              add a new column to the <strong>{collectionName}</strong>{" "}
+              database.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -146,13 +174,15 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {FIELD_TYPES.map(t => (
-                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  {FIELD_TYPES.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            {interfaceType === 'formula' && (
+            {interfaceType === "formula" && (
               <div className="space-y-2">
                 <Label>expression</Label>
                 <div className="flex gap-2">
@@ -163,11 +193,19 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
                     className="font-mono text-xs flex-1"
                     required
                   />
-                  <Button type="button" variant="outline" size="icon" onClick={() => setFormulaEditorOpen(true)} title="open editor">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setFormulaEditorOpen(true)}
+                    title="open editor"
+                  >
                     <Terminal className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-[10px] text-muted-foreground">advanced javascript formulas supported.</p>
+                <p className="text-[10px] text-muted-foreground">
+                  advanced javascript formulas supported.
+                </p>
               </div>
             )}
             <div className="space-y-2">

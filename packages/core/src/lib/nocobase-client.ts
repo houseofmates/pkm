@@ -12,10 +12,10 @@ const BUILD_TIME_TOKEN = import.meta.env.VITE_NOCOBASE_API_TOKEN || "";
 // mock pb object for compatibility (deprecated but kept for imports)
 export const pb = {
   authStore: {
-    onChange: () => { },
+    onChange: () => {},
     isValid: false,
     model: null,
-    clear: () => { },
+    clear: () => {},
   },
   collection: () => ({
     getList: async () => ({ items: [], totalItems: 0 }),
@@ -23,9 +23,9 @@ export const pb = {
     getOne: async () => ({}),
     create: async () => ({}),
     update: async () => ({}),
-    delete: async () => { },
-    subscribe: () => () => { },
-    unsubscribe: () => { },
+    delete: async () => {},
+    subscribe: () => () => {},
+    unsubscribe: () => {},
   }),
   getFileUrl: () => "",
   send: async () => ({}),
@@ -57,7 +57,8 @@ export class NocoBaseClient {
     // Add request interceptor to always use latest token from storage
     // This ensures newly entered API keys are used immediately
     this._axios.interceptors.request.use(async (config) => {
-      const latestToken = await storageManager.getEncryptedItem("nocobase_token");
+      const latestToken =
+        await storageManager.getEncryptedItem("nocobase_token");
       if (latestToken && latestToken.trim() !== "") {
         // Only use the token if it's different from build-time token
         // or if build-time token is empty (dev mode)
@@ -100,7 +101,7 @@ export class NocoBaseClient {
       isValid: !!this._token,
       model: this._user,
       token: this._token,
-      onChange: () => { },
+      onChange: () => {},
       clear: () => this.logout(),
     };
   }
@@ -271,10 +272,10 @@ export class NocoBaseClient {
     secureLogger.warn(
       `[NocoBase] subscriptions not supported, polling recommended for ${collection}`,
     );
-    return () => { };
+    return () => {};
   }
 
-  unsubscribe(collection: string) { }
+  unsubscribe(collection: string) {}
 
   async request(path: string, options?: Record<string, unknown>) {
     const { method = "GET", body, ...rest } = options || {};
@@ -309,6 +310,10 @@ export class NocoBaseClient {
     inherits?: string[];
   }): Promise<void> {
     await this._axios.post("/collections:create", schema);
+  }
+
+  async deleteCollection(name: string): Promise<void> {
+    await this._axios.post("/collections:destroy", { filterByTk: name });
   }
 }
 
