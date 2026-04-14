@@ -112,7 +112,7 @@ export async function indexAllDupemateInteractions(): Promise<{
   return result;
 }
 
-// get relationship context for a dupemate (for wilson chat)
+// get relationship context for a dupemate (for hermes chat)
 export async function getDupemateContext(dupemateId: string): Promise<DupemateContext | null> {
   try {
     // fetch dupemate record
