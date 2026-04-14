@@ -1,9 +1,10 @@
 // helper utilities for resolving the llm endpoint
-// supports: nvidia api, ollama, gemini
-// - prefer a runtime user setting stored in localstorage
-// - storagemanager wrapper used for safer access
+// supports: nvidia api, openai, ollama
+// - api keys are stored in nocobase for cross-device sync
+// - multiple keys per provider with automatic 429 fallback
 
 import { storageManager } from "./storage-manager";
+import { getNocobaseClient } from "./nocobase-client";
 
 // nvidia api configuration
 export const NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1";
@@ -13,7 +14,112 @@ export const NVIDIA_MODEL = "moonshotai/kimi-k2.5";
 export const DEFAULT_OLLAMA_MODEL = "gemma4:e4b";
 export const DEFAULT_OLLAMA_URL = "http://192.168.4.250:11434";
 
+// cached api keys from nocobase
+let cachedApiKeys: ApiKeyEntry[] = [];
+let currentKeyIndex = 0;
+let lastFetchTime = 0;
+
+interface ApiKeyEntry {
+  id: number;
+  provider: 'nvidia' | 'openai' | 'anthropic' | 'google' | 'custom';
+  name: string;
+  key: string;
+  model: string;
+  priority: number;
+  enabled: boolean;
+  last429At?: number;
+}
+
+// fetch api keys from nocobase (called once on app start, then cached)
+export async function fetchApiKeysFromServer(): Promise<void> {
+  try {
+    const client = getNocobaseClient();
+    if (!client) return;
+    
+    const response = await client.request('pkm_api_keys', 'list', {
+      params: {
+        filter: { enabled: { $eq: true } },
+        sort: ['priority'],
+        pageSize: '50',
+      },
+      silent: true,
+    });
+    
+    const data = (response as { data?: ApiKeyEntry[] }).data || [];
+    cachedApiKeys = data.filter(k => k.enabled).sort((a, b) => a.priority - b.priority);
+    currentKeyIndex = 0;
+    lastFetchTime = Date.now();
+    
+    console.log('[llm-config] loaded', cachedApiKeys.length, 'api keys from server');
+  } catch (e) {
+    console.error('[llm-config] failed to fetch api keys:', e);
+  }
+}
+
+// get current active api key (with 429 fallback)
+export function getCurrentApiKey(): { key: string; model: string; provider: string } | null {
+  const now = Date.now();
+  
+  // refresh if stale (5 minutes)
+  if (now - lastFetchTime > 300000) {
+    fetchApiKeysFromServer(); // async, will use cached for now
+  }
+  
+  // find first available key (not recently rate limited)
+  for (let i = 0; i < cachedApiKeys.length; i++) {
+    const idx = (currentKeyIndex + i) % cachedApiKeys.length;
+    const k = cachedApiKeys[idx];
+    
+    // skip if rate limited within last 60 seconds
+    if (k.last429At && now - k.last429At < 60000) continue;
+    
+    return { key: k.key, model: k.model, provider: k.provider };
+  }
+  
+  return null;
+}
+
+// mark current key as rate limited, advance to next
+export async function markKeyRateLimited(): Promise<{ key: string; model: string; provider: string } | null> {
+  if (cachedApiKeys.length === 0) return null;
+  
+  const currentKey = cachedApiKeys[currentKeyIndex];
+  if (!currentKey?.id) return null;
+  
+  // update in database
+  try {
+    const client = getNocobaseClient();
+    if (client) {
+      await client.request('pkm_api_keys', 'update', {
+        params: { filterByTk: currentKey.id },
+        values: { last429At: Date.now() },
+        silent: true,
+      });
+    }
+  } catch (e) {
+    console.error('[llm-config] failed to update 429 timestamp:', e);
+  }
+  
+  // advance to next key
+  currentKeyIndex = (currentKeyIndex + 1) % cachedApiKeys.length;
+  const nextKey = cachedApiKeys[currentKeyIndex];
+  
+  if (nextKey) {
+    console.log('[llm-config] 429 detected, switching to:', nextKey.name);
+    return { key: nextKey.key, model: nextKey.model, provider: nextKey.provider };
+  }
+  
+  return null;
+}
+
 export async function getStoredNvidiaApiKey(): Promise<string | null> {
+  // first check server-stored keys
+  const currentKey = getCurrentApiKey();
+  if (currentKey && currentKey.provider === 'nvidia') {
+    return currentKey.key;
+  }
+  
+  // fallback to local storage (legacy)
   try {
     const stored = await storageManager.getEncryptedItem?.("nvidia_api_key");
     if (stored) return String(stored).trim();
