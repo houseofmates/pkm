@@ -415,7 +415,7 @@ export async function onDupemateUpdated(
     fronter: changes.fronter,
   });
 
-  // notify wilson context that dupemate data changed
+  // notify hermes context that dupemate data changed
   window.dispatchEvent(new CustomEvent('pkm:dupemate-updated', {
     detail: { dupemateId, changes },
   }));
