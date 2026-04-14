@@ -35,7 +35,7 @@ export const WIDGET_TEMPLATES: WidgetTemplate[] = [
   },
   {
     id: 'pet',
-    name: 'wilson status',
+    name: 'hermes status',
     icon: <Heart className="w-5 h-5" />,
     description: 'pet hunger/happiness/energy bars',
     defaultWidth: 220,
