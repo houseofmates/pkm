@@ -1,7 +1,7 @@
 // rag implementation test script
 // run this to verify the rag system is working correctly
 
-import { buildRagContext, generateWilsonRagPrompt, generateAiFieldContent } from '@/services/rag-service';
+import { buildRagContext, generateHermesRagPrompt, generateAiFieldContent } from '@/services/rag-service';
 import { searchKnowledgeBase } from '@/lib/vector-store';
 import { getAutoSuggestions, getStarterSuggestions } from '@/services/auto-suggest-service';
 import { scheduler, previewScheduledRecords } from '@/services/scheduled-generation';
