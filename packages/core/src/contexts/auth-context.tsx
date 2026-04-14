@@ -51,15 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    const storedUser = storageManager.getCachedSecret("nocobase_user");
-    if (storedUser && !pb.authStore.model) {
-      try {
-        const user = JSON.parse(storedUser);
-        pb.authStore.save(token || "", user);
-      } catch (e) {
-        secureLogger.debug("[auth] failed to restore user session", e);
-      }
-    }
+    // token is already restored via nocobaseClient._loadAuth() in constructor
+    // no need to call pb.authStore.save() since pb is a mock object
   }, [token]);
 
   useEffect(() => {
