@@ -11,7 +11,7 @@ export function PetStatusWidget({ className }: PetStatusWidgetProps) {
   const { pets } = useGamificationStore();
   const hermes = pets[0];
 
-  if (!wilson) {
+  if (!hermes) {
     return (
       <div className={cn("p-4 rounded-xl bg-black/80 border border-pink-500/30", className)}>
         <p className="text-sm text-white/40 lowercase text-center">no pet data</p>
@@ -20,19 +20,19 @@ export function PetStatusWidget({ className }: PetStatusWidgetProps) {
   }
 
   const stats = [
-    { label: 'hunger', value: wilson.hunger, icon: <Zap className="w-3 h-3" />, color: 'text-yellow-400', bg: 'bg-yellow-400' },
-    { label: 'happiness', value: wilson.happiness, icon: <Smile className="w-3 h-3" />, color: 'text-green-400', bg: 'bg-green-400' },
-    { label: 'energy', value: wilson.energy, icon: <Sparkles className="w-3 h-3" />, color: 'text-blue-400', bg: 'bg-blue-400' },
-    { label: 'cleanliness', value: wilson.cleanliness, icon: <Heart className="w-3 h-3" />, color: 'text-pink-400', bg: 'bg-pink-400' },
+    { label: 'hunger', value: hermes.hunger, icon: <Zap className="w-3 h-3" />, color: 'text-yellow-400', bg: 'bg-yellow-400' },
+    { label: 'happiness', value: hermes.happiness, icon: <Smile className="w-3 h-3" />, color: 'text-green-400', bg: 'bg-green-400' },
+    { label: 'energy', value: hermes.energy, icon: <Sparkles className="w-3 h-3" />, color: 'text-blue-400', bg: 'bg-blue-400' },
+    { label: 'cleanliness', value: hermes.cleanliness, icon: <Heart className="w-3 h-3" />, color: 'text-pink-400', bg: 'bg-pink-400' },
   ];
 
   return (
     <div className={cn("p-4 rounded-xl bg-black/80 border border-pink-500/30", className)}>
       <div className="flex items-center gap-3 mb-3">
-        <span className="text-3xl">{wilson.emoji}</span>
+        <span className="text-3xl">{hermes.emoji}</span>
         <div>
-          <p className="text-sm font-medium text-white/80 lowercase">{wilson.name}</p>
-          <p className="text-xs text-white/40 lowercase">{wilson.visualState}</p>
+          <p className="text-sm font-medium text-white/80 lowercase">{hermes.name}</p>
+          <p className="text-xs text-white/40 lowercase">{hermes.visualState}</p>
         </div>
       </div>
 
