@@ -145,7 +145,10 @@ export async function getSidebarColor(
       };
     }
     return null;
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.response?.status === 404 || error?.response?.status === 500) {
+      return null;
+    }
     secureLogger.error("[sidebar-color-service] failed to get color:", error);
     return null;
   }

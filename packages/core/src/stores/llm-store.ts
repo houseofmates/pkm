@@ -181,7 +181,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
     };
     set((state) => {
       const updated = [...state.sessions, newSession];
-      storageManager.setItem("wilson_chat_sessions", JSON.stringify(updated));
+      storageManager.setItem("hermes_chat_sessions", JSON.stringify(updated));
       return {
         sessions: updated,
         currentSessionId: newSession.id,
@@ -208,7 +208,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
       const updated = state.sessions.map((s) =>
         s.id === sessionId ? { ...s, title: newTitle } : s,
       );
-      storageManager.setItem("wilson_chat_sessions", JSON.stringify(updated));
+      storageManager.setItem("hermes_chat_sessions", JSON.stringify(updated));
       return { sessions: updated };
     });
   },
@@ -216,7 +216,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
   deleteSession: (sessionId: string) => {
     set((state) => {
       const updated = state.sessions.filter((s) => s.id !== sessionId);
-      storageManager.setItem("wilson_chat_sessions", JSON.stringify(updated));
+      storageManager.setItem("hermes_chat_sessions", JSON.stringify(updated));
       const newState: Partial<LLMState> = { sessions: updated };
       if (state.currentSessionId === sessionId) {
         newState.currentSessionId = null;
@@ -255,7 +255,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
   clearHistory: () => set({ interactionHistory: [], streamingContent: "" }),
 
   // primary entry point — delegates to rag or legacy based on toggle
-  askWilson: async (text, isBackground = false) => {
+    askHermes: async (text, isBackground = false) => {
     if (!text.trim() && get().pendingAttachments.length === 0) return null;
 
     const { pendingAttachments } = get();
@@ -295,7 +295,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
               id: Date.now() + 1,
               role: "assistant",
               content:
-                "[wilson needs an api key to work. please configure your ai settings.]",
+                "[hermes needs an api key to work. please configure your ai settings.]",
               createdAt: Date.now(),
             },
           ],
@@ -435,7 +435,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
               ? { ...s, messages: newHistory, updatedAt: Date.now() }
               : s
           );
-          storageManager.setItem('wilson_chat_sessions', JSON.stringify(updatedSessions));
+          storageManager.setItem('hermes_chat_sessions', JSON.stringify(updatedSessions));
         }
         return {
           interactionHistory: newHistory,
@@ -557,7 +557,7 @@ important rules:
               : s,
           );
           storageManager.setItem(
-            "wilson_chat_sessions",
+            "hermes_chat_sessions",
             JSON.stringify(updatedSessions),
           );
         }
