@@ -313,7 +313,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
     }
 
     // fallback to legacy non-rag mode (still offloaded to worker)
-    return get().askWilsonLegacy(text);
+      return get().askHermesLegacy(text);
   },
 
   // rag-enabled method — runs entirely in the web worker with streaming
