@@ -278,7 +278,7 @@ const Input = ({ label, value, onChange, type = 'text', textarea, placeholder }:
             const q = window.prompt('ask wilson about this field (context will be included):');
             if (!q) return;
             (await import('@/stores/llm-store')).useLLMStore.getState().setContext(value || '');
-            const res = await (await import('@/stores/llm-store')).useLLMStore.getState().askWilson(q);
+            const res = await (await import('@/stores/llm-store')).useLLMStore.getState().askHermes(q);
             if (res) onChange(String(res));
             (await import('@/stores/llm-store')).useLLMStore.getState().setContext(null);
           }}
