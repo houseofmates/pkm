@@ -220,3 +220,20 @@ export function useApiKeys() {
 }
 
 export default useApiKeys;
+
+async function ensureCollection() {
+  try {
+    await client.request('collections:get', { params: { name: 'pkm_api_keys' } });
+  } catch (e) {
+    await client.request('collections:create', {
+      values: {
+        name: 'pkm_api_keys',
+        title: 'PKM API Keys',
+        fields: [
+          { name: 'service', type: 'string', interface: 'input' },
+          { name: 'key', type: 'string', interface: 'password' }
+        ]
+      }
+    });
+  }
+}
