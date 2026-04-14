@@ -10,11 +10,11 @@ interface Props {
 }
 
 const PROVIDERS = [
-  { id: 'nvidia', name: 'nvidia nims', models: ['moonshotai/kimi-k2.5', 'meta/llama-3.3-70b-instruct', 'deepseek-ai/deepseek-r1'] },
-  { id: 'openai', name: 'openai', models: ['gpt-4o', 'gpt-4.1', 'o3'] },
-  { id: 'anthropic', name: 'anthropic', models: ['claude-sonnet-4-20250514', 'claude-opus-4-20250514'] },
-  { id: 'google', name: 'google ai studio', models: ['gemini-2.5-pro', 'gemini-2.5-flash'] },
-  { id: 'custom', name: 'custom (openai-compatible)', models: [] },
+ { id: 'nvidia', name: 'nvidia nims', models: ['moonshotai/kimi-k2.5', 'z-ai/glm5', 'minimaxai/minimax-m2.7'] },
+ { id: 'openai', name: 'openai', models: ['gpt-4o', 'gpt-4.1', 'o3'] },
+ { id: 'anthropic', name: 'anthropic', models: ['claude-sonnet-4-20250514', 'claude-opus-4-20250514'] },
+ { id: 'google', name: 'google ai studio', models: ['gemini-2.5-pro', 'gemini-2.5-flash'] },
+ { id: 'custom', name: 'custom (openai-compatible)', models: [] },
 ] as const;
 
 export function ApiKeySetup({ onComplete }: Props) {
