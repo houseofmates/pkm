@@ -372,74 +372,101 @@ async function chatStream(
 // ---------------------------------------------------------------------------
 
 async function chatStreamMultimodal(
-    messages: ChatMessage[],
-    model: string,
-    endpoint: string,
-    onToken: (cumulativeContent: string) => void,
+ messages: ChatMessage[],
+ model: string,
+ endpoint: string,
+ onToken: (cumulativeContent: string) => void,
 ): Promise<string> {
-    const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/chat');
-    
-    secureLogger.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
+ const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/chat');
+ 
+ secureLogger.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
 
-    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
-    if (isGemini) {
-        // flatten the messages into a single prompt for gemini
-        const prompt = messages
-            .map(m => `${m.role}: ${typeof m.content === 'string' ? m.content : JSON.stringify(m.content)}`)
-            .join('\n');
-        return chatStream(prompt, model, endpoint, onToken);
-    }
+ const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+ const isOpenAI = /chat\/completions|nvidia|openai/i.test(resolvedEndpoint);
+ 
+ if (isGemini) {
+ // flatten the messages into a single prompt for gemini
+ const prompt = messages
+ .map(m => `${m.role}: ${typeof m.content === 'string' ? m.content : JSON.stringify(m.content)}`)
+ .join('\n');
+ return chatStream(prompt, model, endpoint, onToken);
+ }
 
-    const response = await _fetch(resolvedEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            model, 
-            messages,
-            stream: true 
-        }),
-    });
+ // for nvidia/openai, add authorization header if we have a token
+ const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+ if (_authToken && isOpenAI) {
+ headers['Authorization'] = `Bearer ${_authToken}`;
+ }
 
-    if (!response.ok) {
-        const errorText = await response.text().catch(() => 'unknown error');
-        throw new Error(`llm api error: ${response.status} ${response.statusText} - ${errorText}`);
-    }
+ const response = await _fetch(resolvedEndpoint, {
+ method: 'POST',
+ headers,
+ body: JSON.stringify({ 
+ model, 
+ messages,
+ stream: true 
+ }),
+ });
 
-    const reader = response.body?.getReader();
-    if (!reader) throw new Error('could not get stream reader');
+ if (!response.ok) {
+ const errorText = await response.text().catch(() => 'unknown error');
+ throw new Error(`llm api error: ${response.status} ${response.statusText} - ${errorText}`);
+ }
 
-    const decoder = new TextDecoder();
-    let fullContent = '';
+ const reader = response.body?.getReader();
+ if (!reader) throw new Error('could not get stream reader');
 
-    try {
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+ const decoder = new TextDecoder();
+ let fullContent = '';
 
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n');
+ try {
+ while (true) {
+ const { done, value } = await reader.read();
+ if (done) break;
 
-            for (const line of lines) {
-                if (!line.trim()) continue;
-                try {
-                    const json = JSON.parse(line);
-                    if (json.message?.content) {
-                        fullContent += json.message.content;
-                        onToken(fullContent);
-                    }
-                    if (json.done) {
-                        return fullContent;
-                    }
-                } catch {
-                    // partial json, skip
-                }
-            }
-        }
-    } finally {
-        reader.releaseLock();
-    }
+ const chunk = decoder.decode(value, { stream: true });
+ 
+ // openai/nvidia uses sse format with "data: " prefix
+ if (isOpenAI) {
+ const lines = chunk.split('\n');
+ for (const line of lines) {
+ if (!line.trim() || line === 'data: [DONE]') continue;
+ if (line.startsWith('data: ')) {
+ try {
+ const json = JSON.parse(line.slice(6));
+ const content = json.choices?.[0]?.delta?.content;
+ if (content) {
+ fullContent += content;
+ onToken(fullContent);
+ }
+ } catch { /* partial json, skip */ }
+ }
+ }
+ } else {
+ // ollama format: newline-delimited json
+ const lines = chunk.split('\n');
+ for (const line of lines) {
+ if (!line.trim()) continue;
+ try {
+ const json = JSON.parse(line);
+ if (json.message?.content) {
+ fullContent += json.message.content;
+ onToken(fullContent);
+ }
+ if (json.done) {
+ return fullContent;
+ }
+ } catch {
+ // partial json, skip
+ }
+ }
+ }
+ }
+ } finally {
+ reader.releaseLock();
+ }
 
-    return fullContent;
+ return fullContent;
 }
 
 // ---------------------------------------------------------------------------
