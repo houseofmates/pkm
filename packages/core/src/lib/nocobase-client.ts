@@ -313,7 +313,36 @@ export class NocoBaseClient {
   }
 
   async deleteCollection(name: string): Promise<void> {
-    await this._axios.post("/collections:destroy", { filterByTk: name });
+    await this._axios.post(
+      `/collections:destroy?filterByTk=${encodeURIComponent(name)}`,
+    );
+  }
+
+  async listFields(collection: string): Promise<any[]> {
+    const response = await this._axios.get(`/${collection}:listFields`);
+    return response.data?.data || response.data || [];
+  }
+
+  async createField(collection: string, field: any): Promise<any> {
+    const response = await this._axios.post(
+      `/${collection}:createField`,
+      field,
+    );
+    return response.data?.data || response.data;
+  }
+
+  async deleteField(collection: string, fieldName: string): Promise<any> {
+    const response = await this._axios.post(
+      `/${collection}:deleteField?filterByTk=${encodeURIComponent(fieldName)}`,
+    );
+    return response.data?.data || response.data;
+  }
+
+  async getCollection(name: string): Promise<any> {
+    const response = await this._axios.get(
+      `/collections:get?filterByTk=${encodeURIComponent(name)}`,
+    );
+    return { data: response.data?.data || response.data };
   }
 }
 
