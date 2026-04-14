@@ -241,26 +241,18 @@ export function FronterProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // simplyplural sync: pull front status
   const syncFrontFromSimplyPlural = async () => {
     try {
       const apiKey = storageManager.getItem("pk_api_key");
       if (!apiKey) return;
-      // get system id
-      const meRes = await fetch(
-        require("@/lib/simply-plural-client").SimplyPluralClient.url("/me"),
-        {
-          headers: { Authorization: apiKey },
-        },
-      );
+      const meRes = await fetch(SimplyPluralClient.url("/me"), {
+        headers: { Authorization: apiKey },
+      });
       if (!meRes.ok) return;
       const meData = await meRes.json();
       const systemId = meData.id;
-      // get front status
       const frontRes = await fetch(
-        require("@/lib/simply-plural-client").SimplyPluralClient.url(
-          `/front/${systemId}`,
-        ),
+        SimplyPluralClient.url(`/front/${systemId}`),
         {
           headers: { Authorization: apiKey },
         },
