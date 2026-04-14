@@ -78,8 +78,8 @@ interface LLMState {
   setModel: (model: string) => void;
   toggleConnection: () => void;
   toggleRag: () => void;
-  askWilson: (text: string, isBackground?: boolean) => Promise<string | null>;
-  askWilsonWithRag: (
+  askHermes: (text: string, isBackground?: boolean) => Promise<string | null>;
+  askHermesWithRag: (
     text: string,
     isBackground?: boolean,
   ) => Promise<string | null>;
