@@ -2,7 +2,7 @@
 // use this to verify the rag implementation works
 
 import { useState, useEffect } from 'react';
-import { buildRagContext, generateWilsonRagPrompt } from '@/services/rag-service';
+import { buildRagContext, generateHermesRagPrompt } from '@/services/rag-service';
 import { searchKnowledgeBase, formatChunksForPrompt } from '@/lib/vector-store';
 import { generateAndSaveAiField, previewAiFieldContent } from '@/services/ai-field-generator';
 import { AiFieldButton } from '@/components/ai-field-button';
