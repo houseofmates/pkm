@@ -273,7 +273,7 @@ const Input = ({ label, value, onChange, type = 'text', textarea, placeholder }:
           placeholder={placeholder}
         />
         <button
-          title="ask wilson about this field (context included)"
+          title="ask hermes about this field (context included)"
           onClick={async () => {
             const q = window.prompt('ask wilson about this field (context will be included):');
             if (!q) return;
