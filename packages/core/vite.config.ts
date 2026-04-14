@@ -230,14 +230,24 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
       },
-      '/storage': {
-        target: 'http://192.168.4.233:8091',
-        changeOrigin: true,
-        secure: false,
-      },
-    }
-  },
-  build: {
+'/storage': {
+ target: 'http://192.168.4.233:8091',
+ changeOrigin: true,
+ secure: false,
+ },
+ '/ollama': {
+ target: 'http://192.168.4.250:11434',
+ changeOrigin: true,
+ rewrite: (path) => path.replace(/^\/ollama/, ''),
+ },
+ '/nvidia': {
+ target: 'https://integrate.api.nvidia.com/v1',
+ changeOrigin: true,
+ rewrite: (path) => path.replace(/^\/nvidia/, ''),
+ },
+ }
+ },
+ build: {
     target: 'es2019',
     sourcemap: false,
     reportCompressedSize: true,
