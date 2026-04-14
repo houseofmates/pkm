@@ -4,7 +4,7 @@ import { Navigation, type NavItem } from '@/components/navigation';
 import { BottomNav } from '@/components/bottom-nav';
 import { QuickEditSheet } from '@/components/quick-edit-sheet';
 import { Spotlight } from '@/components/Spotlight';
-import { WilsonChat } from '@/features/chat/wilson-chat';
+import { HermesChat } from '@/features/chat/hermes-chat';
 import {
   DndContext,
   closestCenter,
