@@ -493,7 +493,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
             <Button variant="ghost" size="sm" className="pl-0 gap-1" onClick={() => setStep('type-select')}>
               <ArrowLeft className="w-4 h-4" /> back
             </Button>
-            <div className="grid grid-cols-2 gap-2 h-[300px] overflow-y-auto pr-2">
+            <div className="grid grid-cols-2 gap-2 overflow-y-auto pr-2" style={{ maxHeight: '400px' }}>
               <Card
                 className="cursor-pointer hover:border-black transition-all border-dashed"
                 onClick={() => handleTemplateSelect(null)}
@@ -507,7 +507,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
               {TRACKING_TEMPLATES.map(template => (
                 <Card
                   key={template.id}
-                  className="cursor-pointer hover:border-black transition-all h-auto"
+                  className="cursor-pointer hover:border-black transition-all h-auto !overflow-visible"
                   onClick={() => handleTemplateSelect(template)}
                   style={{ borderColor: template.metadata.color ? `${template.metadata.color}40` : undefined }}
                 >

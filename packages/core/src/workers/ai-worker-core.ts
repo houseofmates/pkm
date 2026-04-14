@@ -507,29 +507,140 @@ async function chatStreamMultimodal(
   endpoint: string,
   onToken: (cumulativeContent: string) => void,
 ): Promise<string> {
-  const resolvedEndpoint = resolveOllamaEndpointForWorker(
-    endpoint,
-    "/api/chat",
-  );
+  const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/chat');
 
-  secureLogger.info(
-    "[ai-worker] chatStreamMultimodal using endpoint:",
-    resolvedEndpoint,
-    "model:",
-    model,
-  );
+  secureLogger.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
+
+  // check if this is nvidia api (openai-compatible format)
+  const isNvidiaApi = /integrate\.api\.nvidia\.com/i.test(resolvedEndpoint);
+  
+  if (isNvidiaApi) {
+    // convert messages to openai format for nvidia api
+    const openaiMessages = messages.map(m => {
+      if (typeof m.content === 'string') {
+        return { role: m.role, content: m.content };
+      }
+      // handle multimodal content (images)
+      return { role: m.role, content: m.content };
+    });
+    
+    const response = await _fetch(resolvedEndpoint, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${_authToken || ''}`
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: openaiMessages,
+        temperature: 0.7,
+        max_tokens: 2048,
+        stream: true
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'unknown error');
+      throw new Error(`nvidia api error: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('could not get stream reader');
+
+    const decoder = new TextDecoder();
+    let fullContent = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (!line.trim() || !line.startsWith('data:')) continue;
+          const data = line.replace(/^data:\s*/, '');
+          if (data === '[DONE]') continue;
+          try {
+            const json = JSON.parse(data);
+            const content = json?.choices?.[0]?.delta?.content;
+            if (content) {
+              fullContent += content;
+              onToken(fullContent);
+            }
+          } catch {
+            // partial json, skip
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    return fullContent;
+  }
 
   const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
   if (isGemini) {
     // flatten the messages into a single prompt for gemini
     const prompt = messages
-      .map(
-        (m) =>
-          `${m.role}: ${typeof m.content === "string" ? m.content : JSON.stringify(m.content)}`,
-      )
-      .join("\n");
+      .map(m => `${m.role}: ${typeof m.content === 'string' ? m.content : JSON.stringify(m.content)}`)
+      .join('\n');
     return chatStream(prompt, model, endpoint, onToken);
   }
+
+  const response = await _fetch(resolvedEndpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model,
+      messages,
+      stream: true
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'unknown error');
+    throw new Error(`llm api error: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error('could not get stream reader');
+
+  const decoder = new TextDecoder();
+  let fullContent = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const json = JSON.parse(line);
+          if (json.message?.content) {
+            fullContent += json.message.content;
+            onToken(fullContent);
+          }
+          if (json.done) {
+            return fullContent;
+          }
+        } catch {
+          // partial json, skip
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  return fullContent;
+}
 
   const response = await _fetch(resolvedEndpoint, {
     method: "POST",
