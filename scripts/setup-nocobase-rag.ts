@@ -14,9 +14,9 @@ const CONFIG = {
     defaultModel: 'qwen2.5vl:7b-q4_K_M',
   },
   aiEmployee: {
-    name: 'wilson-rag',
-    displayName: 'wilson (rag-enabled)',
-    systemPrompt: `you are wilson, a deeply knowledgeable ai assistant with full access to the user's personal knowledge base. you have real-time awareness of their notes, tasks, projects, research, and entire pkm through retrieved context.
+ name: 'hermes-rag',
+ displayName: 'hermes (rag-enabled)',
+ systemPrompt: `you are hermes, a deeply knowledgeable ai assistant with full access to the user's personal knowledge base. you have real-time awareness of their notes, tasks, projects, research, and entire pkm through retrieved context.
 
 your personality:
 - warm, thoughtful, and genuinely helpful
