@@ -45,17 +45,31 @@ async function setupPublicCollections() {
  { name: 'description', type: 'text' }
   ]
   },
-  {
-  name: 'front_history',
-  title: 'Front History',
-  fields: [
+ {
+ name: 'front_history',
+ title: 'Front History',
+ fields: [
  { name: 'startTime', type: 'date' },
  { name: 'endTime', type: 'date' },
  { name: 'members', type: 'json' },
  { name: 'comment', type: 'text' }
-  ]
-  }
-  ];
+ ]
+ },
+ {
+ name: 'pkm_api_keys',
+ title: 'PKM API Keys',
+ hidden: true,
+ fields: [
+ { name: 'provider', type: 'string' },
+ { name: 'name', type: 'string' },
+ { name: 'key', type: 'text' },
+ { name: 'model', type: 'string' },
+ { name: 'priority', type: 'integer' },
+ { name: 'enabled', type: 'boolean' },
+ { name: 'last429At', type: 'integer' }
+ ]
+ }
+ ];
 
   for (const colReq of collectionsToCreate) {
 
