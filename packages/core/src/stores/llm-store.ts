@@ -109,7 +109,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
   // sessions
   sessions: (() => {
     try {
-      const saved = storageManager.getItem("wilson_chat_sessions");
+      const saved = storageManager.getItem("hermes_chat_sessions");
       if (saved) return JSON.parse(saved);
     } catch { }
     return [];
