@@ -35,6 +35,39 @@ export function useApiKeys() {
   const stateRef = useRef(state);
   useEffect(() => { stateRef.current = state; }, [state]);
 
+  // ensure pkm_api_keys collection exists (auto-create on first use)
+  const ensureCollection = useCallback(async () => {
+    if (!isAuthenticated || !token) return;
+    try {
+      await client.request(COLLECTION + ':list', { params: { pageSize: 1 }, silent: true });
+    } catch (e) {
+      secureLogger.info('[api-keys] collection missing, auto-creating...');
+      try {
+        await client.request('collections:create', {
+          method: 'POST',
+          body: { name: COLLECTION, title: 'PKM API Keys', hidden: true },
+        });
+        const fields = [
+          { name: 'provider', type: 'string' },
+          { name: 'name', type: 'string' },
+          { name: 'key', type: 'text' },
+          { name: 'model', type: 'string' },
+          { name: 'priority', type: 'integer' },
+          { name: 'enabled', type: 'boolean' },
+          { name: 'last429At', type: 'integer' },
+        ];
+        for (const field of fields) {
+          try {
+            await client.request(COLLECTION + '/fields:create', { method: 'POST', body: field });
+          } catch { /* skip existing */ }
+        }
+        secureLogger.info('[api-keys] collection created');
+      } catch (createErr) {
+        secureLogger.error('[api-keys] collection creation failed:', createErr);
+      }
+    }
+  }, [isAuthenticated, token, client]);
+
   // fetch all keys from nocobase
   const fetchKeys = useCallback(async () => {
     if (!isAuthenticated || !token) return;
@@ -42,7 +75,7 @@ export function useApiKeys() {
     setState(s => ({ ...s, loading: true }));
     
     try {
-      const response = await client.request(COLLECTION, 'list', {
+      const response = await client.request(COLLECTION + ':list', {
         params: {
           filter: { enabled: { $eq: true } },
           sort: ['priority'],
@@ -59,10 +92,10 @@ export function useApiKeys() {
     }
   }, [isAuthenticated, token, client]);
 
-  // fetch on mount
+  // fetch on mount (ensure collection exists first)
   useEffect(() => {
-    fetchKeys();
-  }, [fetchKeys]);
+    ensureCollection().then(() => fetchKeys());
+  }, [ensureCollection, fetchKeys]);
 
   // get current active key config
   const getCurrentKey = useCallback((): ApiKeyConfig | null => {
@@ -85,7 +118,7 @@ export function useApiKeys() {
     
     // update in database
     try {
-      await client.request(COLLECTION, 'update', {
+      await client.request(COLLECTION + ':update', {
         params: { filterByTk: currentKey.id },
         values: { last429At: Date.now() },
         silent: true,
@@ -109,7 +142,7 @@ export function useApiKeys() {
     if (!isAuthenticated || !token) return null;
     
     try {
-      const response = await client.request(COLLECTION, 'create', {
+      const response = await client.request(COLLECTION + ':create', {
         values: config,
       });
       const newKey = (response as { data?: ApiKeyConfig }).data;
@@ -133,7 +166,7 @@ export function useApiKeys() {
     if (!isAuthenticated || !token) return false;
     
     try {
-      await client.request(COLLECTION, 'destroy', {
+      await client.request(COLLECTION + ':destroy', {
         params: { filterByTk: id },
       });
       
@@ -154,7 +187,7 @@ export function useApiKeys() {
     if (!isAuthenticated || !token) return false;
     
     try {
-      await client.request(COLLECTION, 'update', {
+      await client.request(COLLECTION + ':update', {
         params: { filterByTk: id },
         values: updates,
       });
