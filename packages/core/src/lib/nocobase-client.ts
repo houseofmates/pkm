@@ -313,36 +313,39 @@ export class NocoBaseClient {
   }
 
   async deleteCollection(name: string): Promise<void> {
-    await this._axios.post(
-      `/collections:destroy?filter[name]=${encodeURIComponent(name)}`,
-    );
+    await this.request("collections", {
+      method: "destroy",
+      body: { filterByTk: name },
+    });
   }
 
   async listFields(collection: string): Promise<any[]> {
-    const response = await this._axios.get(`/${collection}:listFields`);
-    return response.data?.data || response.data || [];
+    const result = await this.request(`${collection}/fields`, {
+      method: "list",
+    });
+    return Array.isArray(result) ? result : result?.data || [];
   }
 
   async createField(collection: string, field: any): Promise<any> {
-    const response = await this._axios.post(
-      `/${collection}:createField`,
-      field,
-    );
-    return response.data?.data || response.data;
+    return await this.request(`${collection}/fields`, {
+      method: "create",
+      body: field,
+    });
   }
 
   async deleteField(collection: string, fieldName: string): Promise<any> {
-    const response = await this._axios.post(
-      `/${collection}:deleteField?filterByTk=${encodeURIComponent(fieldName)}`,
-    );
-    return response.data?.data || response.data;
+    return await this.request(`${collection}/fields`, {
+      method: "destroy",
+      body: { filterByTk: fieldName },
+    });
   }
 
   async getCollection(name: string): Promise<any> {
-    const response = await this._axios.get(
-      `/collections:get?filterByTk=${encodeURIComponent(name)}`,
-    );
-    return { data: response.data?.data || response.data };
+    const result = await this.request("collections", {
+      method: "get",
+      params: { filterByTk: name },
+    });
+    return { data: result };
   }
 }
 
