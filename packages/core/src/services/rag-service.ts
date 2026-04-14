@@ -110,7 +110,7 @@ export async function generateHermesRagPrompt(
   const ragContext = await buildRagContext(userQuery, 8);
 
   // build the full prompt
-  const prompt = getWilsonRagPrompt(fronterName, ragContext.formattedContext, userQuery);
+  const prompt = getHermesRagPrompt(fronterName, ragContext.formattedContext, userQuery);
 
   // log for debugging
   secureLogger.info(`[RAG] hermes query: "${userQuery}" | sources: ${ragContext.sources.length}`);
