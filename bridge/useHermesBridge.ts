@@ -191,7 +191,7 @@ export function useHermesBridge(config: HermesBridgeConfig = {}): UseHermesBridg
   };
 }
 
-// alternative: a function that can be dropped into askWilson
+// alternative: a function that can be dropped into askHermes
 // this intercepts the call and routes to hermes if enabled
 export function createHermesBridgeInterceptor(
   wsUrl: string = 'ws://localhost:3101'
