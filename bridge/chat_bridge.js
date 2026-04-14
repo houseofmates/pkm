@@ -2,13 +2,14 @@
 // pkm chat bridge - routes messages between pkm ui and hermes agent
 // runs as a websocket server that the pkm frontend connects to
 
-import { WebSocketServer, WebSocket } from 'ws';
+import { WebSocketServer } from 'ws';
 import { spawn } from 'child_process';
 import { v4 as uuidv4 } from 'uuid';
 import { readFileSync, existsSync } from 'fs';
 import { homedir } from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import http from 'http';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -21,7 +22,7 @@ const CONFIG = {
 };
 
 // active hermes sessions
-const sessions = new Map<string, { ws: WebSocket; hermes: any; buffer: string }>();
+const sessions = new Map<string, { ws: any; hermes: any; buffer: string }>();
 
 // ws server
 const wss = new WebSocketServer({ port: CONFIG.port });
