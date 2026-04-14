@@ -341,7 +341,7 @@ async function buildRagPrompt(
 ): Promise<RagPromptResult> {
   const ragCtx = await buildRagContext(query, 8);
   const system = WILSON_RAG_SYSTEM_PROMPT + `\n\ncurrent user: ${fronterName}`;
-  const prompt = `${system}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}\n\ncurrent query from ${fronterName}: ${query}\n\nwilson:`;
+  const prompt = `${system}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}\n\ncurrent query from ${fronterName}: ${query}\n\nhermes:`;
   return { prompt, sources: ragCtx.sources };
 }
 
