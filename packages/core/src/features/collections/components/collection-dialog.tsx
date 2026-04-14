@@ -511,7 +511,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                   onClick={() => handleTemplateSelect(template)}
                   style={{ borderColor: template.metadata.color ? `${template.metadata.color}40` : undefined }}
                 >
-                  <CardContent className="flex flex-col items-center justify-center p-3 gap-0.5 text-center h-20 relative overflow-hidden">
+                  <CardContent className="flex flex-col items-center justify-start pt-3 pb-2 px-3 gap-1 text-center relative overflow-hidden">
                     <Zap className="w-5 h-5" style={{ color: template.metadata.color }} />
                     <div className="font-semibold text-xs lowercase truncate w-full">{template.label}</div>
                     <div className="text-[0.6rem] text-muted-foreground line-clamp-2 leading-tight lowercase">
