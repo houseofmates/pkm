@@ -1,17 +1,21 @@
 import { useRef, useEffect, useState, memo, useCallback } from "react";
 import { useHermesStore } from "@/stores/hermes-store";
+import { useLLMStore } from "@/stores/llm-store";
+import { fetchApiKeysFromServer } from "@/lib/llm-config";
 import {
-  Send,
-  X,
-  BrainCircuit,
-  History,
-  Plus,
-  Trash2,
-  Edit2,
-  MessageSquare,
+ Send,
+ X,
+ BrainCircuit,
+ History,
+ Plus,
+ Trash2,
+ Edit2,
+ MessageSquare,
+ Key,
 } from "lucide-react";
 import { useEdgelessStore } from "@/features/edgeless/store";
 import { secureLogger } from "@/lib/secure-logger";
+import { ApiKeySetup } from "@/features/settings/api-key-setup";
 
 function compactTimestamp(ts: number | undefined): string {
   if (!ts) return "";
