@@ -373,18 +373,26 @@ export function HermesChat() {
               </button>
             </div>
           </div>
-          <div className="text-[10px] text-primary/30 mt-2 flex items-center gap-2">
-            <span className="lowercase">
-              {connected ? "websocket connected" : "connecting..."}
-            </span>
-            <span className="ml-auto lowercase">
-              port 3101
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+ <div className="text-[10px] text-primary/30 mt-2 flex items-center gap-2">
+ <span className="lowercase">
+ {connected ? "websocket connected" : "connecting..."}
+ </span>
+ <button
+ onClick={() => setShowApiKeySetup(true)}
+ className="ml-auto flex items-center gap-1 hover:text-primary/60 transition-colors"
+ title="configure api keys"
+ >
+ <Key size={10} />
+ <span className="lowercase">api keys</span>
+ </button>
+ </div>
+ </div>
+ </div>
+ </div>
+ {showApiKeySetup && (
+ <ApiKeySetup onComplete={() => setShowApiKeySetup(false)} />
+ )}
+ );
 }
 
 export default HermesChat;
