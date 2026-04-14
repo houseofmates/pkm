@@ -160,7 +160,7 @@ export function AchievementsPage() {
     return Array.from(cats);
   }, []);
 
-  const wilson = pets[0];
+  const hermes = pets[0];
   const completedQuests = questRows.filter(r => r.completed).length;
   const totalQuests = questRows.length;
 
