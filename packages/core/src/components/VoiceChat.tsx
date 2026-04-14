@@ -274,7 +274,7 @@ export function VoiceChat({
     if (audioEnabled) {
       stopSpeaking();
     }
-    toast.success(audioEnabled ? 'Wilson muted' : 'Wilson unmuted');
+    toast.success(audioEnabled ? 'Hermes muted' : 'Hermes unmuted');
   }, [audioEnabled, stopSpeaking]);
 
   // expose speak function via ref pattern
