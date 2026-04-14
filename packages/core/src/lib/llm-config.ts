@@ -4,7 +4,7 @@
 // - multiple keys per provider with automatic 429 fallback
 
 import { storageManager } from "./storage-manager";
-import { getNocobaseClient } from "./nocobase-client";
+import { nocobaseClient } from "./nocobase-client";
 
 // nvidia api configuration
 export const NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1";
