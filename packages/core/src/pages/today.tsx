@@ -223,7 +223,7 @@ export function TodayPage() {
   }, [setSevenDayCoverage]);
   
   const handleRowComplete = useCallback((rowId: string) => {
-    toast.success(<div className="flex flex-col items-center gap-1"><span className="text-lg">🎉</span><span className="font-medium lowercase">quest row complete!</span><span className="text-xs text-white/60">+25 xp · wilson fed</span></div>, { duration: 3000 });
+    toast.success(<div className="flex flex-col items-center gap-1"><span className="text-lg">🎉</span><span className="font-medium lowercase">quest row complete!</span><span className="text-xs text-white/60">+25 xp · hermes fed</span></div>, { duration: 3000 });
   }, []);
   
   const handleLifeTrackerChange = useCallback((trackers: any[]) => {
