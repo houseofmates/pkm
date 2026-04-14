@@ -474,7 +474,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
   },
 
   // legacy non-rag method — also offloaded to worker for consistency
-  askWilsonLegacy: async (text: string) => {
+    askHermesLegacy: async (text: string) => {
     const { currentContext, activeModel, apiUrl } = get();
 
     // get fronter info
