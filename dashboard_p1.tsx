@@ -247,7 +247,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                         size="icon"
                         onClick={() => setChatOpen(true)}
                         className={isChatOpen ? 'text-primary' : 'text-zinc-400'}
-                        title="Open Wilson Chat"
+                        title="open hermes chat"
                     >
                         <MessageCircle className="h-5 w-5" />
                     </Button>
