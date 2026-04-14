@@ -314,86 +314,115 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
   },
 
   // rag-enabled method — runs entirely in the web worker with streaming
-    askHermesWithRag: async (text, isBackground = false) => {
-    if (!text.trim() && get().pendingAttachments.length === 0) return null
+askHermesWithRag: async (text, isBackground = false) => {
+ if (!text.trim() && get().pendingAttachments.length === 0) return null
 
-    // get attachments from the last user message if they exist
-    const lastMessage = get().interactionHistory[get().interactionHistory.length - 1]
-    const attachments = lastMessage?.attachments || get().pendingAttachments
-    const hasAttachments = attachments && attachments.length > 0
+ // get attachments from the last user message if they exist
+ const lastMessage = get().interactionHistory[get().interactionHistory.length - 1]
+ const attachments = lastMessage?.attachments || get().pendingAttachments
+ const hasAttachments = attachments && attachments.length > 0
 
-      // add user message if not background and not already added by askhermes
-    if (!isBackground && lastMessage?.content !== text && !lastMessage?.attachments) {
-      set((state) => ({
-        interactionHistory: [...state.interactionHistory, {
-          id: Date.now(),
-          role: 'user',
-          content: text,
-          attachments: hasAttachments ? [...attachments] : undefined,
-          createdAt: Date.now()
-        }],
-        pendingAttachments: [] // clear pending attachments
-      }))
-    }
+ // add user message if not background and not already added by askhermes
+ if (!isBackground && lastMessage?.content !== text && !lastMessage?.attachments) {
+ set((state) => ({
+ interactionHistory: [...state.interactionHistory, {
+ id: Date.now(),
+ role: 'user',
+ content: text,
+ attachments: hasAttachments ? [...attachments] : undefined,
+ createdAt: Date.now()
+ }],
+ pendingAttachments: [] // clear pending attachments
+ }))
+ }
 
-    set({ isThinking: true, streamingContent: '' })
+ set({ isThinking: true, streamingContent: '' })
 
-    try {
-      // get fronter info
-      let fronterName = 'friend'
-      try {
-        const fronterData = storageManager.getItem('active_fronters')
-        if (fronterData) {
-          const fronters = JSON.parse(fronterData)
-          if (fronters && fronters.length > 0) {
-            fronterName = fronters[0].name || fronterName
-          }
-        }
-      } catch { /* ignore parse errors */ }
+ try {
+ // get fronter info
+ let fronterName = 'friend'
+ try {
+ const fronterData = storageManager.getItem('active_fronters')
+ if (fronterData) {
+ const fronters = JSON.parse(fronterData)
+ if (fronters && fronters.length > 0) {
+ fronterName = fronters[0].name || fronterName
+ }
+ }
+ } catch { /* ignore parse errors */ }
 
-      const { activeModel, apiUrl } = get()
+ // get api key from server-stored keys (with 429 fallback support)
+ const apiKeyInfo = getCurrentApiKey();
+ const isExternalApi = !!apiKeyInfo;
+ 
+ // determine model and endpoint
+ let activeModel = apiKeyInfo?.model || get().activeModel;
+ let apiUrl = get().apiUrl;
+ 
+ if (apiKeyInfo) {
+ // update store with the correct model
+ if (apiKeyInfo.model !== get().activeModel) {
+ set({ activeModel: apiKeyInfo.model });
+ activeModel = apiKeyInfo.model;
+ }
+ 
+ // construct endpoint based on provider
+ if (typeof window !== 'undefined') {
+ const host = window.location.hostname;
+ const protocol = window.location.protocol;
+ 
+ if (host === 'pkm.houseofmates.space' || host.endsWith('.houseofmates.space')) {
+ // route through vite proxy on public domain
+ apiUrl = `${protocol}//${host}/${apiKeyInfo.provider}/chat/completions`;
+ } else {
+ // direct api call
+ if (apiKeyInfo.provider === 'nvidia') {
+ apiUrl = `${NVIDIA_API_URL}/chat/completions`;
+ } else if (apiKeyInfo.provider === 'openai') {
+ apiUrl = 'https://api.openai.com/v1/chat/completions';
+ } else if (apiKeyInfo.provider === 'anthropic') {
+ apiUrl = 'https://api.anthropic.com/v1/messages';
+ }
+ }
+ }
+ }
 
-      // check for nvidia api key
-      const nvidiaApiKey = await getStoredNvidiaApiKey();
-      const isNvidiaApi = !!nvidiaApiKey;
+ const resolvedUrl = apiUrl;
 
-      // use local ollama directly - no api key needed (unless using nvidia)
-      const resolvedUrl = apiUrl;
+ secureLogger.info('[hermes] using endpoint:', resolvedUrl, 'model:', activeModel, 'provider:', apiKeyInfo?.provider || 'ollama')
 
-      secureLogger.info('[hermes] using endpoint:', resolvedUrl, 'model:', activeModel, 'nvidia:', isNvidiaApi)
+ const worker = await getAIWorkerProxy()
+ if (!worker) {
+ throw new Error('AI worker failed to initialize')
+ }
 
-      const worker = await getAIWorkerProxy()
-      if (!worker) {
-        throw new Error('AI worker failed to initialize')
-      }
+ // init the worker with api key if available
+ if (isExternalApi && apiKeyInfo) {
+ worker.init(resolvedUrl, apiKeyInfo.key, undefined, undefined, resolvedUrl);
+ }
 
-      // init the worker with nvidia api key if available
-      if (isNvidiaApi && nvidiaApiKey) {
-        worker.init(NVIDIA_API_URL, nvidiaApiKey, undefined, undefined, NVIDIA_API_URL);
-      }
+ // stream tokens from the worker — each callback updates streamingcontent
+ // which only the streamingbubble component subscribes to
+ const onToken = Comlink.proxy((cumulativeContent: string) => {
+ set({ streamingContent: cumulativeContent.toLowerCase() })
+ })
 
-      // stream tokens from the worker — each callback updates streamingcontent
-      // which only the streamingbubble component subscribes to
-      const onToken = Comlink.proxy((cumulativeContent: string) => {
-        set({ streamingContent: cumulativeContent.toLowerCase() })
-      })
-
-      let result: AskWithRagResult | null = null
-      try {
-        // use askwithragandattachments if there are attachments, otherwise use askwithrag
-        if (hasAttachments) {
-          secureLogger.info('[hermes] sending with attachments:', attachments.length)
-          secureLogger.debug('[hermes] Calling askWithRagAndAttachments with:', { text, fronterName, activeModel, resolvedUrl, attachmentsCount: attachments?.length });
-          result = await worker.askWithRagAndAttachments(
-            text,
-            fronterName,
-            activeModel,
-            resolvedUrl,
-            onToken,
-            attachments
-          )
-        } else {
-          secureLogger.debug('[hermes] Calling askWithRag with:', { text, fronterName, activeModel, resolvedUrl });
+ let result: AskWithRagResult | null = null
+ try {
+ // use askwithragandattachments if there are attachments, otherwise use askwithrag
+ if (hasAttachments) {
+ secureLogger.info('[hermes] sending with attachments:', attachments.length)
+ secureLogger.debug('[hermes] Calling askWithRagAndAttachments with:', { text, fronterName, activeModel, resolvedUrl, attachmentsCount: attachments?.length });
+ result = await worker.askWithRagAndAttachments(
+ text,
+ fronterName,
+ activeModel,
+ resolvedUrl,
+ onToken,
+ attachments
+ )
+ } else {
+ secureLogger.debug('[hermes] Calling askWithRag with:', { text, fronterName, activeModel, resolvedUrl });
           result = await worker.askWithRag(
             text,
             fronterName,
