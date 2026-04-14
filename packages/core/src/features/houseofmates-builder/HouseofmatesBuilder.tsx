@@ -628,18 +628,16 @@ export function HouseofmatesBuilder() {
 
         // ensure metadata (title/hidden) normalized
         try {
-          await api
-            .updateCollection(colName, { title: colTitle, hidden: true })
+          await nocobaseClient
+            .request("collections:update", {
+              params: { filterByTk: colName },
+              data: { title: colTitle, hidden: true },
+            })
             .catch((err) => {
               secureLogger.warn(
-                `Primary update metadata failed for ${colName}, trying fallback:`,
+                `Metadata update failed for ${colName}:`,
                 err.message,
               );
-              return nocobaseClient.request("collections", "update", {
-                method: "POST",
-                params: { filterByTk: colName },
-                data: { title: colTitle, hidden: true },
-              });
             });
         } catch (e) {
           secureLogger.warn(
@@ -651,18 +649,16 @@ export function HouseofmatesBuilder() {
         // check fields - try to use list if get fails
         let existingFields = [];
         try {
-          const colDetail = await api.getCollection(colName);
+          const colDetail = await nocobaseClient.getCollection(colName);
           existingFields = colDetail.data?.fields || [];
         } catch (e) {
           secureLogger.warn(
             `Failed to get fields for ${colName} via getCollection, trying listFields fallback`,
           );
           try {
-            const fieldListRes = await nocobaseClient.request(
-              "fields",
-              "list",
-              { params: { "filter[collectionName]": colName } },
-            );
+            const fieldListRes = await nocobaseClient.request("fields:list", {
+              params: { "filter[collectionName]": colName },
+            });
             const fieldListResAny = fieldListRes as any;
             existingFields = fieldListResAny?.data || [];
           } catch (fe) {
@@ -679,7 +675,7 @@ export function HouseofmatesBuilder() {
               secureLogger.info(
                 `Adding missing field ${field.name} to ${colName} collection`,
               );
-              await api.createField(colName, field);
+              await nocobaseClient.createField(colName, field);
             } catch (err: any) {
               if (err.response?.status !== 400)
                 secureLogger.warn(
