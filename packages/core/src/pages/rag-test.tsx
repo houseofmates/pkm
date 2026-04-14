@@ -41,8 +41,8 @@ export default function RagTestPage() {
       addResult(`   sources: ${context.sources.join(', ') || 'none'}`);
 
       // test 3: prompt generation
-      addResult('\n3️⃣ testing wilson prompt generation...');
-      const prompt = await generateWilsonRagPrompt('how are my projects?', 'friend');
+ addResult('\n3️⃣ testing hermes prompt generation...');
+ const prompt = await generateHermesRagPrompt('how are my projects?', 'friend');
       addResult(`   ✅ prompt generated (${prompt.length} chars)`);
       addResult(`   has context: ${prompt.includes('retrieved context')}`);
       addResult(`   has sources: ${prompt.includes('[source:')}`);
