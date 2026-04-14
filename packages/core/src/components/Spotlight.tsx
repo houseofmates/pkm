@@ -503,7 +503,7 @@ export function Spotlight() {
                                     </CommandItem>
                                     <CommandItem
                                         onSelect={() => {
-                                            secureLogger.debug('[Spotlight] Opening Wilson chat...');
+                                            secureLogger.debug('[Spotlight] Opening Hermes chat...');
                                             setOpen(false);
                                             setChatOpen(true);
                                             secureLogger.debug('[Spotlight] setChatOpen(true) called');

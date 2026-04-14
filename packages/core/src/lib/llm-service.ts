@@ -48,7 +48,7 @@ export async function generateText(prompt: string, model: string = DEFAULT_OLLAM
     const parsed = data as LLMResponse;
     return parsed.response;
   } catch (e) {
-    secureLogger.warn('Wilson Silent Fail:', e);
+    secureLogger.warn('Hermes Silent Fail:', e);
     return null;
   }
 }
