@@ -10,9 +10,10 @@ import http from 'http';
 // config
 const CONFIG = {
   port: parseInt(process.env.PKM_BRIDGE_PORT || '3101'),
-  hermesCommand: process.env.HERMES_COMMAND || 'hermes',
-  hermesArgs: (process.env.HERMES_ARGS || 'chat').split(' '),
-  contextServerUrl: 'http://localhost:3100',
+  hermesHost: process.env.HERMES_HOST || '192.168.4.250',
+  hermesUser: process.env.HERMES_USER || 'house',
+  hermesKey: process.env.HERMES_KEY || '/home/house/.ssh/hermes_key',
+  hermesArgs: process.env.HERMES_ARGS || 'chat --yolo',
 };
 
 // ws server
