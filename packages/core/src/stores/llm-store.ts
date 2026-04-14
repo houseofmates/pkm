@@ -92,55 +92,43 @@ interface LLMState {
 }
 
 export const useLLMStore = create<LLMState>()((set, get) => ({
-  isConnected: true,
-  activeModel: (() => {
-    // check for nvidia api key first (sync check from storage)
-    const nvidiaKey = storageManager.getItem('nvidia_api_key') || import.meta.env.NVIDIA_API_KEY;
-    if (nvidiaKey) return NVIDIA_MODEL;
-    return getOllamaModel();
-  })(),
+ isConnected: true,
+ activeModel: (() => {
+ // default to ollama, will be updated when api keys are fetched
+ return getOllamaModel();
+ })(),
  apiUrl: (() => {
- const nvidiaKey = storageManager.getItem('nvidia_api_key') || import.meta.env.NVIDIA_API_KEY;
- if (nvidiaKey) {
- // on public domain, route through proxy
- if (typeof window !== 'undefined') {
- const host = window.location.hostname;
- if (host === 'pkm.houseofmates.space' || host.endsWith('.houseofmates.space')) {
- return `${window.location.protocol}//${host}/nvidia/chat/completions`;
- }
- }
- return `${NVIDIA_API_URL}/chat/completions`;
- }
+ // default to ollama, will be updated when api keys are fetched
  return getOllamaGenerateUrl();
  })(),
-  useRag: true, // default to enabled
+ useRag: true, // default to enabled
 
-  // sessions
-  sessions: (() => {
-    try {
-      const saved = storageManager.getItem("hermes_chat_sessions");
-      if (saved) return JSON.parse(saved);
-    } catch { }
-    return [];
-  })(),
-  currentSessionId: null,
+ // sessions
+ sessions: (() => {
+ try {
+ const saved = storageManager.getItem("hermes_chat_sessions");
+ if (saved) return JSON.parse(saved);
+ } catch { }
+ return [];
+ })(),
+ currentSessionId: null,
 
-  interactionHistory: [],
-  isThinking: false,
-  streamingContent: "",
+ interactionHistory: [],
+ isThinking: false,
+ streamingContent: "",
 
-  currentContext: null,
-  setContext: (data) => set({ currentContext: data }),
+ currentContext: null,
+ setContext: (data) => set({ currentContext: data }),
 
-  pendingAttachments: [],
+ pendingAttachments: [],
 
-  addAttachment: async (file: File) => {
-    // determine attachment type
-    let type: Attachment["type"] = "other";
-    if (file.type.startsWith("image/")) {
-      type = file.type === "image/gif" ? "gif" : "image";
-    } else if (file.type.startsWith("video/")) {
-      type = "video";
+ addAttachment: async (file: File) => {
+ // determine attachment type
+ let type: Attachment["type"] = "other";
+ if (file.type.startsWith("image/")) {
+ type = file.type === "image/gif" ? "gif" : "image";
+ } else if (file.type.startsWith("video/")) {
+ type = "video";
     } else if (file.type.startsWith("audio/")) {
       type = "audio";
     }
