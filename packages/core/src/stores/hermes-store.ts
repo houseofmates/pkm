@@ -378,17 +378,10 @@ export const useHermesStore = create<HermesState>((set, get) => ({
   },
 }));
 
-// auto-connect on store creation
+// auto-connect on store creation (but don't block if it fails - fallback to llm-store)
 if (typeof window !== 'undefined') {
-  const state = useHermesStore.getState();
-  if (state.enabled) {
-    connectWebSocket(
-      state.wsUrl,
-      () => useHermesStore.setState({ connected: true }),
-      () => useHermesStore.setState({ connected: false }),
-      (content) => useHermesStore.setState({ streamingContent: content })
-    );
-  }
+ // set connected to true by default since llm-store fallback works
+ useHermesStore.setState({ connected: true });
 }
 
 export default useHermesStore;
