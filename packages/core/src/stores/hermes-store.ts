@@ -258,12 +258,63 @@ export const useHermesStore = create<HermesState>((set, get) => ({
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
-    return new Promise((resolve, reject) => {
-      if (!ws || ws.readyState !== WebSocket.OPEN) {
-        set({ isThinking: false });
-        reject(new Error('websocket not connected'));
-        return;
-      }
+ return new Promise((resolve, reject) => {
+ if (!ws || ws.readyState !== WebSocket.OPEN) {
+ // websocket not available - fall back to llm-store
+ secureLogger.info('[hermes-store] websocket not available, using llm-store fallback');
+ 
+ useLLMStore.getState().askHermesWithRag(text)
+ .then((response) => {
+ if (response) {
+ set((state) => {
+ const assistantMsg: HermesMessage = {
+ id: Date.now() + 1,
+ role: 'assistant',
+ content: response,
+ timestamp: Date.now(),
+ };
+ const newHistory = [...state.interactionHistory, assistantMsg];
+
+ const { currentSessionId, sessions } = state;
+ let updatedSessions = sessions;
+ if (currentSessionId) {
+ updatedSessions = sessions.map((s) =>
+ s.id === currentSessionId
+ ? { ...s, messages: newHistory, updatedAt: Date.now() }
+ : s
+ );
+ storageManager.setItem('hermes_chat_sessions', JSON.stringify(updatedSessions));
+ }
+
+ return {
+ interactionHistory: newHistory,
+ sessions: updatedSessions,
+ isThinking: false,
+ streamingContent: '',
+ };
+ });
+ }
+ resolve(response);
+ })
+ .catch((err) => {
+ secureLogger.error('[hermes-store] llm-store fallback error:', err);
+ set((state) => ({
+ interactionHistory: [
+ ...state.interactionHistory,
+ {
+ id: Date.now() + 1,
+ role: 'assistant',
+ content: '[hermes error. check ai settings.]',
+ timestamp: Date.now(),
+ },
+ ],
+ isThinking: false,
+ streamingContent: '',
+ }));
+ resolve(null);
+ });
+ return;
+ }
 
       // if there's already a pending message, queue this one
       if (currentResolve) {
