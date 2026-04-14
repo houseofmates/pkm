@@ -4,16 +4,20 @@
   "type": "module",
   "main": "mcp_server.js",
   "bin": {
-    "pkm-mcp-server": "./mcp_server.js"
+    "pkm-mcp-server": "./mcp_server.js",
+    "pkm-chat-bridge": "./chat_bridge.js"
   },
   "scripts": {
-    "start": "node mcp_server.js"
+    "start": "node mcp_server.js",
+    "start-bridge": "node chat_bridge.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
     "node-fetch": "^3.3.2",
     "pg": "^8.14.1",
-    "uuid": "^13.0.0",
-    "ws": "^8.20.0"
+    "uuid": "^11.1.0",
+    "ws": "^8.18.1"
+  }
+}
   }
 }
