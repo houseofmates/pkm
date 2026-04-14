@@ -44,7 +44,7 @@ wss.on('connection', (ws) => {
     console.log(`[${sessionId}] starting hermes on ${CONFIG.hermesHost}...`);
     
     // ssh to desktop and run hermes
-    const sshCommand = `ssh -i ${CONFIG.hermesKey} -t ${CONFIG.hermesUser}@${CONFIG.hermesHost} "source ~/.bashrc 2>/dev/null; hermes ${CONFIG.hermesArgs}"`;
+    const sshCommand = `ssh -i ${CONFIG.hermesKey} -t ${CONFIG.hermesUser}@${CONFIG.hermesHost} "/home/house/.hermes/hermes-agent/hermes ${CONFIG.hermesArgs}"`;
     
     hermesProcess = spawn('bash', ['-c', sshCommand], {
       stdio: ['pipe', 'pipe', 'pipe'],
