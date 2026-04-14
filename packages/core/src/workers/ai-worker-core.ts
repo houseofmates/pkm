@@ -8,108 +8,89 @@
 // a custom `fetchimpl` can be injected at init time so mobile builds
 // can route requests through capacitor's native http bridge.
 
-import { secureLogger } from "@/lib/secure-logger";
-import type {
-  AIWorkerAPI,
-  SearchResultDTO,
-  RagPromptResult,
-  AskWithRagResult,
-  ChatMessage,
-  Attachment,
-} from "./ai-worker-types";
+import { secureLogger } from '@/lib/secure-logger';
+import type { AIWorkerAPI, SearchResultDTO, RagPromptResult, AskWithRagResult, ChatMessage, Attachment } from './ai-worker-types';
 
 // ---------------------------------------------------------------------------
 // configuration
 // ---------------------------------------------------------------------------
 
 const VECTOR_CONFIG = {
-  knowledgeBaseId: "pkm-global-kb",
-  chunkSize: 512,
-  chunkOverlap: 128,
-  topK: 8,
-  embeddingModel: "nomic-embed-text",
-  embeddingEndpoint: "http://localhost:11434/api/embeddings",
+    knowledgeBaseId: 'pkm-global-kb',
+    chunkSize: 512,
+    chunkOverlap: 128,
+    topK: 8,
+    embeddingModel: 'nomic-embed-text',
+    embeddingEndpoint: 'http://localhost:11434/api/embeddings',
 };
 
 // ---------------------------------------------------------------------------
 // internal state
 // ---------------------------------------------------------------------------
 
-let _apiBaseUrl = "";
-let _authToken = "";
+let _apiBaseUrl = '';
+let _authToken = '';
 let _fetch: typeof globalThis.fetch = globalThis.fetch?.bind(globalThis);
-let _ollamaBaseUrl = "http://localhost:11434";
+let _ollamaBaseUrl = 'http://localhost:11434';
 
 // ---------------------------------------------------------------------------
 // init
 // ---------------------------------------------------------------------------
 
 export function init(
-  apiBaseUrl: string,
-  authToken: string,
-  vectorConfig?: Partial<typeof VECTOR_CONFIG>,
-  fetchImpl?: typeof globalThis.fetch,
-  ollamaBaseUrl?: string,
+    apiBaseUrl: string,
+    authToken: string,
+    vectorConfig?: Partial<typeof VECTOR_CONFIG>,
+    fetchImpl?: typeof globalThis.fetch,
+    ollamaBaseUrl?: string,
 ): void {
-  _apiBaseUrl = apiBaseUrl.replace(/\/+$/, "");
-  _authToken = authToken;
+    _apiBaseUrl = apiBaseUrl.replace(/\/+$/, '');
+    _authToken = authToken;
+    
+    // log the incoming ollamabaseurl for debugging
+    secureLogger.info('[ai-worker] init called with ollamaBaseUrl:', ollamaBaseUrl);
+    
+    _ollamaBaseUrl = (ollamaBaseUrl || _ollamaBaseUrl || 'http://localhost:11434').replace(/\/+$/, '');
+    
+    secureLogger.info('[ai-worker] resolved _ollamaBaseUrl:', _ollamaBaseUrl);
 
-  // log the incoming ollamabaseurl for debugging
-  secureLogger.info(
-    "[ai-worker] init called with ollamaBaseUrl:",
-    ollamaBaseUrl,
-  );
+    const defaultEmbeddingEndpoint = `${_ollamaBaseUrl}/api/embeddings`;
+    if (vectorConfig) Object.assign(VECTOR_CONFIG, vectorConfig);
+    if (!VECTOR_CONFIG.embeddingEndpoint) {
+        VECTOR_CONFIG.embeddingEndpoint = defaultEmbeddingEndpoint;
+    }
 
-  _ollamaBaseUrl = (
-    ollamaBaseUrl ||
-    _ollamaBaseUrl ||
-    "http://localhost:11434"
-  ).replace(/\/+$/, "");
-
-  secureLogger.info("[ai-worker] resolved _ollamaBaseUrl:", _ollamaBaseUrl);
-
-  const defaultEmbeddingEndpoint = `${_ollamaBaseUrl}/api/embeddings`;
-  if (vectorConfig) Object.assign(VECTOR_CONFIG, vectorConfig);
-  if (!VECTOR_CONFIG.embeddingEndpoint) {
-    VECTOR_CONFIG.embeddingEndpoint = defaultEmbeddingEndpoint;
-  }
-
-  if (fetchImpl) _fetch = fetchImpl;
+    if (fetchImpl) _fetch = fetchImpl;
 }
 
 // ---------------------------------------------------------------------------
 // internal helpers — fetch wrappers
 // ---------------------------------------------------------------------------
 
-async function apiFetch(
-  path: string,
-  body: Record<string, unknown>,
-): Promise<any> {
-  const url = `${_apiBaseUrl}${path}`;
-  const res = await _fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(_authToken ? { Authorization: `Bearer ${_authToken}` } : {}),
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok)
-    throw new Error(`api fetch failed: ${res.status} ${res.statusText}`);
-  return res.json();
+async function apiFetch(path: string, body: Record<string, unknown>): Promise<any> {
+    const url = `${_apiBaseUrl}${path}`;
+    const res = await _fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(_authToken ? { Authorization: `Bearer ${_authToken}` } : {}),
+        },
+        body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`api fetch failed: ${res.status} ${res.statusText}`);
+    return res.json();
 }
 
 async function apiGet(path: string): Promise<any> {
-  const url = `${_apiBaseUrl}${path}`;
-  const res = await _fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(_authToken ? { Authorization: `Bearer ${_authToken}` } : {}),
-    },
-  });
-  if (!res.ok)
-    throw new Error(`api get failed: ${res.status} ${res.statusText}`);
-  return res.json();
+    const url = `${_apiBaseUrl}${path}`;
+    const res = await _fetch(url, {
+        headers: {
+            'Content-Type': 'application/json',
+            ...(_authToken ? { Authorization: `Bearer ${_authToken}` } : {}),
+        },
+    });
+    if (!res.ok) throw new Error(`api get failed: ${res.status} ${res.statusText}`);
+    return res.json();
 }
 
 // ---------------------------------------------------------------------------
@@ -117,134 +98,104 @@ async function apiGet(path: string): Promise<any> {
 // ---------------------------------------------------------------------------
 
 async function generateEmbedding(text: string): Promise<number[]> {
-  const embeddingEndpoint =
-    VECTOR_CONFIG.embeddingEndpoint || `${_ollamaBaseUrl}/api/embeddings`;
-  const res = await _fetch(embeddingEndpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: VECTOR_CONFIG.embeddingModel,
-      prompt: text,
-    }),
-  });
-  if (!res.ok) throw new Error(`embedding request failed: ${res.status}`);
-  const data = await res.json();
-  return data.embedding;
+    const embeddingEndpoint = VECTOR_CONFIG.embeddingEndpoint || `${_ollamaBaseUrl}/api/embeddings`;
+    const res = await _fetch(embeddingEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            model: VECTOR_CONFIG.embeddingModel,
+            prompt: text,
+        }),
+    });
+    if (!res.ok) throw new Error(`embedding request failed: ${res.status}`);
+    const data = await res.json();
+    return data.embedding;
 }
 
 // ---------------------------------------------------------------------------
 // knowledge-base search
 // ---------------------------------------------------------------------------
 
-async function searchKnowledgeBase(
-  query: string,
-  topK: number = VECTOR_CONFIG.topK,
-): Promise<SearchResultDTO[]> {
-  // skip the ai knowledge base search - it requires a collection that doesn't exist
-  // just use the fallback local search which searches through collections directly
-  secureLogger.info(
-    "[ai-worker] Using fallback local search (knowledge base not available)",
-  );
-  return fallbackLocalSearch(query, topK);
+async function searchKnowledgeBase(query: string, topK: number = VECTOR_CONFIG.topK): Promise<SearchResultDTO[]> {
+    // skip the ai knowledge base search - it requires a collection that doesn't exist
+    // just use the fallback local search which searches through collections directly
+    secureLogger.info('[ai-worker] Using fallback local search (knowledge base not available)');
+    return fallbackLocalSearch(query, topK);
 }
 
-async function fallbackLocalSearch(
-  query: string,
-  topK: number,
-): Promise<SearchResultDTO[]> {
-  try {
-    const colRes = await apiGet("/collections:list");
-    const collections: any[] = Array.isArray(colRes?.data)
-      ? colRes.data
-      : colRes?.data?.data || [];
+async function fallbackLocalSearch(query: string, topK: number): Promise<SearchResultDTO[]> {
+    try {
+        const colRes = await apiGet('/collections:list');
+        const collections: any[] = Array.isArray(colRes?.data) ? colRes.data : colRes?.data?.data || [];
 
-    const systemCollections = [
-      "users",
-      "roles",
-      "attachments",
-      "collection_fields",
-      "collections",
-    ];
-    const userCollections = collections.filter((c: any) => {
-      const name = (c.name || "").toLowerCase();
-      return (
-        !systemCollections.includes(name) && !c.hidden && !name.includes("pkm_")
-      );
-    });
+        const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections'];
+        const userCollections = collections.filter((c: any) => {
+            const name = (c.name || '').toLowerCase();
+            return !systemCollections.includes(name) && !c.hidden && !name.includes('pkm_');
+        });
 
-    const allChunks: any[] = [];
+        const allChunks: any[] = [];
 
-    for (const col of userCollections.slice(0, 5)) {
-      try {
-        const recRes = await apiGet(
-          `/${col.name}:list?pageSize=20&sort[]=-updatedAt`,
-        );
-        const records: any[] = Array.isArray(recRes?.data)
-          ? recRes.data
-          : recRes?.data?.data || [];
+        for (const col of userCollections.slice(0, 5)) {
+            try {
+                const recRes = await apiGet(`/${col.name}:list?pageSize=20&sort[]=-updatedAt`);
+                const records: any[] = Array.isArray(recRes?.data) ? recRes.data : recRes?.data?.data || [];
 
-        for (const record of records) {
-          const textFields = Object.entries(record).filter(
-            ([key, value]) =>
-              typeof value === "string" &&
-              (value as string).length > 50 &&
-              !key.includes("id") &&
-              !key.includes("created") &&
-              !key.includes("updated"),
-          );
+                for (const record of records) {
+                    const textFields = Object.entries(record).filter(([key, value]) =>
+                        typeof value === 'string' &&
+                        (value as string).length > 50 &&
+                        !key.includes('id') &&
+                        !key.includes('created') &&
+                        !key.includes('updated')
+                    );
 
-          for (const [field, value] of textFields) {
-            const chunks = chunkText(
-              String(value),
-              VECTOR_CONFIG.chunkSize,
-              VECTOR_CONFIG.chunkOverlap,
-            );
-            for (let i = 0; i < chunks.length; i++) {
-              allChunks.push({
-                id: `${col.name}:${record.id}:${field}:${i}`,
-                collection: col.name,
-                recordId: record.id,
-                field,
-                content: chunks[i],
-                metadata: {
-                  recordTitle:
-                    record.title || record.name || `record ${record.id}`,
-                  updatedAt: record.updatedAt,
-                },
-              });
+                    for (const [field, value] of textFields) {
+                        const chunks = chunkText(String(value), VECTOR_CONFIG.chunkSize, VECTOR_CONFIG.chunkOverlap);
+                        for (let i = 0; i < chunks.length; i++) {
+                            allChunks.push({
+                                id: `${col.name}:${record.id}:${field}:${i}`,
+                                collection: col.name,
+                                recordId: record.id,
+                                field,
+                                content: chunks[i],
+                                metadata: {
+                                    recordTitle: record.title || record.name || `record ${record.id}`,
+                                    updatedAt: record.updatedAt,
+                                },
+                            });
+                        }
+                    }
+                }
+            } catch {
+                // skip collection on error
             }
-          }
         }
-      } catch {
-        // skip collection on error
-      }
+
+        // keyword scoring
+        const queryWords = query.toLowerCase().split(/\s+/);
+        const queryLower = query.toLowerCase();
+        const scored = allChunks.map(chunk => {
+            const contentLower = chunk.content.toLowerCase();
+            let score = 0;
+            for (const word of queryWords) {
+                if (contentLower.includes(word)) score += 1;
+                if (contentLower.includes(queryLower)) score += 5;
+            }
+            const daysSinceUpdate = chunk.metadata?.updatedAt
+                ? (Date.now() - new Date(chunk.metadata.updatedAt).getTime()) / (1000 * 60 * 60 * 24)
+                : 365;
+            score *= Math.max(0.5, 1 - daysSinceUpdate / 30);
+            return { chunk, score };
+        });
+
+        return scored
+            .filter(s => s.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, topK);
+    } catch {
+        return [];
     }
-
-    // keyword scoring
-    const queryWords = query.toLowerCase().split(/\s+/);
-    const queryLower = query.toLowerCase();
-    const scored = allChunks.map((chunk) => {
-      const contentLower = chunk.content.toLowerCase();
-      let score = 0;
-      for (const word of queryWords) {
-        if (contentLower.includes(word)) score += 1;
-        if (contentLower.includes(queryLower)) score += 5;
-      }
-      const daysSinceUpdate = chunk.metadata?.updatedAt
-        ? (Date.now() - new Date(chunk.metadata.updatedAt).getTime()) /
-          (1000 * 60 * 60 * 24)
-        : 365;
-      score *= Math.max(0.5, 1 - daysSinceUpdate / 30);
-      return { chunk, score };
-    });
-
-    return scored
-      .filter((s) => s.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, topK);
-  } catch {
-    return [];
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -252,25 +203,25 @@ async function fallbackLocalSearch(
 // ---------------------------------------------------------------------------
 
 function chunkText(text: string, size: number, overlap: number): string[] {
-  const chunks: string[] = [];
-  let start = 0;
-  while (start < text.length) {
-    const end = Math.min(start + size, text.length);
-    let breakPoint = end;
-    if (end < text.length) {
-      const sentenceEnd = text.lastIndexOf(".", end);
-      if (sentenceEnd > start && sentenceEnd > end - 50) {
-        breakPoint = sentenceEnd + 1;
-      } else {
-        const spaceIndex = text.lastIndexOf(" ", end);
-        if (spaceIndex > start) breakPoint = spaceIndex;
-      }
+    const chunks: string[] = [];
+    let start = 0;
+    while (start < text.length) {
+        const end = Math.min(start + size, text.length);
+        let breakPoint = end;
+        if (end < text.length) {
+            const sentenceEnd = text.lastIndexOf('.', end);
+            if (sentenceEnd > start && sentenceEnd > end - 50) {
+                breakPoint = sentenceEnd + 1;
+            } else {
+                const spaceIndex = text.lastIndexOf(' ', end);
+                if (spaceIndex > start) breakPoint = spaceIndex;
+            }
+        }
+        chunks.push(text.slice(start, breakPoint).trim());
+        start = breakPoint - overlap;
+        if (start >= breakPoint) start = breakPoint;
     }
-    chunks.push(text.slice(start, breakPoint).trim());
-    start = breakPoint - overlap;
-    if (start >= breakPoint) start = breakPoint;
-  }
-  return chunks.filter((c) => c.length > 20);
+    return chunks.filter(c => c.length > 20);
 }
 
 // ---------------------------------------------------------------------------
@@ -278,45 +229,39 @@ function chunkText(text: string, size: number, overlap: number): string[] {
 // ---------------------------------------------------------------------------
 
 function formatChunksForPrompt(chunks: SearchResultDTO[]): string {
-  return chunks
-    .map((result, i) => {
-      const c = result.chunk;
-      const source = `[source: ${c.collection}:${c.recordId}]`;
-      const score = result.score
-        ? `(relevance: ${(result.score * 100).toFixed(1)}%)`
-        : "";
-      return `${i + 1}. ${source} ${score}\n${c.content}\n`;
-    })
-    .join("\n");
+    return chunks
+        .map((result, i) => {
+            const c = result.chunk;
+            const source = `[source: ${c.collection}:${c.recordId}]`;
+            const score = result.score ? `(relevance: ${(result.score * 100).toFixed(1)}%)` : '';
+            return `${i + 1}. ${source} ${score}\n${c.content}\n`;
+        })
+        .join('\n');
 }
 
 async function buildRagContext(query: string, topK: number = 8) {
-  try {
-    const chunks = await searchKnowledgeBase(query, topK);
-    if (chunks.length === 0) {
-      return {
-        retrievedChunks: [],
-        formattedContext: "(no relevant context found in knowledge base)",
-        sources: [] as string[],
-      };
+    try {
+        const chunks = await searchKnowledgeBase(query, topK);
+        if (chunks.length === 0) {
+            return {
+                retrievedChunks: [],
+                formattedContext: '(no relevant context found in knowledge base)',
+                sources: [] as string[],
+            };
+        }
+        const formattedContext = formatChunksForPrompt(chunks);
+        const sources = [...new Set(chunks.map(c => `${c.chunk.collection}:${c.chunk.recordId}`))];
+        return { retrievedChunks: chunks, formattedContext, sources };
+    } catch {
+        return {
+            retrievedChunks: [],
+            formattedContext: '(error retrieving context)',
+            sources: [] as string[],
+        };
     }
-    const formattedContext = formatChunksForPrompt(chunks);
-    const sources = [
-      ...new Set(
-        chunks.map((c) => `${c.chunk.collection}:${c.chunk.recordId}`),
-      ),
-    ];
-    return { retrievedChunks: chunks, formattedContext, sources };
-  } catch {
-    return {
-      retrievedChunks: [],
-      formattedContext: "(error retrieving context)",
-      sources: [] as string[],
-    };
-  }
 }
 
-const HERMES_RAG_SYSTEM_PROMPT = `you are hermes, a deeply knowledgeable ai assistant with full access to the user's personal knowledge base. you have real-time awareness of their notes, tasks, projects, research, and entire pkm through retrieved context.
+const WILSON_RAG_SYSTEM_PROMPT = `you are wilson, a deeply knowledgeable ai assistant with full access to the user's personal knowledge base. you have real-time awareness of their notes, tasks, projects, research, and entire pkm through retrieved context.
 
 your personality:
 - warm, thoughtful, and genuinely helpful
@@ -335,14 +280,11 @@ when responding:
 retrieved context format:
 each chunk starts with [source: collection:id] so you can reference where information came from. use these citations naturally in your response.`;
 
-async function buildRagPrompt(
-  query: string,
-  fronterName: string = "friend",
-): Promise<RagPromptResult> {
-  const ragCtx = await buildRagContext(query, 8);
-  const system = HERMES_RAG_SYSTEM_PROMPT + `\n\ncurrent user: ${fronterName}`;
-  const prompt = `${system}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}\n\ncurrent query from ${fronterName}: ${query}\n\nhermes:`;
-  return { prompt, sources: ragCtx.sources };
+async function buildRagPrompt(query: string, fronterName: string = 'friend'): Promise<RagPromptResult> {
+    const ragCtx = await buildRagContext(query, 8);
+    const system = WILSON_RAG_SYSTEM_PROMPT + `\n\ncurrent user: ${fronterName}`;
+    const prompt = `${system}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}\n\ncurrent query from ${fronterName}: ${query}\n\nwilson:`;
+    return { prompt, sources: ragCtx.sources };
 }
 
 // ---------------------------------------------------------------------------
@@ -350,151 +292,79 @@ async function buildRagPrompt(
 // ---------------------------------------------------------------------------
 
 async function chatStream(
-  prompt: string,
-  model: string,
-  endpoint: string,
-  onToken: (cumulativeContent: string) => void,
+    prompt: string,
+    model: string,
+    endpoint: string,
+    onToken: (cumulativeContent: string) => void,
 ): Promise<string> {
-  const resolvedEndpoint = resolveOllamaEndpointForWorker(
-    endpoint,
-    "/api/generate",
-  );
+    const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/generate');
+    
+    secureLogger.info('[ai-worker] chatStream using endpoint:', resolvedEndpoint, '(input was:', endpoint + ')');
 
-  secureLogger.info(
-    "[ai-worker] chatStream using endpoint:",
-    resolvedEndpoint,
-    "(input was:",
-    endpoint + ")",
-  );
+    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
 
-  // check if this is nvidia api (openai-compatible format)
-  const isNvidiaApi = /integrate\.api\.nvidia\.com/i.test(resolvedEndpoint);
+    if (isGemini) {
+        const response = await _fetch(resolvedEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt: { text: prompt },
+            }),
+        });
 
-  if (isNvidiaApi) {
-    // nvidia api uses openai-compatible chat/completions format
-    const response = await _fetch(resolvedEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${_authToken || ""}`,
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.7,
-        max_tokens: 2048,
-        stream: true,
-      }),
-    });
+        if (!response.ok) throw new Error(`llm api error: ${response.statusText}`);
 
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => "unknown error");
-      throw new Error(
-        `nvidia api error: ${response.status} ${response.statusText} - ${errorText}`,
-      );
+        const data = await response.json();
+        const candidate = data?.candidates?.[0]?.content;
+        const text = typeof candidate === 'string' ? candidate : '';
+        onToken(text);
+        return text;
     }
 
-    const reader = response.body?.getReader();
-    if (!reader) throw new Error("could not get stream reader");
-
-    const decoder = new TextDecoder();
-    let fullContent = "";
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n");
-
-        for (const line of lines) {
-          if (!line.trim() || !line.startsWith("data:")) continue;
-          const data = line.replace(/^data:\s*/, "");
-          if (data === "[DONE]") continue;
-          try {
-            const json = JSON.parse(data);
-            const content = json?.choices?.[0]?.delta?.content;
-            if (content) {
-              fullContent += content;
-              onToken(fullContent);
-            }
-          } catch {
-            // partial json, skip
-          }
-        }
-      }
-    } finally {
-      reader.releaseLock();
-    }
-
-    return fullContent;
-  }
-
-  const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
-
-  if (isGemini) {
     const response = await _fetch(resolvedEndpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        prompt: { text: prompt },
-      }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model, prompt, stream: true }),
     });
 
     if (!response.ok) throw new Error(`llm api error: ${response.statusText}`);
 
-    const data = await response.json();
-    const candidate = data?.candidates?.[0]?.content;
-    const text = typeof candidate === "string" ? candidate : "";
-    onToken(text);
-    return text;
-  }
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('could not get stream reader');
 
-  const response = await _fetch(resolvedEndpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model, prompt, stream: true }),
-  });
+    const decoder = new TextDecoder();
+    let fullContent = '';
 
-  if (!response.ok) throw new Error(`llm api error: ${response.statusText}`);
+    try {
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-  const reader = response.body?.getReader();
-  if (!reader) throw new Error("could not get stream reader");
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
 
-  const decoder = new TextDecoder();
-  let fullContent = "";
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split("\n");
-
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        try {
-          const json = JSON.parse(line);
-          if (json.response) {
-            fullContent += json.response;
-            onToken(fullContent);
-          }
-          if (json.done) {
-            return fullContent;
-          }
-        } catch {
-          // partial json, skip
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                try {
+                    const json = JSON.parse(line);
+                    if (json.response) {
+                        fullContent += json.response;
+                        onToken(fullContent);
+                    }
+                    if (json.done) {
+                        return fullContent;
+                    }
+                } catch {
+                    // partial json, skip
+                }
+            }
         }
-      }
+    } finally {
+        // always release the reader to avoid locking the stream
+        reader.releaseLock();
     }
-  } finally {
-    // always release the reader to avoid locking the stream
-    reader.releaseLock();
-  }
 
-  return fullContent;
+    return fullContent;
 }
 
 // ---------------------------------------------------------------------------
@@ -502,46 +372,37 @@ async function chatStream(
 // ---------------------------------------------------------------------------
 
 async function chatStreamMultimodal(
-  messages: ChatMessage[],
-  model: string,
-  endpoint: string,
-  onToken: (cumulativeContent: string) => void,
+    messages: ChatMessage[],
+    model: string,
+    endpoint: string,
+    onToken: (cumulativeContent: string) => void,
 ): Promise<string> {
-  const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/chat');
-
-  secureLogger.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
-
-  // check if this is nvidia api (openai-compatible format)
-  const isNvidiaApi = /integrate\.api\.nvidia\.com/i.test(resolvedEndpoint);
-  
-  if (isNvidiaApi) {
-    // convert messages to openai format for nvidia api
-    const openaiMessages = messages.map(m => {
-      if (typeof m.content === 'string') {
-        return { role: m.role, content: m.content };
-      }
-      // handle multimodal content (images)
-      return { role: m.role, content: m.content };
-    });
+    const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/chat');
     
+    secureLogger.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
+
+    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+    if (isGemini) {
+        // flatten the messages into a single prompt for gemini
+        const prompt = messages
+            .map(m => `${m.role}: ${typeof m.content === 'string' ? m.content : JSON.stringify(m.content)}`)
+            .join('\n');
+        return chatStream(prompt, model, endpoint, onToken);
+    }
+
     const response = await _fetch(resolvedEndpoint, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${_authToken || ''}`
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: openaiMessages,
-        temperature: 0.7,
-        max_tokens: 2048,
-        stream: true
-      }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            model, 
+            messages,
+            stream: true 
+        }),
     });
 
     if (!response.ok) {
-      const errorText = await response.text().catch(() => 'unknown error');
-      throw new Error(`nvidia api error: ${response.status} ${response.statusText} - ${errorText}`);
+        const errorText = await response.text().catch(() => 'unknown error');
+        throw new Error(`llm api error: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const reader = response.body?.getReader();
@@ -551,149 +412,34 @@ async function chatStreamMultimodal(
     let fullContent = '';
 
     try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
 
-        for (const line of lines) {
-          if (!line.trim() || !line.startsWith('data:')) continue;
-          const data = line.replace(/^data:\s*/, '');
-          if (data === '[DONE]') continue;
-          try {
-            const json = JSON.parse(data);
-            const content = json?.choices?.[0]?.delta?.content;
-            if (content) {
-              fullContent += content;
-              onToken(fullContent);
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                try {
+                    const json = JSON.parse(line);
+                    if (json.message?.content) {
+                        fullContent += json.message.content;
+                        onToken(fullContent);
+                    }
+                    if (json.done) {
+                        return fullContent;
+                    }
+                } catch {
+                    // partial json, skip
+                }
             }
-          } catch {
-            // partial json, skip
-          }
         }
-      }
     } finally {
-      reader.releaseLock();
+        reader.releaseLock();
     }
 
     return fullContent;
-  }
-
-  const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
-  if (isGemini) {
-    // flatten the messages into a single prompt for gemini
-    const prompt = messages
-      .map(m => `${m.role}: ${typeof m.content === 'string' ? m.content : JSON.stringify(m.content)}`)
-      .join('\n');
-    return chatStream(prompt, model, endpoint, onToken);
-  }
-
-  const response = await _fetch(resolvedEndpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model,
-      messages,
-      stream: true
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => 'unknown error');
-    throw new Error(`llm api error: ${response.status} ${response.statusText} - ${errorText}`);
-  }
-
-  const reader = response.body?.getReader();
-  if (!reader) throw new Error('could not get stream reader');
-
-  const decoder = new TextDecoder();
-  let fullContent = '';
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
-
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        try {
-          const json = JSON.parse(line);
-          if (json.message?.content) {
-            fullContent += json.message.content;
-            onToken(fullContent);
-          }
-          if (json.done) {
-            return fullContent;
-          }
-        } catch {
-          // partial json, skip
-        }
-      }
-    }
-  } finally {
-    reader.releaseLock();
-  }
-
-  return fullContent;
-}
-
-  const response = await _fetch(resolvedEndpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model,
-      messages,
-      stream: true,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => "unknown error");
-    throw new Error(
-      `llm api error: ${response.status} ${response.statusText} - ${errorText}`,
-    );
-  }
-
-  const reader = response.body?.getReader();
-  if (!reader) throw new Error("could not get stream reader");
-
-  const decoder = new TextDecoder();
-  let fullContent = "";
-
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split("\n");
-
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        try {
-          const json = JSON.parse(line);
-          if (json.message?.content) {
-            fullContent += json.message.content;
-            onToken(fullContent);
-          }
-          if (json.done) {
-            return fullContent;
-          }
-        } catch {
-          // partial json, skip
-        }
-      }
-    }
-  } finally {
-    reader.releaseLock();
-  }
-
-  return fullContent;
 }
 
 // ---------------------------------------------------------------------------
@@ -701,38 +447,35 @@ async function chatStreamMultimodal(
 // ---------------------------------------------------------------------------
 
 async function generateTextLegacy(
-  prompt: string,
-  model: string,
-  endpoint: string,
+    prompt: string,
+    model: string,
+    endpoint: string,
 ): Promise<string | null> {
-  try {
-    const resolvedEndpoint = resolveOllamaEndpointForWorker(
-      endpoint,
-      "/api/generate",
-    );
-    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+    try {
+        const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/generate');
+        const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
 
-    const body = isGemini
-      ? { prompt: { text: prompt } }
-      : { model, prompt, stream: false };
+        const body = isGemini
+            ? { prompt: { text: prompt } }
+            : { model, prompt, stream: false };
 
-    const res = await _fetch(resolvedEndpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+        const res = await _fetch(resolvedEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
 
-    if (!res.ok) throw new Error(`llm api error: ${res.statusText}`);
-    const data = await res.json();
+        if (!res.ok) throw new Error(`llm api error: ${res.statusText}`);
+        const data = await res.json();
 
-    if (isGemini) {
-      return data?.candidates?.[0]?.content ?? null;
+        if (isGemini) {
+            return data?.candidates?.[0]?.content ?? null;
+        }
+
+        return data.response ?? null;
+    } catch {
+        return null;
     }
-
-    return data.response ?? null;
-  } catch {
-    return null;
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -740,56 +483,41 @@ async function generateTextLegacy(
 // ---------------------------------------------------------------------------
 
 async function askWithRag(
-  query: string,
-  fronterName: string,
-  model: string,
-  endpoint: string,
-  onToken: (cumulativeContent: string) => void,
+    query: string,
+    fronterName: string,
+    model: string,
+    endpoint: string,
+    onToken: (cumulativeContent: string) => void,
 ): Promise<AskWithRagResult> {
-  secureLogger.info("[ai-worker] askWithRag called:", {
-    query: query.slice(0, 50),
-    fronterName,
-    model,
-    endpoint: endpoint.slice(0, 100),
-  });
-
-  // vision models need the chat endpoint with messages format
-  // gemma4:e4b is a multimodal model that supports images and audio
-  const isVisionModel =
-    model.includes("vl") ||
-    model.includes("vision") ||
-    model.includes("llava") ||
-    model.includes("gemma4") ||
-    model.includes("gemma-4");
-
-  if (isVisionModel) {
-    secureLogger.info("[ai-worker] Detected vision model, using chat endpoint");
-    try {
-      const ragCtx = await buildRagContext(query, 8);
-      const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
-      const messages: ChatMessage[] = [
-        { role: "system", content: systemContent },
-        { role: "user", content: query },
-      ];
-      const response = await chatStreamMultimodal(
-        messages,
-        model,
-        endpoint,
-        onToken,
-      );
-      secureLogger.info("[ai-worker] Vision model response received");
-      return { response: response.toLowerCase(), sources: ragCtx.sources };
-    } catch (e) {
-      secureLogger.error("[ai-worker] Vision model error:", e);
-      throw e;
+    secureLogger.info('[ai-worker] askWithRag called:', { query: query.slice(0, 50), fronterName, model, endpoint: endpoint.slice(0, 100) });
+    
+    // vision models need the chat endpoint with messages format
+    // qwen2.5-coder:7b-instruct-q4_k_s is actually the vl model renamed for pieces os compatibility
+    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava') || model.includes('qwen2.5-coder');
+    
+    if (isVisionModel) {
+        secureLogger.info('[ai-worker] Detected vision model, using chat endpoint');
+        try {
+            const ragCtx = await buildRagContext(query, 8);
+            const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
+            const messages: ChatMessage[] = [
+                { role: 'system', content: systemContent },
+                { role: 'user', content: query }
+            ];
+            const response = await chatStreamMultimodal(messages, model, endpoint, onToken);
+            secureLogger.info('[ai-worker] Vision model response received');
+            return { response: response.toLowerCase(), sources: ragCtx.sources };
+        } catch (e) {
+            secureLogger.error('[ai-worker] Vision model error:', e);
+            throw e;
+        }
     }
-  }
-
-  // non-vision models use the generate endpoint
-  secureLogger.info("[ai-worker] Using generate endpoint");
-  const { prompt, sources } = await buildRagPrompt(query, fronterName);
-  const response = await chatStream(prompt, model, endpoint, onToken);
-  return { response: response.toLowerCase(), sources };
+    
+    // non-vision models use the generate endpoint
+    secureLogger.info('[ai-worker] Using generate endpoint');
+    const { prompt, sources } = await buildRagPrompt(query, fronterName);
+    const response = await chatStream(prompt, model, endpoint, onToken);
+    return { response: response.toLowerCase(), sources };
 }
 
 // ---------------------------------------------------------------------------
@@ -797,74 +525,60 @@ async function askWithRag(
 // ---------------------------------------------------------------------------
 
 async function askWithRagAndAttachments(
-  query: string,
-  fronterName: string,
-  model: string,
-  endpoint: string,
-  onToken: (cumulativeContent: string) => void,
-  attachments?: Attachment[],
+    query: string,
+    fronterName: string,
+    model: string,
+    endpoint: string,
+    onToken: (cumulativeContent: string) => void,
+    attachments?: Attachment[],
 ): Promise<AskWithRagResult> {
-  // build rag context for the text query
-  const ragCtx = await buildRagContext(query, 8);
-
-  // build system message with rag context
-  const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
-
-  // build user message content parts
-  const userContent:
-    | { type: "text"; text: string }
-    | Array<
-        | { type: "text"; text: string }
-        | { type: "image_url"; image_url: { url: string } }
-      > = [{ type: "text", text: query }];
-
-  // add image attachments if provided
-  if (attachments && attachments.length > 0) {
-    for (const attachment of attachments) {
-      if (
-        attachment.dataUrl &&
-        (attachment.type === "image" || attachment.type === "gif")
-      ) {
-        userContent.push({
-          type: "image_url",
-          image_url: { url: attachment.dataUrl },
-        });
-      }
+    // build rag context for the text query
+    const ragCtx = await buildRagContext(query, 8);
+    
+    // build system message with rag context
+    const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
+    
+    // build user message content parts
+    const userContent: { type: 'text'; text: string; } | Array<{ type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }> = [{ type: 'text', text: query }];
+    
+    // add image attachments if provided
+    if (attachments && attachments.length > 0) {
+        for (const attachment of attachments) {
+            if (attachment.dataUrl && (attachment.type === 'image' || attachment.type === 'gif')) {
+                userContent.push({
+                    type: 'image_url',
+                    image_url: { url: attachment.dataUrl }
+                });
+            }
+        }
     }
-  }
-
-  // build messages array for chat api
-  const messages: ChatMessage[] = [
-    { role: "system", content: systemContent },
-    { role: "user", content: userContent },
-  ];
-
-  secureLogger.info("[ai-worker] askWithRagAndAttachments:", {
-    model,
-    query,
-    attachmentCount: attachments?.length || 0,
-    sources: ragCtx.sources.length,
-  });
-
-  // use multimodal streaming for vision models
-  // gemma4:e4b supports images and audio attachments
-  const isVisionModel =
-    model.includes("vl") ||
-    model.includes("vision") ||
-    model.includes("llava") ||
-    model.includes("gemma4") ||
-    model.includes("gemma-4");
-
-  let response: string;
-  if (isVisionModel && attachments && attachments.length > 0) {
-    response = await chatStreamMultimodal(messages, model, endpoint, onToken);
-  } else {
-    // fall back to regular streaming for non-vision models or no attachments
-    const { prompt } = await buildRagPrompt(query, fronterName);
-    response = await chatStream(prompt, model, endpoint, onToken);
-  }
-
-  return { response: response.toLowerCase(), sources: ragCtx.sources };
+    
+    // build messages array for chat api
+    const messages: ChatMessage[] = [
+        { role: 'system', content: systemContent },
+        { role: 'user', content: userContent }
+    ];
+    
+    secureLogger.info('[ai-worker] askWithRagAndAttachments:', { 
+            model, 
+            query, 
+            attachmentCount: attachments?.length || 0,
+            sources: ragCtx.sources.length
+        });
+    
+    // use multimodal streaming for vision models
+    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava');
+    
+    let response: string;
+    if (isVisionModel && attachments && attachments.length > 0) {
+        response = await chatStreamMultimodal(messages, model, endpoint, onToken);
+    } else {
+        // fall back to regular streaming for non-vision models or no attachments
+        const { prompt } = await buildRagPrompt(query, fronterName);
+        response = await chatStream(prompt, model, endpoint, onToken);
+    }
+    
+    return { response: response.toLowerCase(), sources: ragCtx.sources };
 }
 
 // ---------------------------------------------------------------------------
@@ -872,78 +586,71 @@ async function askWithRagAndAttachments(
 // ---------------------------------------------------------------------------
 
 export type WorkerAPIWithInit = AIWorkerAPI & {
-  init(
-    apiBaseUrl: string,
-    authToken: string,
-    vectorConfig?: Partial<typeof VECTOR_CONFIG>,
-    fetchImpl?: typeof globalThis.fetch,
-    ollamaBaseUrl?: string,
-  ): void;
+    init(
+        apiBaseUrl: string,
+        authToken: string,
+        vectorConfig?: Partial<typeof VECTOR_CONFIG>,
+        fetchImpl?: typeof globalThis.fetch,
+        ollamaBaseUrl?: string,
+    ): void;
 };
 
-function resolveOllamaEndpointForWorker(
-  endpoint: string,
-  fallbackPath: string = "/api/generate",
-): string {
-  const normalizedBase = (_ollamaBaseUrl || "http://localhost:11434").replace(
-    /\/+$/,
-    "",
-  );
-  if (!endpoint) return `${normalizedBase}${fallbackPath}`;
+function resolveOllamaEndpointForWorker(endpoint: string, fallbackPath: string = '/api/generate'): string {
+    const normalizedBase = (_ollamaBaseUrl || 'http://localhost:11434').replace(/\/+$/, '');
+    if (!endpoint) return `${normalizedBase}${fallbackPath}`;
 
-  const stripped = endpoint.replace(/\/+$/, "");
-
-  // if endpoint is already a full url (starts with http:// or https://)
-  if (/^https?:\/\//.test(stripped)) {
-    // check if it ends with /api/generate but we need /api/chat (or vice versa)
-    const generatePattern = /\/api\/generate$/;
-    const chatPattern = /\/api\/chat$/;
-
-    if (fallbackPath === "/api/chat" && generatePattern.test(stripped)) {
-      // replace /api/generate with /api/chat
-      return stripped.replace(generatePattern, "/api/chat");
+    const stripped = endpoint.replace(/\/+$/, '');
+    
+    // if endpoint is already a full url (starts with http:// or https://)
+    if (/^https?:\/\//.test(stripped)) {
+        // check if it ends with /api/generate but we need /api/chat (or vice versa)
+        const generatePattern = /\/api\/generate$/;
+        const chatPattern = /\/api\/chat$/;
+        
+        if (fallbackPath === '/api/chat' && generatePattern.test(stripped)) {
+            // replace /api/generate with /api/chat
+            return stripped.replace(generatePattern, '/api/chat');
+        }
+        if (fallbackPath === '/api/generate' && chatPattern.test(stripped)) {
+            // replace /api/chat with /api/generate
+            return stripped.replace(chatPattern, '/api/generate');
+        }
+        
+        // only rewrite if it's localhost:11434 pointing to the default
+        const localhostPattern = /^https?:\/\/localhost:11434/;
+        if (localhostPattern.test(stripped)) {
+            return stripped.replace(localhostPattern, normalizedBase);
+        }
+        // otherwise, it's already a resolved url (like the server proxy), return as-is
+        return stripped;
     }
-    if (fallbackPath === "/api/generate" && chatPattern.test(stripped)) {
-      // replace /api/chat with /api/generate
-      return stripped.replace(chatPattern, "/api/generate");
+
+    if (stripped.startsWith('/')) {
+        return `${normalizedBase}${stripped}`;
     }
 
-    // only rewrite if it's localhost:11434 pointing to the default
-    const localhostPattern = /^https?:\/\/localhost:11434/;
-    if (localhostPattern.test(stripped)) {
-      return stripped.replace(localhostPattern, normalizedBase);
-    }
-    // otherwise, it's already a resolved url (like the server proxy), return as-is
     return stripped;
-  }
-
-  if (stripped.startsWith("/")) {
-    return `${normalizedBase}${stripped}`;
-  }
-
-  return stripped;
 }
 
 export function createWorkerAPI(
-  fetchImpl?: typeof globalThis.fetch,
-  options?: { ollamaBaseUrl?: string },
+    fetchImpl?: typeof globalThis.fetch,
+    options?: { ollamaBaseUrl?: string },
 ): WorkerAPIWithInit {
-  // set the fetch implementation if provided at creation time
-  if (fetchImpl) _fetch = fetchImpl;
-  if (options?.ollamaBaseUrl) {
-    _ollamaBaseUrl =
-      options.ollamaBaseUrl.replace(/\/+$/, "") || _ollamaBaseUrl;
-  }
+    // set the fetch implementation if provided at creation time
+    if (fetchImpl) _fetch = fetchImpl;
+    if (options?.ollamaBaseUrl) {
+        _ollamaBaseUrl = options.ollamaBaseUrl.replace(/\/+$/, '') || _ollamaBaseUrl;
+    }
 
-  return {
-    init,
-    searchKnowledgeBase,
-    generateEmbedding,
-    buildRagPrompt,
-    chatStream,
-    chatStreamMultimodal,
-    askWithRag,
-    askWithRagAndAttachments,
-    generateText: generateTextLegacy,
-  };
+    return {
+        init,
+        searchKnowledgeBase,
+        generateEmbedding,
+        buildRagPrompt,
+        chatStream,
+        chatStreamMultimodal,
+        askWithRag,
+        askWithRagAndAttachments,
+        generateText: generateTextLegacy,
+    };
 }
