@@ -32,11 +32,11 @@ interface ApiKeyEntry {
 
 // fetch api keys from nocobase (called once on app start, then cached)
 export async function fetchApiKeysFromServer(): Promise<void> {
-  try {
-    const client = getNocobaseClient();
-    if (!client) return;
-    
-    const response = await client.request('pkm_api_keys', 'list', {
+ try {
+ const client = nocobaseClient;
+ if (!client) return;
+ 
+ const response = await client.request('pkm_api_keys', 'list', {
       params: {
         filter: { enabled: { $eq: true } },
         sort: ['priority'],
