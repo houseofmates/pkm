@@ -510,41 +510,45 @@ async function generateTextLegacy(
 // ---------------------------------------------------------------------------
 
 async function askWithRag(
-    query: string,
-    fronterName: string,
-    model: string,
-    endpoint: string,
-    onToken: (cumulativeContent: string) => void,
+ query: string,
+ fronterName: string,
+ model: string,
+ endpoint: string,
+ onToken: (cumulativeContent: string) => void,
 ): Promise<AskWithRagResult> {
-    secureLogger.info('[ai-worker] askWithRag called:', { query: query.slice(0, 50), fronterName, model, endpoint: endpoint.slice(0, 100) });
-    
-    // vision models need the chat endpoint with messages format
-    // qwen2.5-coder:7b-instruct-q4_k_s is actually the vl model renamed for pieces os compatibility
-    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava') || model.includes('qwen2.5-coder');
-    
-    if (isVisionModel) {
-        secureLogger.info('[ai-worker] Detected vision model, using chat endpoint');
-        try {
-            const ragCtx = await buildRagContext(query, 8);
-            const systemContent = `${HERMES_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
-            const messages: ChatMessage[] = [
-                { role: 'system', content: systemContent },
-                { role: 'user', content: query }
-            ];
-            const response = await chatStreamMultimodal(messages, model, endpoint, onToken);
-            secureLogger.info('[ai-worker] Vision model response received');
-            return { response: response.toLowerCase(), sources: ragCtx.sources };
-        } catch (e) {
-            secureLogger.error('[ai-worker] Vision model error:', e);
-            throw e;
-        }
-    }
-    
-    // non-vision models use the generate endpoint
-    secureLogger.info('[ai-worker] Using generate endpoint');
-    const { prompt, sources } = await buildRagPrompt(query, fronterName);
-    const response = await chatStream(prompt, model, endpoint, onToken);
-    return { response: response.toLowerCase(), sources };
+ secureLogger.info('[ai-worker] askWithRag called:', { query: query.slice(0, 50), fronterName, model, endpoint: endpoint.slice(0, 100) });
+ 
+ // nvidia/openai requires messages format
+ const isOpenAI = /chat\/completions|nvidia|openai/i.test(endpoint);
+ 
+ // vision models need the chat endpoint with messages format
+ // qwen2.5-coder:7b-instruct-q4_k_s is actually the vl model renamed for pieces os compatibility
+ const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava') || model.includes('qwen2.5-coder');
+ 
+ // use messages format for nvidia/openai or vision models
+ if (isVisionModel || isOpenAI) {
+ secureLogger.info('[ai-worker] Using messages format', { isVisionModel, isOpenAI });
+ try {
+ const ragCtx = await buildRagContext(query, 8);
+ const systemContent = `${HERMES_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
+ const messages: ChatMessage[] = [
+ { role: 'system', content: systemContent },
+ { role: 'user', content: query }
+ ];
+ const response = await chatStreamMultimodal(messages, model, endpoint, onToken);
+ secureLogger.info('[ai-worker] Messages format response received');
+ return { response: response.toLowerCase(), sources: ragCtx.sources };
+ } catch (e) {
+ secureLogger.error('[ai-worker] Messages format error:', e);
+ throw e;
+ }
+ }
+ 
+ // non-vision models use the generate endpoint (ollama only)
+ secureLogger.info('[ai-worker] Using generate endpoint');
+ const { prompt, sources } = await buildRagPrompt(query, fronterName);
+ const response = await chatStream(prompt, model, endpoint, onToken);
+ return { response: response.toLowerCase(), sources };
 }
 
 // ---------------------------------------------------------------------------
