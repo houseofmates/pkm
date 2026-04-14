@@ -41,10 +41,13 @@ wss.on('connection', (ws) => {
       hermesProcess.kill();
     }
 
-    console.log(`[${sessionId}] starting hermes...`);
-    hermesProcess = spawn(CONFIG.hermesCommand, CONFIG.hermesArgs, {
+    console.log(`[${sessionId}] starting hermes on ${CONFIG.hermesHost}...`);
+    
+    // ssh to desktop and run hermes
+    const sshCommand = `ssh -i ${CONFIG.hermesKey} -t ${CONFIG.hermesUser}@${CONFIG.hermesHost} "hermes ${CONFIG.hermesArgs}"`;
+    
+    hermesProcess = spawn('bash', ['-c', sshCommand], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      shell: true,
     });
 
     hermesProcess.stdout.on('data', (data) => {
