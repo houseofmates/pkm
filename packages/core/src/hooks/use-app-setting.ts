@@ -45,7 +45,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
     try {
       // use :list instead of :get for filtering by key
       type ListResponse<T> = { data: T[] } | T[];
-      const response: unknown = await client.request('pkm_settings', 'list', {
+      const response: unknown = await client.request('pkm_settings:list', {
         params: {
           filter: { key: { $eq: key } },
           pageSize: '1'
@@ -143,7 +143,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
             // try update first
             try {
-              const res = await client.request('pkm_settings', 'update', {
+              const res = await client.request('pkm_settings:update', {
                 method: 'POST',
                 params: settingIdRef.current ? { filterByTk: settingIdRef.current } : { filter: { key: { $eq: key } } },
                 data: payload,
@@ -158,7 +158,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             } catch (e) { /* ignore update failure, try create */ }
 
             // if update didn't work, create
-            const createRes = await client.request('pkm_settings', 'create', {
+            const createRes = await client.request('pkm_settings:create', {
               method: 'POST',
               data: { key, value: valueToSave },
               silent: true
@@ -192,7 +192,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         const payload = { value: toSave };
         // update first
         try {
-          const res = await client.request('pkm_settings', 'update', {
+          const res = await client.request('pkm_settings:update', {
             method: 'POST',
             params: settingIdRef.current ? { filterByTk: settingIdRef.current } : { filter: { key: { $eq: key } } },
             data: payload,
@@ -206,7 +206,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         } catch (e) {/* try create */ }
 
         // create
-        const createRes = await client.request('pkm_settings', 'create', {
+        const createRes = await client.request('pkm_settings:create', {
           method: 'POST',
           data: { key, value: toSave },
           silent: true

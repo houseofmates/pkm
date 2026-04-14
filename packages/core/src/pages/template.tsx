@@ -270,7 +270,7 @@ export function TemplatePage() {
       });
 
       // store layout in pkm_settings
-      await client.request('pkm_settings', 'create', {
+      await client.request('pkm_settings:create', {
         method: 'POST',
         key: `layout_${workspaceId}`,
         value: JSON.stringify(widgets)

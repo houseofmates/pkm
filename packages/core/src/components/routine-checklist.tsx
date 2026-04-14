@@ -95,7 +95,7 @@ export function RoutineChecklist() {
         
         const percentage = (newCompletedItems.length / routine.items.length) * 100;
 
-        await nocobaseClient.request('routine_completions', 'update', {
+        await nocobaseClient.request('routine_completions:update', {
           filterByTk: completion.id,
           completed_items: newCompletedItems,
           completion_percentage: percentage,

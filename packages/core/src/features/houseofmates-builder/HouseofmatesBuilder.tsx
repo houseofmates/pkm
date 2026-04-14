@@ -613,7 +613,7 @@ export function HouseofmatesBuilder() {
               `[ensureWebsiteCollection] Broken inheritance detected for ${colName}! Resetting inherits.`,
             );
             try {
-              await nocobaseClient.request("collections", "update", {
+              await nocobaseClient.request("collections:update", {
                 params: { filterByTk: colName },
                 data: { inherits: [] },
               });
@@ -744,7 +744,7 @@ export function HouseofmatesBuilder() {
               `[ensureFormsCollection] Broken inheritance detected for ${colName}! Resetting inherits.`,
             );
             await nocobaseClient
-              .request("collections", "update", {
+              .request("collections:update", {
                 params: { filterByTk: colName },
                 data: { inherits: [] },
               })

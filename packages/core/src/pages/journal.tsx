@@ -8827,7 +8827,7 @@ export function JournalPage() {
 
 
 
-      await api.request('journal', 'destroy', { filterByTk: entry.id });
+      await api.request('journal:destroy', { filterByTk: entry.id });
 
 
 
@@ -9791,7 +9791,7 @@ ${entriesText}`;
 
 
 
-        await api.request('journal', 'update', { filterByTk: editingEntry.id, ...payload });
+        await api.request('journal:update', { filterByTk: editingEntry.id, ...payload });
 
 
 

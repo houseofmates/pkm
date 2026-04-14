@@ -88,7 +88,7 @@ async function setupPublicCollections() {
   if (!tableExists) {
   secureLogger.info(`[Setup] Nuking metadata for ${colReq.name}...`);
   try {
- await nocobaseClient.request('collections', 'destroy', {
+ await nocobaseClient.request('collections:destroy', {
  params: { filterByTk: colReq.name }
  });
  secureLogger.info(`[Setup] Metadata destroyed for ${colReq.name}.`);
@@ -101,7 +101,7 @@ async function setupPublicCollections() {
   // 3. create collection fresh
   secureLogger.info(`[Setup] Creating fresh collection ${colReq.name}...`);
  try {
- await nocobaseClient.request('collections', 'create', {
+ await nocobaseClient.request('collections:create', {
  method: 'POST',
  data: {
  name: colReq.name,

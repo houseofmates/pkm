@@ -36,7 +36,7 @@ function BlogDashboard() {
   const loadPosts = async () => {
   setLoading(true);
   try {
-  const res = await nocobaseClient.request('blog_posts', 'list', {
+  const res = await nocobaseClient.request('blog_posts:list', {
  params: {
  sort: '-created_at',
  pageSize: 50
@@ -175,7 +175,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
  elements: [] // sync
  });
  } else {
- const res = await nocobaseClient.request('blog_posts', 'list', {
+ const res = await nocobaseClient.request('blog_posts:list', {
  params: {
    filter: { slug },
    pageSize: 1
