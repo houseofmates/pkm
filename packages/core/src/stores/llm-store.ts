@@ -307,32 +307,162 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
     return get().askWilsonLegacy(text);
   },
 
-  // rag-enabled method — runs entirely in the web worker with streaming
+// rag-enabled method — runs entirely in the web worker with streaming
   askWilsonWithRag: async (text, isBackground = false) => {
-    if (!text.trim() && get().pendingAttachments.length === 0) return null;
+    if (!text.trim() && get().pendingAttachments.length === 0) return null
 
     // get attachments from the last user message if they exist
-    const lastMessage =
-      get().interactionHistory[get().interactionHistory.length - 1];
-    const attachments = lastMessage?.attachments || get().pendingAttachments;
-    const hasAttachments = attachments && attachments.length > 0;
+    const lastMessage = get().interactionHistory[get().interactionHistory.length - 1]
+    const attachments = lastMessage?.attachments || get().pendingAttachments
+    const hasAttachments = attachments && attachments.length > 0
 
     // add user message if not background and not already added by askwilson
-    if (
-      !isBackground &&
-      lastMessage?.content !== text &&
-      !lastMessage?.attachments
-    ) {
+    if (!isBackground && lastMessage?.content !== text && !lastMessage?.attachments) {
       set((state) => ({
-        interactionHistory: [
-          ...state.interactionHistory,
-          {
-            id: Date.now(),
-            role: "user",
-            content: text,
-            attachments: hasAttachments ? [...attachments] : undefined,
-            createdAt: Date.now(),
-          },
+        interactionHistory: [...state.interactionHistory, {
+          id: Date.now(),
+          role: 'user',
+          content: text,
+          attachments: hasAttachments ? [...attachments] : undefined,
+          createdAt: Date.now()
+        }],
+        pendingAttachments: [] // clear pending attachments
+      }))
+    }
+
+    set({ isThinking: true, streamingContent: '' })
+
+    try {
+      // get fronter info
+      let fronterName = 'friend'
+      try {
+        const fronterData = storageManager.getItem('active_fronters')
+        if (fronterData) {
+          const fronters = JSON.parse(fronterData)
+          if (fronters && fronters.length > 0) {
+            fronterName = fronters[0].name || fronterName
+          }
+        }
+      } catch { /* ignore parse errors */ }
+
+      const { activeModel, apiUrl } = get()
+
+      // check for nvidia api key
+      const nvidiaApiKey = await getStoredNvidiaApiKey();
+      const isNvidiaApi = !!nvidiaApiKey;
+      
+      // use local ollama directly - no api key needed (unless using nvidia)
+      const resolvedUrl = apiUrl;
+
+      secureLogger.info('[wilson] using endpoint:', resolvedUrl, 'model:', activeModel, 'nvidia:', isNvidiaApi)
+
+      const worker = await getAIWorkerProxy()
+      if (!worker) {
+        throw new Error('AI worker failed to initialize')
+      }
+
+      // init the worker with nvidia api key if available
+      if (isNvidiaApi && nvidiaApiKey) {
+        worker.init(NVIDIA_API_URL, nvidiaApiKey, undefined, undefined, NVIDIA_API_URL);
+      }
+
+      // stream tokens from the worker — each callback updates streamingcontent
+      // which only the streamingbubble component subscribes to
+      const onToken = Comlink.proxy((cumulativeContent: string) => {
+        set({ streamingContent: cumulativeContent.toLowerCase() })
+      })
+
+      let result: AskWithRagResult | null = null
+      try {
+        // use askwithragandattachments if there are attachments, otherwise use askwithrag
+        if (hasAttachments) {
+          secureLogger.info('[wilson] sending with attachments:', attachments.length)
+          secureLogger.debug('[wilson] Calling askWithRagAndAttachments with:', { text, fronterName, activeModel, resolvedUrl, attachmentsCount: attachments?.length });
+          result = await worker.askWithRagAndAttachments(
+            text,
+            fronterName,
+            activeModel,
+            resolvedUrl,
+            onToken,
+            attachments
+          )
+        } else {
+          secureLogger.debug('[wilson] Calling askWithRag with:', { text, fronterName, activeModel, resolvedUrl });
+          result = await worker.askWithRag(
+            text,
+            fronterName,
+            activeModel,
+            resolvedUrl,
+            onToken,
+          )
+        }
+        secureLogger.debug('[wilson] Worker call completed, result:', result);
+      } finally {
+        (onToken as any)[Comlink.releaseProxy]?.()
+      }
+
+      if (!result?.response) {
+        secureLogger.warn("wilson returned no response.")
+        set({ isThinking: false, streamingContent: '' })
+        return null
+      }
+
+      // finalize: push the completed message into history, clear streaming
+      set((state) => {
+        const assistantMsg: ChatMessage = {
+          id: Date.now() + 1,
+          role: 'assistant' as const,
+          content: result.response,
+          sources: result.sources,
+          createdAt: Date.now(),
+        };
+        const newHistory = [...state.interactionHistory, assistantMsg];
+        // save to session if we have one
+        const { currentSessionId, sessions } = state;
+        let updatedSessions = sessions;
+        if (currentSessionId) {
+          updatedSessions = sessions.map(s =>
+            s.id === currentSessionId
+              ? { ...s, messages: newHistory, updatedAt: Date.now() }
+              : s
+          );
+          storageManager.setItem('wilson_chat_sessions', JSON.stringify(updatedSessions));
+        }
+        return {
+          interactionHistory: newHistory,
+          sessions: updatedSessions,
+          isThinking: false,
+          streamingContent: '',
+        };
+      })
+
+      return result.response
+    } catch (e: unknown) {
+      secureLogger.error('[wilson] Full error details:', e);
+      secureLogger.error('[wilson] Error type:', typeof e);
+      secureLogger.error('[wilson] Error constructor:', e?.constructor?.name);
+      secureLogger.error('[wilson] Error message:', e instanceof Error ? e.message : String(e));
+      secureLogger.error('[wilson] Error stack:', e instanceof Error ? e.stack : 'no stack');
+      secureLogger.error("wilson rag error", e)
+      const errMsg = e instanceof Error ? e.message : String(e);
+      const isEndpointError = errMsg.includes('fetch') || errMsg.includes('network') || errMsg.includes('connection');
+      const displayMsg = isEndpointError
+        ? "[wilson can't reach the ai server. please check your connection.]"
+        : "[wilson encountered an error. try again?]";
+
+      set((state) => ({
+        interactionHistory: [...state.interactionHistory, {
+          id: Date.now() + 1,
+          role: 'assistant',
+          content: displayMsg,
+          createdAt: Date.now()
+        }],
+        isThinking: false,
+        streamingContent: '',
+      }))
+      return null
+    }
+  },
         ],
         pendingAttachments: [], // clear pending attachments
       }));
