@@ -54,8 +54,6 @@ function friendlyModelName(raw: string): string {
   }
   return raw;
 }
-  return raw;
-}
 
 function compactTimestamp(ts: number | undefined): string {
   if (!ts) return "";
