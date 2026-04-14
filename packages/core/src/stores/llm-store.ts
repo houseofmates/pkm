@@ -475,32 +475,44 @@ askHermesWithRag: async (text, isBackground = false) => {
       })
 
       return result.response
-    } catch (e: unknown) {
-      secureLogger.error('[hermes] Full error details:', e);
-      secureLogger.error('[hermes] Error type:', typeof e);
-      secureLogger.error('[hermes] Error constructor:', e?.constructor?.name);
-      secureLogger.error('[hermes] Error message:', e instanceof Error ? e.message : String(e));
-      secureLogger.error('[hermes] Error stack:', e instanceof Error ? e.stack : 'no stack');
-      secureLogger.error("hermes rag error", e)
-      const errMsg = e instanceof Error ? e.message : String(e);
-      const isEndpointError = errMsg.includes('fetch') || errMsg.includes('network') || errMsg.includes('connection');
-      const displayMsg = isEndpointError
-        ? "[hermes can't reach the ai server. please check your connection.]"
-        : "[hermes encountered an error. try again?]";
+} catch (e: unknown) {
+ secureLogger.error('[hermes] Full error details:', e);
+ secureLogger.error('[hermes] Error type:', typeof e);
+ secureLogger.error('[hermes] Error constructor:', e?.constructor?.name);
+ secureLogger.error('[hermes] Error message:', e instanceof Error ? e.message : String(e));
+ secureLogger.error('[hermes] Error stack:', e instanceof Error ? e.stack : 'no stack');
+ secureLogger.error("hermes rag error", e)
+ 
+ const errMsg = e instanceof Error ? e.message : String(e);
+ 
+ // check for 429 rate limit - try next key
+ if (errMsg.includes('429') || errMsg.includes('rate limit') || errMsg.includes('too many requests')) {
+ const nextKey = await markKeyRateLimited();
+ if (nextKey) {
+ secureLogger.info('[hermes] retrying with next api key:', nextKey.name);
+ // recursive retry with next key
+ return get().askHermesWithRag(text, isBackground);
+ }
+ }
+ 
+ const isEndpointError = errMsg.includes('fetch') || errMsg.includes('network') || errMsg.includes('connection');
+ const displayMsg = isEndpointError
+ ? "[hermes can't reach the ai server. please check your connection.]"
+ : "[hermes encountered an error. try again?]";
 
-      set((state) => ({
-        interactionHistory: [...state.interactionHistory, {
-          id: Date.now() + 1,
-          role: 'assistant',
-          content: displayMsg,
-          createdAt: Date.now()
-        }],
-        isThinking: false,
-        streamingContent: '',
-      }))
-      return null
-    }
-  },
+ set((state) => ({
+ interactionHistory: [...state.interactionHistory, {
+ id: Date.now() + 1,
+ role: 'assistant',
+ content: displayMsg,
+ createdAt: Date.now()
+ }],
+ isThinking: false,
+ streamingContent: '',
+ }))
+ return null
+ }
+ },
 
   // legacy non-rag method — also offloaded to worker for consistency
     askHermesLegacy: async (text: string) => {
