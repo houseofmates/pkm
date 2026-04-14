@@ -112,7 +112,7 @@ async function testRagContextBuilding(): Promise<TestResult> {
 // test 3: wilson prompt generation
 async function testHermesPromptGeneration(): Promise<TestResult> {
   const start = Date.now();
-  const name = 'wilson rag prompt generation';
+  const name = 'hermes rag prompt generation';
 
   try {
     const prompt = await generateHermesRagPrompt('how are my projects going?', 'test user');
