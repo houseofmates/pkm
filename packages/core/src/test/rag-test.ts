@@ -340,7 +340,7 @@ export async function runSmokeTest(): Promise<boolean> {
 
     // test 3: can we generate a prompt?
     await generateHermesRagPrompt('test', 'user');
-    console.log('✅ wilson prompt generation working');
+    console.log('✅ hermes prompt generation working');
 
     console.log('\n🎉 smoke test passed! core rag functionality is working.');
     return true;
