@@ -392,6 +392,7 @@ export function HermesChat() {
  {showApiKeySetup && (
  <ApiKeySetup onComplete={() => setShowApiKeySetup(false)} />
  )}
+ </>
  );
 }
 
