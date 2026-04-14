@@ -317,7 +317,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
   },
 
   // rag-enabled method — runs entirely in the web worker with streaming
-  askWilsonWithRag: async (text, isBackground = false) => {
+    askHermesWithRag: async (text, isBackground = false) => {
     if (!text.trim() && get().pendingAttachments.length === 0) return null
 
     // get attachments from the last user message if they exist
@@ -325,7 +325,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
     const attachments = lastMessage?.attachments || get().pendingAttachments
     const hasAttachments = attachments && attachments.length > 0
 
-    // add user message if not background and not already added by askwilson
+      // add user message if not background and not already added by askhermes
     if (!isBackground && lastMessage?.content !== text && !lastMessage?.attachments) {
       set((state) => ({
         interactionHistory: [...state.interactionHistory, {
@@ -363,7 +363,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
       // use local ollama directly - no api key needed (unless using nvidia)
       const resolvedUrl = apiUrl;
 
-      secureLogger.info('[wilson] using endpoint:', resolvedUrl, 'model:', activeModel, 'nvidia:', isNvidiaApi)
+      secureLogger.info('[hermes] using endpoint:', resolvedUrl, 'model:', activeModel, 'nvidia:', isNvidiaApi)
 
       const worker = await getAIWorkerProxy()
       if (!worker) {
