@@ -380,6 +380,16 @@ app.get('/api/version', (req, res) => {
   });
 });
 
+app.get('/api/sidebar-colors', (req, res) => {
+  res.json({
+    primary: '#f6b012',
+    secondary: '#252525',
+    accent: '#ef4444',
+    background: '#0a0a0a',
+    sidebar: { default: '#252525', active: '#f6b012', hover: '#f6b01299' }
+  });
+});
+
 app.get('/api/stats', (req, res) => {
   res.json(lastServerStats);
 });
