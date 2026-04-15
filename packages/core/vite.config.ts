@@ -99,7 +99,9 @@ export default defineConfig({
     allowedHosts: true,
     cors: true,
     hmr: {
-      protocol: 'ws',
+      protocol: 'wss',
+      host: 'pkm.houseofmates.space',
+      clientPort: 443,
       path: '/vite-hmr',
       overlay: false,
     },
