@@ -14,7 +14,7 @@ describe('LLMContextProvider', () => {
     // spy on console.warn so we can assert the guard path executed
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    // we need a fronter provider because the LLM context calls useFronter
+    // we need a fronter provider because the llm context calls usefronter
     const { FronterProvider } = await import('@/contexts/fronter-context');
     render(
       <FronterProvider>

@@ -1,6 +1,6 @@
-// popup.js - handles the capture popup UI
+// popup.js - handles the capture popup ui
 
-// Configuration is now loaded from storage
+// configuration is now loaded from storage
 let CONFIG = {
     apiBase: 'https://db.houseofmates.space/api',
     collectionName: 'captures'
@@ -73,7 +73,7 @@ async function setApiToken(token) {
     await storageSet('sync', { apiToken: token }).catch(() => undefined);
 }
 
-// UI Elements
+// ui elements
 const views = {
     capture: document.getElementById('capture-view'),
     settings: document.getElementById('settings-view')
@@ -86,7 +86,7 @@ const inputs = {
     tags: document.getElementById('tags')
 };
 
-// Load config and init
+// load config and init
 document.addEventListener('DOMContentLoaded', async () => {
     const apiBase = await getApiBaseUrl();
     CONFIG.apiBase = apiBase;
@@ -110,13 +110,13 @@ function showCapture() {
     views.capture.classList.remove('hidden');
 }
 
-// Load Data from Content Script
+// load data from content script
 async function loadCurrentPageData() {
     try {
         const tabs = await browser.tabs.query({ active: true, currentWindow: true });
         const tab = tabs[0];
 
-        // Try to get selection from content script
+        // try to get selection from content script
         try {
             const response = await browser.tabs.sendMessage(tab.id, { action: 'get_selection' });
             if (response) {
@@ -125,7 +125,7 @@ async function loadCurrentPageData() {
                 inputs.content.value = response.selection || '';
             }
         } catch (e) {
-            // Content script might not be running (e.g. strict page), fallback to tab info
+            // content script might not be running (e.g. strict page), fallback to tab info
             inputs.title.value = tab.title;
             inputs.url.value = tab.url;
         }
@@ -134,7 +134,7 @@ async function loadCurrentPageData() {
     }
 }
 
-// Save Token
+// save token
 document.getElementById('save-token').addEventListener('click', async () => {
     const token = inputs.token.value.trim();
     if (token) {
@@ -156,7 +156,7 @@ document.getElementById('toggle-settings').addEventListener('click', () => {
     }
 });
 
-// Save Capture
+// save capture
 document.getElementById('save-capture').addEventListener('click', async () => {
     const btn = document.getElementById('save-capture');
     btn.disabled = true;

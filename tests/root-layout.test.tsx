@@ -8,24 +8,24 @@ vi.mock('@/features/edgeless/storage', () => ({
   deleteDrawing: vi.fn(),
 }));
 
-// some components in the tree rely on the classic JSX runtime and
-// therefore refer to the global `React` variable.  Vitest/app-bundler
+// some components in the tree rely on the classic jsx runtime and
+// therefore refer to the global `react` variable.  vitest/app-bundler
 // sometimes compiles them without injecting an import, which causes
-// `ReferenceError: React is not defined` during tests.  Exposing React
+// `referenceerror: react is not defined` during tests.  exposing react
 // globally prevents us from having to fix every component file in the
 // repo just for the tests.
 ;(globalThis as any).React = React;
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-// We'll dynamically import AuthProvider, FronterProvider and other modules after resetModules
+// we'll dynamically import authprovider, fronterprovider and other modules after resetmodules
 
 
-// avoid hitting real WAL code during render
+// avoid hitting real wal code during render
 vi.mock('@/lib/write-ahead-log', () => ({ walPendingCount: async () => 0 }));
 
 // helper to render layout and get providers after setting env
-// accepts an optional envOverrides object which will be merged into import.meta.env
+// accepts an optional envoverrides object which will be merged into import.meta.env
 async function loadLayoutAndProviders(envOverrides: Record<string, string> = {}) {
   // force module reload so env value is re-read and modules are consistent
   vi.resetModules();
@@ -64,7 +64,7 @@ describe('RootLayout', () => {
     // ensure env default state has no flag
     delete (import.meta as any).env.VITE_SHOW_HEALTH_BAR;
     const { RootLayout, AuthProvider, FronterProvider, LLMContextProvider } = await loadLayoutAndProviders();
-    // ensure a <link id="favicon"/> exists in the DOM for our later assertion
+    // ensure a <link id="favicon"/> exists in the dom for our later assertion
     const linkEl = document.createElement('link');
     linkEl.id = 'favicon';
     linkEl.rel = 'icon';
@@ -98,9 +98,9 @@ describe('RootLayout', () => {
     const { RootLayout, AuthProvider, FronterProvider, LLMContextProvider } = await loadLayoutAndProviders({ VITE_SHOW_HEALTH_BAR: 'true' });
     // confirm that our override actually landed in the env object
     expect((import.meta as any).env.VITE_SHOW_HEALTH_BAR).toBe('true');
-    // we don't assert on DOM since rendering with providers is already covered
-    // by the first test and the conditional itself is simple. This avoids
-    // flaky failures caused by testing UI structure.
+    // we don't assert on dom since rendering with providers is already covered
+    // by the first test and the conditional itself is simple. this avoids
+    // flaky failures caused by testing ui structure.
   });
 
   it('always lowercases the document title', async () => {

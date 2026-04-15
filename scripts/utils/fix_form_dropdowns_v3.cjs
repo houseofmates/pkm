@@ -2,18 +2,18 @@ const fs = require('fs');
 const path = 'src/features/houseofmates-builder/components/FormRenderer.tsx';
 let content = fs.readFileSync(path, 'utf8');
 
-// Identify the block to replace
+// identify the block to replace
 const oldBlockStart = "{field.type === 'dropdown' && (";
 const oldBlockEnd = ")}";
 
-// Since there might be multiple field.type === 'dropdown' checks, we need to find the one inside fields.map in FormBuilder
+// since there might be multiple field.type === 'dropdown' checks, we need to find the one inside fields.map in formbuilder
 const formBuilderStart = "export function FormBuilder";
 const fbContent = content.slice(content.indexOf(formBuilderStart));
 
-// Find the dropdown check inside FormBuilder
+// find the dropdown check inside formbuilder
 const dropdownStartIdx = fbContent.indexOf("{field.type === 'dropdown' && (");
-// Find the end of this block. It's a bit tricky with nested braces.
-// But looking at the file, it's followed by </div> and then map close.
+// find the end of this block. it's a bit tricky with nested braces.
+// but looking at the file, it's followed by </div> and then map close.
 
 const replacement = `{field.type === 'dropdown' && (
                                             <div className="mt-2 ml-6 space-y-2">
@@ -102,14 +102,14 @@ const replacement = `{field.type === 'dropdown' && (
                                             </div>
                                         )}`;
 
-// Use a more aggressive approach: find the exact old block by looking for unique strings inside it
+// use a more aggressive approach: find the exact old block by looking for unique strings inside it
 const searchPattern = /\{field\.type === 'dropdown' && \([\s\S]*?className="text-white\/30 hover:bg-white\/10 font-bold uppercase hover:bg-\[var\(--primary\)\]\/20"[\s\S]*?\)\}/;
-// Wait, I don't know the exact classes in the current file.
+// wait, i don't know the exact classes in the current file.
 
-// Let's just find "{field.type === 'dropdown' && (" and the next "</div>" after some specific tags.
+// let's just find "{field.type === 'dropdown' && (" and the next "</div>" after some specific tags.
 
-// Re-read the file to get exact content of the old block
+// re-read the file to get exact content of the old block
 const start = fbContent.indexOf("{field.type === 'dropdown' && (");
 const end = fbContent.indexOf("                                </div>", start); // This might be too soon
 
-// Actually, I'll just rewrite the whole FormBuilder component. It's safer.
+// actually, i'll just rewrite the whole formbuilder component. it's safer.

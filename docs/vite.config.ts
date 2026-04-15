@@ -1,5 +1,5 @@
 // the docs site is built separately from the main app and its deps may not
-// be present in the monorepo environment.  silence the TypeScript errors by
+// be present in the monorepo environment.  silence the typescript errors by
 // ignoring the missing types and providing explicit parameter typings below.
 
 import { defineConfig } from 'vitepress'

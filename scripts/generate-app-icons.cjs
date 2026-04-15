@@ -1,4 +1,4 @@
-// generate app icons for android APK with database icon on black background
+// generate app icons for android apk with database icon on black background
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');

@@ -117,7 +117,7 @@ export const DatabaseContextMenu = React.memo(function DatabaseContextMenu({
         "Delete failed:",
         error instanceof Error ? error.message : String(error),
       );
-      // Still hide from sidebar even if server delete failed, since user requested deletion
+      // still hide from sidebar even if server delete failed, since user requested deletion
       toast.error(
         "failed to delete database from server, but removed from sidebar",
       );

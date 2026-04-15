@@ -3,8 +3,8 @@ import fs from "fs"
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// serve /pkm/* from public/pkm/ as static files (VitePress docs)
-// instead of letting the SPA fallback catch them
+// serve /pkm/* from public/pkm/ as static files (vitepress docs)
+// instead of letting the spa fallback catch them
 function pkmWikiPlugin() {
   const mimeTypes: Record<string, string> = {
     '.html': 'text/html',
@@ -23,8 +23,8 @@ function pkmWikiPlugin() {
   return {
     name: 'pkm-wiki-static',
     configureServer(server: any) {
-      // must return a function to run AFTER vite's internal middleware
-      // but we actually want to run BEFORE, so we use server.middlewares.use directly
+      // must return a function to run after vite's internal middleware
+      // but we actually want to run before, so we use server.middlewares.use directly
       server.middlewares.use((req: any, res: any, next: any) => {
         const url = (req.url || '').split('?')[0].split('#')[0]
         if (!url.startsWith('/pkm')) return next()
@@ -46,7 +46,7 @@ function pkmWikiPlugin() {
           return
         }
 
-        // try .html extension for clean URLs
+        // try .html extension for clean urls
         if (!path.extname(filePath)) {
           const htmlPath = filePath + '.html'
           const indexPath = path.join(filePath, 'index.html')
@@ -64,7 +64,7 @@ function pkmWikiPlugin() {
           }
         }
 
-        // fallback: serve VitePress 404.html so the SPA doesn't catch /pkm/* routes
+        // fallback: serve vitepress 404.html so the spa doesn't catch /pkm/* routes
         const fallback404 = path.join(__dirname, 'public', 'pkm', '404.html')
         if (fs.existsSync(fallback404)) {
           res.statusCode = 404
@@ -86,10 +86,10 @@ export default defineConfig({
   plugins: [
     pkmWikiPlugin(),
     react(),
-    // legacy plugin disabled - re-enable for production APK builds with older Android support
+    // legacy plugin disabled - re-enable for production apk builds with older android support
     // legacy({
-    //   targets: ['Android >= 10', 'Chrome >= 80'],
-    //   modernPolyfills: true,
+    //   targets: ['android >= 10', 'chrome >= 80'],
+    //   modernpolyfills: true,
     // }),
   ],
   server: {

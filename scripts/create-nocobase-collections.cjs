@@ -28,7 +28,7 @@ async function apiCall(endpoint, method = 'GET', body = null) {
   }
 }
 
-// Create collection
+// create collection
 async function createCollection(name, title) {
   console.log(`Creating collection: ${name}...`);
   return await apiCall('/collections:create', 'POST', {
@@ -43,7 +43,7 @@ async function createCollection(name, title) {
   });
 }
 
-// Create field
+// create field
 async function createField(collectionName, fieldConfig) {
   console.log(`  Creating field: ${fieldConfig.name} (${fieldConfig.interface})`);
   return await apiCall('/fields:create', 'POST', {
@@ -52,7 +52,7 @@ async function createField(collectionName, fieldConfig) {
   });
 }
 
-// Exercise Collection
+// exercise collection
 async function createExerciseCollection() {
   const collection = await createCollection('exercise', 'exercise');
   if (!collection) return;
@@ -85,7 +85,7 @@ async function createExerciseCollection() {
   console.log('Exercise collection created!\n');
 }
 
-// Sleep Collection
+// sleep collection
 async function createSleepCollection() {
   const collection = await createCollection('sleep', 'sleep');
   if (!collection) return;
@@ -126,7 +126,7 @@ async function createSleepCollection() {
   console.log('Sleep collection created!\n');
 }
 
-// Finances Collection
+// finances collection
 async function createFinancesCollection() {
   const collection = await createCollection('finances', 'finances');
   if (!collection) return;
@@ -166,7 +166,7 @@ async function createFinancesCollection() {
   console.log('Finances collection created!\n');
 }
 
-// Habits Collection
+// habits collection
 async function createHabitsCollection() {
   const collection = await createCollection('habits', 'habits');
   if (!collection) return;
@@ -212,7 +212,7 @@ async function createHabitsCollection() {
   console.log('Habits collection created!\n');
 }
 
-// Media Collection
+// media collection
 async function createMediaCollection() {
   const collection = await createCollection('media', 'media');
   if (!collection) return;
@@ -262,7 +262,7 @@ async function createMediaCollection() {
   console.log('Media collection created!\n');
 }
 
-// Main execution
+// main execution
 async function main() {
   console.log('Creating NocoBase collections...\n');
   

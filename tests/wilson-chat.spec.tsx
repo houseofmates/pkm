@@ -103,7 +103,7 @@ describe('WilsonChat /ai flow', () => {
     useEdgelessStore.setState({ isChatOpen: true })
     render(<WilsonChat />)
 
-    // There should be a paperclip/attachment button
+    // there should be a paperclip/attachment button
     const attachmentButton = screen.getByTitle('Attach files (images, gifs, videos)')
     expect(attachmentButton).toBeTruthy()
   })
@@ -119,7 +119,7 @@ describe('WilsonChat /ai flow', () => {
 
     render(<WilsonChat />)
 
-    // Should show attachment count in header
+    // should show attachment count in header
     expect(screen.getByText('2 attachments')).toBeTruthy()
   })
 
@@ -145,8 +145,8 @@ describe('WilsonChat /ai flow', () => {
 
     render(<WilsonChat />)
 
-    // The send button should be enabled because there's an attachment
-    // Note: The button might not have a specific accessible name, so we check by finding the button
+    // the send button should be enabled because there's an attachment
+    // note: the button might not have a specific accessible name, so we check by finding the button
     // inside the input container
     const buttons = screen.getAllByRole('button')
     const sendButton = buttons.find(btn => btn.querySelector('svg')) // Find button with Send icon

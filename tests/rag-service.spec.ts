@@ -5,7 +5,7 @@ import { buildRagContext } from '@/services/rag-service';
 
 describe('RAG service', () => {
   it('buildRagContext formats retrieved chunks correctly', async () => {
-    // mock searchKnowledgeBase to return two chunks
+    // mock searchknowledgebase to return two chunks
     const fakeChunks: vectorStore.SearchResult[] = [
       {
         chunk: {

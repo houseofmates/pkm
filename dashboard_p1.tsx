@@ -22,7 +22,7 @@ import { secureLogger } from '@/lib/secure-logger';
 import { useEdgelessStore } from '@/features/edgeless/store';
 import type { Collection } from '@/hooks/use-collections';
 
-// Wrapper component to fetch full collection details with fields
+// wrapper component to fetch full collection details with fields
 function CollectionWidgetWrapper({ collectionName, initialView, viewConfig, onRemove }: {
   collectionName: string;
   initialView: ViewType;

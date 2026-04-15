@@ -222,7 +222,7 @@ async function buildWebAssets() {
   step(1, 'building web assets...');
 
   // instead of relying on npm workspace scripts (which may not include
-  // the root node_modules/.bin in PATH), invoke vite directly from the
+  // the root node_modules/.bin in path), invoke vite directly from the
   // monorepo root. this guarantees the binary is found.
   const viteBin = path.join(MONOREPO_ROOT, 'node_modules', '.bin', 'vite');
   if (!fs.existsSync(viteBin)) {
@@ -258,7 +258,7 @@ async function buildElectron() {
   // primary build (will produce linux packages on linux, exe on windows)
   run('npm run build', { cwd: electronDir });
 
-  // if we're on a non-Windows host, try to produce a Windows installer via
+  // if we're on a non-windows host, try to produce a windows installer via
   // wine. electron-builder will do nothing if wine is missing or broken.
   if (platform !== 'win32') {
     try {
@@ -337,8 +337,8 @@ async function main() {
     cleanReleasesDir();
   }
 
-  // we can *cross‑build* a Windows installer on non‑Windows hosts if
-  // `wine` is installed. the CI already does this on windows-latest; here
+  // we can *cross‑build* a windows installer on non‑windows hosts if
+  // `wine` is installed. the ci already does this on windows-latest; here
   // we'll attempt it if wine is available so local developers get an .exe too.
 
 
@@ -361,8 +361,8 @@ async function main() {
     if (buildApkFlag) {
       // check for android sdk
       try {
-        // we already checked for sdkmanager in the PATH earlier by setting PATH
-        // but let's be safe and just try to build if ANDROID_HOME is set
+        // we already checked for sdkmanager in the path earlier by setting path
+        // but let's be safe and just try to build if android_home is set
         if (process.env.ANDROID_HOME || fs.existsSync(path.join(process.env.HOME, 'Android/Sdk'))) {
           await buildApk();
           copyApk(version);

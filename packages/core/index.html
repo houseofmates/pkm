@@ -14,7 +14,7 @@
 
 
 
-  <!-- Critical CSS to prevent FOUC - loaded immediately -->
+  <!-- critical css to prevent fouc - loaded immediately -->
   <style>
     /* local font face - avoids firefox tracking protection */
     @font-face {
@@ -25,7 +25,7 @@
       src: url('/fonts/varela-round-regular.woff2') format('woff2');
     }
 
-    /* Reset and base styles */
+    /* reset and base styles */
     *,
     *::before,
     *::after {
@@ -44,7 +44,7 @@
       overflow-x: hidden;
     }
 
-    /* Hide all content until React loads */
+    /* hide all content until react loads */
     #root {
       height: 100vh;
       background-color: #050505;
@@ -54,7 +54,7 @@
       overflow: hidden;
     }
 
-    /* Simple circular spinner (yellow) */
+    /* simple circular spinner (yellow) */
     .spinner {
       width: 48px;
       height: 48px;
@@ -105,9 +105,9 @@
   </script>
 
   <title>pkm</title>
-  <!-- Immediately update title to hostname for houseofmates domains
+  <!-- immediately update title to hostname for houseofmates domains
        so the user never sees "pkm" in their browser tab when on those
-       sites. This runs before React mounts. -->
+       sites. this runs before react mounts. -->
   <script>
     try {
       const host = window.location.hostname;
@@ -121,7 +121,7 @@
       // lowercase all titles
       title = title.toLowerCase();
 
-      // also set favicon before React loads
+      // also set favicon before react loads
       const favIcon = document.getElementById('favicon');
       if (favIcon) {
         if (host === 'dupe.houseofmates.space') favIcon.href = '/favicon-dupe.png';
@@ -140,13 +140,13 @@
 <body class="fonts-loading">
   <div id="root">
     <div class="loading">
-      <!-- Simple circular spinner, no text -->
+      <!-- simple circular spinner, no text -->
       <div class="spinner" aria-hidden="true"></div>
     </div>
   </div>
 
   <script>
-    // Font loading detection
+    // font loading detection
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(() => {
         document.body.classList.remove('fonts-loading');
@@ -154,7 +154,7 @@
       });
     }
 
-    // Prevent layout shift
+    // prevent layout shift
     document.documentElement.style.visibility = 'visible';
   </script>
 

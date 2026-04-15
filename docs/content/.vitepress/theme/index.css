@@ -48,7 +48,7 @@ code, code *,
   text-transform: none !important;
 }
 
-/* ── remove body constraints that break VitePress layout ── */
+/* ── remove body constraints that break vitepress layout ── */
 body {
   background: var(--vp-c-bg);
   color: var(--vp-c-text-1);

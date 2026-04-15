@@ -11,7 +11,7 @@ async function testDelete() {
         const token = loginRes.data.data.token;
         console.log('Logged in, got token');
 
-        // Create a dummy collection first
+        // create a dummy collection first
         const createRes = await axios.post('https://db.houseofmates.space/api/collections:create', {
             name: 'test_delete_collection',
             title: 'Test Delete',
@@ -20,7 +20,7 @@ async function testDelete() {
         });
         console.log('Created collection:', createRes.data);
 
-        // Now try to delete it
+        // now try to delete it
         const deleteRes = await axios.post('https://db.houseofmates.space/api/collections:destroy?filterByTk=test_delete_collection', {}, {
             headers: { Authorization: `Bearer ${token}` }
         });

@@ -72,7 +72,7 @@ export function ContactsView({ data, collection }: ViewProps) {
     return title.toLowerCase().includes(search.toLowerCase());
   });
 
-  // Sync with active fronters from context
+  // sync with active fronters from context
   useEffect(() => {
     if (activeFronters.length > 0) {
       setSelectedOrder(activeFronters);
@@ -83,10 +83,10 @@ export function ContactsView({ data, collection }: ViewProps) {
     setSelectedOrder(prev => {
       const index = prev.indexOf(memberId);
       if (index === -1) {
-        // Add to selection
+        // add to selection
         return [...prev, memberId];
       } else {
-        // Remove from selection
+        // remove from selection
         return prev.filter(id => id !== memberId);
       }
     });
@@ -127,7 +127,7 @@ export function ContactsView({ data, collection }: ViewProps) {
     }
   }, []);
 
-  // Get ordered and unfiltered members
+  // get ordered and unfiltered members
   const orderedMembers = selectedOrder
     .map(id => filtered.find(m => String(m.id) === id || m.id === id))
     .filter(Boolean);
