@@ -243,7 +243,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
   const syncFrontFromSimplyPlural = async () => {
     try {
-      const apiKey = storageManager.getItem("pk_api_key");
+      const apiKey = storageManager.getCachedSecret("pk_api_key");
       if (!apiKey) return;
       const meRes = await fetch(SimplyPluralClient.url("/me"), {
         headers: { Authorization: apiKey },
@@ -333,7 +333,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         secureLogger.info("New front entry created, result:", createResult);
 
         try {
-          const apiKey = storageManager.getItem("pk_api_key");
+          const apiKey = storageManager.getCachedSecret("pk_api_key");
           if (apiKey) {
             const meRes = await fetch(SimplyPluralClient.url("/me"), {
               headers: { Authorization: apiKey },
