@@ -59,11 +59,35 @@ wss.on('connection', (ws) => {
     });
 
     hermesProcess.stderr.on('data', (data) => {
-      console.error(`[${sessionId}] hermes stderr:`, data.toString());
+      const errText = data.toString();
+      console.error(`[${sessionId}] hermes stderr:`, errText);
+      // detect ssh auth failures and send helpful message
+      if (errText.includes('Permission denied') || errText.includes('Host key verification failed')) {
+        sendToClient('error', { message: 'ssh connection to hermes failed: check ssh key permissions' });
+      }
+    });
+
+    // kill hermes if it takes too long (120s no output)
+    let hermesTimeout = setTimeout(() => {
+      if (hermesProcess) {
+        console.log(\`[\${sessionId}] hermes timeout, killing\`);
+        hermesProcess.kill();
+      }
+    }, 120000);
+
+    hermesProcess.stdout.on('data', () => {
+      clearTimeout(hermesTimeout);
+      hermesTimeout = setTimeout(() => {
+        if (hermesProcess) {
+          console.log(\`[\${sessionId}] hermes timeout, killing\`);
+          hermesProcess.kill();
+        }
+      }, 120000);
     });
 
     hermesProcess.on('close', (code) => {
-      console.log(`[${sessionId}] hermes exited with code ${code}`);
+      clearTimeout(hermesTimeout);
+      console.log(\`[\${sessionId}] hermes exited with code \${code}\`);
       sendToClient('end', { reason: code === 0 ? 'complete' : 'error' });
       hermesProcess = null;
     });
