@@ -252,7 +252,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       const meData = await meRes.json();
       const systemId = meData.id;
       const frontRes = await fetch(
-        SimplyPluralClient.url(`/front/${systemId}`),
+        SimplyPluralClient.url('/fronters'),
         {
           headers: { Authorization: apiKey },
         },
@@ -349,7 +349,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
               })),
             };
             const frontRes = await fetch(
-              SimplyPluralClient.url(`/front/${systemId}`),
+              SimplyPluralClient.url('/fronters'),
               {
                 method: "PATCH",
                 headers: {
