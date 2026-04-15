@@ -31,7 +31,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
   if (!record || !collection) return null;
 
-  // Apply fallback fields for collections that don't have fields defined
+  // apply fallback fields for collections that don't have fields defined
   const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string; uiSchema?: { title?: string } }>> = {
     events: [
       { name: 'title', type: 'string', interface: 'input', uiSchema: { title: 'title' } },
@@ -79,12 +79,12 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
     ],
   };
 
-  const collectionWithFallback = collection.fields && collection.fields.length > 0 
-    ? collection 
+  const collectionWithFallback = collection.fields && collection.fields.length > 0
+    ? collection
     : { ...collection, fields: FALLBACK_FIELDS[collection.name] || [] };
 
   const fields = collectionWithFallback.fields || [];
-  
+
   // filter out internal/system fields
   const displayFields = fields.filter((f: any) => {
     const internalFields = ['id', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'created_at', 'updated_at'];
@@ -143,8 +143,8 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <SheetContent 
-        side="right" 
+      <SheetContent
+        side="right"
         className="w-full sm:max-w-lg bg-[#1a1a1a] border-l border-[#222] p-0 flex flex-col"
       >
         <SheetHeader className="border-b border-[#222] p-4 pb-3 flex-shrink-0">
@@ -193,7 +193,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
               return (
                 <div key={field.name} className="space-y-2">
-                  <Label 
+                  <Label
                     htmlFor={`field-${field.name}`}
                     className="text-xs text-[#d4af37] flex items-center gap-2"
                   >

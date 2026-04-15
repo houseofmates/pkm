@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // script: check-ui-lowercase
 // purpose: scan jsx/tsx/html files for ui text (jsx text nodes and common attributes)
-//          and optionally fix (lowercase) offending visible UI strings.
+//          and optionally fix (lowercase) offending visible ui strings.
 
 const fs = require('fs')
 const path = require('path')

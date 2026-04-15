@@ -4,79 +4,79 @@ import { EventEmitter } from 'events';
 class PluginManagerImpl extends EventEmitter implements PluginManager {
   private plugins: Map<string, Plugin> = new Map();
   private initializedPlugins: Set<string> = new Set();
-  
+
   constructor() {
     super();
     this.setMaxListeners(0); // Remove warning limit
   }
-  
+
   async registerPlugin(plugin: Plugin): Promise<void> {
-    // Validate plugin manifest
+    // validate plugin manifest
     this.validateManifest(plugin.manifest);
-    
-    // Check if already registered
+
+    // check if already registered
     if (this.plugins.has(plugin.manifest.id)) {
       throw new Error(`Plugin ${plugin.manifest.id} is already registered`);
     }
-    
-    // Check dependencies
+
+    // check dependencies
     await this.checkDependencies(plugin.manifest);
-    
-    // Store plugin
+
+    // store plugin
     this.plugins.set(plugin.manifest.id, plugin);
-    
-    // Emit event
+
+    // emit event
     this.emit('pluginRegistered', plugin.manifest.id);
-    
-    // Auto-initialize if desired
-    // await this.initializePlugin(plugin.manifest.id);
+
+    // auto-initialize if desired
+    // await this.initializeplugin(plugin.manifest.id);
   }
-  
+
   async unregisterPlugin(pluginId: string): Promise<void> {
     const plugin = this.plugins.get(pluginId);
     if (!plugin) {
       throw new Error(`Plugin ${pluginId} not found`);
     }
-    
-    // Destroy if initialized
+
+    // destroy if initialized
     if (this.initializedPlugins.has(pluginId)) {
       await this.destroyPlugin(pluginId);
     }
-    
-    // Remove from map
+
+    // remove from map
     this.plugins.delete(pluginId);
-    
-    // Emit event
+
+    // emit event
     this.emit('pluginUnregistered', pluginId);
   }
-  
+
   getPlugin(pluginId: string): Plugin | undefined {
     return this.plugins.get(pluginId);
   }
-  
+
   getPlugins(): Plugin[] {
     return Array.from(this.plugins.values());
   }
-  
+
   async initializePlugin(pluginId: string): Promise<void> {
     const plugin = this.getPlugin(pluginId);
     if (!plugin) {
       throw new Error(`Plugin ${pluginId} not found`);
     }
-    
+
     if (this.initializedPlugins.has(pluginId)) {
       return; // Already initialized
     }
-    
+
     try {
-      // Create plugin context
+      // create plugin context
       const context = this.createPluginContext(plugin);
-      
-      // Initialize plugin
+
+      // initialize plugin
       if (plugin.initialize) {
         await plugin.initialize(context);
       }
-      
+
       this.initializedPlugins.add(pluginId);
       this.emit('pluginInitialized', pluginId);
     } catch (error) {
@@ -84,23 +84,23 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
       throw error;
     }
   }
-  
+
   async destroyPlugin(pluginId: string): Promise<void> {
     const plugin = this.getPlugin(pluginId);
     if (!plugin) {
       throw new Error(`Plugin ${pluginId} not found`);
     }
-    
+
     if (!this.initializedPlugins.has(pluginId)) {
       return; // Not initialized
     }
-    
+
     try {
-      // Destroy plugin
+      // destroy plugin
       if (plugin.destroy) {
         await plugin.destroy();
       }
-      
+
       this.initializedPlugins.delete(pluginId);
       this.emit('pluginDestroyed', pluginId);
     } catch (error) {
@@ -108,7 +108,7 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
       throw error;
     }
   }
-  
+
   async initializeAll(): Promise<void> {
     const pluginIds = Array.from(this.plugins.keys());
     for (const pluginId of pluginIds) {
@@ -116,11 +116,11 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
         await this.initializePlugin(pluginId);
       } catch (error) {
         console.error(`Failed to initialize plugin ${pluginId}:`, error);
-        // Continue with other plugins
+        // continue with other plugins
       }
     }
   }
-  
+
   async destroyAll(): Promise<void> {
     const pluginIds = Array.from(this.initializedPlugins.values());
     for (const pluginId of pluginIds) {
@@ -128,63 +128,63 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
         await this.destroyPlugin(pluginId);
       } catch (error) {
         console.error(`Failed to destroy plugin ${pluginId}:`, error);
-        // Continue with other plugins
+        // continue with other plugins
       }
     }
   }
-  
+
   private validateManifest(manifest: PluginManifest): void {
-    // Required fields
+    // required fields
     if (!manifest.id) throw new Error('Plugin manifest missing id');
     if (!manifest.name) throw new Error('Plugin manifest missing name');
     if (!manifest.version) throw new Error('Plugin manifest missing version');
     if (!manifest.pkmVersion) throw new Error('Plugin manifest missing pkmVersion');
     if (!manifest.main) throw new Error('Plugin manifest missing main entry point');
-    
-    // Validate version format (semver)
+
+    // validate version format (semver)
     const versionRegex = /^\d+\.\d+\.\d+(-.+)?$/;
     if (!versionRegex.test(manifest.version)) {
       throw new Error('Plugin version must be in semver format');
     }
   }
-  
+
   private async checkDependencies(manifest: PluginManifest): Promise<void> {
-    // Check PKM version
+    // check pkm version
     const requiredVersion = manifest.pkmVersion;
     const currentVersion = process.env.PKM_VERSION || '0.0.0';
-    // Simple version check - in production use semver library
+    // simple version check - in production use semver library
     if (this.compareVersions(currentVersion, requiredVersion) < 0) {
       throw new Error(`Plugin requires PKM version ${requiredVersion}, but ${currentVersion} is installed`);
     }
-    
-    # 
+
+    //
     if (manifest.dependencies) {
       for (const [depName, depVersion] of Object.entries(manifest.dependencies)) {
-        // In a real implementation, check package.json or node_modules
-        # This is a placeholder - actual implementation would check installed packages
+        // in a real implementation, check package.json or node_modules
+        // this is a placeholder - actual implementation would check installed packages
         console.warn(`Dependency check for ${depName}@${depVersion} not implemented`);
       }
     }
   }
-  
+
   private compareVersions(current: string, required: string): number {
     const currentParts = current.split('.').map(Number);
     const requiredParts = required.split('.').map(Number);
-    
+
     for (let i = 0; i < Math.max(currentParts.length, requiredParts.length); i++) {
       const currentPart = currentParts[i] || 0;
       const requiredPart = requiredParts[i] || 0;
-      
+
       if (currentPart < requiredPart) return -1;
       if (currentPart > requiredPart) return 1;
     }
-    
+
     return 0;
   }
-  
+
   private createPluginContext(plugin: Plugin): PluginContext {
-    // This would be implemented with actual service instances
-    // For now, returning a mock context
+    // this would be implemented with actual service instances
+    // for now, returning a mock context
     return {
       api: {}, // Would be NocoBase client
       storage: {}, // Would be IndexedDB/localStorage wrapper
@@ -247,5 +247,5 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
   }
 }
 
-// Export singleton instance
+// export singleton instance
 export const pluginManager = new PluginManagerImpl();

@@ -1,11 +1,11 @@
 #!/usr/bin/env ts-node
-// simple completion generator for SQL based on a static schema description
+// simple completion generator for sql based on a static schema description
 // this script can be used by an editor extension to provide table/column snippets
 
 import fs from 'fs';
 import path from 'path';
 
-// load a JSON schema from server-data or another file; adapt as needed
+// load a json schema from server-data or another file; adapt as needed
 const schemaPath = path.resolve(process.cwd(), 'server-data.json');
 let schema: any = {};
 try {

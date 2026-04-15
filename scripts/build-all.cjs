@@ -3,7 +3,7 @@
  * build-all.cjs
  * builds appimage, deb, exe, and apk for pkm
  * outputs to /releases folder
- * 
+ *
  * usage:
  *   node scripts/build-all.cjs           # build all platforms
  *   node scripts/build-all.cjs --linux   # build linux only
@@ -112,7 +112,7 @@ function detectPlatform() {
 
 function copyElectronBuilds(version) {
   const electronReleaseDir = path.join(MONOREPO_ROOT, 'apps', 'desktop-electron', 'release');
-  
+
   if (!fs.existsSync(electronReleaseDir)) {
     warn(`electron release directory not found: ${electronReleaseDir}`);
     return;
@@ -124,10 +124,10 @@ function copyElectronBuilds(version) {
   for (const file of files) {
     const src = path.join(electronReleaseDir, file);
     const stat = fs.statSync(src);
-    
+
     if (stat.isFile()) {
       let destName;
-      
+
       if (file.endsWith('.AppImage')) {
         destName = `pkm-${version.full}-linux.AppImage`;
       } else if (file.endsWith('.deb')) {
@@ -140,7 +140,7 @@ function copyElectronBuilds(version) {
         // skip other files
         continue;
       }
-      
+
       const dest = path.join(RELEASES_DIR, destName);
       fs.copyFileSync(src, dest);
       copies.push(destName);
@@ -194,7 +194,7 @@ function createVersionJson(version) {
 
   // detect what files exist
   const files = fs.readdirSync(RELEASES_DIR);
-  
+
   for (const file of files) {
     if (file.endsWith('.AppImage')) {
       releases.releases.appimage = file;
@@ -213,7 +213,7 @@ function createVersionJson(version) {
     path.join(RELEASES_DIR, 'version.json'),
     JSON.stringify(releases, null, 2)
   );
-  
+
   success('created version.json');
   return releases;
 }
@@ -222,7 +222,7 @@ async function buildWebAssets() {
   step(1, 'building web assets...');
 
   // instead of relying on npm workspace scripts (which may not include
-  // the root node_modules/.bin in PATH), invoke vite directly from the
+  // the root node_modules/.bin in path), invoke vite directly from the
   // monorepo root. this guarantees the binary is found.
   const viteBin = path.join(MONOREPO_ROOT, 'node_modules', '.bin', 'vite');
   if (!fs.existsSync(viteBin)) {
@@ -258,7 +258,7 @@ async function buildElectron() {
   // primary build (will produce linux packages on linux, exe on windows)
   run('npm run build', { cwd: electronDir });
 
-  // if we're on a non-Windows host, try to produce a Windows installer via
+  // if we're on a non-windows host, try to produce a windows installer via
   // wine. electron-builder will do nothing if wine is missing or broken.
   if (platform !== 'win32') {
     try {
@@ -276,22 +276,22 @@ async function buildElectron() {
 async function buildApk() {
   step(3, 'building android apk...');
   const mobileDir = path.join(MONOREPO_ROOT, 'apps', 'mobile');
-  
+
   // build web for mobile
   info('building mobile web assets...');
   run('npm run build', { cwd: mobileDir });
-  
+
   // sync capacitor
   info('syncing capacitor...');
   run('npx cap sync android', { cwd: mobileDir });
-  
+
   // patch java version if needed
   const androidDir = path.join(mobileDir, 'android');
   const gradleFiles = execSync('find . -name "*.gradle"', { cwd: androidDir })
     .toString()
     .split('\n')
     .filter(f => f);
-  
+
   for (const file of gradleFiles) {
     const filePath = path.join(androidDir, file);
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
@@ -303,11 +303,11 @@ async function buildApk() {
       }
     }
   }
-  
+
   // build apk
   info('building release apk...');
   run('./gradlew assembleRelease', { cwd: androidDir });
-  
+
   success('apk built');
 }
 
@@ -325,20 +325,20 @@ async function main() {
 
   const version = getVersion();
   const { platform } = detectPlatform();
-  
+
   info(`version: ${version.full}`);
   info(`platform: ${platform}`);
   info(`targets: ${buildLinux ? 'linux (appimage, deb)' : ''} ${buildApkFlag ? 'android (apk)' : ''}`);
   console.log('');
 
   ensureReleasesDir();
-  
+
   if (clean) {
     cleanReleasesDir();
   }
 
-  // we can *cross‑build* a Windows installer on non‑Windows hosts if
-  // `wine` is installed. the CI already does this on windows-latest; here
+  // we can *cross‑build* a windows installer on non‑windows hosts if
+  // `wine` is installed. the ci already does this on windows-latest; here
   // we'll attempt it if wine is available so local developers get an .exe too.
 
 
@@ -361,8 +361,8 @@ async function main() {
     if (buildApkFlag) {
       // check for android sdk
       try {
-        // we already checked for sdkmanager in the PATH earlier by setting PATH
-        // but let's be safe and just try to build if ANDROID_HOME is set
+        // we already checked for sdkmanager in the path earlier by setting path
+        // but let's be safe and just try to build if android_home is set
         if (process.env.ANDROID_HOME || fs.existsSync(path.join(process.env.HOME, 'Android/Sdk'))) {
           await buildApk();
           copyApk(version);

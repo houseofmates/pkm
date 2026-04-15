@@ -168,7 +168,7 @@ const SessionItem = memo(function SessionItem({
 export function HermesChat() {
  const isChatOpen = useEdgelessStore((s) => s.isChatOpen);
  const setChatOpen = useEdgelessStore((s) => s.setChatOpen);
- 
+
  const connected = useHermesStore((s) => s.connected);
  const interactionHistory = useHermesStore((s) => s.interactionHistory);
  const isThinking = useHermesStore((s) => s.isThinking);
@@ -236,12 +236,12 @@ export function HermesChat() {
   };
 
   const handleRenameSession = (sessionId: string, newTitle: string) => {
-    // todo: add renameSession to hermes-store if needed
+    // todo: add renamesession to hermes-store if needed
     secureLogger.info("[hermes-chat] rename session:", sessionId, newTitle);
   };
 
   const handleDeleteSession = (sessionId: string) => {
-    // todo: add deleteSession to hermes-store if needed
+    // todo: add deletesession to hermes-store if needed
     secureLogger.info("[hermes-chat] delete session:", sessionId);
   };
 

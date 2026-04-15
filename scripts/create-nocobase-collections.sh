@@ -1,5 +1,5 @@
 #!/bin/bash
-# Create NocoBase collections - run this with your actual NocoBase URL
+# create nocobase collections - run this with your actual nocobase url
 
 API_URL="${NOCOBASE_URL:-http://localhost:8091}/api"
 TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGVOYW1lIjoicm9vdCIsImlhdCI6MTc3NDY0NTY5MiwiZXhwIjoxNzc0NzMyMDkyfQ.ktX5jcezmLhxZISaBqqHS_eg45FIIogkW8NQb-EL7n4"
@@ -7,11 +7,11 @@ TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGVOYW1lIjoicm9v
 echo "Creating collections on: $API_URL"
 echo ""
 
-# Function to create collection
+# function to create collection
 create_collection() {
   local name=$1
   local title=$2
-  
+
   echo "Creating collection: $name"
   curl -s -X POST "$API_URL/collections:create" \
     -H "Content-Type: application/json" \
@@ -28,16 +28,16 @@ create_collection() {
     }" | jq -r '.data.name // .errors[0].message // "created"'
 }
 
-# Function to create field
+# function to create field
 create_field() {
   local collection=$1
   local name=$2
   local interface=$3
   local type=$4
   local options=$5
-  
+
   echo "  + $name ($interface)"
-  
+
   local payload="{
     \"collectionName\": \"$collection\",
     \"name\": \"$name\",
@@ -45,7 +45,7 @@ create_field() {
     \"type\": \"$type\",
     \"uiSchema\": { \"title\": \"$name\" $options }
   }"
-  
+
   curl -s -X POST "$API_URL/fields:create" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $TOKEN" \

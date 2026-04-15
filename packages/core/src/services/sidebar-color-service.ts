@@ -5,7 +5,7 @@
 import { nocobaseClient } from "@/lib/nocobase";
 import { secureLogger } from "@/lib/secure-logger";
 
-// use nocobaseClient for NocoBase API calls
+// use nocobaseclient for nocobase api calls
 const client = nocobaseClient;
 
 export type SidebarItemType = "collection" | "folder" | "document" | "drawing";

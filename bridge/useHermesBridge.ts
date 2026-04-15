@@ -1,4 +1,4 @@
-// useHermesBridge - hook for connecting pkm chat to hermes agent
+// usehermesbridge - hook for connecting pkm chat to hermes agent
 // this hooks into the llm-store and routes messages to the hermes bridge
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -31,7 +31,7 @@ let messageCallbacks: Set<(msg: any) => void> = new Set();
 function getWebSocket(url: string): WebSocket {
   if (!wsInstance || wsInstance.readyState === WebSocket.CLOSED) {
     wsInstance = new WebSocket(url);
-    
+
     wsInstance.onopen = () => {
       console.log('[hermes-bridge] connected');
       wsInstance?.send(JSON.stringify({ type: 'start' }));
@@ -104,7 +104,7 @@ export function useHermesBridge(config: HermesBridgeConfig = {}): UseHermesBridg
 
     // connect
     const ws = getWebSocket(wsUrl);
-    
+
     const checkConnected = setInterval(() => {
       setConnected(ws.readyState === WebSocket.OPEN);
     }, 1000);
@@ -140,7 +140,7 @@ export function useHermesBridge(config: HermesBridgeConfig = {}): UseHermesBridg
     // streaming response will be handled by the effect
     // when stream ends, finalize the assistant message
     setStreamingContent('');
-    
+
     // watch for stream completion
     const finalizeMessage = () => {
       setStreamingContent(prev => {
@@ -191,7 +191,7 @@ export function useHermesBridge(config: HermesBridgeConfig = {}): UseHermesBridg
   };
 }
 
-// alternative: a function that can be dropped into askHermes
+// alternative: a function that can be dropped into askhermes
 // this intercepts the call and routes to hermes if enabled
 export function createHermesBridgeInterceptor(
   wsUrl: string = 'ws://localhost:3101'
@@ -202,9 +202,9 @@ export function createHermesBridgeInterceptor(
 
   const connect = () => {
     if (ws && ws.readyState === WebSocket.OPEN) return;
-    
+
     ws = new WebSocket(wsUrl);
-    
+
     ws.onopen = () => {
       ws?.send(JSON.stringify({ type: 'start' }));
     };
@@ -227,10 +227,10 @@ export function createHermesBridgeInterceptor(
   const askHermes = async (text: string): Promise<string | null> => {
     return new Promise((resolve) => {
       connect();
-      
+
       pendingResolve = resolve;
       responseBuffer = '';
-      
+
       // wait for connection if needed
       const sendWhenReady = () => {
         if (ws && ws.readyState === WebSocket.OPEN) {
@@ -242,9 +242,9 @@ export function createHermesBridgeInterceptor(
           setTimeout(sendWhenReady, 100);
         }
       };
-      
+
       sendWhenReady();
-      
+
       // timeout after 2 minutes
       setTimeout(() => {
         if (pendingResolve) {

@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { FronterProvider } from '@/contexts/fronter-context';
 
 // verify guard logic in auth-context so that the component never throws
-// when the React dispatcher is missing (e.g. during hot-refresh invocations).
+// when the react dispatcher is missing (e.g. during hot-refresh invocations).
 
 describe('AuthProvider', () => {
   it('does not crash when invoked without a dispatcher', async () => {
@@ -30,7 +30,7 @@ describe('AuthProvider', () => {
       <span data-testid="ok">ok</span>
     );
 
-    // the top element should be an AuthContext.Provider so that useAuth
+    // the top element should be an authcontext.provider so that useauth
     // consumers can access the stub instead of hitting the missing-provider
     // warning.  to verify this we render a small consumer component with a
     // hook and assert no warning is produced.
@@ -40,7 +40,7 @@ describe('AuthProvider', () => {
       expect(auth.isAuthenticated).toBe(false);
       return <span data-testid="auth-ok" />;
     };
-    // `rendered` should be an AuthContext.Provider with stub value
+    // `rendered` should be an authcontext.provider with stub value
     // so that downstream hooks do not warn.  inspect without mounting.
     expect(rendered.type?.displayName || rendered.type).toBe(
       AuthContext.Provider.displayName || AuthContext.Provider
@@ -80,17 +80,17 @@ describe('AuthProvider', () => {
   expect(stub.isAuthenticated).toBe(true);
 
 // spy on reload + clear storage
-  // jsdom/node may not expose `window`, so operate on globalThis.
+  // jsdom/node may not expose `window`, so operate on globalthis.
   const origLoc = (globalThis as any).location;
   const fakeReload = vi.fn();
   (globalThis as any).location = { reload: fakeReload } as any;
-  // instead of poking at localStorage directly we spy on the
-  // shared storageManager which the provider uses.
+  // instead of poking at localstorage directly we spy on the
+  // shared storagemanager which the provider uses.
   const setSpy = vi.spyOn(storageManager, 'setEncryptedItem');
   setSpy.mockImplementation(() => {});
 
      await stub.login('test-token');
- 
+
      expect(setSpy).toHaveBeenCalledWith('nocobase_token', 'test-token');
      expect(fakeReload).toHaveBeenCalled();
     setSpy.mockRestore();

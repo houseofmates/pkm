@@ -13586,7 +13586,7 @@ summary:`;
 
 
 
-            {/* Photos Preview */}
+            {/* photos preview */}
 
 
 
@@ -13654,7 +13654,7 @@ summary:`;
 
 
 
-            {/* Voice Memos */}
+            {/* voice memos */}
 
 
 

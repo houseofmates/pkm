@@ -14,7 +14,7 @@ const SIZES = {
 };
 
 try {
-    // Check ffmpeg
+    // check ffmpeg
     execSync('ffmpeg -version');
     console.log('ffmpeg found. Generating icons...');
 

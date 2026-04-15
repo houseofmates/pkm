@@ -1,4 +1,4 @@
-// Example Plugin Demonstrating the Plugin System
+// example plugin demonstrating the plugin system
 import { PluginManifest } from './plugin-types';
 
 export const examplePluginManifest: PluginManifest = {
@@ -47,16 +47,16 @@ export const examplePluginManifest: PluginManifest = {
   }
 };
 
-// In a real implementation, this would be a separate file that gets dynamically loaded
+// in a real implementation, this would be a separate file that gets dynamically loaded
 export async function initializeExamplePlugin(context: any): Promise<void> {
   console.log('Example plugin initialized');
-  
-  // Register UI components
+
+  // register ui components
   context.registerComponent('ExampleSidebar', () => {
-    const greeting = context.getState<string>('example-plugin-greeting') || 
+    const greeting = context.getState<string>('example-plugin-greeting') ||
                     'Hello from PKM Plugin!';
     const showIcon = context.getState<boolean>('example-plugin-showIcon') ?? true;
-    
+
     return (
       <div className="p-4 border-t border-white/10">
         {showIcon && (
@@ -71,11 +71,11 @@ export async function initializeExamplePlugin(context: any): Promise<void> {
       </div>
     );
   });
-  
+
   context.registerComponent('ExampleToolbar', () => {
     return (
       <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg">
-        <button 
+        <button
           className="hover:bg-white/10 transition-colors rounded-lg p-1.5"
           onClick={() => {
             context.notify('Example Plugin', 'Hello from the toolbar!', 'info');
@@ -86,16 +86,16 @@ export async function initializeExamplePlugin(context: any): Promise<void> {
       </div>
     );
   });
-  
-  // Set default configuration
+
+  // set default configuration
   context.setState('example-plugin-greeting', 'Hello from PKM Plugin!');
   context.setState('example-plugin-showIcon', true);
-  
-  // Listen for configuration changes
+
+  // listen for configuration changes
   context.subscribeToState('example-plugin-greeting', (value) => {
     console.log(`Example plugin greeting changed to: ${value}`);
   });
-  
+
   context.subscribeToState('example-plugin-showIcon', (value) => {
     console.log(`Example plugin showIcon changed to: ${value}`);
   });
@@ -103,5 +103,5 @@ export async function initializeExamplePlugin(context: any): Promise<void> {
 
 export async function destroyExamplePlugin(): Promise<void> {
   console.log('Example plugin destroyed');
-  // Cleanup would happen here
+  // cleanup would happen here
 }

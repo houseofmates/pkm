@@ -2,8 +2,10 @@
 /*
   normalize-collections.cjs
 
+
   usage:
     nocobase_url=http://localhost:4100/api admin_api_key="$admin_api_key" node scripts/normalize-collections.cjs [--dry-run]
+
 
   the script will find collections whose title or name matches the target list
   and will set their `title` to the exact lowercase string and `hidden: true`.

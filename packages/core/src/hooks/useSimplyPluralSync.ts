@@ -5,8 +5,8 @@ import { nocobaseClient } from '@/lib/nocobase';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
 
 /**
- * Hook for synchronizing fronter state with SimplyPlural
- * Handles bidirectional sync with offline capability via IndexedDB queue
+ * hook for synchronizing fronter state with simplyplural
+ * handles bidirectional sync with offline capability via indexeddb queue
  */
 export function useSimplyPluralSync() {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -18,14 +18,14 @@ export function useSimplyPluralSync() {
   const LAST_SYNC_STORAGE_KEY = 'simplyplural_last_sync';
   const SYNC_QUEUE_STORAGE_KEY = 'simplyplural_sync_queue';
 
-  // Load persisted state
+  // load persisted state
   useEffect(() => {
     try {
       const storedLastSync = storageManager.getItem(LAST_SYNC_STORAGE_KEY);
       if (storedLastSync) {
         setLastSync(parseInt(storedLastSync, 10));
       }
-      
+
       const storedQueue = storageManager.getItem(SYNC_QUEUE_STORAGE_KEY);
       if (storedQueue) {
         syncQueueRef.current = JSON.parse(storedQueue);
@@ -35,7 +35,7 @@ export function useSimplyPluralSync() {
     }
   }, []);
 
-  // Persist sync state
+  // persist sync state
   useEffect(() => {
     try {
       if (lastSync !== null) {
@@ -61,27 +61,27 @@ export function useSimplyPluralSync() {
     }
 
     try {
-      // Get system ID
+      // get system id
       const meRes = await fetch(
         SimplyPluralClient.url('/me'),
         { headers: { 'Authorization': `Bearer ${getApiKey()}` } }
       );
-      
+
       if (!meRes.ok) {
         throw new Error(`Failed to fetch system info: ${meRes.status}`);
       }
-      
+
       const meData = await meRes.json();
       const systemId = meData.id;
-      
-      // Push fronters
+
+      // push fronters
       const frontPayload = {
-        fronters: fronterIds.map((id, idx) => ({ 
-          id, 
-          role: idx === 0 ? 'primary' : 'secondary' 
+        fronters: fronterIds.map((id, idx) => ({
+          id,
+          role: idx === 0 ? 'primary' : 'secondary'
         }))
       };
-      
+
       const frontRes = await fetch(
         SimplyPluralClient.url(`/front/${systemId}`),
         {
@@ -93,12 +93,12 @@ export function useSimplyPluralSync() {
           body: JSON.stringify(frontPayload)
         }
       );
-      
+
       if (!frontRes.ok) {
         const errText = await frontRes.text();
         throw new Error(`SimplyPlural sync failed (${frontRes.status}): ${errText}`);
       }
-      
+
       secureLogger.info('Successfully pushed fronters to SimplyPlural:', fronterIds);
       return true;
     } catch (error) {
@@ -113,34 +113,34 @@ export function useSimplyPluralSync() {
     }
 
     try {
-      // Get system ID
+      // get system id
       const meRes = await fetch(
         SimplyPluralClient.url('/me'),
         { headers: { 'Authorization': `Bearer ${getApiKey()}` } }
       );
-      
+
       if (!meRes.ok) {
         throw new Error(`Failed to fetch system info: ${meRes.status}`);
       }
-      
+
       const meData = await meRes.json();
       const systemId = meData.id;
-      
-      // Pull fronters
+
+      // pull fronters
       const frontRes = await fetch(
         SimplyPluralClient.url(`/front/${systemId}`),
         { headers: { 'Authorization': `Bearer ${getApiKey()}` } }
       );
-      
+
       if (!frontRes.ok) {
         throw new Error(`Failed to fetch fronters: ${frontRes.status}`);
       }
-      
+
       const frontData = await frontRes.json();
       if (!frontData || !Array.isArray(frontData.fronters)) {
         throw new Error('Invalid fronter data received from SimplyPlural');
       }
-      
+
       const fronterIds = frontData.fronters.map((f: any) => f.id);
       secureLogger.info('Successfully pulled fronters from SimplyPlural:', fronterIds);
       return fronterIds;
@@ -152,35 +152,35 @@ export function useSimplyPluralSync() {
 
   const syncWithSimplyPlural = useCallback(async (direction: 'push' | 'pull' = 'push') => {
     if (isSyncing) return;
-    
+
     setIsSyncing(true);
     setSyncError(null);
-    
+
     try {
       const timestamp = Date.now();
-      
+
       if (direction === 'push') {
-        // In a real implementation, we'd get current fronter state from context
-        // For now, we'll queue the push and rely on the fronter context to trigger sync
+        // in a real implementation, we'd get current fronter state from context
+        // for now, we'll queue the push and rely on the fronter context to trigger sync
         syncQueueRef.current.push({ type: 'push', timestamp });
-        // Actual push would be triggered by fronter changes
+        // actual push would be triggered by fronter changes
       } else if (direction === 'pull') {
         const fronterIds = await pullFrontersFromSimplyPlural();
-        // In a real implementation, we'd update the fronter context here
+        // in a real implementation, we'd update the fronter context here
         syncQueueRef.current.push({ type: 'pull', timestamp });
         setLastSync(timestamp);
       }
-      
+
       setLastSync(timestamp);
     } catch (error) {
       setSyncError(error.message);
       secureLogger.error('Sync failed:', error);
-      
-      // Add to queue for retry
-      syncQueueRef.current.push({ 
-        type: direction, 
-        timestamp: Date.now(), 
-        error: error.message 
+
+      // add to queue for retry
+      syncQueueRef.current.push({
+        type: direction,
+        timestamp: Date.now(),
+        error: error.message
       });
     } finally {
       setIsSyncing(false);
@@ -189,46 +189,46 @@ export function useSimplyPluralSync() {
 
   const processSyncQueue = useCallback(async () => {
     if (syncQueueRef.current.length === 0 || !isAuthenticated()) return;
-    
-    // Process queued sync operations
+
+    // process queued sync operations
     const queue = [...syncQueueRef.current];
     syncQueueRef.current = [];
-    
+
     for (const item of queue) {
       try {
         if (item.type === 'push') {
-          // Would get current fronter state and push
-          // For now, just mark as processed
+          // would get current fronter state and push
+          // for now, just mark as processed
         } else if (item.type === 'pull') {
           await pullFrontersFromSimplyPlural();
         }
       } catch (error) {
         secureLogger.warn('Failed to process queued sync item:', error);
-        // Re-queue for later retry
+        // re-queue for later retry
         syncQueueRef.current.push(item);
       }
     }
   }, [isAuthenticated, pullFrontersFromSimplyPlural]);
 
-  // Automatic sync on mount and periodically
+  // automatic sync on mount and periodically
   useEffect(() => {
-    // Initial sync attempt
+    // initial sync attempt
     if (isAuthenticated()) {
       syncWithSimplyPlural('pull').catch(err => {
         secureLogger.warn('Initial pull sync failed:', err);
       });
     }
-    
-    // Setup periodic sync (every 5 minutes)
+
+    // setup periodic sync (every 5 minutes)
     const interval = setInterval(() => {
       if (isAuthenticated()) {
         processSyncQueue();
         syncWithSimplyPlural('pull').catch(() => {
-          // Silent fail for periodic sync - will retry later
+          // silent fail for periodic sync - will retry later
         });
       }
     }, 5 * 60 * 1000); // 5 minutes
-    
+
     return () => clearInterval(interval);
   }, [isAuthenticated, processSyncQueue, syncWithSimplyPlural]);
 

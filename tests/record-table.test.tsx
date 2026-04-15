@@ -8,7 +8,7 @@ import { BrowserRouter } from 'react-router-dom';
 vi.mock('@/hooks/use-app-setting', () => ({ useAppSetting: () => [[], vi.fn()] }));
 vi.mock('@/contexts/auth-context', () => ({ useAuth: () => ({ client: { listRecords: async () => ({ data: [] }) } }) }));
 vi.mock('@/contexts/fronter-context', () => ({ useFronter: () => ({ activeFronters: [] }) }));
-// simple stub for Table component, etc.
+// simple stub for table component, etc.
 
 describe('RecordTable sanity', () => {
   it('does not crash when collection prop starts undefined then becomes defined', () => {
@@ -25,7 +25,7 @@ describe('RecordTable sanity', () => {
       </BrowserRouter>
     );
 
-    // expect something in DOM (table wrapper)
+    // expect something in dom (table wrapper)
     expect(document.body).toBeTruthy();
   });
 });

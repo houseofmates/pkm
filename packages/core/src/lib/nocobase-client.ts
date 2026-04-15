@@ -5,8 +5,8 @@ import { storageManager } from "./storage-manager";
 const NOCOBASE_URL =
   import.meta.env.VITE_NOCOBASE_URL || "https://db.houseofmates.space/api";
 
-// environment token that may be injected at build time - we should NOT use it
-// if the user has explicitly entered a different key in the UI
+// environment token that may be injected at build time - we should not use it
+// if the user has explicitly entered a different key in the ui
 const BUILD_TIME_TOKEN = import.meta.env.VITE_NOCOBASE_API_TOKEN || "";
 
 // mock pb object for compatibility (deprecated but kept for imports)
@@ -54,18 +54,18 @@ export class NocoBaseClient {
       },
     });
 
-    // Add request interceptor to always use latest token from storage
-    // This ensures newly entered API keys are used immediately
+    // add request interceptor to always use latest token from storage
+    // this ensures newly entered api keys are used immediately
     this._axios.interceptors.request.use(async (config) => {
       const latestToken =
         await storageManager.getEncryptedItem("nocobase_token");
       if (latestToken && latestToken.trim() !== "") {
-        // Only use the token if it's different from build-time token
+        // only use the token if it's different from build-time token
         // or if build-time token is empty (dev mode)
         if (!BUILD_TIME_TOKEN || latestToken !== BUILD_TIME_TOKEN) {
           config.headers["Authorization"] = `Bearer ${latestToken}`;
         } else if (BUILD_TIME_TOKEN) {
-          // If user token equals build token, still prefer user's explicitly entered token
+          // if user token equals build token, still prefer user's explicitly entered token
           // (they may have re-entered the same token, which is fine)
           config.headers["Authorization"] = `Bearer ${latestToken}`;
         }

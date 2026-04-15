@@ -124,7 +124,7 @@ export function useCollectionData(
               hasFronter = fields.some(
                 (f: FieldDefinition) => f.name === "fronter",
               );
-              // update state with fetched fields so UI renders columns
+              // update state with fetched fields so ui renders columns
               setCollection({ ...colData });
             }
           } catch (e) {

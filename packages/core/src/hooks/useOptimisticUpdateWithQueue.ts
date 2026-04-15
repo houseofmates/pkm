@@ -4,8 +4,8 @@ import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from '@/lib/secure-logger';
 
 /**
- * Hook for optimistic updates with IndexedDB queue for offline resilience
- * Handles queuing updates when offline and replaying when connection restored
+ * hook for optimistic updates with indexeddb queue for offline resilience
+ * handles queuing updates when offline and replaying when connection restored
  */
 export function useOptimisticUpdateWithQueue<T>() {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
@@ -18,7 +18,7 @@ export function useOptimisticUpdateWithQueue<T>() {
   const STORE_NAME = 'update-queue';
   const DB_VERSION = 1;
 
-  // Initialize IndexedDB
+  // initialize indexeddb
   useEffect(() => {
     const initDB = async () => {
       try {
@@ -33,8 +33,8 @@ export function useOptimisticUpdateWithQueue<T>() {
             }
           }]
         });
-        
-        // Process any queued updates on startup
+
+        // process any queued updates on startup
         if (navigator.onLine) {
           processQueue();
         }
@@ -45,7 +45,7 @@ export function useOptimisticUpdateWithQueue<T>() {
 
     initDB();
 
-    // Listen for online/offline events
+    // listen for online/offline events
     const handleOnline = () => {
       setIsOnline(true);
       processQueue();
@@ -64,7 +64,7 @@ export function useOptimisticUpdateWithQueue<T>() {
     };
   }, []);
 
-  // Process the queue when online
+  // process the queue when online
   const processQueue = useCallback(async () => {
     if (processingRef.current || !isOnline || !dbRef.current) return;
 
@@ -75,27 +75,27 @@ export function useOptimisticUpdateWithQueue<T>() {
       const tx = dbRef.current!.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
       const index = store.index('timestamp');
-      
-      // Get all queued items ordered by timestamp
+
+      // get all queued items ordered by timestamp
       const items = await index.getAll();
-      
-      // Process each item
+
+      // process each item
       for (const item of items) {
         try {
-          // In a real implementation, we'd call the actual update function here
-          // For this hook, we assume the consumer will handle the actual update
+          // in a real implementation, we'd call the actual update function here
+          // for this hook, we assume the consumer will handle the actual update
           // and just call a provided callback
-          
-          // Mark as processed by deleting from queue
+
+          // mark as processed by deleting from queue
           await store.delete(item.id);
           secureLogger.info('Processed queued update:', item.type);
         } catch (error) {
           secureLogger.warn('Failed to process queued item, keeping in queue:', error);
-          // Leave in queue for retry
+          // leave in queue for retry
         }
       }
-      
-      // Update queue length
+
+      // update queue length
       const tx2 = dbRef.current!.transaction(STORE_NAME, 'readonly');
       const store2 = tx2.objectStore(STORE_NAME);
       const count = await store2.count();
@@ -108,17 +108,17 @@ export function useOptimisticUpdateWithQueue<T>() {
     }
   }, [isOnline]);
 
-  // Add an update to the queue
+  // add an update to the queue
   const addToQueue = useCallback(async (
-    type: string, 
-    payload: T, 
+    type: string,
+    payload: T,
     optimisticUpdate: (payload: T) => void
   ) => {
     try {
-      // Apply optimistic update immediately
+      // apply optimistic update immediately
       optimisticUpdate(payload);
-      
-      // Queue for persistence
+
+      // queue for persistence
       if (dbRef.current) {
         const tx = dbRef.current.transaction(STORE_NAME, 'readwrite');
         const store = tx.objectStore(STORE_NAME);
@@ -128,12 +128,12 @@ export function useOptimisticUpdateWithQueue<T>() {
           timestamp: Date.now(),
           id: Math.random().toString(36).substr(2, 9) // simple ID generation
         });
-        
-        // Update queue length
+
+        // update queue length
         const count = await store.count();
         setQueueLength(count);
-        
-        // If online, try to process queue
+
+        // if online, try to process queue
         if (isOnline) {
           processQueue();
         }
@@ -142,11 +142,11 @@ export function useOptimisticUpdateWithQueue<T>() {
       }
     } catch (error) {
       secureLogger.error('Failed to queue optimistic update:', error);
-      // Still applied optimistically, but persistence failed
+      // still applied optimistically, but persistence failed
     }
   }, [isOnline, processQueue]);
 
-  // Manual queue processing
+  // manual queue processing
   const processQueueNow = useCallback(() => {
     if (isOnline) {
       processQueue();

@@ -3,8 +3,8 @@ import { migrateFromLocalStorage, hasLegacyDrawings } from '@/features/edgeless/
 import { getDrawingMeta, getLatestCheckpoint, listPendingDrawings, deleteDrawing, updateDrawingMeta } from '@/features/edgeless/storage'
 import LZString from 'lz-string'
 
-// Mock LZString dynamic import if needed, but real one is better.
-// migrate.ts does: const LZString = await import('lz-string')
+// mock lzstring dynamic import if needed, but real one is better.
+// migrate.ts does: const lzstring = await import('lz-string')
 
 describe('Migration', () => {
   beforeEach(() => {
@@ -37,7 +37,7 @@ describe('Migration', () => {
     expect(result.failed).toBe(0)
     expect(result.details[0]).toEqual({ id, status: 'migrated' })
 
-    // Verify DB
+    // verify db
     const meta = await getDrawingMeta(id)
     expect(meta).toBeDefined()
     expect(meta?.title).toBe('My Drawing')

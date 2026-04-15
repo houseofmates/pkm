@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // move-active-scripts.cjs
-// Moves active utility/maintenance scripts from root to /scripts/utils and updates references in package.json and .github workflows.
+// moves active utility/maintenance scripts from root to /scripts/utils and updates references in package.json and .github workflows.
 
 const fs = require('fs');
 const path = require('path');
 
-// List of active scripts to move (edit as needed)
+// list of active scripts to move (edit as needed)
 const scriptsToMove = [
   'pkm-sync.sh',
   'pkm-control.sh',
@@ -46,10 +46,10 @@ function moveScript(script) {
   }
 }
 
-// Move scripts
+// move scripts
 scriptsToMove.forEach(moveScript);
 
-// Update references in package.json
+// update references in package.json
 const pkgPath = path.join(rootDir, 'package.json');
 if (fs.existsSync(pkgPath)) {
   let pkg = fs.readFileSync(pkgPath, 'utf8');
@@ -61,7 +61,7 @@ if (fs.existsSync(pkgPath)) {
   console.log('Updated package.json references.');
 }
 
-// Update .github workflows
+// update .github workflows
 toUpdateWorkflows();
 
 function toUpdateWorkflows() {

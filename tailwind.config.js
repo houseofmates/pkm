@@ -1,6 +1,6 @@
 import tailwindcssAnimate from "tailwindcss-animate";
 
-/** @type {import('tailwindcss').Config} */
+/** @type {import('tailwindcss').config} */
 export default {
     content: [
         "./index.html",
@@ -15,7 +15,7 @@ export default {
         "./packages/core/contexts/**/*.{js,ts,jsx,tsx}",
         "./packages/core/lib/**/*.{js,ts,jsx,tsx}",
         "./packages/core/types/**/*.{js,ts,jsx,tsx}",
-        // exclude test files (they trigger PostCSS errors when being read)
+        // exclude test files (they trigger postcss errors when being read)
         "!./src/**/*.test.{js,ts,jsx,tsx}",
         "!./packages/core/src/**/*.test.{js,ts,jsx,tsx}",
     ],
@@ -83,7 +83,7 @@ export default {
             boxShadow: {
                 'sharp': '0 10px 30px rgba(0, 0, 0, 0.5), 0 4px 6px -1px rgba(0, 0, 0, 0.3)',
                 'sharp-lg': '0 20px 40px rgba(0, 0, 0, 0.6), 0 8px 12px -4px rgba(0, 0, 0, 0.4)',
-                // Removed glass/blur effects per TODO: "sharp shadows, no blur/gradients"
+                // removed glass/blur effects per todo: "sharp shadows, no blur/gradients"
             },
         },
     },

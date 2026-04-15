@@ -1,4 +1,4 @@
-// nocobase.ts - Re-exports from nocobase-client.ts for cleaner imports
+// nocobase.ts - re-exports from nocobase-client.ts for cleaner imports
 
 export {
   nocobaseClient,

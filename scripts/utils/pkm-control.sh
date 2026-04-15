@@ -1,6 +1,6 @@
 #!/bin/bash
-# PKM Service Management Script
-# Controls the PKM dev server (user-level) and boot service
+# pkm service management script
+# controls the pkm dev server (user-level) and boot service
 
 set -e
 
@@ -55,7 +55,7 @@ view_logs() {
 
 test_api() {
     echo -e "${BLUE}Testing backend API endpoint...${NC}"
-    # Using local IP as the service might be binding there
+    # using local ip as the service might be binding there
     API_KEY="$API_KEY"
     curl -X POST http://127.0.0.1:4100/api/broadcast \
         -H "x-api-key: $API_KEY" \

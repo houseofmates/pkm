@@ -32,7 +32,7 @@ fi
 
 # 2. install deps (optional safety) and build
 # log "installing dependencies..."
-# npm install >> "$LOG_FILE" 2>&1
+# npm install >> "$log_file" 2>&1
 
 log "building production bundle..."
 if npm run build >> "$LOG_FILE" 2>&1; then

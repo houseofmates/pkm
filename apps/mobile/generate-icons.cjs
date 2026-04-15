@@ -81,7 +81,7 @@ function generateIcons() {
     }
   });
 
-  // generate adaptive icon foreground PNGs (larger canvas with icon centered)
+  // generate adaptive icon foreground pngs (larger canvas with icon centered)
   Object.entries(FOREGROUND_SIZES).forEach(([dir, size]) => {
     const targetDir = path.join(RES_DIR, dir);
 
