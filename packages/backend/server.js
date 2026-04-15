@@ -111,7 +111,12 @@ function isAllowedOrigin(origin) {
 
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins.length > 0 ? allowedOrigins : ['http://localhost:3010'],
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        return callback(null, true);
+      }
+      callback(null, false);
+    },
     methods: ["GET", "POST"],
     credentials: true,
   },
