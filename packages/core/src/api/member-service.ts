@@ -42,7 +42,7 @@ export const MemberService = {
   }
 
   // 2. patch simplyplural
-  const apiKey = storageManager.getItem('pk_api_key');
+  const apiKey = storageManager.getCachedSecret('pk_api_key');
   if (apiKey) {
  secureLogger.info("MemberService: Patching SimplyPlural...");
 

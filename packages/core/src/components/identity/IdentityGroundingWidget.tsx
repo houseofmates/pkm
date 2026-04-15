@@ -19,7 +19,7 @@ export function IdentityGroundingWidget({ className }: { className?: string }) {
  if (memberColors[id]) setPrimaryColor(memberColors[id]);
 
  try {
- const apiKey = storageManager.getItem('pk_api_key');
+ const apiKey = storageManager.getCachedSecret('pk_api_key');
  if (apiKey) {
  const res = await fetch(SimplyPluralClient.url(`/members/${id}`), {
    headers: { 'Authorization': apiKey }
