@@ -153,7 +153,11 @@ export default defineConfig({
         target: 'http://127.0.0.1:4100',
         changeOrigin: true,
       },
-      '/api': {
+      '/api/sidebar-colors': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+            '/api': {
         target: 'http://192.168.4.233:8091/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
