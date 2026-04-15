@@ -399,7 +399,7 @@ function AppContent() {
     // use the nocobase API directly - any response (even 401) means the server is alive
     const nocobaseUrl = import.meta.env.VITE_NOCOBASE_URL || 'https://db.houseofmates.space/api';
 
-    fetch(nocobaseUrl + '/auth:check', { method: 'GET' })
+    fetch(nocobaseUrl + '/app:getMeta', { method: 'GET' })
       .then((r) => {
         // any response from nocobase means the backend is reachable
         // 401 = not logged in but server is alive, 200 = authenticated
