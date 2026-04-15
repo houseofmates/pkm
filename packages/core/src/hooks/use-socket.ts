@@ -16,10 +16,10 @@ export const useSocket = () => {
     // lazy initialization of the socket connection
     if (!socket) {
       socket = io(import.meta.env.VITE_SOCKET_URL || window.location.origin, {
-        reconnectionAttempts: 2,
+        reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         autoConnect: true,
-        timeout: 5000,
+        timeout: 10000,
         path: '/socket.io',
       });
     }
@@ -38,7 +38,8 @@ export const useSocket = () => {
       setIsConnected(false);
     };
 
-    const onError = (_err: any) => {
+    const onError = (err: any) => {
+      secureLogger.warn('socket connect error:', err?.message || err);
       setIsConnected(false);
     };
 
