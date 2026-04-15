@@ -32,7 +32,7 @@ const HARDCODED_COLLECTIONS = [
 class DataService {
   private socket: Socket | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 2;
+  private maxReconnectAttempts = 5;
   private subscriptions: Map<string, () => void> = new Map();
 
   constructor() {
@@ -63,10 +63,12 @@ class DataService {
 
       this.socket.on("connect_error", (error) => {
         this.reconnectAttempts++;
-        if (this.reconnectAttempts <= 1) {
-          secureLogger.info("[DataSync] backend not available, skipping realtime sync");
-        }
+        secureLogger.warn(
+          "[DataSync] websocket connection error:",
+          error.message,
+        );
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+          secureLogger.error("[DataSync] max reconnection attempts reached");
           this.socket?.disconnect();
         }
       });
