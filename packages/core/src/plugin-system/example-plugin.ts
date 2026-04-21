@@ -1,107 +1,94 @@
-// Example Plugin Demonstrating the Plugin System
-import { PluginManifest } from './plugin-types';
+/**
+ * Example plugin demonstrating the PKM plugin system
+ */
+import {
+  PKMPlugin,
+  PluginContext,
+  DataSourceType,
+  ViewDefinition,
+  NodeType
+} from '../types';
+import { v4 as uuidv4 } from 'uuid';
 
-export const examplePluginManifest: PluginManifest = {
-  id: 'example-hello-world',
-  name: 'Hello World Example',
-  version: '1.0.0',
-  description: 'A simple example plugin that demonstrates the PKM plugin system',
-  author: 'PKM Team',
-  homepage: 'https://github.com/yourusername/pkm',
-  repository: 'https://github.com/yourusername/pkm',
-  license: 'MIT',
-  pkmVersion: '0.0.0', // Compatible with all versions
-  main: './example-plugin.ts',
-  ui: {
-    sidebar: {
-      component: 'ExampleSidebar',
-      position: 'bottom',
-      icon: 'Smile'
-    },
-    toolbar: {
-      component: 'ExampleToolbar',
-      position: 'left'
+export class ExamplePlugin implements PKMPlugin {
+  id = 'example';
+  name = 'Example Plugin';
+  version = '1.0.0';
+  dataSources = [
+    {
+      type: DataSourceType.LOCAL,
+      name: 'Example Local Source',
+      config: { path: './example-data' }
     }
-  },
-  capabilities: {
-    storage: true,
-    sync: false,
-    ai: false,
-    database: false,
-    canvasTools: false,
-    importExport: false
-  },
-  permissions: ['read:ui', 'write:ui'],
-  dependencies: {},
-  configSchema: {
-    greeting: {
-      type: 'string',
-      default: 'Hello from PKM Plugin!',
-      description: 'The greeting message to display'
+  ];
+
+  views: ViewDefinition[] = [
+    {
+      id: 'example-default',
+      name: 'Default View',
+      component: 'ExampleView',
+      default: true
     },
-    showIcon: {
-      type: 'boolean',
-      default: true,
-      description: 'Whether to show the icon in the sidebar'
+    {
+      id: 'example-table',
+      name: 'Table View',
+      component: 'ExampleTableView'
     }
+  ];
+
+  nodeTypes: NodeType[] = [
+    {
+      id: 'example-note',
+      name: 'Example Note',
+      fields: [
+        { id: 'title', name: 'Title', type: 'text', required: true },
+        { id: 'content', name: 'Content', type: 'markdown', required: false }
+      ],
+      defaultView: 'example-default'
+    }
+  ];
+
+  async activate(context: PluginContext): Promise<void> {
+    // Register data sources
+    for (const dataSource of this.dataSources) {
+      await context.registerDataSource(dataSource);
+    }
+
+    // Register views
+    for (const view of this.views) {
+      await context.registerView(view);
+    }
+
+    // Register node types
+    for (const nodeType of this.nodeTypes) {
+      await context.registerNodeType(nodeType);
+    }
+
+    // Register commands
+    context.registerCommand({
+      id: 'example.create-note',
+      name: 'Create Example Note',
+      shortcut: 'Ctrl+Shift+E',
+      handler: () => {
+        const note = {
+          id: uuidv4(),
+          type: 'example-note',
+          title: 'New Example Note',
+          content: '',
+          createdAt: new Date()
+        };
+        context.emit('node:created', note);
+      }
+    });
   }
-};
 
-// In a real implementation, this would be a separate file that gets dynamically loaded
-export async function initializeExamplePlugin(context: any): Promise<void> {
-  console.log('Example plugin initialized');
-  
-  // Register UI components
-  context.registerComponent('ExampleSidebar', () => {
-    const greeting = context.getState<string>('example-plugin-greeting') || 
-                    'Hello from PKM Plugin!';
-    const showIcon = context.getState<boolean>('example-plugin-showIcon') ?? true;
-    
-    return (
-      <div className="p-4 border-t border-white/10">
-        {showIcon && (
-          <div className="flex items-center gap-2 mb-2">
-            <Smile className="h-5 w-5 text-primary" />
-            <span className="font-medium">{greeting.split(' ')[0]}</span>
-          </div>
-        )}
-        <p className="text-xs text-muted-foreground">
-          {greeting}
-        </p>
-      </div>
-    );
-  });
-  
-  context.registerComponent('ExampleToolbar', () => {
-    return (
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg">
-        <button 
-          className="hover:bg-white/10 transition-colors rounded-lg p-1.5"
-          onClick={() => {
-            context.notify('Example Plugin', 'Hello from the toolbar!', 'info');
-          }}
-        >
-          <Smile className="h-4 w-4" />
-        </button>
-      </div>
-    );
-  });
-  
-  // Set default configuration
-  context.setState('example-plugin-greeting', 'Hello from PKM Plugin!');
-  context.setState('example-plugin-showIcon', true);
-  
-  // Listen for configuration changes
-  context.subscribeToState('example-plugin-greeting', (value) => {
-    console.log(`Example plugin greeting changed to: ${value}`);
-  });
-  
-  context.subscribeToState('example-plugin-showIcon', (value) => {
-    console.log(`Example plugin showIcon changed to: ${value}`);
-  });
+  async deactivate(context: PluginContext): Promise<void> {
+    // Cleanup
+    context.unregisterCommand('example.create-note');
+  }
 }
 
-export async function destroyExamplePlugin(): Promise<void> {
-  console.log('Example plugin destroyed');
-  // Cleanup would happen here
+// Export factory function
+export function createExamplePlugin(): PKMPlugin {
+  return new ExamplePlugin();
 }
