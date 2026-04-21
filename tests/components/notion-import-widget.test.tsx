@@ -16,7 +16,7 @@ class MockEventSource {
   url: string;
   readyState = MockEventSource.CONNECTING;
   withCredentials = false;
-  listeners: Record<string, (event: Event) => void> = {};
+  listeners: Record<string, (event: Event) => void> = { /* no-op */ };
   onerror: ((ev: any) => void) | null = null;
   onopen: ((ev: any) => void) | null = null;
   onmessage: ((ev: any) => void) | null = null;
@@ -39,7 +39,7 @@ class MockEventSource {
   close() {
     this.readyState = MockEventSource.CLOSED;
   }
-}
+};
 (global as any).EventSource = MockEventSource;
 
 describe('NotionImportWidget', () => {
@@ -72,7 +72,7 @@ describe('NotionImportWidget', () => {
   });
 
   it('logs both raw and rewritten VITE_API_URL values', async () => {
-    const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+    const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => { /* no-op */ });
     process.env.VITE_API_URL = 'https://api.houseofmates.space/api';
     // provide a key so startImport doesn't bail out early
     localStorage.setItem('hom_api_key', 'key');
