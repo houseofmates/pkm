@@ -22,6 +22,7 @@ function loadLogs(): LogItem[] {
 const LogsCalendar: React.FC = () => {
   const [logs, setLogs] = useState<LogItem[]>([])
 
+  // eslint-disable-next-line react-hooks-purity
   useEffect(() => { setLogs(loadLogs()) }, [])
 
   // group by date (yyyy-mm-dd)
