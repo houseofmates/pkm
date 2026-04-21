@@ -47,7 +47,12 @@ return newWorked
 })
 }, [earnXp, completeQuest])
 
-const rowProgress = MUSCLE_ROWS.map(row => ({\n    row: row.name,\n    complete: row.muscles.every(m => workedMuscles[m]),\n    count: row.muscles.filter(m => workedMuscles[m]).length,\n    total: row.muscles.length\n  }))
+const rowProgress = MUSCLE_ROWS.map(row => ({
+    row: row.name,
+    complete: row.muscles.every(m => workedMuscles[m]),
+    count: row.muscles.filter(m => workedMuscles[m]).length,
+    total: row.muscles.length
+  }))
 
 return (
 <div className="space-y-6">
