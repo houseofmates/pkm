@@ -674,8 +674,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     []
   );
 
-  // Reset hidden columns if all fields would be hidden (corrupted/invalid state)
-  // This ensures the default is always showing all fields
+  // reset hidden columns if all fields would be hidden (corrupted/invalid state)
+  // this ensures the default is always showing all fields
   React.useEffect(() => {
     if (!collection.fields || collection.fields.length === 0) return;
 
@@ -683,7 +683,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       .filter((f: any) => !f.hidden && f.name)
       .map((f: any) => f.name);
 
-    // If all visible fields are in hiddenColumns, reset to show all
+    // if all visible fields are in hiddencolumns, reset to show all
     const allHidden = visibleFieldNames.length > 0 && visibleFieldNames.every((name: string) => hiddenColumns.includes(name));
 
     if (allHidden) {
