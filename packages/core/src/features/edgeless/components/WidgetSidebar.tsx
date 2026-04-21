@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { useCallback } from 'react';
 import { Flame, Smile, Heart, Target, Mic, X } from 'lucide-react';
 import { cn } from '@/lib/utils';

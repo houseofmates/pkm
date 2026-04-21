@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Play, Pause, Square, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
