@@ -1,0 +1,8 @@
+
+> pkm-web@0.0.0 lint
+> npm run lint --workspace=@pkm/core
+
+
+> @pkm/core@0.0.0 lint
+> eslint src
+
