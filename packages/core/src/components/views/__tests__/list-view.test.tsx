@@ -15,7 +15,7 @@ vi.mock('react-virtualized-auto-sizer', () => ({
 }));
 vi.mock('@/components/fields/smart-field', () => ({
   SmartField: ({ value, onChange, className }: any) => {
-    const [val, setVal] = require('react').useState(value);
+  const [val, setVal] = React.useState(value);
     return (
       <input
         data-testid="smartfield-input"

@@ -16,7 +16,6 @@ vi.mock('react-virtualized-auto-sizer', () => ({
 
 // stub icon library so components can render without errors
 vi.mock('lucide-react', () => {
-  const React = require('react');
   return new Proxy({}, {
     get: (_target, prop: string) => {
       return () => React.createElement('div', { 'data-icon': prop });
