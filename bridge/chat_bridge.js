@@ -71,7 +71,7 @@ wss.on('connection', (ws) => {
     // kill hermes if it takes too long (120s no output)
     let hermesTimeout = setTimeout(() => {
       if (hermesProcess) {
-        console.log(\`[${sessionId}] hermes timeout, killing\`);
+        console.log(`[${sessionId}] hermes timeout, killing`);
         hermesProcess.kill();
       }
     }, 120000);
@@ -80,7 +80,7 @@ wss.on('connection', (ws) => {
       clearTimeout(hermesTimeout);
       hermesTimeout = setTimeout(() => {
         if (hermesProcess) {
-          console.log(\`[\${sessionId}] hermes timeout, killing\`);
+          console.log(`[\${sessionId}] hermes timeout, killing`);
           hermesProcess.kill();
         }
       }, 120000);
@@ -88,7 +88,7 @@ wss.on('connection', (ws) => {
 
     hermesProcess.on('close', (code) => {
       clearTimeout(hermesTimeout);
-      console.log(\`[\${sessionId}] hermes exited with code \${code}\`);
+      console.log(`[\${sessionId}] hermes exited with code \${code}`);
       sendToClient('end', { reason: code === 0 ? 'complete' : 'error' });
       hermesProcess = null;
     });
