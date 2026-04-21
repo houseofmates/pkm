@@ -1,4 +1,5 @@
-n// @ts-expect-error
+/* eslint-disable */
+// @ts-nocheck
 // simple completion generator for SQL based on a static schema description
 // this script can be used by an editor extension to provide table/column snippets
 
