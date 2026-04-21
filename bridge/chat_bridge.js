@@ -1,5 +1,5 @@
-/* eslint-disable */
 #!/usr/bin/env node
+/* eslint-disable */
 // pkm chat bridge - routes messages between pkm ui and hermes agent
 // runs as a websocket server that the pkm frontend connects to
 
