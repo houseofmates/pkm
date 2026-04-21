@@ -28,7 +28,7 @@ export function useCanvasEvents() {
           const reader = new FileReader();
           reader.onload = (event) => {
             const src = event.target?.result as string;
-  // eslint-disable-next-line
+   
             createImageElement(src);
           };
           reader.readAsDataURL(blob);
@@ -39,7 +39,7 @@ export function useCanvasEvents() {
       // 2. handle text (links, image urls)
       if (item.type === 'text/plain') {
         item.getAsString(async (text) => {
-  // eslint-disable-next-line
+   
           await processTextContent(text);
         });
       }

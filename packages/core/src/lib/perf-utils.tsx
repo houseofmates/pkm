@@ -52,7 +52,7 @@ export function usePagination<T>(
 
   useEffect(() => {
     if (currentPage >= totalPages && totalPages > 0) {
-  // eslint-disable-next-line
+   
       setCurrentPage(totalPages - 1)
     }
   }, [currentPage, totalPages])

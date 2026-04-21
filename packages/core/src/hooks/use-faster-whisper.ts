@@ -65,7 +65,7 @@ export function useFasterWhisper(options: UseFasterWhisperOptions = {}) {
   // cleanup on unmount
   useEffect(() => {
     return () => {
-  // eslint-disable-next-line
+   
       stopRecording();
     };
   }, []);
@@ -118,7 +118,7 @@ export function useFasterWhisper(options: UseFasterWhisperOptions = {}) {
         const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
         
         if (audioBlob.size > 100) {
-  // eslint-disable-next-line
+   
           await processAudio(audioBlob);
         } else {
           setState(prev => ({ ...prev, isRecording: false }));
