@@ -71,7 +71,7 @@ wss.on('connection', (ws) => {
     // kill hermes if it takes too long (120s no output)
     let hermesTimeout = setTimeout(() => {
       if (hermesProcess) {
-        console.log(\`[\${sessionId}] hermes timeout, killing\`);
+        console.log(\`[${sessionId}] hermes timeout, killing\`);
         hermesProcess.kill();
       }
     }, 120000);
