@@ -157,11 +157,11 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
       throw new Error(`Plugin requires PKM version ${requiredVersion}, but ${currentVersion} is installed`);
     }
     
-    # 
+   // 
     if (manifest.dependencies) {
       for (const [depName, depVersion] of Object.entries(manifest.dependencies)) {
         // In a real implementation, check package.json or node_modules
-        # This is a placeholder - actual implementation would check installed packages
+       // This is a placeholder - actual implementation would check installed packages
         console.warn(`Dependency check for ${depName}@${depVersion} not implemented`);
       }
     }
