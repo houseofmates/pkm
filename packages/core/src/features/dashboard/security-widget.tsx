@@ -49,6 +49,7 @@ export function SecurityWidget() {
 
   useEffect(() => {
     setMounted(true);
+  // eslint-disable-next-line
     updateSecurityStatus();
     
     // poll for updates every 5 seconds

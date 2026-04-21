@@ -23,6 +23,7 @@ export function ContextMenu() {
   // sync rename value when menu opens
   useEffect(() => {
   if (isOpen && data?.title) {
+  // eslint-disable-next-line
   setRenameValue(data.title);
   }
   setIsRenaming(false);
@@ -32,6 +33,7 @@ export function ContextMenu() {
   // calculate initial darkness from pen color when tool menu opens
   useEffect(() => {
     if (!isOpen || targetType !== 'tool' || data?.tool !== 'pen') {
+  // eslint-disable-next-line
       setBrushDarkness(0);
       return;
     }

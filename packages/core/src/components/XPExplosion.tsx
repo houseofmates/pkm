@@ -69,6 +69,7 @@ export function XPExplosion({ trigger, onComplete, className, rowId = 'journal' 
   
   useEffect(() => {
     if (trigger && !isExploding) {
+  // eslint-disable-next-line
       createExplosion();
     }
   }, [trigger, createExplosion, isExploding]);

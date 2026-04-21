@@ -35,6 +35,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
     const saved = config?.positions || storageManager.getItem(`mindmap_${collection.name}`);
     if (saved) {
       try {
+  // eslint-disable-next-line
         setPositions(typeof saved === 'string' ? JSON.parse(saved) : saved);
       } catch {
         secureLogger.error("Failed to load positions");

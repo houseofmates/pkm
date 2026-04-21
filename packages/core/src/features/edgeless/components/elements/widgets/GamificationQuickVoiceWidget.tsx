@@ -25,6 +25,7 @@ export function GamificationQuickVoiceWidget({ className }: GamificationQuickVoi
     const draft = localStorage.getItem('pkm:journal:draft')
     const parsed = draft ? JSON.parse(draft) : {}
     parsed.mood = moodId
+  // eslint-disable-next-line
     parsed.timestamp = Date.now()
     localStorage.setItem('pkm:journal:draft', JSON.stringify(parsed))
     

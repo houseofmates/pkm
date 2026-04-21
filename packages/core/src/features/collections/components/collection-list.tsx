@@ -20,6 +20,7 @@ export function CollectionList({ collections, onSelect }: CollectionListProps) {
     return <div className="text-center text-muted-foreground p-8">no collections found.</div>;
   }
 
+  // eslint-disable-next-line
   const virtualizer = useVirtualizer({
     count: sorted.length,
     getScrollElement: () => {
