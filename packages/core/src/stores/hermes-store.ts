@@ -47,7 +47,7 @@ interface HermesState {
 
 // websocket singleton
 let ws: WebSocket | null = null;
-let pendingMessages: Array<{ text: string; resolve: (result: string | null) => void; reject: (err: Error) => void }> = [];
+const pendingMessages: Array<{ text: string; resolve: (result: string | null) => void; reject: (err: Error) => void }> = [];
 let currentResolve: ((result: string | null) => void) | null = null;
 let responseBuffer = '';
 

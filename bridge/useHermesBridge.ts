@@ -26,7 +26,7 @@ export interface UseHermesBridgeReturn {
 
 // singleton websocket connection
 let wsInstance: WebSocket | null = null;
-let messageCallbacks: Set<(msg: any) => void> = new Set();
+const messageCallbacks: Set<(msg: any) => void> = new Set();
 
 function getWebSocket(url: string): WebSocket {
   if (!wsInstance || wsInstance.readyState === WebSocket.CLOSED) {
