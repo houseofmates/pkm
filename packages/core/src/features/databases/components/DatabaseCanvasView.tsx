@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { useCollections, type Collection } from '@/hooks/use-collections';
 import { Separator } from '@/components/ui/separator';

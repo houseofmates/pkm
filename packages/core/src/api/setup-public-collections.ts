@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { api } from './nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 

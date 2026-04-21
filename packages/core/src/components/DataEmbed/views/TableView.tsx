@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';

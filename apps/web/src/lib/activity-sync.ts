@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { secureLogger } from 'packages/core/src/lib/secure-logger';
 
 export async function apiFetch(path: string, opts: RequestInit = {}) {

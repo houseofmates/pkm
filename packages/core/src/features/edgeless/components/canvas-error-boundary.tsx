@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { Component, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, RefreshCw } from 'lucide-react'

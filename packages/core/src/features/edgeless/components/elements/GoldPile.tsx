@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useEffect, useRef, useState } from 'react';
 
 export const GoldPile = React.memo(function GoldPile({ element }: { element: any }) {

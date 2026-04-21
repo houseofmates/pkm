@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { Node } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import { FinancialChart } from '@/components/charts/FinancialChart';

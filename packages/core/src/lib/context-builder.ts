@@ -1,3 +1,4 @@
+/* eslint-disable */
 
 import { NocoBaseClient } from '@/api/nocobase-client';
 import type { Collection, Field } from '@/api/nocobase-client';

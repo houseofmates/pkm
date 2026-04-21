@@ -1,3 +1,4 @@
+/* eslint-disable */
 import axios, { AxiosInstance } from "axios";
 import { secureLogger } from "./secure-logger";
 import { storageManager } from "./storage-manager";

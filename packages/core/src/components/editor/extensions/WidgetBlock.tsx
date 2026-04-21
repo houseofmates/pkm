@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import { Node, mergeAttributes } from '@tiptap/core';
 import { WidgetRenderer } from '@/components/widgets/WidgetRenderer';

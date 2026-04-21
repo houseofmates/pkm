@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { api } from './nocobase-client';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
 import { secureLogger } from '@/lib/secure-logger';

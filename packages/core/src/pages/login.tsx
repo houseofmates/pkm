@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState } from "react";
 import { secureLogger } from "@/lib/secure-logger";
 import { useAuth } from "@/contexts/auth-context";

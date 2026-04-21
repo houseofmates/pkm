@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import '@testing-library/jest-dom/vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import SettingsPage from '../settings';

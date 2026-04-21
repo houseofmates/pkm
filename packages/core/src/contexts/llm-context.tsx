@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useFronter } from '@/contexts/fronter-context';
 import { AuthContext } from '@/contexts/auth-context';

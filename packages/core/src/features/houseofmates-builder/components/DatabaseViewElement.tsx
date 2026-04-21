@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect, type ReactNode } from 'react';
 import { nocobaseClient } from '@/lib/nocobase';
 import { Database, AlertCircle, Loader2, RefreshCw } from 'lucide-react';

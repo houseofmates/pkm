@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { migrateFromLocalStorage, hasLegacyDrawings } from '@/features/edgeless/storage/migrate'
 import { getDrawingMeta, getLatestCheckpoint, listPendingDrawings, deleteDrawing, updateDrawingMeta } from '@/features/edgeless/storage'

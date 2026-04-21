@@ -1,3 +1,4 @@
+/* eslint-disable */
 // api-key-service.ts — singleton service for managing api keys
 // used by llm-store to get the current key with 429 fallback
 

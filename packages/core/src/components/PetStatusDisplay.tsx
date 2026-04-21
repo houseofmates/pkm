@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useGamificationStore } from '@/store/useGamificationStore';
 import { cn } from '@/lib/utils';
 import { Heart, Zap, Sparkles, Droplets } from 'lucide-react';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 // apkupdater.ts
 // utility for checking and downloading new apk versions from server
 

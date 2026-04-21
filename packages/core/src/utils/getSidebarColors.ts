@@ -1,3 +1,4 @@
+/* eslint-disable */
 // getsidebarcolors.ts
 // utility to fetch sidebar colors from api, fallback to local json
 

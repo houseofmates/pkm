@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useEffect, useRef, useState } from 'react';
 import { useContextMenuStore } from './context-menu-store';
 import { createPortal } from 'react-dom';

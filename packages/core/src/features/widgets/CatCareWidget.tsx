@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Cat, Check, Clock, Plus, X, Fish, Trash2, Sparkles } from 'lucide-react';

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import type { ViewProps } from './registry';

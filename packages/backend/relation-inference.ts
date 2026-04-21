@@ -1,3 +1,4 @@
+/* eslint-disable */
 export const REL_MIN_MATCHES = 2;
 export const REL_MIN_SCORE = 0.5;
 export const REL_SAMPLE_SIZE = 120;

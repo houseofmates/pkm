@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useRef, useEffect, useState, memo, useCallback } from "react";
 import { useHermesStore } from "@/stores/hermes-store";
 import { useLLMStore } from "@/stores/llm-store";

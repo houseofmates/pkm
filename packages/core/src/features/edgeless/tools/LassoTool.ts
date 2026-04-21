@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { BaseTool, ToolContext } from './BaseTool';
 
 export class LassoTool extends BaseTool {

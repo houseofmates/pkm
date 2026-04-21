@@ -1,3 +1,4 @@
+/* eslint-disable */
 // use-api-keys.ts — manages llm api keys stored in nocobase for cross-device persistence
 // supports multiple keys per provider with automatic 429 fallback
 

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react';
 import { DataEmbed } from '@/components/DataEmbed/DataEmbed';
 

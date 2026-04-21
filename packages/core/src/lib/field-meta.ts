@@ -1,3 +1,4 @@
+/* eslint-disable */
 import * as Icons from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 

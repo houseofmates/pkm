@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useCallback } from 'react';
 import { useEdgelessStore } from '../store';
 

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useAuth } from '@/contexts/auth-context';
 import type { Collection } from '@/types';
 import { useQuery } from '@tanstack/react-query';

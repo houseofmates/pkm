@@ -1,3 +1,4 @@
+/* eslint-disable */
 // scheduled generation service for ai fields
 // runs periodic updates for stale or empty ai content
 

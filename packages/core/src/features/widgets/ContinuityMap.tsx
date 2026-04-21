@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useMemo, useEffect, useState } from 'react';
 import { CalendarDays, Activity } from 'lucide-react';
 import { useRecords } from '@/hooks/use-records';

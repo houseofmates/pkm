@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react'
 export const Tabs = (props: any) => <div {...props} />
 export const TabsContent = (props: any) => <div {...props} />

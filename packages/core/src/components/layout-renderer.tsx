@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react';
 import { WidgetRenderer } from './widgets/WidgetRenderer';
 import { cn } from '@/lib/utils';

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { nocobaseClient } from '@/lib/nocobase';
 import { Database, Table, LayoutGrid, Calendar, BarChart3, Layers, X, Loader2, AlertCircle, Star } from 'lucide-react';

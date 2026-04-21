@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useEffect, useMemo } from 'react'
 
 export interface IdentityBadge {

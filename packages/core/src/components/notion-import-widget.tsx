@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState } from 'react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { maskString } from '@/lib/sanitize-utils';

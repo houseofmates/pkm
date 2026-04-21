@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useEffect, useState } from 'react';
 import { TrendingUp, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';

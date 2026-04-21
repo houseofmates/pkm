@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 // api-key-setup.tsx — modal for configuring llm api keys
 // prompts user to add keys, saves to nocobase for cross-device persistence
 

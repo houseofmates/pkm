@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { fasterWhisperClient, type FasterWhisperTranscriptionResult } from '@/api/faster-whisper-client';

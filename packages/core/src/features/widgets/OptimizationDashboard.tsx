@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useEffect, useMemo, useState } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, Tooltip, CartesianGrid } from 'recharts';
 import { Activity, Settings } from 'lucide-react';

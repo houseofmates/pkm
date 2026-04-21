@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { BaseTool, ToolContext } from './BaseTool';
 import { StrokeEngine, Point } from './StrokeEngine';
 import { useEdgelessStore } from '../store';

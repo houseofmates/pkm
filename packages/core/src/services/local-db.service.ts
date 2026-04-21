@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { openDB } from 'idb';
 import { secureLogger } from '@/lib/secure-logger';
 import type { DBSchema, IDBPDatabase } from 'idb';

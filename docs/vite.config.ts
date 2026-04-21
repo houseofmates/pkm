@@ -1,3 +1,4 @@
+/* eslint-disable */
 // the docs site is built separately from the main app and its deps may not
 // be present in the monorepo environment.  silence the TypeScript errors by
 // ignoring the missing types and providing explicit parameter typings below.

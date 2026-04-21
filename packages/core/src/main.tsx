@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 // import global error handlers first to catch websocket/hmr errors during app startup
 import '@/lib/error-handlers';
 

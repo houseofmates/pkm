@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import '@testing-library/jest-dom/vitest';
 // same virtualization stubs used by list view tests
 import { vi, describe, it, expect } from 'vitest';

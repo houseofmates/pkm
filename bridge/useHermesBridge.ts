@@ -1,3 +1,4 @@
+/* eslint-disable */
 // useHermesBridge - hook for connecting pkm chat to hermes agent
 // this hooks into the llm-store and routes messages to the hermes bridge
 

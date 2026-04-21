@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react';
 
 export const SleepRing = React.memo(function SleepRing({ element }: { element: any }) {

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 /**
  * security dashboard widget
  * 

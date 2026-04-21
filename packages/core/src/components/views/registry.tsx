@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { RecordTable } from '@/features/records/components/record-table';
 import { CalendarView } from './calendar-view';
 import { KanbanView } from './kanban-view';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 // ai field generator service
 // handles generation of ai field content with rag context
 

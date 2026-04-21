@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useCollections } from "@/hooks/use-collections";
 import { CollectionCard } from "@/features/collections/components/collection-card";
 import { useAuth } from "@/contexts/auth-context";

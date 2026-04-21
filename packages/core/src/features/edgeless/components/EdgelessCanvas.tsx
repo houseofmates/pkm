@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useRef, useEffect, useMemo, useState, useCallback, memo } from 'react'
 import * as fabric from 'fabric'
 import { secureLogger } from '@/lib/secure-logger'

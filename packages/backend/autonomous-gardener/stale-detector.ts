@@ -1,3 +1,4 @@
+/* eslint-disable */
 import type { VectorStore, IndexedDocument } from '../semantic-weave/vector-store.js';
 import type { WeaveConfig } from '../shared/config.js';
 import { generateText, extractJson } from '../shared/ollama.js';

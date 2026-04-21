@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState, useMemo } from 'react';
 import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';

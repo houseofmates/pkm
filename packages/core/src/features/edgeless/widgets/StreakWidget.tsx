@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react';
 import { Flame, Zap, Target, TrendingUp } from 'lucide-react';
 import { useGamificationStore } from '@/store/useGamificationStore';

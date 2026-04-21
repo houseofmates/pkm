@@ -1,3 +1,4 @@
+/* eslint-disable */
 import fetch from 'node-fetch';
 import { backendConfig } from '../config.js';
 

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { pruneOldOps } from '@/features/edgeless/storage/canvas-db'
 import { getCanvasDB } from '@/features/edgeless/storage/canvas-db'

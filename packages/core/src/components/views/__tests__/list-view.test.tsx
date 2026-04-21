@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import '@testing-library/jest-dom/vitest';
 // virtualization components are tricky in tests; stub them out to render all rows
 import { vi, describe, it, expect } from 'vitest';

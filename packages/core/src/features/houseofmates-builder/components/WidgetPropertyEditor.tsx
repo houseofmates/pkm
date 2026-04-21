@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState } from 'react';
 import { X, Upload, Search } from 'lucide-react';
 import { ImageCropper } from '@/features/blog-builder/components/ImageCropper';

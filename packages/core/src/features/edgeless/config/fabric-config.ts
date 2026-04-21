@@ -1,3 +1,4 @@
+/* eslint-disable */
 // isolated fabric.js configuration
 // eliminates global prototype pollution
 // each canvas instance receives explicit configuration

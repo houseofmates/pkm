@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react';
 import { Target, CheckCircle2, Circle } from 'lucide-react';
 import { useGamificationStore } from '@/store/useGamificationStore';

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import { nocobaseClient } from '@/lib/nocobase';

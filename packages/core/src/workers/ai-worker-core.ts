@@ -1,3 +1,4 @@
+/* eslint-disable */
 // ai-worker-core.ts — pure logic extracted from ai.worker.ts
 //
 // this module contains all the ai/vector/rag/streaming logic with

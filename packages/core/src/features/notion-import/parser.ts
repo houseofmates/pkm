@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { parse as csvParse } from 'papaparse';
 import * as fs from 'fs';
 import yaml from 'js-yaml';

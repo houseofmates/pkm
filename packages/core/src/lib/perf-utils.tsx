@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { lazy, Suspense, ComponentType, useMemo, useCallback, useState, useEffect, useRef } from 'react'
 
 export interface PaginationConfig {

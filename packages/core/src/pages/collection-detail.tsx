@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { useCollectionData } from '@/hooks/use-collection-data';

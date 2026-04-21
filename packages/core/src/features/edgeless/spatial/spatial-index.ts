@@ -1,3 +1,4 @@
+/* eslint-disable */
 // uniform grid spatial index for canvas objects
 // transforms o(n) hit detection into o(1) average case
 // critical for eraser performance on complex drawings

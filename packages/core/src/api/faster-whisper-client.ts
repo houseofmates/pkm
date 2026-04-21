@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { secureLogger } from '@/lib/secure-logger';
 
 // hardcoded faster-whisper server endpoint

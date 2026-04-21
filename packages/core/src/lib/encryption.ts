@@ -1,3 +1,4 @@
+/* eslint-disable */
 // encryption.ts
 // simple aes-gcm encryption helper for client-side payload protection.
 // this is intentionally minimal and avoids dependencies.

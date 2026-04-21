@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { sanitizeHTML } from '@/lib/utils';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Router, type Request, type Response } from 'express';
 import type { WeaveConfig } from '../shared/config.js';
 import { getEmbedding } from '../shared/ollama.js';

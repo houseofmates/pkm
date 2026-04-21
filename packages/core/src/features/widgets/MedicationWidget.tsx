@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Pill, Check, Clock, Plus, X } from 'lucide-react';

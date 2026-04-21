@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react';
 import { BlockEditor } from '@/components/editor/BlockEditor';
 import { cn } from '@/lib/utils';

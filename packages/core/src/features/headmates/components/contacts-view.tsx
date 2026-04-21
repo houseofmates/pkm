@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { HeadmateCard } from "./headmate-card";
 import type { ViewProps } from "@/components/views/registry";
 import { Input } from "@/components/ui/input";

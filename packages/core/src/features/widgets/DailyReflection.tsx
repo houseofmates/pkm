@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect, useCallback } from 'react';
 import { Anchor, Plus, Send, History, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';

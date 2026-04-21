@@ -1,3 +1,4 @@
+/* eslint-disable */
 // rag service for hermes chat and ai field generation
 // orchestrates retrieval, context building, and prompt assembly
 

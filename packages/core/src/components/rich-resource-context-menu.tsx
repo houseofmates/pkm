@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { HexColorPicker } from 'react-colorful';

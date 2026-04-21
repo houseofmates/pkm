@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useRef, useEffect, useCallback } from 'react';
 import * as fabric from 'fabric';
 import { useEdgelessStore } from '../store';

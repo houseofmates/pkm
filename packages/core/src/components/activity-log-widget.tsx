@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { Plus, X, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';

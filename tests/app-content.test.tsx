@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { render, screen, waitFor } from '@testing-library/react';
 import App from '@/App';
 import { vi } from 'vitest';

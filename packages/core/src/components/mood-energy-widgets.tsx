@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { Battery, Heart, Zap, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';

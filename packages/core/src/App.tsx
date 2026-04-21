@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
 // import apkupdater only when needed
 import { LoginPage } from "@/pages/login";

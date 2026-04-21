@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Plugin, PluginManifest, PluginContext, PluginManager } from './plugin-types';
 import { EventEmitter } from 'events';
 

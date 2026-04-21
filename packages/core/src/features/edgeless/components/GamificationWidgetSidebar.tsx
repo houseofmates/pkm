@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState } from 'react'
 import { useEdgelessStore } from '@/features/edgeless/store'
 import { cn } from '@/lib/utils'

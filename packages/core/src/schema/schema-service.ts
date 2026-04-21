@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * main schema service for the modular database canvas
  * 

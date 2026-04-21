@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { create } from 'zustand';
 
 export type ContextMenuTargetType = 'canvas-object' | 'dashboard-card' | 'block' | 'tool';

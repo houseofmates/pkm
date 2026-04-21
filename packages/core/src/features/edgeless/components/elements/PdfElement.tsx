@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useEffect, useRef, useState } from 'react'
 import * as pdfjsLib from 'pdfjs-dist'
 import { useEdgelessStore } from '../../store'

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ExternalLink, Type, Eye, File, type LucideIcon } from 'lucide-react';

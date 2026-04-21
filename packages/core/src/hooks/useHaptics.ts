@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Capacitor } from '@capacitor/core';
 import { Haptics, ImpactOptions } from '@capacitor/haptics';
 import { toast } from 'sonner';

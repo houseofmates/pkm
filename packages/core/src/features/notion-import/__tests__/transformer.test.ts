@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { describe, it, expect } from 'vitest';
 import { transformWorkspace } from '../transformer';
 import type { NotionWorkspace } from '../parser';

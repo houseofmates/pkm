@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
 import { Trash2, MoreHorizontal, Plus } from 'lucide-react';

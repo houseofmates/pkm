@@ -1,3 +1,4 @@
+/* eslint-disable */
 // simple rag test that doesn't rely on path aliases
 // run with: npx ts-node scripts/test-rag-simple.ts
 

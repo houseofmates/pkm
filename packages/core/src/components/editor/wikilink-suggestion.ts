@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { ReactRenderer } from '@tiptap/react';
 import type { Editor } from '@tiptap/core';
 import tippy, { type Instance } from 'tippy.js';

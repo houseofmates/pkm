@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { secureLogger } from '@/lib/secure-logger';

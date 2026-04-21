@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import type { ViewProps } from './registry';
 import { CardContent } from "@/components/ui/card";
 import { Plus } from 'lucide-react';

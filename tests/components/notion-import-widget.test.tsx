@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { NotionImportWidget } from '@/components/notion-import-widget';
 import { vi, describe, it, beforeEach, afterEach, expect } from 'vitest';

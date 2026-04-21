@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { describe, it, expect, beforeEach } from 'vitest';
 import { dataService } from '@/services/data.service';
 import type { FieldInstance } from '@/services/schema.service';

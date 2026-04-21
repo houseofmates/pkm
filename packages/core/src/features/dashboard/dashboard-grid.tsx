@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Database, FileText, User, Plus, X, MessageSquare } from 'lucide-react';

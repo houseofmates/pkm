@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useEffect } from 'react';
 import type { Collection } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

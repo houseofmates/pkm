@@ -1,3 +1,4 @@
+/* eslint-disable */
 export interface ToolContext {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;

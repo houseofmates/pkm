@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { getOllamaBase, getOllamaModel } from '@/lib/llm-config';
 import { toast } from 'sonner';

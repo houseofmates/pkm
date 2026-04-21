@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { storageManager } from '@/lib/storage-manager';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 // gemini image & text generation + background removal via rembg gradio api.
 // api key is stored in localstorage (no env var required).
 

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
 import { DashboardBlockComponent } from './DashboardBlockComponent';

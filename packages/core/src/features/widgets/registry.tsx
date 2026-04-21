@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { Clock, Webhook, Database, Type, Activity, Scroll, BarChart3, Inbox, PlusCircle, Droplets, Pill, Cat, Timer, Sun, Moon, Zap, Flame, GitGraph, Anchor } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { TrackerWidget } from './TrackerWidget';

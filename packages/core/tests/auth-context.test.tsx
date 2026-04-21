@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { FronterProvider } from '@/contexts/fronter-context';

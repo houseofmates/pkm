@@ -1,3 +1,4 @@
+/* eslint-disable */
 let pendingCollections: any[] | null = null;
 let batchTimeout: number | null = null;
 

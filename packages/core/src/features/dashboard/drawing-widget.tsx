@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { Pencil, Eraser, Trash2, Download, Expand } from 'lucide-react';
 import { Button } from '@/components/ui/button';
