@@ -6,8 +6,8 @@ import { nocobaseClient } from '@/lib/nocobase';
 import { secureLogger } from '@/lib/secure-logger';
 
 export interface DupemateInteraction {
-  id: string;
-  dupemateId: string;
+  id?: string;
+  dupemateId?: string;
   type: 'conversation' | 'activity' | 'mood' | 'conflict' | 'support';
   content: string;
   timestamp: string;
@@ -17,7 +17,7 @@ export interface DupemateInteraction {
 }
 
 export interface DupemateContext {
-  dupemateId: string;
+  dupemateId?: string;
   name: string;
   relationshipHealth: number; // 0-100
   recentInteractions: DupemateInteraction[];
@@ -64,7 +64,7 @@ export async function indexAllDupemateInteractions(): Promise<{
     // fetch all dupemates
     const response = await nocobaseClient.listRecords('dupemates', { paginate: false });
     const dupemates: Array<{
-      id: string;
+      id?: string;
       name: string;
       description?: string;
       interactions?: DupemateInteraction[];
@@ -118,7 +118,7 @@ export async function getDupemateContext(dupemateId: string): Promise<DupemateCo
     // fetch dupemate record
     const response = await nocobaseClient.getRecord('dupemates', dupemateId);
     const dupemate: {
-      id: string;
+      id?: string;
       name: string;
       description?: string;
       interactions?: DupemateInteraction[];
@@ -179,7 +179,7 @@ export async function getDupemateContext(dupemateId: string): Promise<DupemateCo
 
 // search for dupemates related to a query
 export async function findRelatedDupemates(query: string, topK: number = 3): Promise<{
-  dupemateId: string;
+  dupemateId?: string;
   name: string;
   relevance: number;
   context: string;
