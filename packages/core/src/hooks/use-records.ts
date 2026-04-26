@@ -70,7 +70,7 @@ export function useRecords(
   const [pageFallbackTried, setPageFallbackTried] = useState(false);
 
   useEffect(() => {
-    setPageFallbackTried(false);
+    setTimeout(() => setPageFallbackTried(false), 0);
   }, [collectionName, queryParams.pageSize]);
 
   useEffect(() => {
@@ -81,8 +81,11 @@ export function useRecords(
       typeof queryParams.page === "number" &&
       queryParams.page !== 0
     ) {
-      setQueryParams((prev) => ({ ...prev, page: 0 }));
-      setPageFallbackTried(true);
+      const newPage = 0;
+      setTimeout(() => {
+        setQueryParams((prev) => ({ ...prev, page: newPage }));
+        setPageFallbackTried(true);
+      }, 0);
     }
   }, [isFetching, records.length, pageFallbackTried, queryParams.page]);
 

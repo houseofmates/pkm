@@ -1,3 +1,4 @@
+import { storageManager } from "@/lib/storage-manager";
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
@@ -7,21 +8,11 @@ import type { Activity } from '@/components/ActivitiesPanel';
 
 // simple helpers identical to journal.tsx; mirrors localstorage access used
 function getStoredData<T>(key: string, defaultValue: T): T {
-  const raw = localStorage.getItem(key);
-  if (raw === null) return defaultValue;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return defaultValue;
-  }
+  return storageManager.get<T>(key, defaultValue);
 }
 
 function setStoredData(key: string, value: any) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // ignore
-  }
+  storageManager.set(key, value);
 }
 
 // constants that were previously defined in journal.tsx
@@ -57,7 +48,7 @@ export function useJournalData() {
   const [pastEntriesFilter, setPastEntriesFilter] = useState({ search: '', mood: '', tag: '' });
   const [nlIds, setNlIds] = useState<string[] | null>(null);
   const [isNlSearching, setIsNlSearching] = useState(false);
-  const nlSearchCounterRef = useRef(0);
+  const fetchCounterRef = useRef(0);
 
   // entry metadata
   const [selectedTemplate, setSelectedTemplate] = useState<any | null>(null);
@@ -67,6 +58,7 @@ export function useJournalData() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const recognitionRef = useRef<any>(null);
+  const fetchCounterRef = useRef(0);
 
   // transcript/summarize state
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -229,7 +221,7 @@ export function useJournalData() {
       return;
     }
 
-    const searchId = ++nlSearchCounterRef.current;
+    const searchId = ++fetchCounterRef.current;
     setIsNlSearching(true);
 
     const timer = setTimeout(async () => {
@@ -240,7 +232,7 @@ export function useJournalData() {
       } catch (e) {
         secureLogger.error('semantic search failed', e);
       } finally {
-        if (searchId === nlSearchCounterRef.current) setIsNlSearching(false);
+        if (searchId === fetchCounterRef.current) setIsNlSearching(false);
       }
     }, 500);
 
@@ -251,13 +243,16 @@ export function useJournalData() {
   // cleanup speech recognition on unmount to prevent memory leaks
   useEffect(() => {
     return () => {
-      if (recognitionRef.current) {
+
+      const currentRecognition = recognitionRef.current;
+      if (currentRecognition) {
         try {
-          recognitionRef.current.stop();
+          currentRecognition.stop();
         } catch (e) {
           // ignore cleanup errors safely
         }
       }
+
     };
   }, []);
 

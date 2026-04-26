@@ -1,4 +1,5 @@
-import { secureLogger } from 'packages/core/src/lib/secure-logger';
+import { storageManager } from "../../../../packages/core/src/lib/storage-manager";
+import { secureLogger } from "../../../../packages/core/src/lib/secure-logger";
 
 export async function apiFetch(path: string, opts: RequestInit = {}) {
   const base = (import.meta.env.VITE_NOCOBASE_URL || '/api').replace(/\/$/, '')
@@ -42,7 +43,7 @@ export async function findOrCreateActivity(name: string, localId?: string): Prom
 
   const promise = (async () => {
     try {
-      const mapRaw = localStorage.getItem('pkm_activity_server_map')
+      const mapRaw = storageManager.getItem('pkm_activity_server_map')
       let map = { byName: {} as any, byLocal: {} as any }
       try {
         if (mapRaw) map = JSON.parse(mapRaw);
@@ -56,7 +57,7 @@ export async function findOrCreateActivity(name: string, localId?: string): Prom
         if (localId) {
           map.byLocal = map.byLocal || {}
           map.byLocal[localId] = map.byName[cacheKey]
-          localStorage.setItem('pkm_activity_server_map', JSON.stringify(map))
+          storageManager.setItem('pkm_activity_server_map', JSON.stringify(map))
         }
         return map.byName[cacheKey]
       }
@@ -69,7 +70,7 @@ export async function findOrCreateActivity(name: string, localId?: string): Prom
         if (sid) {
           map.byName[cacheKey] = sid
           if (localId) map.byLocal[localId] = sid
-          localStorage.setItem('pkm_activity_server_map', JSON.stringify(map))
+          storageManager.setItem('pkm_activity_server_map', JSON.stringify(map))
           return sid
         }
       }
@@ -81,12 +82,12 @@ export async function findOrCreateActivity(name: string, localId?: string): Prom
         // reload map from storage to avoid race condition with other sync processes
         let latestMap = { byName: {} as any, byLocal: {} as any };
         try {
-          latestMap = JSON.parse(localStorage.getItem('pkm_activity_server_map') || '{"byName":{},"byLocal":{}}');
+          latestMap = JSON.parse(storageManager.getItem('pkm_activity_server_map') || '{"byName":{},"byLocal":{}}');
         } catch { /* use default */ }
 
         latestMap.byName[cacheKey] = sid
         if (localId) latestMap.byLocal[localId] = sid
-        localStorage.setItem('pkm_activity_server_map', JSON.stringify(latestMap))
+        storageManager.setItem('pkm_activity_server_map', JSON.stringify(latestMap))
         return sid
       }
       return null
@@ -105,7 +106,7 @@ export async function findOrCreateActivity(name: string, localId?: string): Prom
 export async function createActivityLog({ activityId, note, rating, createdAt, localLogId }: { activityId: string, note?: string, rating?: number, createdAt?: string, localLogId?: string }) {
   try {
     if (localLogId) {
-      const lmRaw = localStorage.getItem('pkm_activity_log_server_map')
+      const lmRaw = storageManager.getItem('pkm_activity_log_server_map')
       let lm: any = {}
       try {
         if (lmRaw) lm = JSON.parse(lmRaw);
@@ -123,10 +124,10 @@ export async function createActivityLog({ activityId, note, rating, createdAt, l
     if (sid && localLogId) {
       let latestLm: any = {}
       try {
-        latestLm = JSON.parse(localStorage.getItem('pkm_activity_log_server_map') || '{}');
+        latestLm = JSON.parse(storageManager.getItem('pkm_activity_log_server_map') || '{}');
       } catch { /* ignore */ }
       latestLm[localLogId] = sid
-      localStorage.setItem('pkm_activity_log_server_map', JSON.stringify(latestLm))
+      storageManager.setItem('pkm_activity_log_server_map', JSON.stringify(latestLm))
     }
     return sid
   } catch (e) {
@@ -137,7 +138,7 @@ export async function createActivityLog({ activityId, note, rating, createdAt, l
 
 export async function syncAllLocalLogs() {
   try {
-    const raw = localStorage.getItem('pkm_activity_logs')
+    const raw = storageManager.getItem('pkm_activity_logs')
     if (!raw) return { pushed: 0 }
 
     let logs: any[] = [];
@@ -148,7 +149,7 @@ export async function syncAllLocalLogs() {
       return { pushed: 0 };
     }
 
-    const activitiesRaw = localStorage.getItem('pkm_activities')
+    const activitiesRaw = storageManager.getItem('pkm_activities')
     let activities: any[] = [];
     try {
       if (activitiesRaw) activities = JSON.parse(activitiesRaw);
