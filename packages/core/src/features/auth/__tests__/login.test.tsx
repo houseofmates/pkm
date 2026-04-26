@@ -20,11 +20,11 @@ vi.mock('@/api/nocobase-client', () => {
 });
 
 describe('LoginPage', () => {
-  const loginMock = vi.fn();
+  const loginWithApiKeyMock = vi.fn();
   const authValue = {
     token: null,
     isAuthenticated: false,
-    login: loginMock,
+    loginWithApiKey: loginWithApiKeyMock,
     logout: vi.fn(),
     client: {} as any,
   };
@@ -40,7 +40,7 @@ describe('LoginPage', () => {
       </AuthContext.Provider>
     );
 
-    expect(screen.getByPlaceholderText(/paste jwt token here/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/api key/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
   });
 
@@ -53,17 +53,17 @@ describe('LoginPage', () => {
       </AuthContext.Provider>
     );
 
-    fireEvent.change(screen.getByPlaceholderText(/paste jwt token here/i), {
+    fireEvent.change(screen.getByPlaceholderText(/api key/i), {
       target: { value: 'validtoken' },
     });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
-    await waitFor(() => expect(loginMock).toHaveBeenCalledWith('validtoken'));
+    await waitFor(() => expect(loginWithApiKeyMock).toHaveBeenCalledWith('validtoken'));
     expect(screen.queryByText(/token appears invalid/i)).not.toBeInTheDocument();
   });
 
   it('shows error when validation fails', async () => {
-    mockGet.mockRejectedValue({ response: { status: 401 } });
+    loginWithApiKeyMock.mockRejectedValue(new Error("token appears invalid or expired"));
 
     render(
       <AuthContext.Provider value={authValue as any}>
@@ -71,7 +71,7 @@ describe('LoginPage', () => {
       </AuthContext.Provider>
     );
 
-    fireEvent.change(screen.getByPlaceholderText(/paste jwt token here/i), {
+    fireEvent.change(screen.getByPlaceholderText(/api key/i), {
       target: { value: 'badtoken' },
     });
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
@@ -79,6 +79,6 @@ describe('LoginPage', () => {
     await waitFor(() =>
       expect(screen.getByText(/token appears invalid or expired/i)).toBeInTheDocument()
     );
-    expect(loginMock).not.toHaveBeenCalled();
+
   });
 });
