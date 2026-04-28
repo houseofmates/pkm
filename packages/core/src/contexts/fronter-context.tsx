@@ -357,7 +357,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         secureLogger.info("New front entry created, result:", createResult);
 
 // sync to SimplyPlural
-            try {
+	           try {
 	const apiKey = storageManager.getCachedSecret("pk_api_key");
               if (!apiKey) {
                 secureLogger.info("No SP API key, skipping SP sync");
