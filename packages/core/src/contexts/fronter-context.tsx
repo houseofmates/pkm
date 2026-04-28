@@ -358,7 +358,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
 // sync to SimplyPlural
             try {
-              const apiKey = storageManager.getCachedSecret("pk_api_key");
+	const apiKey = storageManager.getCachedSecret("pk_api_key");
               if (!apiKey) {
                 secureLogger.info("No SP API key, skipping SP sync");
                 toast.success("front updated locally");
