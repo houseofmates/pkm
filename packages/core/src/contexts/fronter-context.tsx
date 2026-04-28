@@ -373,9 +373,9 @@ export function FronterProvider({ children }: { children: ReactNode }) {
               })),
             };
             const frontRes = await fetch(
-              SimplyPluralClient.url('/fronters'),
+              SimplyPluralClient.url(`/frontHistory/${systemId}`),
               {
-                method: "PATCH",
+                method: "POST",
                 headers: {
                   Authorization: apiKey,
                   "Content-Type": "application/json",
