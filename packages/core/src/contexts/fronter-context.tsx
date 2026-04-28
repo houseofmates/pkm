@@ -252,22 +252,45 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       if (!meRes.ok) return;
       const meData = await meRes.json();
       const systemId = meData.id;
+
+      // fetch front history from simplyplural (shares timestamp = co-fronting)
+      const now = Date.now();
+      const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
       const frontRes = await fetch(
-        SimplyPluralClient.url('/fronters'),
+        SimplyPluralClient.url(`/frontHistory/${systemId}`) +
+          `?startTime=${oneWeekAgo}&endTime=${now}`,
         {
           headers: { Authorization: apiKey },
         },
       );
       if (!frontRes.ok) return;
       const frontData = await frontRes.json();
-      if (frontData && Array.isArray(frontData.fronters)) {
-        const spFronters = frontData.fronters.map((f: any) => f.id);
-        setActiveFronters(spFronters);
-        storageManager.setItem(
-          "pkm_active_fronters",
-          JSON.stringify(spFronters),
-        );
-        secureLogger.info("Synced fronters from SimplyPlural:", spFronters);
+      if (Array.isArray(frontData) && frontData.length > 0) {
+        // sort by startTime descending to get most recent first
+        const sorted = frontData
+          .map((entry: any) => {
+            const content = entry.content || {};
+            return {
+              memberId: content.member,
+              startTime: content.startTime,
+              live: content.live,
+            };
+          })
+          .sort((a: any, b: any) => b.startTime - a.startTime);
+
+        // find entries with the same timestamp (co-fronting group)
+        if (sorted.length > 0) {
+          const latestTs = sorted[0].startTime;
+          const latestGroup = sorted.filter((e: any) => e.startTime === latestTs);
+          const spFronters = latestGroup.map((e: any) => e.memberId).filter(Boolean);
+
+          setActiveFronters(spFronters);
+          storageManager.setItem(
+            "pkm_active_fronters",
+            JSON.stringify(spFronters),
+          );
+          secureLogger.info("Synced fronters from SimplyPlural:", spFronters);
+        }
       }
     } catch (err) {
       secureLogger.error("SimplyPlural front pull error:", err);
