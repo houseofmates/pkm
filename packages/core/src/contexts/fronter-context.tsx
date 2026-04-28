@@ -409,7 +409,6 @@ export function FronterProvider({ children }: { children: ReactNode }) {
               secureLogger.error("SimplyPlural sync error:", spErr);
               toast.warning("front updated locally, but SP sync failed");
             }
-          secureLogger.error("SimplyPlural sync error:", spErr);
         }
       } else {
         secureLogger.info("No members specified, just closing previous front");
