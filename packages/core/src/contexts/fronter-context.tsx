@@ -405,10 +405,9 @@ export function FronterProvider({ children }: { children: ReactNode }) {
             toast.success("front updated and synced to SimplyPlural");
           }
         }
-      } catch (spErr) {
-              secureLogger.error("SimplyPlural sync error:", spErr);
-              toast.warning("front updated locally, but SP sync failed");
-            }
+          } catch (spErr) {
+            secureLogger.error("SimplyPlural sync error:", spErr);
+            toast.warning("front updated locally, but SP sync failed");
           }
         }
       } else {
