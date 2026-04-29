@@ -354,65 +354,64 @@ export function FronterProvider({ children }: { children: ReactNode }) {
           "front_history",
           newEntry,
         );
-        secureLogger.info("New front entry created, result:", createResult);
+      secureLogger.info("New front entry created, result:", createResult);
 
-// sync to SimplyPlural
-	           try {
-	const apiKey = storageManager.getCachedSecret("pk_api_key");
-              if (!apiKey) {
-                secureLogger.info("No SP API key, skipping SP sync");
-                toast.success("front updated locally");
-              } else {
-                const meRes = await fetch(SimplyPluralClient.url("/me"), {
-                  headers: { Authorization: apiKey },
-                });
-                if (!meRes.ok) throw new Error(`SP /me failed: ${meRes.status}`);
-                const meData = await meRes.json();
-                const systemId = meData.id;
+      // sync to SimplyPlural
+      try {
+        const apiKey = storageManager.getCachedSecret("pk_api_key");
+        if (!apiKey) {
+          secureLogger.info("No SP API key, skipping SP sync");
+          toast.success("front updated locally");
+        } else {
+          const meRes = await fetch(SimplyPluralClient.url("/me"), {
+            headers: { Authorization: apiKey },
+          });
+          if (!meRes.ok) throw new Error(`SP /me failed: ${meRes.status}`);
+          const meData = await meRes.json();
+          const systemId = meData.id;
 
-                // SP API: POST /frontHistory/{systemId} for each member
-                // All entries share the same startTime to indicate co-fronting
-                const sharedTimestamp = Date.now();
-                const results: { ok: boolean; status: number }[] = [];
+          // SP API: POST /frontHistory/{systemId} for each member
+          // All entries share the same startTime to indicate co-fronting
+          const sharedTimestamp = Date.now();
+          const results: { ok: boolean; status: number }[] = [];
 
-                for (const memberId of memberIds) {
-                  const payload = {
-                    member: memberId,
-                    startTime: sharedTimestamp,
-                    live: true,
-                    customStatus: comment || "",
-                    custom: false,
-                  };
-                  const res = await fetch(
-                    SimplyPluralClient.url(`/frontHistory/${systemId}`),
-                    {
-                      method: "POST",
-                      headers: {
-                        Authorization: apiKey,
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify(payload),
-                    },
-                  );
-                  results.push({ ok: res.ok, status: res.status });
-                }
+          for (const memberId of memberIds) {
+            const payload = {
+              member: memberId,
+              startTime: sharedTimestamp,
+              live: true,
+              customStatus: comment || "",
+              custom: false,
+            };
+            const res = await fetch(
+              SimplyPluralClient.url(`/frontHistory/${systemId}`),
+              {
+                method: "POST",
+                headers: {
+                  Authorization: apiKey,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+              },
+            );
+            results.push({ ok: res.ok, status: res.status });
+          }
 
-                const failedCount = results.filter(r => !r.ok).length;
-                if (failedCount > 0) {
-                  secureLogger.warn(`SP sync: ${failedCount}/${results.length} failed`);
-                  toast.warning(`front updated, but SP sync had ${failedCount} failures`);
-                } else {
+          const failedCount = results.filter(r => !r.ok).length;
+          if (failedCount > 0) {
+            secureLogger.warn(`SP sync: ${failedCount}/${results.length} failed`);
+            toast.warning(`front updated, but SP sync had ${failedCount} failures`);
+          } else {
             toast.success("front updated and synced to SimplyPlural");
           }
         }
-          } catch (spErr) {
-            secureLogger.error("SimplyPlural sync error:", spErr);
-            toast.warning("front updated locally, but SP sync failed");
-          }
-        }
-      } else {
-        secureLogger.info("No members specified, just closing previous front");
+      } catch (spErr) {
+        secureLogger.error("SimplyPlural sync error:", spErr);
+        toast.warning("front updated locally, but SP sync failed");
       }
+    } else {
+      secureLogger.info("No members specified, just closing previous front");
+    }
 
       // 3. refresh
       secureLogger.info("Calling refresh...");
