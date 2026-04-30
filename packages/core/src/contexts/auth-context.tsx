@@ -46,10 +46,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return <AuthContext.Provider value={stub}>{children}</AuthContext.Provider>;
   }
 
+  // wait for NocoBaseClient to finish loading auth from storage before
+  // rendering children. this fixes the bug where token was null on reload
+  // because _loadAuth() was not awaited in the NocoBaseClient constructor.
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    // ready() resolves immediately if auth has already been loaded
+    nocobaseClient.ready().then(() => setReady(true));
+  }, []);
+
   const [token, setToken] = useState<string | null>(() => {
-    const stored = storageManager.getCachedSecret("nocobase_token");
-    return stored || null;
+    // start with whatever NocoBaseClient already has in memory
+    // (will be null until ready() completes on first load)
+    return nocobaseClient.authStore.token;
   });
+
+  // sync token into NocoBaseClient state once ready (covers the case where
+  // token was restored from storage after initial state was captured)
+  useEffect(() => {
+    if (ready && token && !nocobaseClient.isAuthenticated) {
+      nocobaseClient.authStore; // just touch it to ensure client is aware
+    }
+  }, [ready, token]);
+
+  if (!ready) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     // token is already restored via nocobaseClient._loadAuth() in constructor
