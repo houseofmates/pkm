@@ -77,9 +77,13 @@ export class NocoBaseClient {
     this._loadAuth();
   }
 
-  private async _loadAuth() {
-    const token = await storageManager.getEncryptedItem("nocobase_token");
-    const user = await storageManager.getEncryptedItem("nocobase_user");
+  private _loadAuthPromise: Promise<void> | null = null;
+
+  private async _loadAuth(): Promise<void> {
+    const [token, user] = await Promise.all([
+      storageManager.getEncryptedItem("nocobase_token"),
+      storageManager.getEncryptedItem("nocobase_user"),
+    ]);
     if (token) {
       this._token = token;
       this._axios.defaults.headers["Authorization"] = `Bearer ${token}`;
@@ -91,6 +95,17 @@ export class NocoBaseClient {
         this._user = null;
       }
     }
+  }
+
+  /**
+   * returns a promise that resolves when initial auth state has been loaded from storage.
+   * safe to call multiple times — returns the same promise after first call.
+   */
+  ready(): Promise<void> {
+    if (!this._loadAuthPromise) {
+      this._loadAuthPromise = this._loadAuth();
+    }
+    return this._loadAuthPromise;
   }
 
   get client(): AxiosInstance {
