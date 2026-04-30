@@ -187,7 +187,7 @@ export default defineConfig({
  },
  },
  preview: {
-    allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space", "dupe.houseofmates.space"],
+    allowedHosts: true,
     port: 3010,
     strictPort: true,
     proxy: {
