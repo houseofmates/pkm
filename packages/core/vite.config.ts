@@ -295,8 +295,6 @@ export default defineConfig({
             if (id.includes('/leaflet/') || id.includes('/react-leaflet/')) return 'maps';
             if (id.includes('/react-markdown/') || id.includes('/remark-gfm/') || id.includes('/rehype-raw/')) return 'markdown';
           }
-        }
-      }
       }
     }
   },
