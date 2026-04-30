@@ -5,7 +5,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // serve /pkm/* from public/pkm/ as static files (VitePress docs)
-// instead of letting the SPA fallback catch them
 function pkmWikiPlugin() {
   const mimeTypes: Record<string, string> = {
     '.html': 'text/html',
@@ -24,8 +23,6 @@ function pkmWikiPlugin() {
   return {
     name: 'pkm-wiki-static',
     configureServer(server: any) {
-      // must return a function to run AFTER vite's internal middleware
-      // but we actually want to run BEFORE, so we use server.middlewares.use directly
       server.middlewares.use((req: any, res: any, next: any) => {
         const url = (req.url || '').split('?')[0].split('#')[0]
         if (!url.startsWith('/pkm')) return next()
@@ -37,7 +34,6 @@ function pkmWikiPlugin() {
           filePath = path.join(__dirname, 'public', url)
         }
 
-        // if exact file exists, serve it
         if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
           const ext = path.extname(filePath)
           const mime = mimeTypes[ext] || 'application/octet-stream'
@@ -47,7 +43,6 @@ function pkmWikiPlugin() {
           return
         }
 
-        // try .html extension for clean URLs
         if (!path.extname(filePath)) {
           const htmlPath = filePath + '.html'
           const indexPath = path.join(filePath, 'index.html')
@@ -65,7 +60,6 @@ function pkmWikiPlugin() {
           }
         }
 
-        // fallback: serve VitePress 404.html so the SPA doesn't catch /pkm/* routes
         const fallback404 = path.join(__dirname, 'public', 'pkm', '404.html')
         if (fs.existsSync(fallback404)) {
           res.statusCode = 404
@@ -81,17 +75,32 @@ function pkmWikiPlugin() {
   }
 }
 
+const proxyConfig = {
+  '/api/broadcast': { target: 'http://127.0.0.1:4100', changeOrigin: true },
+  '/api/ics-proxy': { target: 'http://127.0.0.1:4100', changeOrigin: true },
+  '/api/chat': { target: 'http://127.0.0.1:4100', changeOrigin: true },
+  '/api/stats': { target: 'http://127.0.0.1:4100', changeOrigin: true },
+  '/api/players': { target: 'http://127.0.0.1:4100', changeOrigin: true },
+  '/socket.io': { target: 'http://127.0.0.1:4100', ws: true, changeOrigin: true },
+  '/api/simplyplural': { target: 'https://api.apparyllis.com/v1', changeOrigin: true, rewrite: (p: string) => p.replace(/^\/api\/simplyplural/, '') },
+  '/api/nocobase': { target: 'http://192.168.4.233:8091/api', changeOrigin: true, rewrite: (p: string) => p.replace(/^\/api\/nocobase/, '') },
+  '/api/nb-import-csv': { target: 'http://127.0.0.1:4100', changeOrigin: true },
+  '/api/notion-import': { target: 'http://127.0.0.1:4100', changeOrigin: true },
+  '/api/nb-import': { target: 'http://127.0.0.1:4100', changeOrigin: true },
+  '/api/sidebar-colors': { target: 'http://127.0.0.1:4100', changeOrigin: true },
+  '/api': { target: 'http://192.168.4.233:8091/api', changeOrigin: true, rewrite: (p: string) => p.replace(/^\/api/, '') },
+  '/storage': { target: 'http://192.168.4.233:8091', changeOrigin: true, secure: false },
+  '/ollama': { target: 'http://192.168.4.250:11434', changeOrigin: true, rewrite: (p: string) => p.replace(/^\/ollama/, '') },
+  '/hermes-bridge': { target: 'ws://127.0.0.1:3101', ws: true, changeOrigin: true, rewrite: (p: string) => p.replace(/^\/hermes-bridge/, '') },
+  '/nvidia': { target: 'https://integrate.api.nvidia.com/v1', changeOrigin: true, rewrite: (p: string) => p.replace(/^\/nvidia/, '') },
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
   plugins: [
     pkmWikiPlugin(),
     react(),
-    // legacy plugin disabled - re-enable for production APK builds with older Android support
-    // legacy({
-    //   targets: ['Android >= 10', 'Chrome >= 80'],
-    //   modernPolyfills: true,
-    // }),
   ],
   server: {
     host: '0.0.0.0',
@@ -106,167 +115,15 @@ export default defineConfig({
       path: '/vite-hmr',
       overlay: false,
     },
-    proxy: {
-      '/api/broadcast': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/ics-proxy': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/chat': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/stats': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/players': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/socket.io': {
-        target: 'http://127.0.0.1:4100',
-        ws: true,
-        changeOrigin: true,
-      },
-      '/api/simplyplural': {
-        target: 'https://api.apparyllis.com/v1',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/simplyplural/, ''),
-      },
-      '/api/nocobase': {
-        target: 'http://192.168.4.233:8091/api',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
-      },
-      '/api/nb-import-csv': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/notion-import': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/nb-import': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/sidebar-colors': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-            '/api': {
-        target: 'http://192.168.4.233:8091/api',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-'/storage': {
- target: 'http://192.168.4.233:8091',
- changeOrigin: true,
- secure: false,
- },
- '/ollama': {
- target: 'http://192.168.4.250:11434',
- changeOrigin: true,
- rewrite: (path) => path.replace(/^\/ollama/, ''),
- },
- '/hermes-bridge': {
-   target: 'ws://127.0.0.1:3101',
-   ws: true,
-   changeOrigin: true,
-   rewrite: (path) => path.replace(/^\/hermes-bridge/, ''),
- },
- '/nvidia': {
- target: 'https://integrate.api.nvidia.com/v1',
- changeOrigin: true,
- rewrite: (path) => path.replace(/^\/nvidia/, ''),
- },
- },
- },
- preview: {
+    proxy: proxyConfig,
+  },
+  preview: {
     allowedHosts: true,
     port: 3010,
     strictPort: true,
-    proxy: {
-      '/api/broadcast': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/ics-proxy': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/chat': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/stats': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/players': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/socket.io': {
-        target: 'http://127.0.0.1:4100',
-        ws: true,
-        changeOrigin: true,
-      },
-      '/api/simplyplural': {
-        target: 'https://api.apparyllis.com/v1',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/simplyplural/, ''),
-      },
-      '/api/nb-import-csv': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/notion-import': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/nb-import': {
-        target: 'http://127.0.0.1:4100',
-        changeOrigin: true,
-      },
-      '/api/nocobase': {
-        target: 'http://192.168.4.233:8091/api',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
-      },
-      '/api/ollama': {
-        target: 'http://localhost:11434/api',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
-      },
-'/storage': {
- target: 'http://192.168.4.233:8091',
- changeOrigin: true,
- secure: false,
- },
- '/ollama': {
- target: 'http://192.168.4.250:11434',
- changeOrigin: true,
- rewrite: (path) => path.replace(/^\/ollama/, ''),
- },
- '/hermes-bridge': {
-   target: 'ws://127.0.0.1:3101',
-   ws: true,
-   changeOrigin: true,
-   rewrite: (path) => path.replace(/^\/hermes-bridge/, ''),
- },
- '/nvidia': {
- target: 'https://integrate.api.nvidia.com/v1',
- changeOrigin: true,
- rewrite: (path) => path.replace(/^\/nvidia/, ''),
- },
- }
- },
- build: {
+    proxy: proxyConfig,
+  },
+  build: {
     target: 'es2019',
     sourcemap: false,
     reportCompressedSize: true,
@@ -274,45 +131,36 @@ export default defineConfig({
     rollupOptions: {
       external: ['@capacitor/push-notifications'],
       output: {
-        manualChunks: (id) => {
+        manualChunks: (id: string) => {
           if (id.includes('node_modules')) {
-            // react must be in its own self-contained chunk — no circular deps
             if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/react-router-dom/') || id.includes('/scheduler/')) {
-              return 'react-vendor';
+              return 'react-vendor'
             }
-            // radix ui packages
-            if (id.includes('/@radix-ui/')) {
-              return 'ui-vendor';
-            }
-            if (id.includes('/lucide-react/')) return 'icons';
-            if (id.includes('/date-fns/')) return 'date-utils';
-            if (id.includes('/framer-motion/')) return 'animation';
-            if (id.includes('/@dnd-kit/')) return 'dnd';
-            if (id.includes('/react-grid-layout/')) return 'grid-layout';
-            if (id.includes('/react-quill')) return 'editor';
-            if (id.includes('/recharts/')) return 'charts';
-            if (id.includes('/fabric/')) return 'canvas';
-            if (id.includes('/leaflet/') || id.includes('/react-leaflet/')) return 'maps';
-            if (id.includes('/react-markdown/') || id.includes('/remark-gfm/') || id.includes('/rehype-raw/')) return 'markdown';
+            if (id.includes('/@radix-ui/')) return 'ui-vendor'
+            if (id.includes('/lucide-react/')) return 'icons'
+            if (id.includes('/date-fns/')) return 'date-utils'
+            if (id.includes('/framer-motion/')) return 'animation'
+            if (id.includes('/@dnd-kit/')) return 'dnd'
+            if (id.includes('/react-grid-layout/')) return 'grid-layout'
+            if (id.includes('/react-quill')) return 'editor'
+            if (id.includes('/recharts/')) return 'charts'
+            if (id.includes('/fabric/')) return 'canvas'
+            if (id.includes('/leaflet/') || id.includes('/react-leaflet/')) return 'maps'
+            if (id.includes('/react-markdown/') || id.includes('/remark-gfm/') || id.includes('/rehype-raw/')) return 'markdown'
           }
-      }
-    }
+        }
       }
     }
   },
   css: {
     devSourcemap: false,
-    preprocessorOptions: {
-      //   scss: {
-      //     charset: false
-      //   }
-    }
+    preprocessorOptions: {},
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
       "@pkm/core": path.resolve(__dirname, "src"),
-      "src": path.resolve(__dirname, "src")
+      "src": path.resolve(__dirname, "src"),
     },
   },
   optimizeDeps: {
@@ -320,9 +168,9 @@ export default defineConfig({
     exclude: [],
     esbuildOptions: {
       sourcemap: false,
-    }
+    },
   },
   define: {
-    'process.env': {}
-  }
+    'process.env': {},
+  },
 })
