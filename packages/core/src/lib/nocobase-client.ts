@@ -74,39 +74,37 @@ export class NocoBaseClient {
       return config;
     });
 
-    this._loadAuth();
-  }
+ // kick off auth loading immediately — store the promise so ready() can await it
+ this._loadAuthPromise = this._loadAuth();
+ }
 
-  private _loadAuthPromise: Promise<void> | null = null;
+ private _loadAuthPromise: Promise<void>;
 
-  private async _loadAuth(): Promise<void> {
-    const [token, user] = await Promise.all([
-      storageManager.getEncryptedItem("nocobase_token"),
-      storageManager.getEncryptedItem("nocobase_user"),
-    ]);
-    if (token) {
-      this._token = token;
-      this._axios.defaults.headers["Authorization"] = `Bearer ${token}`;
-    }
-    if (user) {
-      try {
-        this._user = JSON.parse(user);
-      } catch {
-        this._user = null;
-      }
-    }
-  }
+ private async _loadAuth(): Promise<void> {
+ const [token, user] = await Promise.all([
+ storageManager.getEncryptedItem("nocobase_token"),
+ storageManager.getEncryptedItem("nocobase_user"),
+ ]);
+ if (token) {
+ this._token = token;
+ this._axios.defaults.headers["Authorization"] = `Bearer ${token}`;
+ }
+ if (user) {
+ try {
+ this._user = JSON.parse(user);
+ } catch {
+ this._user = null;
+ }
+ }
+ }
 
-  /**
-   * returns a promise that resolves when initial auth state has been loaded from storage.
-   * safe to call multiple times — returns the same promise after first call.
-   */
-  ready(): Promise<void> {
-    if (!this._loadAuthPromise) {
-      this._loadAuthPromise = this._loadAuth();
-    }
-    return this._loadAuthPromise;
-  }
+ /**
+ * returns a promise that resolves when initial auth state has been loaded from storage.
+ * safe to call multiple times — returns the same promise.
+ */
+ ready(): Promise<void> {
+ return this._loadAuthPromise;
+ }
 
   get client(): AxiosInstance {
     return this._axios;
