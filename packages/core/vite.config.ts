@@ -273,30 +273,30 @@ export default defineConfig({
     chunkSizeWarningLimit: 500,
     rollupOptions: {
       external: ['@capacitor/push-notifications'],
-    output: {
-      manualChunks(id) {
-        if (id.includes('node_modules')) {
-          // react must be in its own self-contained chunk — no circular deps
-          if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/react-router-dom/') || id.includes('/scheduler/')) {
-            return 'react-vendor';
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            // react must be in its own self-contained chunk — no circular deps
+            if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/react-router-dom/') || id.includes('/scheduler/')) {
+              return 'react-vendor';
+            }
+            // radix ui packages
+            if (id.includes('/@radix-ui/')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('/lucide-react/')) return 'icons';
+            if (id.includes('/date-fns/')) return 'date-utils';
+            if (id.includes('/framer-motion/')) return 'animation';
+            if (id.includes('/@dnd-kit/')) return 'dnd';
+            if (id.includes('/react-grid-layout/')) return 'grid-layout';
+            if (id.includes('/react-quill')) return 'editor';
+            if (id.includes('/recharts/')) return 'charts';
+            if (id.includes('/fabric/')) return 'canvas';
+            if (id.includes('/leaflet/') || id.includes('/react-leaflet/')) return 'maps';
+            if (id.includes('/react-markdown/') || id.includes('/remark-gfm/') || id.includes('/rehype-raw/')) return 'markdown';
           }
-          // radix ui packages
-          if (id.includes('/@radix-ui/')) {
-            return 'ui-vendor';
-          }
-          if (id.includes('/lucide-react/')) return 'icons';
-          if (id.includes('/date-fns/')) return 'date-utils';
-          if (id.includes('/framer-motion/')) return 'animation';
-          if (id.includes('/@dnd-kit/')) return 'dnd';
-          if (id.includes('/react-grid-layout/')) return 'grid-layout';
-          if (id.includes('/react-quill')) return 'editor';
-          if (id.includes('/recharts/')) return 'charts';
-          if (id.includes('/fabric/')) return 'canvas';
-          if (id.includes('/leaflet/') || id.includes('/react-leaflet/')) return 'maps';
-          if (id.includes('/react-markdown/') || id.includes('/remark-gfm/') || id.includes('/rehype-raw/')) return 'markdown';
         }
       }
-    }
       }
     }
   },
