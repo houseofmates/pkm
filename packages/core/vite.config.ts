@@ -273,21 +273,30 @@ export default defineConfig({
     chunkSizeWarningLimit: 500,
     rollupOptions: {
       external: ['@capacitor/push-notifications'],
-      output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs', '@radix-ui/react-tooltip', '@radix-ui/react-switch', '@radix-ui/react-select', '@radix-ui/react-separator', '@radix-ui/react-scroll-area', '@radix-ui/react-collapsible', '@radix-ui/react-accordion', '@radix-ui/react-alert-dialog', '@radix-ui/react-avatar', '@radix-ui/react-checkbox', '@radix-ui/react-label', '@radix-ui/react-menubar', '@radix-ui/react-navigation-menu', '@radix-ui/react-progress', '@radix-ui/react-slider', '@radix-ui/react-toggle', '@radix-ui/react-toggle-group'],
-          'icons': ['lucide-react'],
-          'date-utils': ['date-fns'],
-          'animation': ['framer-motion'],
-          'dnd': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', '@dnd-kit/modifiers'],
-          'grid-layout': ['react-grid-layout'],
-          'editor': ['react-quill-new', 'react-quill'],
-          'charts': ['recharts'],
-          'canvas': ['fabric'],
-          'maps': ['leaflet', 'react-leaflet'],
-          'markdown': ['react-markdown', 'remark-gfm', 'rehype-raw'],
+    output: {
+      manualChunks(id) {
+        if (id.includes('node_modules')) {
+          // react must be in its own self-contained chunk — no circular deps
+          if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/react-router-dom/') || id.includes('/scheduler/')) {
+            return 'react-vendor';
+          }
+          // radix ui packages
+          if (id.includes('/@radix-ui/')) {
+            return 'ui-vendor';
+          }
+          if (id.includes('/lucide-react/')) return 'icons';
+          if (id.includes('/date-fns/')) return 'date-utils';
+          if (id.includes('/framer-motion/')) return 'animation';
+          if (id.includes('/@dnd-kit/')) return 'dnd';
+          if (id.includes('/react-grid-layout/')) return 'grid-layout';
+          if (id.includes('/react-quill')) return 'editor';
+          if (id.includes('/recharts/')) return 'charts';
+          if (id.includes('/fabric/')) return 'canvas';
+          if (id.includes('/leaflet/') || id.includes('/react-leaflet/')) return 'maps';
+          if (id.includes('/react-markdown/') || id.includes('/remark-gfm/') || id.includes('/rehype-raw/')) return 'markdown';
         }
+      }
+    }
       }
     }
   },
