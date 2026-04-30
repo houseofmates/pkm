@@ -297,6 +297,8 @@ export default defineConfig({
           }
       }
     }
+      }
+    }
   },
   css: {
     devSourcemap: false,
