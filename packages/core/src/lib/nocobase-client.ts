@@ -46,6 +46,7 @@ export class NocoBaseClient {
   private _axios: AxiosInstance;
   private _token: string | null = null;
   private _user: any = null;
+  private _tokenValidated: boolean = false;
 
   constructor() {
     this._axios = axios.create({
@@ -147,43 +148,21 @@ export class NocoBaseClient {
 
   async loginWithApiKey(apiKey: string) {
     try {
-      // validate the key immediately against nocobase to surface
-      // invalid keys as errors rather than silently accepting them
-      // and having the first api call clear the token + redirect.
+      // Store the key immediately without validation.
+      // Validation happens on the first real API call.
+      // If that call 401s, the interceptor will clear the token
+      // and the user will see an error.
       this._token = apiKey;
-      this._axios.defaults.headers["Authorization"] = `Bearer ${apiKey}`;
-      
-      // try to fetch user info to validate the token
-      // nocobase v1 uses /users:me, v2 might use /auth:check or /api/users:me
-      let user = { apiKey: true };
-      try {
-        const response = await this._axios.get("/users:me");
-        user = response.data?.data || response.data || user;
-      } catch {
-        // if /users:me fails, try /auth:check
-        try {
-          const response = await this._axios.get("/auth:check");
-          user = response.data?.data || response.data || user;
-        } catch {
-          // both endpoints failed - but if we got here without a 401,
-          // the token might still be valid for some endpoints
-          // so we accept it but mark it as api-key based
-        }
-      }
-
-      this._user = user;
+      this._user = { apiKey: true };
       await storageManager.setEncryptedItem("nocobase_token", apiKey);
       await storageManager.setEncryptedItem(
         "nocobase_user",
-        JSON.stringify(user),
+        JSON.stringify({ apiKey: true }),
       );
-      secureLogger.info("[NocoBase] api key login validated");
-      return { token: apiKey, user };
-    } catch (error: any) {
-      // validation failed — roll back so no stale state lingers
-      this._token = null;
-      this._user = null;
-      delete this._axios.defaults.headers["Authorization"];
+      this._axios.defaults.headers["Authorization"] = `Bearer ${apiKey}`;
+      secureLogger.info("[NocoBase] api key login successful");
+      return { token: apiKey, user: { apiKey: true } };
+    } catch (error) {
       secureLogger.error("[NocoBase] api key login failed:", error);
       throw error;
     }
