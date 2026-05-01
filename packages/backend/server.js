@@ -261,14 +261,6 @@ app.get('/apk', (req, res) => {
 app.use('/apk', express.static(apkDir, { redirect: false }));
 
 // authentication middleware
-const authenticate = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-
-  // allow if no auth required for public endpoints (though applied globally here for specific routes)
-  // we only protect specific routes
-  return next();
-};
-
 const requireAuth = (req, res, next) => {
   if (process.env.NODE_ENV !== 'production' && process.env.MOCK_NOTION_IMPORT === 'true') {
     return next();
