@@ -146,7 +146,7 @@ export class NocoBaseClient {
     }
   }
 
-  async loginWithApiKey(apiKey: string) {
+    async loginWithApiKey(apiKey: string) {
     try {
       // Store the key immediately without validation.
       // Validation happens on the first real API call.
@@ -154,6 +154,7 @@ export class NocoBaseClient {
       // and the user will see an error.
       this._token = apiKey;
       this._user = { apiKey: true };
+      this._tokenValidated = false; // reset - will be set to true after first successful call
       await storageManager.setEncryptedItem("nocobase_token", apiKey);
       await storageManager.setEncryptedItem(
         "nocobase_user",
