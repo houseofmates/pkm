@@ -3,6 +3,7 @@ import axios from "axios";
 import { secureLogger, sanitizeForLogging } from "./secure-logger";
 import { storageManager } from "./storage-manager";
 import { normalizeAuthToken, toAuthorizationHeaderValue } from "./auth-token";
+import { nocobaseClient } from "./nocobase";
 
 export const API_URL = import.meta.env.VITE_API_URL || "/api";
 
