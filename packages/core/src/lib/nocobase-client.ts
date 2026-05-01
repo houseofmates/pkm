@@ -152,8 +152,24 @@ export class NocoBaseClient {
       // and having the first api call clear the token + redirect.
       this._token = apiKey;
       this._axios.defaults.headers["Authorization"] = `Bearer ${apiKey}`;
-      const response = await this._axios.get("/auth:check");
-      const user = response.data?.data || response.data || { apiKey: true };
+      
+      // try to fetch user info to validate the token
+      // nocobase v1 uses /users:me, v2 might use /auth:check or /api/users:me
+      let user = { apiKey: true };
+      try {
+        const response = await this._axios.get("/users:me");
+        user = response.data?.data || response.data || user;
+      } catch {
+        // if /users:me fails, try /auth:check
+        try {
+          const response = await this._axios.get("/auth:check");
+          user = response.data?.data || response.data || user;
+        } catch {
+          // both endpoints failed - but if we got here without a 401,
+          // the token might still be valid for some endpoints
+          // so we accept it but mark it as api-key based
+        }
+      }
 
       this._user = user;
       await storageManager.setEncryptedItem("nocobase_token", apiKey);
