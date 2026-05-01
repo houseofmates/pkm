@@ -1563,52 +1563,24 @@ app.get('/api/ai/memory', requireAuth, async (req, res) => {
 
 // convenience endpoint to quickly remember something
 app.post('/api/ai/remember', requireAuth, async (req, res) => {
-  try {
-    const { what, type = 'important' } = req.body;
+ try {
+ const { what, type = 'important' } = req.body;
 
-    if (!what) {
-      return res.status(400).json({ error: 'what to remember is required' });
-    }
+ if (!what) {
+ return res.status(400).json({ error: 'what to remember is required' });
+ }
 
-    const success = addMemory(type, what);
+ const success = addMemory(type, what);
 
-    if (success) {
-      res.json({ success: true, remembered: what });
-    } else {
-      res.status(500).json({ error: 'failed to remember' });
-    }
-  } catch (err) {
-    console.error('[AI] remember error:', err.message);
-    res.status(500).json({ error: 'failed to remember' });
-  }
-});
-
-app.post('/api/ai/memory', requireAuth, async (req, res) => {
-  try {
-    const { type, content, action } = req.body;
-
-    if (!type || !content) {
-      return res.status(400).json({ error: 'type and content required' });
-    }
-
-    const fileName = `${type}.md`;
-    let success = false;
-
-    if (action === 'append') {
-      success = appendMemory(fileName, content);
-    } else {
-      success = writeMemory(fileName, content);
-    }
-
-    if (success) {
-      res.json({ success: true, type });
-    } else {
-      res.status(500).json({ error: 'failed to write memory' });
-    }
-  } catch (err) {
-    console.error('[AI] memory write error:', err.message);
-    res.status(500).json({ error: 'failed to write memory' });
-  }
+ if (success) {
+ res.json({ success: true, remembered: what });
+ } else {
+ res.status(500).json({ error: 'failed to remember' });
+ }
+ } catch (err) {
+ console.error('[AI] remember error:', err.message);
+ res.status(500).json({ error: 'failed to remember' });
+ }
 });
 
 app.delete('/api/ai/memory', requireAuth, async (req, res) => {
