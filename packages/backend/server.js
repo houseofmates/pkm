@@ -761,8 +761,6 @@ async function handleCsvImport(req, res) {
   return res.json({ taskId, summary: `Scheduled import of ${req.files.length} files` });
 }
 
-app.post('/nb-import-csv', csvUpload.array('files', 60), handleCsvImport);
-
 // alias under /api path since vite proxy rewrites to /api
 app.post('/api/nb-import-csv', requireAuth, csvUpload.array('files', 60), handleCsvImport);
 
