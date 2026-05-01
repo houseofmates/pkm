@@ -616,9 +616,7 @@ function handleNotionImport(req, res) {
   res.json({ taskId });
 }
 
-// primary endpoint uses shorter name to avoid cloudflare filtering
-app.post('/api/nb-import', requireAuth, importUpload.single('file'), handleNotionImport);
-// legacy route still available for local tests
+// primary endpoint for notion import (short name to avoid cloudflare filtering)
 app.post('/api/notion-import', requireAuth, importUpload.single('file'), handleNotionImport);
 
 // multi-csv import endpoint for notion databases
