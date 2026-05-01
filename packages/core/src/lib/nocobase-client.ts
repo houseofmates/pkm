@@ -147,17 +147,27 @@ export class NocoBaseClient {
 
   async loginWithApiKey(apiKey: string) {
     try {
+      // validate the key immediately against nocobase to surface
+      // invalid keys as errors rather than silently accepting them
+      // and having the first api call clear the token + redirect.
       this._token = apiKey;
-      this._user = { apiKey: true };
+      this._axios.defaults.headers["Authorization"] = `Bearer ${apiKey}`;
+      const response = await this._axios.get("/auth:check");
+      const user = response.data?.data || response.data || { apiKey: true };
+
+      this._user = user;
       await storageManager.setEncryptedItem("nocobase_token", apiKey);
       await storageManager.setEncryptedItem(
         "nocobase_user",
-        JSON.stringify({ apiKey: true }),
+        JSON.stringify(user),
       );
-      this._axios.defaults.headers["Authorization"] = `Bearer ${apiKey}`;
-      secureLogger.info("[NocoBase] api key login successful");
-      return { token: apiKey, user: { apiKey: true } };
-    } catch (error) {
+      secureLogger.info("[NocoBase] api key login validated");
+      return { token: apiKey, user };
+    } catch (error: any) {
+      // validation failed — roll back so no stale state lingers
+      this._token = null;
+      this._user = null;
+      delete this._axios.defaults.headers["Authorization"];
       secureLogger.error("[NocoBase] api key login failed:", error);
       throw error;
     }
