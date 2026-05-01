@@ -92,10 +92,23 @@ apiClient.interceptors.response.use(
       if (kind === "hom_api_key") {
         storageManager.removeItem("hom_api_key");
       } else if (kind === "nocobase_token") {
-        storageManager.removeItem("nocobase_token");
-        storageManager.removeItem("nocobase_user");
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new Event("auth-error"));
+        // only clear the token if it has been validated at least once.
+        // this prevents clearing the token during the first page load
+        // after login, where a 401 might be from a different source
+        // (e.g., stale page state, race condition).
+        // once the token has made at least one successful request,
+        // a 401 means it's truly invalid.
+        const client = nocobaseClient as any;
+        if (client?._tokenValidated) {
+          storageManager.removeItem("nocobase_token");
+          storageManager.removeItem("nocobase_user");
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new Event("auth-error"));
+          }
+        } else {
+          secureLogger.warn(
+            "[auth] 401 on unvalidated token - not clearing (race condition during login)",
+          );
         }
       } else if (kind === "hom_guest_key") {
         storageManager.removeItem("hom_guest_key");
