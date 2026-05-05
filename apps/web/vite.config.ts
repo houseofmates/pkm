@@ -133,8 +133,8 @@ export default defineConfig({
         target: 'http://127.0.0.1:4100',
         changeOrigin: true,
       },
-      '/api/nocobase': {
-        target: 'http://192.168.4.233:8091/api',
+      ''/api/nocobase': {
+        target: 'http://localhost:13000/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
       },
