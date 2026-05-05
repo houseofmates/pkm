@@ -138,6 +138,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
       },
+      '/api/journal': {
+        target: 'http://localhost:13000/api',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/journal/, ''),
+      },
       '/storage': {
         target: 'http://192.168.4.233:8091',
         changeOrigin: true,
