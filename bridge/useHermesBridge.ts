@@ -1,4 +1,4 @@
-// useHermesBridge - hook for connecting pkm chat to hermes agent
+// usehermesbridge - hook for connecting pkm chat to hermes agent
 // this hooks into the llm-store and routes messages to the hermes bridge
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -191,7 +191,7 @@ export function useHermesBridge(config: HermesBridgeConfig = {}): UseHermesBridg
   };
 }
 
-// alternative: a function that can be dropped into askHermes
+// alternative: a function that can be dropped into askhermes
 // this intercepts the call and routes to hermes if enabled
 export function createHermesBridgeInterceptor(
   wsUrl: string = 'ws://localhost:3101'

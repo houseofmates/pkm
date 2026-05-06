@@ -350,7 +350,7 @@ export function BuilderToolbox() {
 
   toast.info('uploading image...');
   try {
- const uploaded = await nocobaseClient.upload(file);
+ const uploaded = await nocobaseclient.upload(file);
    const uploadedany = uploaded as any;
    const url = uploadedany?.url || uploadedany?.data?.url;
  if (url) {
@@ -376,7 +376,7 @@ export function BuilderToolbox() {
 
   toast.info('uploading video...');
   try {
- const uploaded = await nocobaseClient.upload(file);
+ const uploaded = await nocobaseclient.upload(file);
    const uploadedany = uploaded as any;
    const url = uploadedany?.url || uploadedany?.data?.url;
  if (url) {

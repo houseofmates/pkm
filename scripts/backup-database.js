@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Database backup script for PKM
- * Backs up NocoBase database and configuration
+ * database backup script for pkm
+ * backs up nocobase database and configuration
  */
 
 const { execSync } = require('child_process');
@@ -20,7 +20,7 @@ async function backupDatabase() {
   const backupDir = path.join(process.cwd(), 'backups');
   const backupFile = path.join(backupDir, `pkm-backup-${timestamp}.tar.gz`);
   
-  // Ensure backup directory exists
+  // ensure backup directory exists
   if (!fs.existsSync(backupDir)) {
     fs.mkdirSync(backupDir, { recursive: true });
   }
@@ -28,7 +28,7 @@ async function backupDatabase() {
   console.log(`Starting backup to ${backupFile}`);
   
   try {
-    // Create backup manifest
+    // create backup manifest
     const manifest = {
       timestamp: new Date().toISOString(),
       version: process.env.APP_VERSION || 'unknown',
@@ -36,12 +36,12 @@ async function backupDatabase() {
       includes: ['database', 'config', 'uploads']
     };
     
-    // Write manifest to temp file
+    // write manifest to temp file
     const manifestPath = path.join(backupDir, 'manifest.json');
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
     
-    // Backup NocoBase database (assuming SQLite for simplicity)
-    // Adjust based on your actual database setup
+    // backup nocobase database (assuming sqlite for simplicity)
+    // adjust based on your actual database setup
     const dbPath = process.env.NOCOBASE_DB_PATH || './data/database.sqlite';
     if (fs.existsSync(dbPath)) {
       console.log('Backing up database...');
@@ -51,7 +51,7 @@ async function backupDatabase() {
       );
     }
     
-    // Backup uploads/assets
+    // backup uploads/assets
     const uploadsPath = path.join(process.cwd(), 'public');
     if (fs.existsSync(uploadsPath)) {
       console.log('Backing up uploads...');
@@ -61,7 +61,7 @@ async function backupDatabase() {
       );
     }
     
-    // Backup configuration
+    // backup configuration
     const configFiles = [
       '.env',
       'package.json',
@@ -82,7 +82,7 @@ async function backupDatabase() {
       }
     }
     
-    // Create final archive
+    // create final archive
     console.log('Creating final archive...');
     await tar.create({
       gzip: true,
@@ -96,7 +96,7 @@ async function backupDatabase() {
       ]
     });
     
-    // Cleanup temporary files
+    // cleanup temporary files
     fs.unlinkSync(path.join(backupDir, 'manifest.json'));
     fs.unlinkSync(path.join(backupDir, 'database.tar.gz'));
     fs.unlinkSync(path.join(backupDir, 'uploads.tar.gz'));
@@ -104,7 +104,7 @@ async function backupDatabase() {
     
     console.log(`Backup completed successfully: ${backupFile}`);
     
-    // Optional: Upload to remote storage (S3, etc.)
+    // optional: upload to remote storage (s3, etc.)
     if (process.env.BACKUP_S3_BUCKET) {
       await uploadToS3(backupFile);
     }
@@ -172,7 +172,7 @@ async function restoreBackup(backupFile) {
   
   console.log(`Restoring from ${backupPath}`);
   
-  // Extract backup
+  // extract backup
   const extractDir = path.join(backupDir, 'restore-temp');
   if (fs.existsSync(extractDir)) {
     fs.rmdirSync(extractDir, { recursive: true });
@@ -185,14 +185,14 @@ async function restoreBackup(backupFile) {
     cwd: extractDir
   });
   
-  // Read manifest
+  // read manifest
   const manifestPath = path.join(extractDir, 'manifest.json');
   if (fs.existsSync(manifestPath)) {
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
     console.log(`Restoring backup from ${manifest.timestamp} (${manifest.backupType})`);
   }
   
-  // Restore database
+  // restore database
   const dbBackup = path.join(extractDir, 'database.tar.gz');
   if (fs.existsSync(dbBackup)) {
     const dbPath = process.env.NOCOBASE_DB_PATH || './data/database.sqlite';
@@ -209,7 +209,7 @@ async function restoreBackup(backupFile) {
     });
   }
   
-  // Restore uploads
+  // restore uploads
   const uploadsBackup = path.join(extractDir, 'uploads.tar.gz');
   if (fs.existsSync(uploadsBackup)) {
     const uploadsPath = path.join(process.cwd(), 'public');
@@ -221,19 +221,19 @@ async function restoreBackup(backupFile) {
     });
   }
   
-  // Restore config (optional - be careful not to overwrite current settings)
+  // restore config (optional - be careful not to overwrite current settings)
   const configBackup = path.join(extractDir, 'config');
   if (fs.existsSync(configBackup)) {
     console.log('Config files available in backup/config (not restored automatically for safety)');
   }
   
-  // Cleanup
+  // cleanup
   fs.rmdirSync(extractDir, { recursive: true });
   
   console.log('Restore completed');
 }
 
-// CLI interface
+// cli interface
 const command = process.argv[2];
 
 switch (command) {

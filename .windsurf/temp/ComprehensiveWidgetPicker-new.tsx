@@ -41,7 +41,7 @@ interface PresetWidget {
 }
 
 const PRESET_WIDGETS: PresetWidget[] = [
-  // PERSONAL / PKM
+  // personal / pkm
   {
     id: 'journal-quick-entry',
     label: 'Journal Quick Entry',
@@ -87,7 +87,7 @@ const PRESET_WIDGETS: PresetWidget[] = [
     dataSource: 'journal_entries'
   },
 
-  // HEALTH & WELLNESS
+  // health & wellness
   {
     id: 'medication-tracker',
     label: 'Medication Tracker',
@@ -159,7 +159,7 @@ const PRESET_WIDGETS: PresetWidget[] = [
     dataSource: 'pet_interactions'
   },
 
-  // FINANCE
+  // finance
   {
     id: 'finance-summary',
     label: 'Finance Summary',
@@ -187,7 +187,7 @@ const PRESET_WIDGETS: PresetWidget[] = [
     dataSource: 'finance_daily'
   },
 
-  // PRODUCTIVITY
+  // productivity
   {
     id: 'habit-tracker',
     label: 'Habit Tracker',
@@ -271,7 +271,7 @@ const PRESET_WIDGETS: PresetWidget[] = [
     defaultData: { showTags: true, autoSave: true, voiceEnabled: true }
   },
 
-  // MEDIA
+  // media
   {
     id: 'voice-memo',
     label: 'Voice Memo',
@@ -299,7 +299,7 @@ const PRESET_WIDGETS: PresetWidget[] = [
     dataSource: 'reading_list'
   },
 
-  // UTILITIES
+  // utilities
   {
     id: 'clock-widget',
     label: 'Clock',
@@ -358,7 +358,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
   const { collections } = useCollections();
   const addElement = useEdgelessStore((s: any) => s.addElement);
 
-  // Filter collections based on search
+  // filter collections based on search
   const filteredCollections = useMemo(() => {
     if (!collections) return [];
     if (!search) return collections;
@@ -367,7 +367,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
     );
   }, [collections, search]);
 
-  // Filter preset widgets based on search and category
+  // filter preset widgets based on search and category
   const filteredPresets = useMemo(() => {
     let filtered = PRESET_WIDGETS;
     
@@ -385,7 +385,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
     return filtered;
   }, [search, selectedCategory]);
 
-  // Group presets by category
+  // group presets by category
   const groupedPresets = useMemo(() => {
     const groups: Partial<Record<WidgetCategory | 'all', PresetWidget[]>> = {};
     
@@ -472,7 +472,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-[28rem] max-h-[85vh] bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-      {/* Header with Tabs */}
+      {/* header with tabs */}
       <div className="flex items-center justify-between p-4 border-b border-white/10">
         <div className="flex items-center gap-2">
           {activeTab === 'databases' && selectedCollection && (
@@ -501,7 +501,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
         </button>
       </div>
 
-      {/* Tabs */}
+      {/* tabs */}
       <div className="flex border-b border-white/10">
         <button
           onClick={() => {
@@ -547,7 +547,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
         </button>
       </div>
 
-      {/* Search */}
+      {/* search */}
       <div className="p-4 border-b border-white/10">
         <div className="flex items-center gap-2 px-3 py-2 bg-white/5 rounded-lg border border-white/10">
           <Search className="w-4 h-4 text-white/40" />
@@ -565,7 +565,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
         </div>
       </div>
 
-      {/* Category Filter (only for presets tab) */}
+      {/* category filter (only for presets tab) */}
       {activeTab === 'presets' && (
         <div className="flex items-center gap-2 p-4 border-b border-white/10 overflow-x-auto">
           <button
@@ -596,11 +596,11 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
         </div>
       )}
 
-      {/* Content */}
+      {/* content */}
       <div className="flex-1 overflow-y-auto p-4 max-h-[400px]">
         {activeTab === 'databases' ? (
           selectedCollection ? (
-            /* View Types Selection */
+            /* view types selection */
             <div className="space-y-2">
               <div className="text-xs text-white/40 lowercase mb-3">
                 choose view type for {selectedCollection.title || selectedCollection.name}
@@ -633,7 +633,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
               })}
             </div>
           ) : (
-            /* Databases List */
+            /* databases list */
             <div className="space-y-1">
               {filteredCollections.length === 0 ? (
                 <div className="text-center py-8">
@@ -665,7 +665,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
             </div>
           )
         ) : (
-          /* Preset Widgets List */
+          /* preset widgets list */
           <div className="space-y-4">
             {Object.entries(groupedPresets).map(([category, widgets]) => {
               if (!widgets || widgets.length === 0) return null;
@@ -735,7 +735,7 @@ export function ComprehensiveWidgetPicker({ isOpen, onClose }: ComprehensiveWidg
         )}
       </div>
 
-      {/* Footer */}
+      {/* footer */}
       <div className="p-3 border-t border-white/10 bg-black/20">
         <div className="flex items-center justify-between text-xs text-white/40">
           <div className="lowercase">

@@ -1,6 +1,6 @@
 // background.js - service worker for pkm capture extension
 
-// Configuration - will be loaded from storage
+// configuration - will be loaded from storage
 let CONFIG = {
     ollamaEndpoint: 'http://localhost:11434/api/generate',
     model: 'qwen2.5vl:7b-q4_K_M',
@@ -8,7 +8,7 @@ let CONFIG = {
     collectionName: 'ai-convos'
 };
 
-// Load config from storage on startup
+// load config from storage on startup
 async function loadConfig() {
     try {
         const data = await browser.storage.sync.get(['apiBaseUrl', 'ollamaUrl']);

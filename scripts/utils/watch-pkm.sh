@@ -3,19 +3,19 @@ PROJECT_DIR="/home/house/pkm"
 DEPLOY_SCRIPT="$PROJECT_DIR/deploy.sh"
 PORT=4173
 
-# STRICT exclude pattern. 
-# We ignore .git, node_modules, the dist output folder, and any log files.
-# If these are detected, the watcher stays asleep.
+# strict exclude pattern. 
+# we ignore .git, node_modules, the dist output folder, and any log files.
+# if these are detected, the watcher stays asleep.
 EXCLUDE="(^$PROJECT_DIR/dist/|^$PROJECT_DIR/node_modules/|^$PROJECT_DIR/\.git/|\.log$)"
 
 echo "[Supervisor] Starting strict watch..."
 
-# 1. Start clean (run deploy once)
+# 1. start clean (run deploy once)
 bash "$DEPLOY_SCRIPT"
 
-# 2. Watch Loop
+# 2. watch loop
 while true; do
-    # Watch for changes, but IGNORE the build output folders
+    # watch for changes, but ignore the build output folders
     change=$(inotifywait -r -e modify,create,delete,move \
         --exclude "$EXCLUDE" \
         "$PROJECT_DIR" 2>/dev/null)
@@ -23,7 +23,7 @@ while true; do
     if [ -n "$change" ]; then
         echo "[Supervisor] Change detected in source files. Waiting 5s..."
         
-        # Debounce: wait for silence, still ignoring dist/
+        # debounce: wait for silence, still ignoring dist/
         while inotifywait -r -e modify,create,delete,move \
               --exclude "$EXCLUDE" \
               -t 5 \

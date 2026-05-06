@@ -11578,11 +11578,11 @@ summary:`;
 
 
 
-        className="hidden"
+        classname="hidden"
 
 
 
-        onChange={handlePhotoUpload}
+        onchange={handlephotoupload}
 
 
 
@@ -13586,7 +13586,7 @@ summary:`;
 
 
 
-            {/* Photos Preview */}
+            {/* photos preview */}
 
 
 
@@ -13654,7 +13654,7 @@ summary:`;
 
 
 
-            {/* Voice Memos */}
+            {/* voice memos */}
 
 
 

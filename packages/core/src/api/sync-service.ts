@@ -176,7 +176,7 @@ export class SyncService {
 
       secureLogger.info(`syncOplog: Compacted to ${allCompactedOps.length} operations. Syncing to server...`);
 
-      // 3. simulate syncing to server (in reality: nocobaseClient.request('canvas_oplog:create', { ... }))
+      // 3. simulate syncing to server (in reality: nocobaseclient.request('canvas_oplog:create', { ... }))
       // we assume a successful sync for this implementation.
 
       // 4. mark all original unsynced ops as synced.

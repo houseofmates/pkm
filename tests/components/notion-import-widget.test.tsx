@@ -2,13 +2,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { NotionImportWidget } from '@/components/notion-import-widget';
 import { vi, describe, it, beforeEach, afterEach, expect } from 'vitest';
 
-// mock useAppSetting hook so we can control returned apiKey
+// mock useappsetting hook so we can control returned apikey
 vi.mock('@/hooks/use-app-setting', () => ({
   useAppSetting: vi.fn(() => ['', vi.fn()])
 }));
 import { useAppSetting } from '@/hooks/use-app-setting';
 
-// fake EventSource for tests
+// fake eventsource for tests
 class MockEventSource {
   static readonly CONNECTING = 0;
   static readonly OPEN = 1;
@@ -74,16 +74,16 @@ describe('NotionImportWidget', () => {
   it('logs both raw and rewritten VITE_API_URL values', async () => {
     const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
     process.env.VITE_API_URL = 'https://api.houseofmates.space/api';
-    // provide a key so startImport doesn't bail out early
+    // provide a key so startimport doesn't bail out early
     localStorage.setItem('hom_api_key', 'key');
     render(<NotionImportWidget />);
-    // choose a file to allow startImport to proceed
+    // choose a file to allow startimport to proceed
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = makeFakeZip();
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => expect(debugSpy).toHaveBeenCalled());
-    // find the call that includes the raw value log (skip the apiKey line)
+    // find the call that includes the raw value log (skip the apikey line)
     const combined = debugSpy.mock.calls
       .map(call => call.join(' '))
       .find(s => s.includes('raw VITE_API_URL'));
@@ -236,7 +236,7 @@ describe('NotionImportWidget', () => {
       expect(screen.getByText(/bar/)).toBeInTheDocument();
       expect(screen.getByText(/import done/)).toBeInTheDocument();
     });
-    // verify URL and method used (mimic actual widget logic)
+    // verify url and method used (mimic actual widget logic)
     let expectedBase: string;
     if (process.env.VITE_API_URL) {
       expectedBase = process.env.VITE_API_URL.replace(/\/$/, '');
@@ -329,7 +329,7 @@ describe('NotionImportWidget', () => {
   });
 
   it('warns on strange header but still uploads', async () => {
-    // prepare a file with a non-PK header
+    // prepare a file with a non-pk header
     localStorage.setItem('hom_api_key', 'key');
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -354,22 +354,22 @@ describe('NotionImportWidget', () => {
     localStorage.setItem('hom_api_key', 'key');
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    // make the HTML large enough to bypass the 'too small' check
-    // craft an array whose first bytes match the HTML snippet seen in
-    // the live failure (< ! D O) but otherwise fill with zeros so size is OK
+    // make the html large enough to bypass the 'too small' check
+    // craft an array whose first bytes match the html snippet seen in
+    // the live failure (< ! d o) but otherwise fill with zeros so size is ok
     const arr = new Uint8Array(2048);
     arr[0] = 0x3c; // '<'
     arr[1] = 0x21; // '!'
     arr[2] = 0x44; // 'D'
     arr[3] = 0x4f; // 'O'
     const html = new File([arr], 'page.zip', { type: 'application/zip' });
-    // jsdom occasionally throws from slice(arrayBuffer), so stub it to return
+    // jsdom occasionally throws from slice(arraybuffer), so stub it to return
     // our crafted header bytes directly
     (html as any).slice = () => ({ arrayBuffer: async () => arr.buffer });
     fireEvent.change(input, { target: { files: [html] } });
     fireEvent.click(screen.getByText(/start import/i));
     // the important invariant is that we never attempt a network request
-    // when the file looks like HTML. the specific log text is secondary and
+    // when the file looks like html. the specific log text is secondary and
     // may vary (jsdom header handling is flaky).
     await waitFor(() => {
       expect(fetch).not.toHaveBeenCalled();

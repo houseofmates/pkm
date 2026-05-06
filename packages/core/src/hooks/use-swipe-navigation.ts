@@ -36,19 +36,19 @@ export function useSwipeNavigation(options: SwipeNavigationOptions = {}) {
       const deltaY = endY - startY;
       const duration = endTime - startTime;
       
-      // Check if it's a swipe (not just a tap)
+      // check if it's a swipe (not just a tap)
       if (duration <= timeout && Math.abs(deltaX) > threshold && Math.abs(deltaY) < 50) {
-        // Horizontal swipe
+        // horizontal swipe
         if (deltaX > 0) {
-          // Swipe right - go to previous tab
+          // swipe right - go to previous tab
           navigateToPreviousTab();
         } else {
-          // Swipe left - go to next tab
+          // swipe left - go to next tab
           navigateToNextTab();
         }
       }
       
-      // Reset
+      // reset
       startX = null;
       startY = null;
       startTime = null;
@@ -67,7 +67,7 @@ export function useSwipeNavigation(options: SwipeNavigationOptions = {}) {
       } else if (path === '/captures') {
         navigate('/home');
       } else {
-        // Default to home for other paths
+        // default to home for other paths
         navigate('/');
       }
     };
@@ -85,16 +85,16 @@ export function useSwipeNavigation(options: SwipeNavigationOptions = {}) {
       } else if (path === '/journal') {
         navigate('/databases');
       } else {
-        // Default to home for other paths
+        // default to home for other paths
         navigate('/');
       }
     };
     
-    // Add event listeners
+    // add event listeners
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchend', handleTouchEnd, { passive: true });
     
-    // Cleanup
+    // cleanup
     return () => {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);

@@ -1,14 +1,14 @@
 #!/bin/bash
-# audit_keys.sh - Scans the project for potential exposed API keys or secrets.
+# audit_keys.sh - scans the project for potential exposed api keys or secrets.
 
 echo "🔍 Scanning /home/house/pkm for potential secrets..."
 echo "---------------------------------------------------"
 
-# High-entropy strings (Generic API Keys) - filtering common code keywords
+# high-entropy strings (generic api keys) - filtering common code keywords
 echo "Checking generic high-entropy strings..."
 grep -rE "([A-Za-z0-9-_]{30,})" src/ --include="*.ts*" --include="*.js*" --include="*.tsx" | grep -vE "import|from|class|interface|function|const|let|var|return|node_modules|package-lock|yarn.lock" 
 
-# Specific patterns
+# specific patterns
 echo "Checking 'Authorization' headers..."
 grep -r "Authorization" src/
 

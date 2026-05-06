@@ -18,7 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-// Types for collection fields
+// types for collection fields
 interface CollectionField {
   name: string;
   interface?: string;
@@ -27,19 +27,19 @@ interface CollectionField {
   };
 }
 
-// Type for collection
+// type for collection
 interface Collection {
   name: string;
   fields?: CollectionField[];
 }
 
-// Type for record data
+// type for record data
 interface RecordData {
   id: string | number;
   [key: string]: unknown;
 }
 
-// Type for view config
+// type for view config
 interface ViewConfig {
   visibleFields?: string[];
 }

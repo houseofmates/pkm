@@ -9,7 +9,7 @@ export interface ApiListResponse<T = any> {
   };
 }
 
-// @deprecated use ApiListResponse instead
+// @deprecated use apilistresponse instead
 export type NocoBaseResponse<T = any> = ApiListResponse<T>;
 
 export interface RequestOptions {

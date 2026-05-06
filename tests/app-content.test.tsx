@@ -13,7 +13,7 @@ vi.mock('@/contexts/auth-context', () => ({
   useAuth: vi.fn(() => ({ token: null, isLoading: false })),
 }));
 
-// stub isPublicDomain so tests are deterministic
+// stub ispublicdomain so tests are deterministic
 vi.mock('@/utils/subdomain-router', () => ({ isPublicDomain: () => false }));
 
 // baseline fetch stub

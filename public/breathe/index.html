@@ -7,16 +7,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>12‑second breathing spiral – 4‑second countdown</title>
 
-  <!-- Inter & Varela Round fonts -->
+  <!-- inter & varela round fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Varela+Round&display=swap"
         rel="stylesheet">
 
-  <!-- Tailwind CSS (browser build) -->
+  <!-- tailwind css (browser build) -->
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
 
 <body class="flex flex-col items-center justify-center min-h-screen font-[Inter]" style="background:#050505;">
-  <!-- Spiral SVG (stroke only) - enlarged for mobile -->
+  <!-- spiral svg (stroke only) - enlarged for mobile -->
   <svg id="spiral"
        class="w-80 h-80 sm:w-96 sm:h-96 md:w-[500px] md:h-[500px]"
        viewBox="0 0 100 100"
@@ -29,14 +29,14 @@
   </svg>
 
 
-  <!-- Textual cue (lowercase, large) - enlarged for mobile -->
+  <!-- textual cue (lowercase, large) - enlarged for mobile -->
   <div id="phase"
        class="mt-8 text-7xl sm:text-8xl md:text-9xl font-[VarelaRound] text-[#f6b012] lowercase">
     inhale
   </div>
 
 
-  <!-- Countdown timer – starts at 4 seconds - enlarged for mobile -->
+  <!-- countdown timer – starts at 4 seconds - enlarged for mobile -->
   <div id="countdown"
        class="mt-4 text-4xl sm:text-5xl md:text-7xl font-[VarelaRound] text-[#f6b012]">
     4s

@@ -1,4 +1,4 @@
-# Logs
+# logs
 logs
 *.log
 npm-debug.log*
@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -23,29 +23,29 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment variables
+# environment variables
 .env
 .env.local
 .env.production
 .env.example
-# Ignore other sensitive files as needed
+# ignore other sensitive files as needed
 
-# Build artifacts
+# build artifacts
 release/
 build/
 
-# Tauri
+# tauri
 src-tauri/target/
 
-# Electron
+# electron
 electron/dist/
 
-# Capacitor
+# capacitor
 android/app/build/
 android/.gradle/
 android/local.properties
 
-# Backend data
+# backend data
 packages/backend/server-data.json
 packages/backend/server-data.json.backup
 packages/backend/public/*.png
@@ -55,10 +55,10 @@ packages/backend/public/*.gif
 packages/backend/public/*.webp
 packages/backend/public/*.pdf
 
-# AppImage squashfs extraction artifacts
+# appimage squashfs extraction artifacts
 squashfs-root/
 
-# Personal files
+# personal files
 !releases/
 *.private.*
 .aider*

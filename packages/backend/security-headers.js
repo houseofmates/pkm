@@ -13,32 +13,32 @@ export function securityHeaders() {
             directives: {
                 defaultSrc: ["'self'"],
                 scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://challenges.cloudflare.com", "https://*.cloudflare.com"],
-                styleSrc: ["'self'", "'unsafe-inline'", "https://challenges.cloudflare.com", "https://*.cloudflare.com"],
-                connectSrc: ["'self'", "ws:", "wss:", "https:", "https://challenges.cloudflare.com", "https://*.cloudflare.com"],
-                fontSrc: ["'self'", "data:", "https://challenges.cloudflare.com", "https://*.cloudflare.com"],
-                frameSrc: ["https://challenges.cloudflare.com", "https://*.cloudflare.com"],
-                frameAncestors: ["'self'"],
-                baseUri: ["'self'"],
-                formAction: ["'self'"],
-                upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null
+                stylesrc: ["'self'", "'unsafe-inline'", "https://challenges.cloudflare.com", "https://*.cloudflare.com"],
+                connectsrc: ["'self'", "ws:", "wss:", "https:", "https://challenges.cloudflare.com", "https://*.cloudflare.com"],
+                fontsrc: ["'self'", "data:", "https://challenges.cloudflare.com", "https://*.cloudflare.com"],
+                framesrc: ["https://challenges.cloudflare.com", "https://*.cloudflare.com"],
+                frameancestors: ["'self'"],
+                baseuri: ["'self'"],
+                formaction: ["'self'"],
+                upgradeinsecurerequests: process.env.node_env === 'production' ? [] : null
             }
         },
         
         // cross-origin embedder policy
-        crossOriginEmbedderPolicy: true,
+        crossoriginembedderpolicy: true,
         
         // cross-origin opener policy
-        crossOriginOpenerPolicy: {
+        crossoriginopenerpolicy: {
             policy: "same-origin"
         },
         
         // cross-origin resource policy
-        crossOriginResourcePolicy: {
+        crossoriginresourcepolicy: {
             policy: "same-origin"
         },
         
         // dns prefetch control
-        dnsPrefetchControl: {
+        dnsprefetchcontrol: {
             allow: false
         },
         
@@ -48,33 +48,33 @@ export function securityHeaders() {
         },
         
         // hide x-powered-by header
-        hidePoweredBy: true,
+        hidepoweredby: true,
         
         // http strict transport security (hsts)
         hsts: {
-            maxAge: 31536000, // 1 year
-            includeSubDomains: true,
+            maxage: 31536000, // 1 year
+            includesubdomains: true,
             preload: true
         },
         
         // ie no open
-        ieNoOpen: true,
+        ienoopen: true,
         
         // no sniff
-        noSniff: true,
+        nosniff: true,
         
         // permitted cross-domain policies
-        permittedCrossDomainPolicies: {
-            permittedPolicies: "none"
+        permittedcrossdomainpolicies: {
+            permittedpolicies: "none"
         },
         
         // referrer policy
-        referrerPolicy: {
+        referrerpolicy: {
             policy: "strict-origin-when-cross-origin"
         },
         
         // x-xss-protection
-        xssFilter: true
+        xssfilter: true
     });
 }
 

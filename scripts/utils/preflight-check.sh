@@ -25,7 +25,7 @@ warn() {
     ((WARN++))
 }
 
-# 1. Check if running as correct user
+# 1. check if running as correct user
 echo "[1] User & Permissions"
 if [ "$USER" = "house" ]; then
     check "Running as house user"
@@ -33,7 +33,7 @@ else
     warn "Not running as house user (current: $USER)"
 fi
 
-# 2. Check if in correct directory
+# 2. check if in correct directory
 if [ "$PWD" = "/home/house/pkm" ]; then
     check "In /home/house/pkm directory"
 else
@@ -41,7 +41,7 @@ else
 fi
 echo ""
 
-# 3. Check required files exist
+# 3. check required files exist
 echo "[2] Required Files"
 [ -f "/home/house/pkm/packages/backend/server.js" ]
 check "packages/backend/server.js exists"
@@ -53,7 +53,7 @@ check "src/api/nocobase-client.ts exists"
 check "package.json exists"
 echo ""
 
-# 4. Check services status
+# 4. check services status
 echo "[3] Service Status"
 if curl -s http://localhost:4100/api/status >/dev/null 2>&1; then
     check "Backend responding on :4100"
@@ -75,7 +75,7 @@ else
 fi
 echo ""
 
-# 5. Check dependencies
+# 5. check dependencies
 echo "[4] Dependencies"
 if command -v node >/dev/null 2>&1; then
     NODE_VERSION=$(node -v)
@@ -107,7 +107,7 @@ else
 fi
 echo ""
 
-# 6. Check disk space
+# 6. check disk space
 echo "[5] Disk Space"
 DISK_AVAIL=$(df -h /home/house/pkm | awk 'NR==2 {print $4}')
 DISK_AVAIL_MB=$(df -m /home/house/pkm | awk 'NR==2 {print $4}')
@@ -118,7 +118,7 @@ else
 fi
 echo ""
 
-# 7. Check write permissions
+# 7. check write permissions
 echo "[6] Write Permissions"
 if [ -w "/home/house/pkm" ]; then
     check "Can write to /home/house/pkm"
@@ -138,7 +138,7 @@ else
 fi
 echo ""
 
-# 8. Check if files will be backed up
+# 8. check if files will be backed up
 echo "[7] Backups"
 if [ -f "/home/house/pkm/server-data.json.backup" ]; then
     check "server-data.json.backup exists"
@@ -153,7 +153,7 @@ else
 fi
 echo ""
 
-# 9. Check current workflow status
+# 9. check current workflow status
 echo "[8] n8n Workflows"
 if curl -s http://localhost:5678/healthz >/dev/null 2>&1; then
     echo "  ℹ Check manually in n8n UI:"
@@ -164,7 +164,7 @@ else
 fi
 echo ""
 
-# Summary
+# summary
 echo "╔════════════════════════════════════════════════════════════════╗"
 echo "║                        RESULTS                                 ║"
 echo "╚════════════════════════════════════════════════════════════════╝"

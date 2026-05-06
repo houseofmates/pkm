@@ -102,7 +102,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
       );
       toast.info("uploading background...");
       try {
-        const uploaded = await nocobaseClient.upload(file);
+        const uploaded = await nocobaseclient.upload(file);
         const uploadedany = uploaded as any;
         securelogger.info("[globalcontextmenu] upload response:", uploaded);
 
@@ -243,7 +243,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   };
 
   // color picker modal
-  if (showColorPicker) {
+  if (showcolorpicker) {
     return (
       <div
         classname="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80"
@@ -446,7 +446,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
                     if (!file) return;
                     toast.info("uploading open sound...");
                     try {
-                      const uploaded = await nocobaseClient.upload(file);
+                      const uploaded = await nocobaseclient.upload(file);
                       const uploadedany = uploaded as any;
                       const url = uploadedany?.url || uploadedany?.data?.url;
                       if (url) {
@@ -476,7 +476,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
                     if (!file) return;
                     toast.info("uploading close sound...");
                     try {
-                      const uploaded = await nocobaseClient.upload(file);
+                      const uploaded = await nocobaseclient.upload(file);
                       const uploadedany = uploaded as any;
                       const url = uploadedany?.url || uploadedany?.data?.url;
                       if (url) {

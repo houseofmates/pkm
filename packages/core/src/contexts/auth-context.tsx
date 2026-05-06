@@ -51,8 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    // token is already restored via nocobaseClient._loadAuth() in constructor
-    // no need to call pb.authStore.save() since pb is a mock object
+    // token is already restored via nocobaseclient._loadauth() in constructor
+    // no need to call pb.authstore.save() since pb is a mock object
   }, [token]);
 
   useEffect(() => {

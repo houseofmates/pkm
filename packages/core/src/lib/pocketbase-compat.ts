@@ -12,5 +12,5 @@ export {
   type PocketBaseClient,
 } from "./nocobase-client";
 
-// deprecated: use nocobaseClient directly
+// deprecated: use nocobaseclient directly
 export default nocobaseClient;

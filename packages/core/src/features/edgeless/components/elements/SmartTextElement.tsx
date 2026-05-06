@@ -29,12 +29,12 @@ export const SmartTextElement = React.memo(function SmartTextElement({ element }
         borderRadius: styles.borderRadius ? `${styles.borderRadius}px` : '0px',
         opacity: styles.opacity ?? 1,
         color: styles.color || 'inherit',
-        // Fix for blurry text rendering during transforms/scaling
+        // fix for blurry text rendering during transforms/scaling
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
         WebkitFontSmoothing: 'antialiased',
         MozOsxFontSmoothing: 'grayscale',
-        // Ensure crisp text rendering at all zoom levels
+        // ensure crisp text rendering at all zoom levels
         imageRendering: '-webkit-optimize-contrast'
       }}
     >

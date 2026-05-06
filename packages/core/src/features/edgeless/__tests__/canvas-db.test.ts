@@ -316,16 +316,16 @@ describe('canvas-db oplog operations', () => {
     it('should handle token with TTL', async () => {
       const key = `test-token-ttl-${Date.now()}`
       
-      // Set token with short TTL
+      // set token with short ttl
       await setToken(key, 'ttl-value', 0.001) // 0.001 minutes = 60ms
 
       const immediate = await getToken(key)
       expect(immediate).toBe('ttl-value')
 
-      // Clear memory cache to force IDB read
+      // clear memory cache to force idb read
       clearMemoryTokens()
 
-      // Wait for TTL to expire
+      // wait for ttl to expire
       await new Promise(resolve => setTimeout(resolve, 100))
 
       const expired = await getToken(key)
@@ -341,10 +341,10 @@ describe('canvas-db oplog operations', () => {
         createTestOp('p2'),
       ])
 
-      // Mark all as synced
+      // mark all as synced
       await markOpsSynced(ops.map((e) => e.id))
 
-      // Add a new unsynced op
+      // add a new unsynced op
       await appendOp(drawingId, createTestOp('p3'))
 
       const deleted = await pruneOldOps(drawingId, 1)
