@@ -146,16 +146,16 @@ const LogsTable: React.FC = () => {
              collection={{ name: 'activity_logs', fields: [] }}
              config={{ titleField: 'activityId' }}
              onUpdateRecord={(id, updates) => {
-               // Update log locally
+               // update log locally
                setLogs(prev => prev.map(log => log.id === id ? { ...log, ...updates } : log))
-               // Persist to localStorage
+               // persist to localstorage
                try {
                  localStorage.setItem('pkm_activity_logs', JSON.stringify([...prev.map(log => log.id === id ? { ...log, ...updates } : log)]))
                } catch (e) { console.error(e) }
              }}
              onDelete={handleDelete}
-             onEdit={() => {}} // No edit functionality for logs
-             onCreate={() => {}} // No create functionality for logs
+             onEdit={() => {}} // no edit functionality for logs
+             onCreate={() => {}} // no create functionality for logs
            />
          </CardContent>
        )}

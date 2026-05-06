@@ -43,8 +43,8 @@ interface ApiError {
 }
 
 /**
- * NocoBase API client for interacting with NocoBase backend
- * Provides methods for collections, fields, and records management
+ * nocobase api client for interacting with nocobase backend
+ * provides methods for collections, fields, and records management
  */
 export class NocoBaseClient {
   private axios: AxiosInstance;
@@ -76,7 +76,7 @@ export class NocoBaseClient {
       return config;
     });
 
-    // Add response interceptor for error handling
+    // add response interceptor for error handling
     this.axios.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {

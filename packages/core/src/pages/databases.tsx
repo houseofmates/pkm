@@ -207,7 +207,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
               method: "GET",
               params: { pageSize: 1, fields: ["id"] },
             })) as any;
-            // Handle various NocoBase API response structures
+            // handle various nocobase api response structures
             const total =
               res?.data?.meta?.count ??
               res?.data?.meta?.total ??

@@ -52,13 +52,13 @@ describe('useAppSetting upsert behaviors', () => {
 
     render(<TestComp settingKey="x" debounceMs={10} />);
     const btn = screen.getByText('set');
-    btn.click(); // Trigger updateValue
+    btn.click(); // trigger updatevalue
 
     // wait for async actions
     await waitFor(() => {
       // should call update
       expect(mockRequest).toHaveBeenCalledWith('pkm_settings', 'update', expect.objectContaining({
-        method: 'POST', // The hook uses POST for update with filter
+        method: 'POST', // the hook uses post for update with filter
         params: { filter: { key: { $eq: 'x' } } },
         data: { value: { foo: 'bar' } }
       }));

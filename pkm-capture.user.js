@@ -1,21 +1,21 @@
-// ==UserScript==
-// @name         PKM Capture
+// ==userscript==
+// @name         pkm capture
 // @namespace    http://tampermonkey.net/
 // @version      0.3
-// @description  Capture page context for PKM dashboard (Journal App)
-// @author       Antigravity
+// @description  capture page context for pkm dashboard (journal app)
+// @author       antigravity
 // @match        *://*/*
-// @grant        GM_xmlhttpRequest
-// @grant        GM_addStyle
-// @grant        GM_registerMenuCommand
+// @grant        gm_xmlhttprequest
+// @grant        gm_addstyle
+// @grant        gm_registermenucommand
 // @run-at       document-end
-// ==/UserScript==
+// ==/userscript==
 
 (function () {
     'use strict';
 
-    // --- Configuration ---
-    // IMPORTANT: Generate an API Token in NocoBase (Users > Authentication > API Tokens)
+    // --- configuration ---
+    // important: generate an api token in nocobase (users > authentication > api tokens)
     // and paste it below.
     const CONFIG = {
         apiBase: 'https://db.houseofmates.space/api',
@@ -25,15 +25,15 @@
         fontFamily: '"Varela Round", sans-serif'
     };
 
-    // --- Asset Injection ---
+    // --- asset injection ---
 
-    // 1. Font
+    // 1. font
     const fontLink = document.createElement('link');
-    fontLink.href = 'https://fonts.googleapis.com/css2?family=Varela+Round&display=swap';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=varela+round&display=swap';
     fontLink.rel = 'stylesheet';
     document.head.appendChild(fontLink);
 
-    // 2. Styles
+    // 2. styles
     const styles = `
         #pkm-capture-btn {
             position: fixed;
@@ -92,9 +92,9 @@
     `;
     GM_addStyle(styles);
 
-    // --- UI Elements ---
+    // --- ui elements ---
 
-    // Button
+    // button
     const btn = document.createElement('div');
     btn.id = 'pkm-capture-btn';
     btn.title = 'Capture to Brain (Alt+S)';
@@ -106,12 +106,12 @@
 
     document.body.appendChild(btn);
 
-    // Toast
+    // toast
     const toast = document.createElement('div');
     toast.id = 'pkm-toast';
     document.body.appendChild(toast);
 
-    // --- Logic ---
+    // --- logic ---
 
     function showToast(msg, isError = false) {
         toast.textContent = msg;
@@ -139,7 +139,7 @@
             source: 'violentmonkey'
         };
 
-        // Visual feedback
+        // visual feedback
         btn.style.transform = 'scale(0.9)';
         setTimeout(() => btn.style.transform = '', 150);
 
@@ -166,12 +166,12 @@
         });
     }
 
-    // --- Event Listeners ---
+    // --- event listeners ---
 
-    // Click
+    // click
     btn.addEventListener('click', () => capturePage());
 
-    // Shortcut (Alt + S)
+    // shortcut (alt + s)
     document.addEventListener('keydown', (e) => {
         if (e.altKey && e.code === 'KeyS') {
             e.preventDefault();
@@ -179,22 +179,22 @@
         }
     });
 
-    // --- Context Menu Integration ---
-    // 1. Extension Menu Command
+    // --- context menu integration ---
+    // 1. extension menu command
     GM_registerMenuCommand("Save Selection to PKM", () => {
         const selection = window.getSelection().toString().trim();
         capturePage(selection);
     });
 
-    // 2. Custom Right-Click Modifier (Ctrl + Right Click)
-    // Because we cannot easily inject into the native browser context menu without a full extension,
+    // 2. custom right-click modifier (ctrl + right click)
+    // because we cannot easily inject into the native browser context menu without a full extension,
     // we provide a shortcut override.
     document.addEventListener('contextmenu', (e) => {
         if (e.ctrlKey) {
             e.preventDefault();
             const selection = window.getSelection().toString().trim();
             capturePage(selection);
-            return false; // Suppress native menu
+            return false; // suppress native menu
         }
     });
 

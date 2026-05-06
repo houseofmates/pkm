@@ -301,7 +301,7 @@ async function chatStream(
     
     secureLogger.info('[ai-worker] chatStream using endpoint:', resolvedEndpoint, '(input was:', endpoint + ')');
 
-    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedendpoint);
 
     if (isGemini) {
         const response = await _fetch(resolvedEndpoint, {
@@ -381,7 +381,7 @@ async function chatStreamMultimodal(
  
  secureLogger.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
 
- const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+ const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedendpoint);
  const isOpenAI = /chat\/completions|nvidia|openai/i.test(resolvedEndpoint);
  
  if (isGemini) {
@@ -480,7 +480,7 @@ async function generateTextLegacy(
 ): Promise<string | null> {
     try {
         const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/generate');
-        const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+        const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedendpoint);
 
         const body = isGemini
             ? { prompt: { text: prompt } }

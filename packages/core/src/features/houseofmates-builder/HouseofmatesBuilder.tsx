@@ -475,7 +475,7 @@ export function HouseofmatesBuilder() {
     let cancelled = false;
 
     const init = async () => {
-      // check both keys - hom_api_key is the builder's key, nocobase_token is what nocobaseClient uses
+      // check both keys - hom_api_key is the builder's key, nocobase_token is what nocobaseclient uses
       const homKey = storageManager.getCachedSecret("hom_api_key");
       const nocobaseKey = storageManager.getCachedSecret("nocobase_token");
       const key = homKey || nocobaseKey;
@@ -517,7 +517,7 @@ export function HouseofmatesBuilder() {
   // --- admin login handler ---
   const handleAdminLogin = async (apiKey: string) => {
     try {
-      // save token to both storage keys so nocobaseClient can use it
+      // save token to both storage keys so nocobaseclient can use it
       await storageManager.setEncryptedItem("hom_api_key", apiKey);
       await storageManager.setEncryptedItem("nocobase_token", apiKey);
 

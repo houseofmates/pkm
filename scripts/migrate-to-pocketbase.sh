@@ -19,7 +19,7 @@ find /home/house/pkm/packages/core/src -type f \( -name "*.ts" -o -name "*.tsx" 
   sed -i 's|import api from "@/api/nocobase-client"|import { pocketBaseClient } from "@/lib/pocketbase"|g' "$file"
   sed -i 's|import { api } from "@/api/nocobase-client"|import { pocketBaseClient } from "@/lib/pocketbase"|g' "$file"
   
-  # replace api usage with pocketBaseClient
+  # replace api usage with pocketbaseclient
   sed -i 's|\bapi\.listRecords\b|pocketBaseClient.listRecords|g' "$file"
   sed -i 's|\bapi\.getRecord\b|pocketBaseClient.getRecord|g' "$file"
   sed -i 's|\bapi\.createRecord\b|pocketBaseClient.createRecord|g' "$file"

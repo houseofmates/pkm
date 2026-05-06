@@ -75,7 +75,7 @@ detail: { drawingId: homeDrawingId, state: serverState },
 // local is newer or server unavailable
 secureLogger.debug('[home] using local checkpoint')
 
-// use the store's loadFromOplog function which handles race conditions
+// use the store's loadfromoplog function which handles race conditions
 await useEdgelessStore.getState().loadFromOplog(homeDrawingId)
 
 // if we have local data and server exists, sync to server

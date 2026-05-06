@@ -7,7 +7,7 @@ describe('detectFieldType', () => {
   expect(detectFieldType('User Email', ['test@example.com']).type).toBe('email');
   expect(detectFieldType('Phone Number', ['1234567890']).type).toBe('phone');
   expect(detectFieldType('Sale Price', ['100']).type).toBe('number');
-  expect(detectFieldType('Product URL', ['http://example.com']).type).toBe('url');
+  expect(detectFieldType('Product URL', ['http://example.com']).type).tobe('url');
   expect(detectFieldType('Created Date', ['2023-01-01']).type).toBe('datetime');
   expect(detectFieldType('Is Active', ['true']).type).toBe('checkbox');
   expect(detectFieldType('Tags', ['tag1, tag2']).type).toBe('multipleSelect');
@@ -81,7 +81,7 @@ describe('detectFieldType', () => {
   });
 
   it('infers url from values', () => {
-  expect(detectFieldType('Website', ['https://google.com', 'http://test.com']).type).toBe('url');
+  expect(detectFieldType('Website', ['https://google.com', 'http://test.com']).type).tobe('url');
   });
 
   // 4. edge cases

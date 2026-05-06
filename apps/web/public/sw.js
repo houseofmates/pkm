@@ -1,5 +1,5 @@
 self.addEventListener('install', (e) => {
-  self.skipWaiting(); // Force activation immediately
+  self.skipWaiting(); // force activation immediately
 });
 
 self.addEventListener('activate', (e) => {
@@ -9,6 +9,6 @@ self.addEventListener('activate', (e) => {
       return self.clients.matchAll();
     })
     .then((clients) => {
-      clients.forEach(client => client.navigate(client.url)); // Force reload page
+      clients.forEach(client => client.navigate(client.url)); // force reload page
     });
 });

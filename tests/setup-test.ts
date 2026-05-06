@@ -8,7 +8,7 @@ if (typeof (globalThis as any).importMetaEnv === 'undefined') {
 
 // mock react-query context helpers to ensure tests using hooks don't crash
 try {
-  // create a global test QueryClient so the mock can access it from any scope
+  // create a global test queryclient so the mock can access it from any scope
   const rq = await vi.importActual<any>('@tanstack/react-query');
   // expose the real module so our mock can reuse its provider component
   (globalThis as any).__REAL_REACT_QUERY_MODULE__ = rq;
@@ -19,9 +19,9 @@ try {
   vi.mock('@tanstack/react-query', () => {
     const RealQueryClient = (globalThis as any).__TEST_QUERY_CLIENT__;
     // try to reuse actual react-query provider if available so context-based
-    // hooks (useQueryClient) work as expected in components under test
+    // hooks (usequeryclient) work as expected in components under test
     const rq = (globalThis as any).__REAL_REACT_QUERY_MODULE__;
-    // fallback: if we have the actual module (via importActual earlier), use it
+    // fallback: if we have the actual module (via importactual earlier), use it
     // otherwise the provider will be a passthrough.
     return {
       QueryClient: RealQueryClient?.constructor || class {},
@@ -61,7 +61,7 @@ if (typeof (globalThis as any).fetch === 'undefined') {
   (globalThis as any).fetch = () => Promise.resolve({ ok: true, text: async () => '{}' });
 }
 
-// mock browser-only mapping libraries used in some components to avoid ESM/runtime errors
+// mock browser-only mapping libraries used in some components to avoid esm/runtime errors
 try {
   vi.mock('react-leaflet', () => {
     const React = require('react');
@@ -124,7 +124,7 @@ try {
   // ignore
 }
 
-// ensure window.location.pathname exists to avoid startsWith errors
+// ensure window.location.pathname exists to avoid startswith errors
 try {
   if (typeof window !== 'undefined' && window && typeof window.location !== 'undefined') {
     // set a safe default pathname if missing
@@ -148,7 +148,7 @@ try {
   // ignore
 }
 
-// provide matchMedia for components that check media queries
+// provide matchmedia for components that check media queries
 if (typeof (globalThis as any).matchMedia === 'undefined') {
   (globalThis as any).matchMedia = (query: string) => ({
     matches: false,
@@ -182,7 +182,7 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() { }
 };
 
-// provide a reliable localStorage shim for test environment
+// provide a reliable localstorage shim for test environment
 if (typeof (global as any).localStorage === 'undefined' || typeof (global as any).localStorage.setItem !== 'function') {
   const storage = new Map<string, string>();
   const ls = {
@@ -212,7 +212,7 @@ if (typeof (global as any).localStorage === 'undefined' || typeof (global as any
   // debug: no-op
 }
 
-// ensure __localStorageStore exists and proxies to window.localStorage when needed
+// ensure __localstoragestore exists and proxies to window.localstorage when needed
 if (typeof (global as any).__localStorageStore === 'undefined') {
   (global as any).__localStorageStore = {
     set: (k: string, v: string) => (global as any).localStorage.setItem(k, v),
@@ -253,7 +253,7 @@ try {
         };
       }
 
-      // basic nocobase API stubs (collections and records)
+      // basic nocobase api stubs (collections and records)
       if (u.includes((import.meta as any).env.VITE_NOCOBASE_URL?.toLowerCase() ?? 'localhost:1337') || u.includes('/api/collections')) {
         // respond with a generic success shape used in tests
         return {

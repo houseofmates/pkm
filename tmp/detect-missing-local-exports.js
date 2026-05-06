@@ -6,7 +6,7 @@ const files = fs.readdirSync(uiDir).filter(f => f.endsWith('.tsx'))
 
 function findDefinedSymbols(text) {
   const defs = new Set()
-  // match PascalCase and camelCase const/function/class/exports
+  // match pascalcase and camelcase const/function/class/exports
   const re = /(?:const|let|var|function|class|export\s+const|export\s+function)\s+([A-Za-z0-9_]+)/g
   let m
   while ((m = re.exec(text))) defs.add(m[1])

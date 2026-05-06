@@ -596,9 +596,9 @@ export const HABIT_STREAKS_COLLECTION_SCHEMA = {
 // ============================================================================
 
 export const NOCOBASE_SETUP_INSTRUCTIONS = `
-# NocoBase Activity Logging Schema Setup
+# nocobase activity logging schema setup
 
-## Step 1: Create Collections
+## step 1: create collections
 
 1. Go to NocoBase Admin > Collection Manager
 2. Create collection: 'habits' using HABITS_COLLECTION_SCHEMA
@@ -606,14 +606,14 @@ export const NOCOBASE_SETUP_INSTRUCTIONS = `
 4. Create collection: 'habit_tips' using HABIT_TIPS_COLLECTION_SCHEMA (optional)
 5. Create collection: 'habit_streaks' using HABIT_STREAKS_COLLECTION_SCHEMA (optional)
 
-## Step 2: Configure UI
+## step 2: configure ui
 
 For each collection, configure:
 - Table view: show relevant fields
 - Form view: organize fields with tabs
 - Kanban view (habits): group by category
 
-## Step 3: Seed Default Data
+## step 3: seed default data
 
 Insert default habits via API or CSV import:
 
@@ -649,13 +649,13 @@ Insert default habits via API or CSV import:
 ]
 \`\`\`
 
-## Step 4: Workflow (Optional)
+## step 4: workflow (optional)
 
 Create workflow: "Update Streak on Log"
 - Trigger: After Create on habit_logs
 - Action: Update habit_streaks.current_streak
 
-## Step 5: API Endpoints
+## step 5: api endpoints
 
 The system uses standard NocoBase REST API:
 

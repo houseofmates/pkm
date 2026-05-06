@@ -376,7 +376,7 @@ askHermesWithRag: async (text, isBackground = false) => {
  
  if (host === 'pkm.houseofmates.space' || host.endsWith('.houseofmates.space')) {
  // route through vite proxy on public domain
- apiUrl = `${protocol}//${host}/${apiKeyInfo.provider}/chat/completions`;
+ apiUrl = `${protocol}//${host}/${apikeyinfo.provider}/chat/completions`;
  } else {
  // direct api call
  if (apiKeyInfo.provider === 'nvidia') {

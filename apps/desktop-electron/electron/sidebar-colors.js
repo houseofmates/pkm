@@ -1,4 +1,4 @@
-// Simple endpoint to serve sidebar colors for Electron
+// simple endpoint to serve sidebar colors for electron
 const express = require('express');
 const fs = require('fs');
 const path = require('path');

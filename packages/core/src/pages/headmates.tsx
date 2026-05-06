@@ -206,7 +206,7 @@ export const HeadmatesPage: React.FC = () => {
       const meData = await meRes.json();
       const systemId = meData.id;
 
-      const membersRes = await fetch(`https://api.apparyllis.com/v1/members/${systemId}`, {
+      const membersRes = await fetch(`https://api.apparyllis.com/v1/members/${systemid}`, {
         headers: { 'Authorization': key }
       });
       if (!membersRes.ok) throw new Error('Failed to fetch members');
@@ -327,7 +327,7 @@ export const HeadmatesPage: React.FC = () => {
       const meData = await meRes.json();
       const systemId = meData.id;
 
-      await fetch(`https://api.apparyllis.com/v1/front/${systemId}`, {
+      await fetch(`https://api.apparyllis.com/v1/front/${systemid}`, {
         method: 'POST',
         headers: {
           'Authorization': apiKey,

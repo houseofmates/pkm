@@ -1,4 +1,4 @@
-// Plugin System Type Definitions
+// plugin system type definitions
 export interface PluginManifest {
   id: string;
   name: string;
@@ -8,11 +8,11 @@ export interface PluginManifest {
   homepage?: string;
   repository?: string;
   license?: string;
-  // PKM specific fields
-  pkmVersion: string; // minimum PKM version required
+  // pkm specific fields
+  pkmVersion: string; // minimum pkm version required
   main: string; // entry point
   ui?: {
-    // UI extensions
+    // ui extensions
     sidebar?: {
       component: string; // path to component
       position?: 'top' | 'bottom';
@@ -27,27 +27,27 @@ export interface PluginManifest {
       when?: string; // condition when to show
     };
   };
-  // Capabilities
+  // capabilities
   capabilities?: {
-    // Data storage
+    // data storage
     storage?: boolean;
-    // Sync capabilities
+    // sync capabilities
     sync?: boolean;
-    // AI/ML capabilities
+    // ai/ml capabilities
     ai?: boolean;
-    // Custom database tables
+    // custom database tables
     database?: boolean;
-    // Custom canvas tools
+    // custom canvas tools
     canvasTools?: boolean;
-    // Custom import/export formats
+    // custom import/export formats
     importExport?: boolean;
   };
-  // Permissions
+  // permissions
   permissions?: string[]; // e.g., ['read:database', 'write:canvas']
-  // Dependencies
+  // dependencies
   dependencies?: Record<string, string>; // package name -> version
   peerDependencies?: Record<string, string>;
-  // Configuration schema
+  // configuration schema
   configSchema?: {
     [key: string]: {
       type: 'string' | 'number' | 'boolean' | 'object' | 'array';
@@ -59,52 +59,52 @@ export interface PluginManifest {
 }
 
 export interface PluginContext {
-  // Core services
-  api: any; // NocoBase client
-  storage: any; // Local storage/indexeddb
-  eventBus: any; // Event emission/subscription
-  canvas: any; // Canvas API (if available)
-  ui: any; // UI utilities
-  // Lifecycle methods
+  // core services
+  api: any; // nocobase client
+  storage: any; // local storage/indexeddb
+  eventBus: any; // event emission/subscription
+  canvas: any; // canvas api (if available)
+  ui: any; // ui utilities
+  // lifecycle methods
   registerComponent: (type: string, component: React.ComponentType<any>) => void;
   unregisterComponent: (type: string) => void;
   registerRoute: (path: string, component: React.ComponentType<any>) => void;
   unregisterRoute: (path: string) => void;
   registerStyle: (css: string) => void;
   unregisterStyle: (css: string) => void;
-  // State management
+  // state management
   getState: <T>(key: string) => T | undefined;
   setState: <T>(key: string, value: T) => void;
   subscribeToState: <T>(key: string, callback: (value: T) => void) => () => void;
-  // Data access
+  // data access
   getDatabase: <T>() => Promise<T>;
   saveDatabase: (data: any) => Promise<void>;
-  // File operations
+  // file operations
   readFile: (path: string) => Promise<string>;
   writeFile: (path: string, content: string) => Promise<void>;
-  // Notification system
+  // notification system
   notify: (title: string, message: string, type?: 'info' | 'success' | 'warning' | 'error') => void;
-  // Progress reporting
+  // progress reporting
   setProgress: (percentage: number, message?: string) => void;
-  // Logging
+  // logging
   log: (level: 'debug' | 'info' | 'warn' | 'error', message: string, meta?: any) => void;
 }
 
 export interface Plugin {
   manifest: PluginManifest;
   context: PluginContext;
-  // Lifecycle hooks
+  // lifecycle hooks
   initialize?: (context: PluginContext) => Promise<void> | void;
   destroy?: () => Promise<void> | void;
-  // Optional hooks
+  // optional hooks
   onStateChange?: (key: string, value: any) => void;
   onCanvasChange?: (data: any) => void;
   onApiReady?: (api: any) => void;
-  // UI rendering (if plugin provides UI components)
+  // ui rendering (if plugin provides ui components)
   renderUI?: () => React.ReactElement | null;
 }
 
-// Plugin manager interface
+// plugin manager interface
 export interface PluginManager {
   registerPlugin: (plugin: Plugin) => Promise<void>;
   unregisterPlugin: (pluginId: string) => Promise<void>;

@@ -91,9 +91,9 @@ tail.stdout.on('data', async (data) => {
 
         // we use \s* after info]: to capture potential spaces
         const techJoin = line.match(/INFO\]:\s*(\w+)\[.*\] logged in/);
-        const chatJoin = line.match(/INFO\]:\s*(\w+) joined the game/); // Faster event
+        const chatJoin = line.match(/INFO\]:\s*(\w+) joined the game/); // faster event
         const techLeave = line.match(/INFO\]:\s*(\w+) lost connection:/);
-        const chatLeave = line.match(/INFO\]:\s*(\w+) left the game/); // Faster event
+        const chatLeave = line.match(/INFO\]:\s*(\w+) left the game/); // faster event
 
         if (techJoin || chatJoin) {
             const player = techJoin ? techJoin[1] : chatJoin[1];
@@ -112,7 +112,7 @@ tail.stdout.on('data', async (data) => {
             } else {
                 console.log(`[LogBridge] DEDUPED JOIN: ${player}`);
             }
-            continue; // Skip rest of processing for this line
+            continue; // skip rest of processing for this line
         }
 
         if (techLeave || chatLeave) {
@@ -132,7 +132,7 @@ tail.stdout.on('data', async (data) => {
             } else {
                 console.log(`[LogBridge] DEDUPED LEAVE: ${player}`);
             }
-            continue; // Skip rest of processing for this line
+            continue; // skip rest of processing for this line
         }
     }
 });

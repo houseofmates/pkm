@@ -22,7 +22,7 @@ let mainWindow = null;
 let currentVersion = null;
 let updateCheckInterval = null;
 
-// Fetch version from server to detect updates
+// fetch version from server to detect updates
 async function checkForUpdates() {
     if (!mainWindow || isDev) return;
 
@@ -41,14 +41,14 @@ async function checkForUpdates() {
 
         if (!serverVersion) return;
 
-        // First check - just store the version
+        // first check - just store the version
         if (!currentVersion) {
             currentVersion = serverVersion;
             console.log(`[Update Check] Initial version: ${currentVersion}`);
             return;
         }
 
-        // Version changed - update available
+        // version changed - update available
         if (serverVersion !== currentVersion) {
             console.log(`[Update Check] Update available! ${currentVersion} -> ${serverVersion}`);
 
@@ -68,14 +68,14 @@ async function checkForUpdates() {
             }
         }
     } catch (err) {
-        // Silent fail - server might be down
+        // silent fail - server might be down
         console.log('[Update Check] Could not reach server:', err.message);
     }
 }
 
 function startUpdateChecker() {
     if (updateCheckInterval) clearInterval(updateCheckInterval);
-    // Check every 30 seconds for updates
+    // check every 30 seconds for updates
     updateCheckInterval = setInterval(checkForUpdates, 30000);
     console.log('[Update Check] Started checking every 30 seconds');
 }
@@ -122,25 +122,25 @@ function createWindow() {
         mainWindow.loadURL('http://localhost:3010');
         mainWindow.webContents.openDevTools();
     } else if (process.env.PKM_REMOTE_URL || !app.isPackaged) {
-        // Live update mode: load from remote and check for updates
+        // live update mode: load from remote and check for updates
         mainWindow.loadURL(remoteUrl);
         console.log(`[pkm] Live-update mode: Loading from ${remoteUrl}`);
         console.log(`[pkm] The app will auto-reload when code changes are deployed.`);
 
-        // Start checking for updates after initial load
+        // start checking for updates after initial load
         mainWindow.webContents.on('did-finish-load', () => {
-            // Wait a bit then do first version check
+            // wait a bit then do first version check
             setTimeout(checkForUpdates, 5000);
             startUpdateChecker();
         });
     } else {
-        // Always use live-update mode: load from remote to share localStorage with web app
-        // This fixes JWT token sync between web and AppImage
+        // always use live-update mode: load from remote to share localstorage with web app
+        // this fixes jwt token sync between web and appimage
         mainWindow.loadURL(remoteUrl);
         console.log(`[pkm] Live-update mode: Loading from ${remoteUrl}`);
         console.log(`[pkm] Shares localStorage with web app for JWT token compatibility`);
 
-        // Start checking for updates after initial load
+        // start checking for updates after initial load
         mainWindow.webContents.on('did-finish-load', () => {
             setTimeout(checkForUpdates, 5000);
             startUpdateChecker();
@@ -154,7 +154,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-    // Remove menu bar BEFORE creating window (important for Linux)
+    // remove menu bar before creating window (important for linux)
     Menu.setApplicationMenu(null);
     
     protocol.handle('pkm', (request) => {
@@ -190,7 +190,7 @@ app.whenReady().then(() => {
         contextServer.updateContext(data);
     });
 
-    // Handle update check from renderer
+    // handle update check from renderer
     ipcMain.on('app:check-update', () => {
         checkForUpdates();
     });

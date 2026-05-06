@@ -5,7 +5,7 @@ import { Navigation } from '@/components/navigation';
 import { BrowserRouter, MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/auth-context';
 
-// mock useCollections to avoid API calls
+// mock usecollections to avoid api calls
 const collectionsMock: { collections: any[]; refresh: () => void } = { collections: [], refresh: () => {} };
 vi.mock('@/hooks/use-collections', () => ({
   useCollections: () => collectionsMock,
@@ -80,7 +80,7 @@ describe('Navigation', () => {
                 />
             </BrowserRouter>
         );
-        // verify something from the UI is present
+        // verify something from the ui is present
         expect(screen.getByTitle('search / ask ai...')).toBeTruthy();
     });
 
@@ -117,7 +117,7 @@ describe('Navigation', () => {
                 />
             </BrowserRouter>
         );
-        // wait for syncAll to call setItems with filtered array
+        // wait for syncall to call setitems with filtered array
         await new Promise((r) => setTimeout(r, 50));
         expect(setItemsSpy).toHaveBeenCalled();
         const lastCall = setItemsSpy.mock.calls[setItemsSpy.mock.calls.length - 1][0];

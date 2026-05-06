@@ -6,7 +6,7 @@ import { Integrations } from '@sentry/tracing';
 
 import express from 'express';
 
-// Initialize Sentry for backend error tracking
+// initialize sentry for backend error tracking
 if (process.env.SENTRY_DSN) {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,

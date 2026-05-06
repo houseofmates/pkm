@@ -57,7 +57,7 @@ describe('useLLMStore.askWilson', () => {
 
     const reply = await useLLMStore.getState().askWilson('summarize this')
 
-    // worker.askWithRag should have been called
+    // worker.askwithrag should have been called
     expect(mockWorkerProxy.askWithRag).toHaveBeenCalled()
 
     // store should contain assistant message
@@ -99,7 +99,7 @@ describe('useLLMStore.askWilson', () => {
   })
 
   it('uses askWithRagAndAttachments when there are pending attachments', async () => {
-    // Set up a mock attachment
+    // set up a mock attachment
     const mockAttachment = {
       id: 'test-attachment-1',
       name: 'test.png',
@@ -120,7 +120,7 @@ describe('useLLMStore.askWilson', () => {
 
     const reply = await useLLMStore.getState().askWilson('what do you see in this image?')
 
-    // worker.askWithRagAndAttachments should have been called
+    // worker.askwithragandattachments should have been called
     expect(mockWorkerProxy.askWithRagAndAttachments).toHaveBeenCalled()
     expect(mockWorkerProxy.askWithRagAndAttachments).toHaveBeenCalledWith(
       'what do you see in this image?',
@@ -141,7 +141,7 @@ describe('useLLMStore.askWilson', () => {
   it('adds attachments correctly', async () => {
     const store = useLLMStore.getState()
     
-    // Create a mock file
+    // create a mock file
     const mockFile = new File(['test'], 'test.png', { type: 'image/png' })
     
     await store.addAttachment(mockFile)
@@ -155,7 +155,7 @@ describe('useLLMStore.askWilson', () => {
   it('removes attachments correctly', () => {
     const store = useLLMStore.getState()
     
-    // Set up mock attachments
+    // set up mock attachments
     useLLMStore.setState({
       pendingAttachments: [
         { id: '1', name: 'test1.png', type: 'image' as const, file: new File([''], 'test1.png') },

@@ -6,13 +6,13 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*", // Adjust for production security
+        origin: "*", // adjust for production security
         methods: ["GET", "POST"]
     }
 });
 
 // store active users per room for presence
-const presence = {}; // { recordId: { socketId: lastActive } }
+const presence = {}; // { recordid: { socketid: lastactive } }
 
 io.on("connection", (socket) => {
     console.log("Client connected:", socket.id);

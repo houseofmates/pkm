@@ -94,7 +94,7 @@ const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTran
     const modelUrl = platform === 'grapheneos' 
       ? 'whisper-tiny-mobile.ggml' 
       : 'whisper-small-desktop.ggml'
-    window.open(`https://huggingface.co/ggerganov/whisper.cpp/${modelUrl}`)
+    window.open(`https://huggingface.co/ggerganov/whisper.cpp/${modelurl}`)
   }
 
   return (

@@ -64,10 +64,10 @@ const ActivityPicker: React.FC<Props> = ({ value, onChange }) => {
           data={activities}
           collection={{ name: 'activities', fields: [{ name: 'name', primary: true }] }}
           config={{ titleField: 'name' }}
-          onUpdateRecord={() => {}} // No update needed for activity picker
-          onDelete={() => {}} // No delete needed for activity picker
+          onUpdateRecord={() => {}} // no update needed for activity picker
+          onDelete={() => {}} // no delete needed for activity picker
           onEdit={onChange}
-          onCreate={() => {}} // No create needed for activity picker
+          onCreate={() => {}} // no create needed for activity picker
         />
       </div>
       {creating && (

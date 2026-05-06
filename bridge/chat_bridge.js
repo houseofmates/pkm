@@ -19,7 +19,7 @@ const CONFIG = {
 // ws server
 const wss = new WebSocketServer({ port: CONFIG.port });
 
-console.log(`pkm chat bridge listening on ws://localhost:${CONFIG.port}`);
+console.log(`pkm chat bridge listening on ws://localhost:${config.port}`);
 
 wss.on('connection', (ws) => {
   const sessionId = uuidv4();
@@ -182,5 +182,5 @@ const httpServer = http.createServer((req, res) => {
 });
 
 httpServer.listen(CONFIG.port + 1, () => {
-  console.log(`health check available at http://localhost:${CONFIG.port + 1}/health`);
+  console.log(`health check available at http://localhost:${config.port + 1}/health`);
 });

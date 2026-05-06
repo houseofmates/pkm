@@ -13,7 +13,7 @@ log "--- deploy sequence started ---"
 # step 1: build first (don't kill site yet)
 log "building project..."
 # install deps if package.json changed (optional, safest to skip for speed unless needed)
-# npm install >> "$LOG_FILE" 2>&1 
+# npm install >> "$log_file" 2>&1
 
 if npm run build >> "$LOG_FILE" 2>&1; then
     log "build success."

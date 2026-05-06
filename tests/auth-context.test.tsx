@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { FronterProvider } from '@/contexts/fronter-context';
 
 // verify guard logic in auth-context so that the component never throws
-// when the React dispatcher is missing (e.g. during hot-refresh invocations).
+// when the react dispatcher is missing (e.g. during hot-refresh invocations).
 
 describe('AuthProvider', () => {
   it('does not crash when invoked without a dispatcher', async () => {
@@ -30,7 +30,7 @@ describe('AuthProvider', () => {
       <span data-testid="ok">ok</span>
     );
 
-    // the top element should be an AuthContext.Provider so that useAuth
+    // the top element should be an authcontext.provider so that useauth
     // consumers can access the stub instead of hitting the missing-provider
     // warning.  to verify this we render a small consumer component with a
     // hook and assert no warning is produced.
@@ -41,7 +41,7 @@ describe('AuthProvider', () => {
       expect(auth.isAuthenticated).toBe(false);
       return <span data-testid="auth-ok" />;
     };
-    // now render via React test utils to exercise hooks
+    // now render via react test utils to exercise hooks
     const { render } = await import('@testing-library/react');
     render(
       <FronterProvider>

@@ -7,29 +7,29 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
   
   constructor() {
     super();
-    this.setMaxListeners(0); // Remove warning limit
+    this.setMaxListeners(0); // remove warning limit
   }
   
   async registerPlugin(plugin: Plugin): Promise<void> {
-    // Validate plugin manifest
+    // validate plugin manifest
     this.validateManifest(plugin.manifest);
     
-    // Check if already registered
+    // check if already registered
     if (this.plugins.has(plugin.manifest.id)) {
       throw new Error(`Plugin ${plugin.manifest.id} is already registered`);
     }
     
-    // Check dependencies
+    // check dependencies
     await this.checkDependencies(plugin.manifest);
     
-    // Store plugin
+    // store plugin
     this.plugins.set(plugin.manifest.id, plugin);
     
-    // Emit event
+    // emit event
     this.emit('pluginRegistered', plugin.manifest.id);
     
-    // Auto-initialize if desired
-    // await this.initializePlugin(plugin.manifest.id);
+    // auto-initialize if desired
+    // await this.initializeplugin(plugin.manifest.id);
   }
   
   async unregisterPlugin(pluginId: string): Promise<void> {
@@ -38,15 +38,15 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
       throw new Error(`Plugin ${pluginId} not found`);
     }
     
-    // Destroy if initialized
+    // destroy if initialized
     if (this.initializedPlugins.has(pluginId)) {
       await this.destroyPlugin(pluginId);
     }
     
-    // Remove from map
+    // remove from map
     this.plugins.delete(pluginId);
     
-    // Emit event
+    // emit event
     this.emit('pluginUnregistered', pluginId);
   }
   
@@ -65,14 +65,14 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
     }
     
     if (this.initializedPlugins.has(pluginId)) {
-      return; // Already initialized
+      return; // already initialized
     }
     
     try {
-      // Create plugin context
+      // create plugin context
       const context = this.createPluginContext(plugin);
       
-      // Initialize plugin
+      // initialize plugin
       if (plugin.initialize) {
         await plugin.initialize(context);
       }
@@ -92,11 +92,11 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
     }
     
     if (!this.initializedPlugins.has(pluginId)) {
-      return; // Not initialized
+      return; // not initialized
     }
     
     try {
-      // Destroy plugin
+      // destroy plugin
       if (plugin.destroy) {
         await plugin.destroy();
       }
@@ -116,7 +116,7 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
         await this.initializePlugin(pluginId);
       } catch (error) {
         console.error(`Failed to initialize plugin ${pluginId}:`, error);
-        // Continue with other plugins
+        // continue with other plugins
       }
     }
   }
@@ -128,20 +128,20 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
         await this.destroyPlugin(pluginId);
       } catch (error) {
         console.error(`Failed to destroy plugin ${pluginId}:`, error);
-        // Continue with other plugins
+        // continue with other plugins
       }
     }
   }
   
   private validateManifest(manifest: PluginManifest): void {
-    // Required fields
+    // required fields
     if (!manifest.id) throw new Error('Plugin manifest missing id');
     if (!manifest.name) throw new Error('Plugin manifest missing name');
     if (!manifest.version) throw new Error('Plugin manifest missing version');
     if (!manifest.pkmVersion) throw new Error('Plugin manifest missing pkmVersion');
     if (!manifest.main) throw new Error('Plugin manifest missing main entry point');
     
-    // Validate version format (semver)
+    // validate version format (semver)
     const versionRegex = /^\d+\.\d+\.\d+(-.+)?$/;
     if (!versionRegex.test(manifest.version)) {
       throw new Error('Plugin version must be in semver format');
@@ -149,10 +149,10 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
   }
   
   private async checkDependencies(manifest: PluginManifest): Promise<void> {
-    // Check PKM version
+    // check pkm version
     const requiredVersion = manifest.pkmVersion;
     const currentVersion = process.env.PKM_VERSION || '0.0.0';
-    // Simple version check - in production use semver library
+    // simple version check - in production use semver library
     if (this.compareVersions(currentVersion, requiredVersion) < 0) {
       throw new Error(`Plugin requires PKM version ${requiredVersion}, but ${currentVersion} is installed`);
     }
@@ -160,8 +160,8 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
     # 
     if (manifest.dependencies) {
       for (const [depName, depVersion] of Object.entries(manifest.dependencies)) {
-        // In a real implementation, check package.json or node_modules
-        # This is a placeholder - actual implementation would check installed packages
+        // in a real implementation, check package.json or node_modules
+        # this is a placeholder - actual implementation would check installed packages
         console.warn(`Dependency check for ${depName}@${depVersion} not implemented`);
       }
     }
@@ -183,14 +183,14 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
   }
   
   private createPluginContext(plugin: Plugin): PluginContext {
-    // This would be implemented with actual service instances
-    // For now, returning a mock context
+    // this would be implemented with actual service instances
+    // for now, returning a mock context
     return {
-      api: {}, // Would be NocoBase client
-      storage: {}, // Would be IndexedDB/localStorage wrapper
+      api: {}, // would be nocobase client
+      storage: {}, // would be indexeddb/localstorage wrapper
       eventBus: new EventEmitter(),
-      canvas: {}, // Would be canvas API
-      ui: {}, // Would be UI utilities
+      canvas: {}, // would be canvas api
+      ui: {}, // would be ui utilities
       registerComponent: (type: string, component: React.ComponentType<any>) => {
         console.log(`Registering component ${type} from plugin ${plugin.manifest.id}`);
       },
@@ -247,5 +247,5 @@ class PluginManagerImpl extends EventEmitter implements PluginManager {
   }
 }
 
-// Export singleton instance
+// export singleton instance
 export const pluginManager = new PluginManagerImpl();

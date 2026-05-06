@@ -34,7 +34,7 @@ export function buildIconPrompt(userPrompt: string): string {
 
 export async function generateGeminiIcon(userPrompt: string, apiKey: string): Promise<string> {
   const prompt = buildIconPrompt(userPrompt);
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${gemini_image_model}:generatecontent`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -60,7 +60,7 @@ export async function generateGeminiIcon(userPrompt: string, apiKey: string): Pr
 }
 
 export async function generateVerticalThumbnail(userPrompt: string, apiKey: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${gemini_image_model}:generatecontent`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -88,7 +88,7 @@ export async function generateVerticalThumbnail(userPrompt: string, apiKey: stri
 // ── prompt enhancement ───────────────────────────────────────────────────────
 
 export async function enhancePromptWithGemini(userPrompt: string, apiKey: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TEXT_MODEL}:generateContent`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${gemini_text_model}:generatecontent`;
 
   const res = await fetch(url, {
     method: 'POST',

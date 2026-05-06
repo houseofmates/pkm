@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/browser';
 import { Integrations } from '@sentry/tracing';
 
-// Initialize Sentry for error tracking
+// initialize sentry for error tracking
 export const initSentry = () => {
   if (import.meta.env.VITE_SENTRY_DSN) {
     Sentry.init({
@@ -9,7 +9,7 @@ export const initSentry = () => {
       integrations: [
         new Integrations.BrowserTracing(),
       ],
-      tracesSampleRate: 0.1, // Adjust based on production volume
+      tracesSampleRate: 0.1, // adjust based on production volume
       environment: import.meta.env.VITE_APP_ENV || 'production',
       release: import.meta.env.VITE_APP_VERSION || 'unknown',
       attachStacktrace: true,
@@ -17,21 +17,21 @@ export const initSentry = () => {
   }
 };
 
-// Capture exception with context
+// capture exception with context
 export const captureException = (error: unknown, context?: Record<string, unknown>) => {
   if (import.meta.env.VITE_SENTRY_DSN) {
     Sentry.captureException(error, { contexts: { custom: context } });
   }
 };
 
-// Capture message with context
+// capture message with context
 export const captureMessage = (message: string, level: Sentry.Severity = 'info', context?: Record<string, unknown>) => {
   if (import.meta.env.VITE_SENTRY_DSN) {
     Sentry.captureMessage(message, { level, contexts: { custom: context } });
   }
 };
 
-// Start performance monitoring transaction
+// start performance monitoring transaction
 export const startTransaction = (name: string, operation: string) => {
   if (import.meta.env.VITE_SENTRY_DSN) {
     return Sentry.startTransaction({ name, operation });
@@ -39,7 +39,7 @@ export const startTransaction = (name: string, operation: string) => {
   return null;
 };
 
-// Finish transaction
+// finish transaction
 export const finishTransaction = (transaction: ReturnType<typeof Sentry.startTransaction> | null) => {
   if (transaction) {
     transaction.finish();

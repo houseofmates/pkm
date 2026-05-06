@@ -395,7 +395,7 @@ function AppContent() {
       return;
     }
 
-    // skip health check - nocobase base URL lacks CORS headers
+    // skip health check - nocobase base url lacks cors headers
     // login page handles backend connectivity gracefully
     setSetupNeeded(false);
   }, [token]);
