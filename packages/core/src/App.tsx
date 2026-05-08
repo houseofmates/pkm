@@ -47,6 +47,9 @@ const CollectionDetailPage = lazy(() =>
 const HeadmatesPage = lazy(() =>
   import("@/pages/headmates").then((m) => ({ default: m.HeadmatesPage })),
 );
+const SystemTrackerPage = lazy(() =>
+  import("@/features/system-tracker").then((m) => ({ default: m.SystemTrackerPage })),
+);
 const MoodboardPage = lazy(() =>
   import("@/pages/moodboard").then((m) => ({ default: m.MoodboardPage })),
 );
@@ -518,6 +521,14 @@ function AppContent() {
                 path="/headmates"
                 element={
                   <LazyLoadErrorBoundary>
+              <Route
+                path="/system-tracker"
+                element={
+                  <LazyLoadErrorBoundary>
+                    <SystemTrackerPage />
+                  </LazyLoadErrorBoundary>
+                }
+              />
                     <HeadmatesPage />
                   </LazyLoadErrorBoundary>
                 }
