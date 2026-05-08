@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import RelationshipGraph from '../components/relationship-graph';
 import InnerWorldScenes from '../components/inner-world-scenes';
 
 function SystemTrackerPage() {
-  const [activeTab, setActiveTab] = useState<'relationships' | 'inner-world'>('relationships');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+  const initialTab = (tabFromUrl === 'relationships' || tabFromUrl === 'inner-world') ? tabFromUrl : 'relationships';
+  const [activeTab, setActiveTab] = useState<'relationships' | 'inner-world'>(initialTab);
+
+  useEffect(() => {
+    setSearchParams({ tab: activeTab }, { replace: true });
+  }, [activeTab, setSearchParams]);
 
   const tabStyle = (tab: 'relationships' | 'inner-world'): React.CSSProperties => ({
     padding: '0.5rem 1rem',

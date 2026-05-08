@@ -17,6 +17,21 @@ import {
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 
+class GraphErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>
+          the relationship graph failed to render. try refreshing the page.
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const RELATIONSHIP_STYLES = {
   romantic:    { color: '#ff69b4', width: 4, dash: [5, 5] },
   familial:    { color: '#9b59b6', width: 2.5, dash: [] },
@@ -154,7 +169,7 @@ export function RelationshipGraph() {
   );
 
   const linkCanvasObject = useCallback(
-    (link: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
+    (link: { source: { x?: number; y?: number }; target: { x?: number; y?: number }; relationship_type: string; strength?: number }, ctx: CanvasRenderingContext2D, globalScale: number) => {
       if (!link?.source?.x || !link?.target?.x) return;
       const style = RELATIONSHIP_STYLES[link.relationship_type as RelationshipType] || RELATIONSHIP_STYLES.other;
       const src = link.source;
@@ -286,6 +301,7 @@ export function RelationshipGraph() {
             linkDistance={120}
             chargeStrength={-40}
           />
+          </GraphErrorBoundary>
         ) : (
           <div style={s.empty}>add headmates and connections to see the map</div>
         )}
@@ -374,6 +390,22 @@ export function RelationshipGraph() {
                 {selectedLink.__connection.notes}
               </p>
             )}
+            <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>adjust strength</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                <Slider
+                  value={[selectedLink.strength]}
+                  min={1}
+                  max={10}
+                  step={1}
+                  style={{ flex: 1 }}
+                  onValueChange={([v]) => {
+                    setSelectedLink({ ...selectedLink, strength: v });
+                  }}
+                />
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', minWidth: 20, textAlign: 'right' }}>{selectedLink.strength}</span>
+              </div>
+            </div>
             <button
               onClick={handleDelete}
               style={{ ...s.btnDanger, marginTop: 10 }}

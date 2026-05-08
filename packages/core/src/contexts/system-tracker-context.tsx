@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import { systemTrackerAPI } from '@/lib/system-tracker-api';
-import { useFronter } from '@/contexts/fronter-context';
 import { secureLogger } from '@/lib/secure-logger';
 import { toast } from 'sonner';
 
@@ -107,11 +106,14 @@ export function SystemTrackerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshEvents = useCallback(async () => {
+    setLoading(true);
     try {
       const result = await systemTrackerAPI.getEvents();
       setEvents(result.data || []);
     } catch (err: any) {
       secureLogger.warn('[events] fetch error:', err.message);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -127,10 +129,13 @@ export function SystemTrackerProvider({ children }: { children: ReactNode }) {
   const createConnection = useCallback(async (data: Omit<Connection, 'id'>) => {
     try {
       const result = await systemTrackerAPI.createConnection(data);
-      if (result.connection) {
+      const created = result?.connection || result?.data;
+      if (created && created.id) {
         toast.success('connection created');
-        return result.connection;
+        return created as Connection;
       }
+      secureLogger.warn('[connection/create] unexpected response shape', result);
+      toast.error('connection created but response was malformed');
       return null;
     } catch (err: any) {
       secureLogger.error('[connection/create] error:', err.message);
@@ -164,10 +169,13 @@ export function SystemTrackerProvider({ children }: { children: ReactNode }) {
   const createScene = useCallback(async (data: Omit<Scene, 'id'>) => {
     try {
       const result = await systemTrackerAPI.createScene(data);
-      if (result.scene) {
+      const created = result?.scene || result?.data;
+      if (created && created.id) {
         toast.success('scene created');
-        return result.scene;
+        return created as Scene;
       }
+      secureLogger.warn('[scene/create] unexpected response shape', result);
+      toast.error('scene created but response was malformed');
       return null;
     } catch (err: any) {
       secureLogger.error('[scene/create] error:', err.message);
@@ -201,10 +209,13 @@ export function SystemTrackerProvider({ children }: { children: ReactNode }) {
   const createNote = useCallback(async (data: Omit<HeadmateNote, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       const result = await systemTrackerAPI.createNote(data);
-      if (result.note) {
+      const created = result?.note || result?.data;
+      if (created && created.id) {
         toast.success('note created');
-        return result.note as HeadmateNote;
+        return created as HeadmateNote;
       }
+      secureLogger.warn('[note/create] unexpected response shape', result);
+      toast.error('note created but response was malformed');
       return null;
     } catch (err: any) {
       secureLogger.error('[note/create] error:', err.message);
