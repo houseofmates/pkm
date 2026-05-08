@@ -421,6 +421,7 @@ app.post('/api/upload/banner', requireAuth, upload.single('file'), (req, res) =>
 import { run as notionRun, getApiClient } from '../../scripts/notion-import.js';
 import EventEmitter from 'events';
 import Papa from 'papaparse';
+import { systemTrackerRouter } from './system-tracker.js';
 
 const importTasks = new Map();
 // each entry: { emitter, status, logs: string[] }
@@ -1153,6 +1154,8 @@ io.on('connection', (socket) => {
   });
 });
 
+
+app.use('/api/system', systemTrackerRouter);
 
 if (process.env.NODE_ENV !== 'test') {
   server.listen(PORT, '0.0.0.0', () => {
