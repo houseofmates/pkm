@@ -283,7 +283,7 @@ export function RelationshipGraph() {
         {loading ? (
           <div style={s.empty}>loading graph data...</div>
         ) : graphData.nodes.length > 0 ? (
-          <ForceGraph2D
+          <GraphErrorBoundary><ForceGraph2D
             graphData={graphData}
             nodeLabel={(node: GraphNode) => node.name}
             nodeColor={(node: GraphNode) => node.color}
