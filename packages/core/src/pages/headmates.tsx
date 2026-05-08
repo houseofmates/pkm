@@ -425,6 +425,7 @@ export const HeadmatesPage: React.FC = () => {
 
   return (
     <div ref={containerRef} className="h-full w-full p-2 overflow-auto">
+      <button onClick={() => window.location.href = "/system-tracker"} style={{ position: "fixed", top: "12px", right: "12px", zIndex: 50, padding: "8px 16px", background: "rgba(59, 130, 246, 0.2)", border: "1px solid rgba(59, 130, 246, 0.3)", borderRadius: 8, color: "#fff", fontSize: "12px", cursor: "pointer", backdropFilter: "blur(8px)" }}>system tracker</button>
       {!hasKey ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
