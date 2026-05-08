@@ -82,7 +82,7 @@ class SystemTrackerAPI {
     return res.data;
   }
 
-  async createNote(data: { headmate_id: string; title: string; content?: string; tags?: string[]; visibility?: string }) {
+  async createNote(data: { headmate_id: string; title: string; content?: string; tags?: string[]; visibility?: string; is_pinned?: boolean }) {
     const res = await this.client.post('/notes', data);
     return res.data;
   }

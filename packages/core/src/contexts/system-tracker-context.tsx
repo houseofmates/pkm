@@ -83,20 +83,26 @@ export function SystemTrackerProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
 
   const refreshConnections = useCallback(async () => {
+    setLoading(true);
     try {
       const result = await systemTrackerAPI.getConnections();
       setConnections(result.data || []);
     } catch (err: any) {
       secureLogger.warn('[connections] fetch error:', err.message);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   const refreshScenes = useCallback(async () => {
+    setLoading(true);
     try {
       const result = await systemTrackerAPI.getScenes();
       setScenes(result.data || []);
     } catch (err: any) {
       secureLogger.warn('[scenes] fetch error:', err.message);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -159,7 +165,6 @@ export function SystemTrackerProvider({ children }: { children: ReactNode }) {
     try {
       const result = await systemTrackerAPI.createScene(data);
       if (result.scene) {
-        setScenes(prev => [...prev, result.scene]);
         toast.success('scene created');
         return result.scene;
       }
@@ -197,7 +202,6 @@ export function SystemTrackerProvider({ children }: { children: ReactNode }) {
     try {
       const result = await systemTrackerAPI.createNote(data);
       if (result.note) {
-        setNotes(prev => [...prev, result.note as HeadmateNote]);
         toast.success('note created');
         return result.note as HeadmateNote;
       }
