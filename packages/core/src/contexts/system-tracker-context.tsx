@@ -40,7 +40,7 @@ export interface SystemEvent {
 
 export interface HeadmateNote {
   id: string;
-  headmate: string;
+  headmate_id: string;
   title: string;
   content: string;
   tags: string[];
@@ -81,7 +81,6 @@ export function SystemTrackerProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<SystemEvent[]>([]);
   const [notes, setNotes] = useState<HeadmateNote[]>([]);
   const [loading, setLoading] = useState(false);
-  const { refresh: refreshFronter } = useFronter();
 
   const refreshConnections = useCallback(async () => {
     try {
@@ -123,7 +122,6 @@ export function SystemTrackerProvider({ children }: { children: ReactNode }) {
     try {
       const result = await systemTrackerAPI.createConnection(data);
       if (result.connection) {
-        setConnections(prev => [...prev, result.connection]);
         toast.success('connection created');
         return result.connection;
       }

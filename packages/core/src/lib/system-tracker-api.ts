@@ -66,7 +66,7 @@ class SystemTrackerAPI {
   }
 
   async updateConnection(id: string, data: Record<string, unknown>) {
-    const res = await this.client.put('/ connections/' + id, data);
+    const res = await this.client.put('/connections/' + id, data);
     return res.data;
   }
 
