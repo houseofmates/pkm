@@ -9,6 +9,7 @@ import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
 import { isPublicDomain } from "@/utils/subdomain-router";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { FronterProvider } from "@/contexts/fronter-context";
+import { SystemTrackerProvider } from "@/contexts/system-tracker-context";
 import { LLMContextProvider } from "@/contexts/llm-context";
 import { CanvasErrorBoundary } from "@/features/edgeless";
 import { CanvasInitializer } from "@/features/edgeless/components/canvas-initializer";
@@ -703,9 +704,11 @@ function App() {
       <AuthProvider>
         <QueryClientProvider client={queryClient}>
           <FronterProvider>
-            <LLMContextProvider>
-              <AppContent />
-            </LLMContextProvider>
+            <SystemTrackerProvider>
+              <LLMContextProvider>
+                <AppContent />
+              </LLMContextProvider>
+            </SystemTrackerProvider>
           </FronterProvider>
         </QueryClientProvider>
       </AuthProvider>

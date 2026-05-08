@@ -6,8 +6,8 @@ import { toast } from 'sonner';
 
 export interface Connection {
   id: string;
-  from_headmate: string;
-  to_headmate: string;
+  from_headmate_id: string;
+  to_headmate_id: string;
   relationship_type: string;
   strength: number;
   is_mutual: boolean;
