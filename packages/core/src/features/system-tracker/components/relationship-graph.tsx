@@ -283,24 +283,25 @@ export function RelationshipGraph() {
         {loading ? (
           <div style={s.empty}>loading graph data...</div>
         ) : graphData.nodes.length > 0 ? (
-          <GraphErrorBoundary><ForceGraph2D
-            graphData={graphData}
-            nodeLabel={(node: GraphNode) => node.name}
-            nodeColor={(node: GraphNode) => node.color}
-            nodeCanvasObject={nodeCanvasObject}
-            linkCanvasObject={linkCanvasObject}
-            onNodeClick={(node: GraphNode) => { setSelectedNode(node); setSelectedLink(null); }}
-            onLinkClick={(link: GraphLink) => {
-              setSelectedNode(null);
-              setSelectedLink(link);
-            }}
-            onBackgroundClick={() => { setSelectedNode(null); setSelectedLink(null); }}
-            backgroundColor="#0a0a0a"
-            warmupTicks={100}
-            cooldownTicks={50}
-            linkDistance={120}
-            chargeStrength={-40}
-          />
+          <GraphErrorBoundary>
+            <ForceGraph2D
+              graphData={graphData}
+              nodeLabel={(node: GraphNode) => node.name}
+              nodeColor={(node: GraphNode) => node.color}
+              nodeCanvasObject={nodeCanvasObject}
+              linkCanvasObject={linkCanvasObject}
+              onNodeClick={(node: GraphNode) => { setSelectedNode(node); setSelectedLink(null); }}
+              onLinkClick={(link: GraphLink) => {
+                setSelectedNode(null);
+                setSelectedLink(link);
+              }}
+              onBackgroundClick={() => { setSelectedNode(null); setSelectedLink(null); }}
+              backgroundColor="#0a0a0a"
+              warmupTicks={100}
+              cooldownTicks={50}
+              linkDistance={120}
+              chargeStrength={-40}
+            />
           </GraphErrorBoundary>
         ) : (
           <div style={s.empty}>add headmates and connections to see the map</div>
