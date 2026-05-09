@@ -77,7 +77,7 @@ the implementation is intentionally naive: it tokenizes on whitespace and balanc
 
 the associated test file shows usage and serves as a regression suite.
 
-## notion export/importer
+<h2 align="center">notion importer</h2>
 
 a cli/ui tool that lets you export yourotion workspace directly into pkm/nocobase. the importer understands notion property metadata where available (title, number, checkbox, relation, date, multi‑select, etc.) and uses value heuristics to guess types, including arrays, dates and booleans. this richer handling makes collections more faithful to the original Notion schema.
 
