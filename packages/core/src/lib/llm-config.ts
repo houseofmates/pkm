@@ -8,7 +8,7 @@ import { nocobaseClient } from "./nocobase-client";
 
 // nvidia api configuration
 export const NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1";
-export const NVIDIA_MODEL = "moonshotai/kimi-k2.5";
+export const NVIDIA_MODEL = "moonshotai/kimi-k2.6";
 
 // ollama defaults (for local inference)
 export const DEFAULT_OLLAMA_MODEL = "gemma4:e4b";
@@ -19,6 +19,10 @@ let cachedApiKeys: ApiKeyEntry[] = [];
 let currentKeyIndex = 0;
 let lastFetchTime = 0;
 
+// round-robin nvidia api key pool from environment
+let nvidiaKeyPool: string[] = [];
+let nvidiaKeyIndex = 0;
+
 interface ApiKeyEntry {
   id: number;
   provider: 'nvidia' | 'openai' | 'anthropic' | 'google' | 'custom';
@@ -28,6 +32,47 @@ interface ApiKeyEntry {
   priority: number;
   enabled: boolean;
   last429At?: number;
+}
+
+// initialize nvidia api key pool from environment variables
+function initializeNvidiaKeyPool(): void {
+  const keys: string[] = [];
+
+  // extract all nvidia api keys from environment (NVIDIA_API_KEY_1, NVIDIA_API_KEY_2, etc.)
+  for (let i = 1; i <= 100; i++) {
+    const key = import.meta.env[`NVIDIA_API_KEY_${i}`];
+    if (key && typeof key === 'string' && key.trim()) {
+      keys.push(key.trim());
+    }
+  }
+
+  // also check for single NVIDIA_API_KEY (backward compatibility)
+  const singleKey = import.meta.env.NVIDIA_API_KEY;
+  if (singleKey && typeof singleKey === 'string' && singleKey.trim()) {
+    keys.push(singleKey.trim());
+  }
+
+  nvidiaKeyPool = keys;
+  nvidiaKeyIndex = 0;
+
+  if (keys.length > 0) {
+    console.log(`[llm-config] initialized ${keys.length} nvidia api keys from environment`);
+  }
+}
+
+// get next nvidia api key in round-robin fashion
+function getNextNvidiaApiKey(): string | null {
+  if (nvidiaKeyPool.length === 0) {
+    initializeNvidiaKeyPool();
+  }
+
+  if (nvidiaKeyPool.length === 0) {
+    return null;
+  }
+
+  const key = nvidiaKeyPool[nvidiaKeyIndex];
+  nvidiaKeyIndex = (nvidiaKeyIndex + 1) % nvidiaKeyPool.length;
+  return key;
 }
 
 // fetch api keys from nocobase (called once on app start, then cached)
