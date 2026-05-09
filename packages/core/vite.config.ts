@@ -89,8 +89,8 @@ const proxyConfig = {
   '/api/nb-import': { target: process.env.VITE_LOCAL_API_URL || 'http://127.0.0.1:4100', changeOrigin: true },
   '/api/sidebar-colors': { target: process.env.VITE_LOCAL_API_URL || 'http://127.0.0.1:4100', changeOrigin: true },
   '/api': { target: process.env.VITE_NOCOBASE_PROXY_URL || `http://${process.env.VITE_PRIMARY_LOCAL_IP || '192.168.4.233'}:8091/api`, changeOrigin: true, rewrite: (p: string) => p.replace(/^\/api/, '') },
-  '/storage': { target: process.env.VITE_STORAGE_PROXY_URL || `http://${process.env.VITE_PRIMARY_LOCAL_IP || '192.168.4.233'}:8091`, changeOrigin: true, secure: false },
-  '/ollama': { target: process.env.VITE_OLLAMA_PROXY_URL || `http://${process.env.VITE_OLLAMA_LOCAL_IP || '192.168.4.250'}:11434`, changeOrigin: true, rewrite: (p: string) => p.replace(/^\/ollama/, '') },
+  '/storage': { target: process.env.VITE_STORAGE_PROXY_URL || `http://${process.env.VITE_PRIMARY_LOCAL_IP || 'PRIMARY_LOCAL_IP'}:8091`, changeOrigin: true, secure: false },
+'/ollama': { target: process.env.VITE_OLLAMA_PROXY_URL || `http://${process.env.VITE_OLLAMA_LOCAL_IP || 'OLLAMA_LOCAL_IP'}:11434`, changeOrigin: true, rewrite: (p: string) => p.replace(/^\\/ollama/, '') },
   '/hermes-bridge': { target: process.env.VITE_HERMES_BRIDGE_URL || 'ws://127.0.0.1:3101', ws: true, changeOrigin: true, rewrite: (p: string) => p.replace(/^\/hermes-bridge/, '') },
   '/nvidia': { target: 'https://integrate.api.nvidia.com/v1', changeOrigin: true, rewrite: (p: string) => p.replace(/^\/nvidia/, '') },
 }
