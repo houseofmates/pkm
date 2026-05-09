@@ -1,4 +1,4 @@
-{/* eslint-disable */}
+{/* eslint-disable */ }
 import React, { useState, useCallback } from 'react'
 import { Mic, Download, Play } from 'lucide-react'
 
@@ -20,7 +20,7 @@ const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { size?: 
 import { useGamificationStore } from '../../stores/gamification-store'
 
 // ollama client stub (per context src/api/ollama-client.ts pattern)
-const OLLAMA_URL = 'http://192.168.4.233:11434/api/generate'
+const OLLAMA_URL = import.meta.env.VITE_OLLAMA_URL || 'http://192.168.4.233:11434/api/generate'
 
 const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTranscribe }) => {
   const [isListening, setIsListening] = useState(false)
@@ -92,8 +92,8 @@ const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTran
 
   const downloadWhisper = () => {
     // stub: download whisper.cpp model for offline
-    const modelUrl = platform === 'grapheneos' 
-      ? 'whisper-tiny-mobile.ggml' 
+    const modelUrl = platform === 'grapheneos'
+      ? 'whisper-tiny-mobile.ggml'
       : 'whisper-small-desktop.ggml'
     window.open(`https://huggingface.co/ggerganov/whisper.cpp/${modelUrl}`)
   }
@@ -102,8 +102,8 @@ const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTran
     <div className="p-6 bg-gradient-to-r from-purple-900/50 to-pink-900/50 rounded-2xl border border-purple-500/30 backdrop-blur-md">
       <div className="text-center mb-6">
         <div className="text-sm text-slate-400 mb-2">voice journal {platform}</div>
-        <Button 
-          size="lg" 
+        <Button
+          size="lg"
           onClick={startListening}
           disabled={isListening}
           className={`w-24 h-24 rounded-full p-0 text-2xl transition-all ${isListening ? 'bg-red-500 shadow-lg shadow-red-500/25 animate-pulse' : 'hover:scale-105'}`}
@@ -113,9 +113,9 @@ const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTran
         {transcription && (
           <div className="mt-4 p-4 bg-slate-900/50 rounded-lg max-h-32 overflow-auto text-sm">
             {transcription}
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => processWithQwen(transcription)}
               className="mt-2 w-full"
             >

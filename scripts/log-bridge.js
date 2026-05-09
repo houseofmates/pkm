@@ -4,7 +4,7 @@ import axios from 'axios';
 import fs from 'fs';
 
 // --- configuration ---
-const LOG_FILE = '/home/house/Documents/docker/dupemates/data/logs/latest.log';
+const LOG_FILE = (process.env.DUPEMATES_DATA_DIR || '/home/house/Documents/docker/dupemates/data') + '/logs/latest.log';
 // direct to backend (bypass n8n to avoid payload corruption)
 const N8N_URL = 'http://localhost:4100/api/broadcast';
 const AUTH_KEY = process.env.BROADCAST_AUTH_KEY;

@@ -1607,7 +1607,7 @@ app.get('/api/ai/pieces/status', requireAuth, async (req, res) => {
     const connected = await isPiecesConnected();
     res.json({
       connected,
-      mcpUrl: process.env.PIECES_MCP_URL || process.env.PIECES_MCP_LOCAL_URL || 'http://192.168.4.250:39301/model_context_protocol/2025-03-26/mcp'
+      mcpUrl: process.env.PIECES_MCP_URL || process.env.PIECES_MCP_LOCAL_URL || `http://${process.env.OLLAMA_LOCAL_IP || '192.168.4.250'}:39301/model_context_protocol/2025-03-26/mcp`
     });
   } catch (err) {
     res.json({ connected: false, error: err.message });

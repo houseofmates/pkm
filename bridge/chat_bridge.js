@@ -11,9 +11,9 @@ import http from 'http';
 // config
 const CONFIG = {
   port: parseInt(process.env.PKM_BRIDGE_PORT || '3101'),
-  hermesHost: process.env.HERMES_HOST || '192.168.4.250',
-  hermesUser: process.env.HERMES_USER || 'house',
-  hermesKey: process.env.HERMES_KEY || '/home/house/.ssh/hermes_key',
+  hermesHost: process.env.HERMES_HOST || process.env.HERMES_HOST || '192.168.4.250',
+  hermesUser: process.env.HERMES_USER || process.env.USERNAME || 'house',
+  hermesKey: process.env.HERMES_KEY || process.env.USER_SSH_KEY_PATH || '/home/house/.ssh/hermes_key',
   hermesArgs: process.env.HERMES_ARGS || 'chat --yolo',
 };
 
@@ -43,10 +43,10 @@ wss.on('connection', (ws) => {
     }
 
     console.log(`[${sessionId}] starting hermes on ${CONFIG.hermesHost}...`);
-    
+
     // ssh to desktop and run hermes
     const sshCommand = `ssh -i ${CONFIG.hermesKey} -t ${CONFIG.hermesUser}@${CONFIG.hermesHost} "/home/house/.hermes/hermes-agent/hermes ${CONFIG.hermesArgs}"`;
-    
+
     hermesProcess = spawn('bash', ['-c', sshCommand], {
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -54,7 +54,7 @@ wss.on('connection', (ws) => {
     hermesProcess.stdout.on('data', (data) => {
       const text = data.toString();
       responseBuffer += text;
-      
+
       // stream chunks to client
       sendToClient('stream', { content: text });
     });
@@ -103,7 +103,7 @@ wss.on('connection', (ws) => {
   ws.on('message', async (data) => {
     try {
       const msg = JSON.parse(data.toString());
-      
+
       switch (msg.type) {
         case 'start': {
           // start a new hermes session

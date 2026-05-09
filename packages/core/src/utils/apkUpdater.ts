@@ -11,7 +11,7 @@ export interface ApkVersionManifest {
 
 export async function checkForApkUpdate(currentVersion: string, apiKey: string): Promise<ApkVersionManifest | null> {
   try {
-    const response = await axios.get('https://pkm.houseofmates.space/apk/version.json', {
+    const response = await axios.get(import.meta.env.VITE_APK_VERSION_URL || 'https://pkm.houseofmates.space/apk/version.json', {
       headers: { 'Authorization': `Bearer ${apiKey}` }
     });
     const manifest: ApkVersionManifest = response.data;

@@ -52,7 +52,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/simplyplural/, ''),
       },
       '/api/nocobase': {
-        target: 'http://192.168.4.233:8091/api',
+        target: process.env.VITE_NOCOBASE_PROXY_URL || `http://${process.env.VITE_PRIMARY_LOCAL_IP || '192.168.4.233'}:8091/api`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
       },
@@ -69,17 +69,17 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/api': {
-        target: 'http://192.168.4.233:8091/api',
+        target: process.env.VITE_NOCOBASE_PROXY_URL || `http://${process.env.VITE_PRIMARY_LOCAL_IP || '192.168.4.233'}:8091/api`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
       '/storage': {
-        target: 'http://192.168.4.233:8091',
+        target: process.env.VITE_STORAGE_PROXY_URL || `http://${process.env.VITE_PRIMARY_LOCAL_IP || '192.168.4.233'}:8091`,
         changeOrigin: true,
         secure: false,
       },
       '/ollama': {
-        target: 'http://192.168.4.250:11434',
+        target: process.env.VITE_OLLAMA_PROXY_URL || `http://${process.env.VITE_OLLAMA_LOCAL_IP || '192.168.4.250'}:11434`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/ollama/, ''),
       },
@@ -135,83 +135,83 @@ export default defineConfig({
       },
       ''/api/nocobase': {
         target: 'http://localhost:13000/api',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
-      },
-      '/api/journal': {
-        target: 'http://localhost:4100',
-        changeOrigin: true,
-      },
-      '/storage': {
-        target: 'http://192.168.4.233:8091',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/ollama': {
-        target: 'http://192.168.4.250:11434',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/ollama/, ''),
-      },
-      '/nvidia': {
-        target: 'https://integrate.api.nvidia.com/v1',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/nvidia/, ''),
-      },
-    }
-  },
-  build: {
-    sourcemap: false,
-    reportCompressedSize: false,
-    chunkSizeWarningLimit: 1500,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-slot',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-select'
-          ],
-          'canvas-vendor': ['fabric'],
-          'editor-vendor': [
-            '@tiptap/react',
-            '@tiptap/starter-kit',
-            '@tiptap/extension-mention',
-            '@tiptap/extension-image',
-            '@tiptap/extension-placeholder'
-          ],
-          'motion-vendor': ['framer-motion'],
-          'viz-vendor': ['recharts', 'react-force-graph-2d'],
-          'util-vendor': ['clsx', 'date-fns', 'leaflet', 'lodash', 'axios', 'uuid', 'zod'],
-          'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/utilities', '@dnd-kit/sortable'],
-          'monaco-vendor': ['@monaco-editor/react'],
-          'pdf-vendor': ['pdfjs-dist', 'jspdf'],
-          'lucide-vendor': ['lucide-react']
-        }
-
-
-      }
-    }
-  },
-  css: {
-    devSourcemap: false,
-    preprocessorOptions: {
-      // scss: {
-      // charset: false
-      // }
-    }
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', '@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover', 'clsx', 'date-fns', 'leaflet', '@dnd-kit/core', '@dnd-kit/utilities', 'rehype-raw'],
-    exclude: [],
-    esbuildOptions: {
-      sourcemap: false,
-    }
-  },
-  define: {
-    'process.env': {}
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
+    },
+    '/api/journal': {
+      target: 'http://localhost:4100',
+      changeOrigin: true,
+    },
+    '/storage': {
+      target: process.env.VITE_STORAGE_PROXY_URL || `http://${process.env.VITE_PRIMARY_LOCAL_IP || '192.168.4.233'}:8091`,
+      changeOrigin: true,
+      secure: false,
+    },
+    '/ollama': {
+      target: process.env.VITE_OLLAMA_PROXY_URL || `http://${process.env.VITE_OLLAMA_LOCAL_IP || '192.168.4.250'}:11434`,
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\/ollama/, ''),
+    },
+    '/nvidia': {
+      target: 'https://integrate.api.nvidia.com/v1',
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\/nvidia/, ''),
+    },
   }
+},
+  build: {
+  sourcemap: false,
+  reportCompressedSize: false,
+  chunkSizeWarningLimit: 1500,
+  rollupOptions: {
+    output: {
+      manualChunks: {
+        'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+        'ui-vendor': [
+          '@radix-ui/react-dialog',
+          '@radix-ui/react-slot',
+          '@radix-ui/react-popover',
+          '@radix-ui/react-dropdown-menu',
+          '@radix-ui/react-tabs',
+          '@radix-ui/react-select'
+        ],
+        'canvas-vendor': ['fabric'],
+        'editor-vendor': [
+          '@tiptap/react',
+          '@tiptap/starter-kit',
+          '@tiptap/extension-mention',
+          '@tiptap/extension-image',
+          '@tiptap/extension-placeholder'
+        ],
+        'motion-vendor': ['framer-motion'],
+        'viz-vendor': ['recharts', 'react-force-graph-2d'],
+        'util-vendor': ['clsx', 'date-fns', 'leaflet', 'lodash', 'axios', 'uuid', 'zod'],
+        'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/utilities', '@dnd-kit/sortable'],
+        'monaco-vendor': ['@monaco-editor/react'],
+        'pdf-vendor': ['pdfjs-dist', 'jspdf'],
+        'lucide-vendor': ['lucide-react']
+      }
+
+
+    }
+  }
+},
+  css: {
+  devSourcemap: false,
+  preprocessorOptions: {
+    // scss: {
+    // charset: false
+    // }
+  }
+},
+  optimizeDeps: {
+  include: ['react', 'react-dom', '@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover', 'clsx', 'date-fns', 'leaflet', '@dnd-kit/core', '@dnd-kit/utilities', 'rehype-raw'],
+  exclude: [],
+  esbuildOptions: {
+    sourcemap: false,
+  }
+},
+  define: {
+  'process.env': {}
+}
 })
