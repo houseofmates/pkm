@@ -522,15 +522,15 @@ function AppContent() {
                 path="/headmates"
                 element={
                   <LazyLoadErrorBoundary>
+                    <HeadmatesPage />
+                  </LazyLoadErrorBoundary>
+                }
+              />
               <Route
                 path="/system-tracker"
                 element={
                   <LazyLoadErrorBoundary>
                     <SystemTrackerPage />
-                  </LazyLoadErrorBoundary>
-                }
-              />
-                    <HeadmatesPage />
                   </LazyLoadErrorBoundary>
                 }
               />
