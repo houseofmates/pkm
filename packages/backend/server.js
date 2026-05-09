@@ -872,8 +872,8 @@ app.post('/api/upload-background', requireAuth, upload.single('file'), (req, res
 // ideally, this should be removed or strictly controlled.
 app.get('/api/players', requireAuth, async (req, res) => {
   try {
-    // hardcoded safe path
-    const scriptPath = '/home/house/Documents/docker/dupemates/data/read_player_data.py';
+    // use environment variable for script path
+    const scriptPath = process.env.DUPEMATES_DATA_DIR + '/read_player_data.py';
 
     // ensure the path exists before running
     if (!fs.existsSync(scriptPath)) {

@@ -1,8 +1,8 @@
 /* eslint-disable */
 import { secureLogger } from '@/lib/secure-logger';
 
-// hardcoded faster-whisper server endpoint
-const FASTER_WHISPER_URL = 'http://192.168.4.250:5000/transcribe';
+// use environment variable for faster-whisper server endpoint
+const FASTER_WHISPER_URL = import.meta.env.VITE_FASTER_WHISPER_URL || 'http://192.168.4.250:5000/transcribe';
 
 export interface FasterWhisperTranscriptionOptions {
   language?: string;
@@ -51,11 +51,11 @@ export class FasterWhisperClient {
    */
   async convertToWav(audioBlob: Blob): Promise<Blob> {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    
+
     try {
       const arrayBuffer = await audioBlob.arrayBuffer();
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-      
+
       // convert to mono, 16khz for optimal whisper performance
       const sampleRate = 16000;
       const numberOfChannels = 1;
@@ -64,15 +64,15 @@ export class FasterWhisperClient {
         audioBuffer.duration * sampleRate,
         sampleRate
       );
-      
+
       const source = offlineContext.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(offlineContext.destination);
       source.start();
-      
+
       const renderedBuffer = await offlineContext.startRendering();
       const wavBuffer = this.audioBufferToWav(renderedBuffer);
-      
+
       return new Blob([wavBuffer], { type: 'audio/wav' });
     } catch (error) {
       secureLogger.error('WAV conversion failed:', error);
@@ -92,7 +92,7 @@ export class FasterWhisperClient {
     const view = new DataView(arrayBuffer);
     const channels = buffer.numberOfChannels;
     const sampleRate = buffer.sampleRate;
-    
+
     // write wav header
     this.writeString(view, 0, 'RIFF');
     view.setUint32(4, 36 + buffer.length * 2, true);
@@ -107,7 +107,7 @@ export class FasterWhisperClient {
     view.setUint16(34, 16, true); // 16-bit samples
     this.writeString(view, 36, 'data');
     view.setUint32(40, buffer.length * 2, true);
-    
+
     // write interleaved data
     const channelData = buffer.getChannelData(0);
     let offset = 44;
@@ -116,7 +116,7 @@ export class FasterWhisperClient {
       view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
       offset += 2;
     }
-    
+
     return arrayBuffer;
   }
 
@@ -135,14 +135,14 @@ export class FasterWhisperClient {
     options: FasterWhisperTranscriptionOptions = {}
   ): Promise<FasterWhisperTranscriptionResult> {
     const formData = new FormData();
-    
+
     // convert to wav for optimal compatibility
     const wavBlob = await this.convertToWav(audioBlob);
     formData.append('file', wavBlob, 'recording.wav');
     formData.append('language', options.language || 'en');
     formData.append('task', options.task || 'transcribe');
     formData.append('vad_filter', String(options.vad_filter ?? true));
-    
+
     if (options.word_timestamps) {
       formData.append('word_timestamps', 'true');
     }
@@ -165,7 +165,7 @@ export class FasterWhisperClient {
       }
 
       const result = await response.json();
-      
+
       return {
         text: result.text || '',
         language: result.language,
@@ -175,12 +175,12 @@ export class FasterWhisperClient {
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error('Transcription timeout - server did not respond within 30s');
       }
-      
+
       // provide specific error messages for common failure scenarios
       if (error instanceof TypeError && error.message.includes('fetch')) {
         throw new Error('local server unreachable at 192.168.4.250:5000 - check if desktop is online');
       }
-      
+
       if (error instanceof Error) {
         // check for http error status codes that indicate gpu/vram issues
         if (error.message.includes('500') || error.message.includes('503')) {
@@ -193,7 +193,7 @@ export class FasterWhisperClient {
           throw new Error('local server unreachable at 192.168.4.250:5000 - check if desktop is online');
         }
       }
-      
+
       throw error;
     }
   }
