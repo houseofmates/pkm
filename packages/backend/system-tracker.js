@@ -53,7 +53,7 @@ frontRouter.get('/current', async (req, res) => {
       const headmateIds = members.map(m => m.id || m);
       const headmatesRes = await client.get('/headmates:list', {
         params: {
-          filter: JSON.stringify({ id: { : headmateIds } }),
+          filter: JSON.stringify({ id: { $in: headmateIds } }),
           pageSize: 100
         }
       });
@@ -73,8 +73,8 @@ frontRouter.get('/history', async (req, res) => {
     const { page = 1, pageSize = 50, since, until } = req.query;
 
     const filters = {};
-    if (since) filters.startTime = { : since };
-    if (until) filters.endTime = { : until };
+    if (since) filters.startTime = { $gte: since };
+    if (until) filters.endTime = { $lte: until };
 
     const result = await client.get('/front_history:list', {
       params: {
@@ -383,7 +383,7 @@ eventsRouter.get('/', async (req, res) => {
 
     const filter = {};
     if (event_type) filter.event_type = event_type;
-    if (since) filter.timestamp = { : since };
+    if (since) filter.timestamp = { $gte: since };
 
     const result = await client.get('/system_events:list', {
       params: {

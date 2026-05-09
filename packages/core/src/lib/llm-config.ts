@@ -158,7 +158,13 @@ export async function markKeyRateLimited(): Promise<{ key: string; model: string
 }
 
 export async function getStoredNvidiaApiKey(): Promise<string | null> {
-  // first check server-stored keys
+  // first try round-robin nvidia api keys from environment
+  const envKey = getNextNvidiaApiKey();
+  if (envKey) {
+    return envKey;
+  }
+
+  // then check server-stored keys
   const currentKey = getCurrentApiKey();
   if (currentKey && currentKey.provider === 'nvidia') {
     return currentKey.key;
@@ -174,9 +180,9 @@ export async function getStoredNvidiaApiKey(): Promise<string | null> {
   const plain = storageManager.getItem("nvidia_api_key");
   if (plain) return String(plain).trim();
 
-  // also check env variable
-  const envKey = import.meta.env.NVIDIA_API_KEY;
-  if (envKey) return String(envKey).trim();
+  // finally check single env variable (backward compatibility)
+  const singleEnvKey = import.meta.env.NVIDIA_API_KEY;
+  if (singleEnvKey) return String(singleEnvKey).trim();
 
   return null;
 }
@@ -278,7 +284,13 @@ export function storeApiConfig(url?: string, model?: string): void {
 // get the base url for the llm api
 // priority: nvidia api (if key configured) > stored config > env > default ollama
 export function getOllamaBase(): string {
-  // check for nvidia api key first
+  // check for nvidia api key first (including round-robin pool)
+  initializeNvidiaKeyPool();
+  if (nvidiaKeyPool.length > 0) {
+    return NVIDIA_API_URL;
+  }
+
+  // also check legacy single key and storage
   const nvidiaKey =
     storageManager.getItem("nvidia_api_key") || import.meta.env.NVIDIA_API_KEY;
   if (nvidiaKey) {
@@ -299,7 +311,13 @@ export function getOllamaBase(): string {
 // get the model to use for the llm
 // priority: nvidia api (if key configured) > stored config > env > default
 export function getOllamaModel(): string {
-  // check for nvidia api key first
+  // check for nvidia api key first (including round-robin pool)
+  initializeNvidiaKeyPool();
+  if (nvidiaKeyPool.length > 0) {
+    return NVIDIA_MODEL;
+  }
+
+  // also check legacy single key and storage
   const nvidiaKey =
     storageManager.getItem("nvidia_api_key") || import.meta.env.NVIDIA_API_KEY;
   if (nvidiaKey) {
