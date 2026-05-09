@@ -1,5 +1,6 @@
 {/* eslint-disable */ }
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from '@/lib/secure-logger';
