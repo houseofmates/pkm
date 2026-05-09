@@ -110,7 +110,7 @@ export default defineConfig({
     cors: true,
     hmr: {
       protocol: process.env.NODE_ENV === 'production' ? 'wss' : 'ws',
-      host: process.env.NODE_ENV === 'production' ? process.env.VITE_PROD_HOST || 'pkm.houseofmates.space' : process.env.VITE_DEV_HOST || 'localhost',
+      host: process.env.NODE_ENV === 'production' ? process.env.VITE_PROD_HOST || 'PKM_DOMAIN' : process.env.VITE_DEV_HOST || 'localhost',
       clientPort: process.env.NODE_ENV === 'production' ? 443 : 3010,
       path: '/vite-hmr',
       overlay: false,
