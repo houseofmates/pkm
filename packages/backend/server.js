@@ -378,13 +378,13 @@ app.get('/api/version', (req, res) => {
 });
 
 app.get('/api/sidebar-colors', requireAuth, (req, res) => {
- res.json({
- primary: '#f6b012',
- secondary: '#252525',
- accent: '#ef4444',
- background: '#0a0a0a',
- sidebar: { default: '#252525', active: '#f6b012', hover: '#f6b01299' }
- });
+  res.json({
+    primary: '#f6b012',
+    secondary: '#252525',
+    accent: '#ef4444',
+    background: '#0a0a0a',
+    sidebar: { default: '#252525', active: '#f6b012', hover: '#f6b01299' }
+  });
 });
 
 app.get('/api/stats', (req, res) => {
@@ -914,7 +914,7 @@ app.get('/api/public/doc/:slug', (req, res) => {
 
 // webhook handler (from previous implementation, consolidated)
 const sendWebhook = async (type, player, message, timestamp, online) => {
-  const webhookUrl = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/webhook/leave-join';
+  const webhookUrl = process.env.N8N_WEBHOOK_URL || process.env.N8N_LOCAL_WEBHOOK_URL || 'http://localhost:5678/webhook/leave-join';
   try {
     await axios.post(webhookUrl, {
       type: type === 'quit' ? 'leave' : type,
@@ -1245,7 +1245,7 @@ function parseActionsFromResponse(responseText) {
 
 
 // allow configuration via environment variables, with sensible defaults
-const OLLAMA_DEFAULT_URL = process.env.OLLAMA_URL || process.env.OLLAMA_HOST || 'http://localhost:11434';
+const OLLAMA_DEFAULT_URL = process.env.OLLAMA_URL || process.env.OLLAMA_HOST || process.env.OLLAMA_LOCAL_URL || 'http://localhost:11434';
 
 const PREFERRED_QWEN_MODELS = [
   process.env.OLLAMA_QWEN_MODEL,
@@ -1558,24 +1558,24 @@ app.get('/api/ai/memory', requireAuth, async (req, res) => {
 
 // convenience endpoint to quickly remember something
 app.post('/api/ai/remember', requireAuth, async (req, res) => {
- try {
- const { what, type = 'important' } = req.body;
+  try {
+    const { what, type = 'important' } = req.body;
 
- if (!what) {
- return res.status(400).json({ error: 'what to remember is required' });
- }
+    if (!what) {
+      return res.status(400).json({ error: 'what to remember is required' });
+    }
 
- const success = addMemory(type, what);
+    const success = addMemory(type, what);
 
- if (success) {
- res.json({ success: true, remembered: what });
- } else {
- res.status(500).json({ error: 'failed to remember' });
- }
- } catch (err) {
- console.error('[AI] remember error:', err.message);
- res.status(500).json({ error: 'failed to remember' });
- }
+    if (success) {
+      res.json({ success: true, remembered: what });
+    } else {
+      res.status(500).json({ error: 'failed to remember' });
+    }
+  } catch (err) {
+    console.error('[AI] remember error:', err.message);
+    res.status(500).json({ error: 'failed to remember' });
+  }
 });
 
 app.delete('/api/ai/memory', requireAuth, async (req, res) => {
@@ -1607,7 +1607,7 @@ app.get('/api/ai/pieces/status', requireAuth, async (req, res) => {
     const connected = await isPiecesConnected();
     res.json({
       connected,
-      mcpUrl: process.env.PIECES_MCP_URL || 'http://192.168.4.250:39301/model_context_protocol/2025-03-26/mcp'
+      mcpUrl: process.env.PIECES_MCP_URL || process.env.PIECES_MCP_LOCAL_URL || 'http://192.168.4.250:39301/model_context_protocol/2025-03-26/mcp'
     });
   } catch (err) {
     res.json({ connected: false, error: err.message });

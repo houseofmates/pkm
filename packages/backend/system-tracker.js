@@ -38,17 +38,17 @@ frontRouter.get('/current', async (req, res) => {
         filter: JSON.stringify({ is_active: true })
       }
     });
-    
+
     const active = result.data?.data?.[0];
     if (!active) {
       return res.json({ active: false, members: [] });
     }
-    
+
     let members = active.members;
     if (typeof members === 'string') {
       try { members = JSON.parse(members); } catch { members = []; }
     }
-    
+
     if (members?.length > 0) {
       const headmateIds = members.map(m => m.id || m);
       const headmatesRes = await client.get('/headmates:list', {
@@ -59,7 +59,7 @@ frontRouter.get('/current', async (req, res) => {
       });
       active.headmateDetails = headmatesRes.data?.data || [];
     }
-    
+
     res.json({ active: true, front: active });
   } catch (err) {
     console.error('[front/current] error:', err.response?.data || err.message);
@@ -71,11 +71,11 @@ frontRouter.get('/history', async (req, res) => {
   try {
     const client = getNocoBaseClient(req);
     const { page = 1, pageSize = 50, since, until } = req.query;
-    
+
     const filters = {};
     if (since) filters.startTime = { : since };
     if (until) filters.endTime = { : until };
-    
+
     const result = await client.get('/front_history:list', {
       params: {
         page,
@@ -84,7 +84,7 @@ frontRouter.get('/history', async (req, res) => {
         ...(Object.keys(filters).length > 0 && { filter: JSON.stringify(filters) })
       }
     });
-    
+
     res.json({ data: result.data?.data || [], meta: result.data?.meta });
   } catch (err) {
     console.error('[front/history] error:', err.response?.data || err.message);
@@ -96,13 +96,13 @@ frontRouter.post('/switch', async (req, res) => {
   try {
     const client = getNocoBaseClient(req);
     const { members: memberIds, comment, trigger, location, mood, energyLevel } = req.body;
-    
+
     if (!Array.isArray(memberIds)) {
       return res.status(400).json({ error: 'members must be an array of headmate ids' });
     }
-    
+
     const timestamp = new Date().toISOString();
-    
+
     try {
       const activeResult = await client.get('/front_history:list', {
         params: {
@@ -111,7 +111,7 @@ frontRouter.post('/switch', async (req, res) => {
           sort: '-startTime'
         }
       });
-      
+
       const active = activeResult.data?.data?.[0];
       if (active) {
         await client.post('/front_history:update', {
@@ -124,14 +124,14 @@ frontRouter.post('/switch', async (req, res) => {
     } catch (closeErr) {
       console.warn('[front/switch] error closing previous front:', closeErr.message);
     }
-    
+
     const members = memberIds.map((id, index) => ({
       id,
       role: index === 0 ? 'primary' : 'secondary',
       order: index,
       depth: index + 1
     }));
-    
+
     const newEntry = await client.post('/front_history:create', {
       startTime: timestamp,
       endTime: null,
@@ -143,7 +143,7 @@ frontRouter.post('/switch', async (req, res) => {
       mood: mood || '',
       energy_level: energyLevel || null,
     });
-    
+
     await logSystemEvent(client, {
       event_type: 'front_change',
       description: 'front switched: ' + memberIds.join(', '),
@@ -152,7 +152,7 @@ frontRouter.post('/switch', async (req, res) => {
       timestamp: timestamp,
       source: 'system_tracker_api'
     });
-    
+
     res.json({ success: true, front: newEntry.data?.data });
   } catch (err) {
     console.error('[front/switch] error:', err.response?.data || err.message);
@@ -187,11 +187,11 @@ connectionsRouter.post('/', async (req, res) => {
       notes = '',
       style = {}
     } = req.body;
-    
+
     if (!from_headmate_id || !to_headmate_id) {
       return res.status(400).json({ error: 'from_headmate_id and to_headmate_id required' });
     }
-    
+
     const newConnection = await client.post('/headmate_connections:create', {
       from_headmate: from_headmate_id,
       to_headmate: to_headmate_id,
@@ -203,7 +203,7 @@ connectionsRouter.post('/', async (req, res) => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     });
-    
+
     if (is_mutual) {
       await client.post('/headmate_connections:create', {
         from_headmate: to_headmate_id,
@@ -217,7 +217,7 @@ connectionsRouter.post('/', async (req, res) => {
         updated_at: new Date().toISOString()
       });
     }
-    
+
     await logSystemEvent(client, {
       event_type: 'connection_change',
       description: 'new connection: ' + from_headmate_id + ' -> ' + to_headmate_id,
@@ -226,7 +226,7 @@ connectionsRouter.post('/', async (req, res) => {
       timestamp: new Date().toISOString(),
       source: 'system_tracker_api'
     });
-    
+
     res.json({ success: true, connection: newConnection.data?.data });
   } catch (err) {
     console.error('[connections/create] error:', err.response?.data || err.message);
@@ -239,11 +239,11 @@ connectionsRouter.put('/:id', async (req, res) => {
     const client = getNocoBaseClient(req);
     const { id } = req.params;
     const updates = { ...req.body, updated_at: new Date().toISOString() };
-    
+
     if (updates.style && typeof updates.style !== 'string') {
       updates.style = JSON.stringify(updates.style);
     }
-    
+
     const result = await client.post('/headmate_connections:update', {
       filter: { id },
       ...updates
@@ -261,11 +261,11 @@ connectionsRouter.delete('/:id', async (req, res) => {
     const { id } = req.params;
     const conn = await client.get('/headmate_connections:get', { params: { filter: JSON.stringify({ id }) } });
     const connection = conn.data?.data;
-    
+
     await client.post('/headmate_connections:destroy', {
       filter: { id }
     });
-    
+
     if (connection?.is_mutual) {
       await client.post('/headmate_connections:destroy', {
         filter: {
@@ -274,7 +274,7 @@ connectionsRouter.delete('/:id', async (req, res) => {
         }
       });
     }
-    
+
     res.json({ success: true });
   } catch (err) {
     console.error('[connections/delete] error:', err.response?.data || err.message);
@@ -288,9 +288,9 @@ notesRouter.get('/', async (req, res) => {
   try {
     const client = getNocoBaseClient(req);
     const { headmate_id, page = 1, pageSize = 50 } = req.query;
-    
+
     const filter = headmate_id ? { headmate_id } : {};
-    
+
     const result = await client.get('/headmate_notes:list', {
       params: {
         page,
@@ -299,7 +299,7 @@ notesRouter.get('/', async (req, res) => {
         ...(Object.keys(filter).length > 0 && { filter: JSON.stringify(filter) })
       }
     });
-    
+
     res.json({ data: result.data?.data || [], meta: result.data?.meta });
   } catch (err) {
     console.error('[notes] error:', err.response?.data || err.message);
@@ -311,11 +311,11 @@ notesRouter.post('/', async (req, res) => {
   try {
     const client = getNocoBaseClient(req);
     const { headmate_id, title, content, tags = [], visibility = 'private' } = req.body;
-    
+
     if (!headmate_id || !title) {
       return res.status(400).json({ error: 'headmate_id and title required' });
     }
-    
+
     const result = await client.post('/headmate_notes:create', {
       headmate_id,
       title,
@@ -325,7 +325,7 @@ notesRouter.post('/', async (req, res) => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     });
-    
+
     await logSystemEvent(client, {
       event_type: 'note_added',
       description: 'note added for headmate: ' + title,
@@ -333,7 +333,7 @@ notesRouter.post('/', async (req, res) => {
       data: { title, visibility },
       timestamp: new Date().toISOString()
     });
-    
+
     res.json({ success: true, note: result.data?.data });
   } catch (err) {
     console.error('[notes/create] error:', err.response?.data || err.message);
@@ -346,11 +346,11 @@ notesRouter.put('/:id', async (req, res) => {
     const client = getNocoBaseClient(req);
     const { id } = req.params;
     const updates = { ...req.body, updated_at: new Date().toISOString() };
-    
+
     if (updates.tags && typeof updates.tags !== 'string') {
       updates.tags = JSON.stringify(updates.tags);
     }
-    
+
     const result = await client.post('/headmate_notes:update', {
       filter: { id },
       ...updates
@@ -380,11 +380,11 @@ eventsRouter.get('/', async (req, res) => {
   try {
     const client = getNocoBaseClient(req);
     const { page = 1, pageSize = 50, event_type, since } = req.query;
-    
+
     const filter = {};
     if (event_type) filter.event_type = event_type;
     if (since) filter.timestamp = { : since };
-    
+
     const result = await client.get('/system_events:list', {
       params: {
         page,
@@ -393,13 +393,13 @@ eventsRouter.get('/', async (req, res) => {
         ...(Object.keys(filter).length > 0 && { filter: JSON.stringify(filter) })
       }
     });
-    
+
     const events = (result.data?.data || []).map(ev => ({
       ...ev,
       headmates: safeJsonParse(ev.headmates, []),
       data: safeJsonParse(ev.data, {})
     }));
-    
+
     res.json({ data: events, meta: result.data?.meta });
   } catch (err) {
     console.error('[events] error:', err.response?.data || err.message);
@@ -411,7 +411,7 @@ eventsRouter.post('/', async (req, res) => {
   try {
     const client = getNocoBaseClient(req);
     const { event_type, description, headmates = [], data = {}, timestamp, source } = req.body;
-    
+
     const result = await client.post('/system_events:create', {
       event_type: event_type || 'other',
       description,
@@ -421,7 +421,7 @@ eventsRouter.post('/', async (req, res) => {
       source: source || 'api',
       created_at: new Date().toISOString()
     });
-    
+
     res.json({ success: true, event: result.data?.data });
   } catch (err) {
     console.error('[events/create] error:', err.response?.data || err.message);
@@ -448,11 +448,11 @@ scenesRouter.post('/', async (req, res) => {
   try {
     const client = getNocoBaseClient(req);
     const { name, description: desc, location_type, atmosphere, lighting, soundscape, sensory_details, image_url, image_prompt } = req.body;
-    
+
     if (!name) {
       return res.status(400).json({ error: 'name required' });
     }
-    
+
     const result = await client.post('/inner_world_scenes:create', {
       name,
       description: desc || '',
@@ -466,7 +466,7 @@ scenesRouter.post('/', async (req, res) => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     });
-    
+
     await logSystemEvent(client, {
       event_type: 'scene_created',
       description: 'new scene created: ' + name,
@@ -474,7 +474,7 @@ scenesRouter.post('/', async (req, res) => {
       timestamp: new Date().toISOString(),
       source: 'system_tracker_api'
     });
-    
+
     res.json({ success: true, scene: result.data?.data });
   } catch (err) {
     console.error('[scenes/create] error:', err.response?.data || err.message);
@@ -487,7 +487,7 @@ scenesRouter.put('/:id', async (req, res) => {
     const client = getNocoBaseClient(req);
     const { id } = req.params;
     const updates = { ...req.body, updated_at: new Date().toISOString() };
-    
+
     const result = await client.post('/inner_world_scenes:update', {
       filter: { id },
       ...updates
@@ -512,8 +512,8 @@ scenesRouter.delete('/:id', async (req, res) => {
 });
 
 async function generateImage(prompt, options) {
-  const freegenUrl = process.env.FREEGEN_URL || 'http://127.0.0.1:7860';
-  
+  const freegenUrl = process.env.FREEGEN_URL || process.env.FREEGEN_LOCAL_URL || 'http://127.0.0.1:7860';
+
   try {
     const response = await axios.post(freegenUrl + '/generate', {
       prompt,
@@ -527,7 +527,7 @@ async function generateImage(prompt, options) {
       timeout: 120000,
       responseType: 'arraybuffer'
     });
-    
+
     return Buffer.from(response.data, 'binary');
   } catch (err) {
     console.error('[image generation] error:', err.message);
@@ -541,14 +541,14 @@ imagesRouter.post('/generate', async (req, res) => {
   try {
     const { prompt, type, headmate_id, options } = req.body;
     const imageType = type || 'portrait';
-    
+
     if (!prompt) {
       return res.status(400).json({ error: 'prompt required' });
     }
-    
+
     const imageBuffer = await generateImage(prompt, options || {});
     const base64 = imageBuffer.toString('base64');
-    
+
     const client = getNocoBaseClient(req);
     await logSystemEvent(client, {
       event_type: 'image_generated',
@@ -558,7 +558,7 @@ imagesRouter.post('/generate', async (req, res) => {
       timestamp: new Date().toISOString(),
       source: 'system_tracker_api'
     });
-    
+
     res.json({ success: true, image_base64: base64, type: imageType });
   } catch (err) {
     console.error('[images/generate] error:', err.message);
@@ -603,7 +603,7 @@ systemTrackerRouter.post('/mcp/:tool', async (req, res) => {
   const client = getNocoBaseClient(req);
   const tool = req.params.tool;
   const params = req.body;
-  
+
   try {
     switch (tool) {
       case 'get_current_fronters': {
