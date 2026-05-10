@@ -39,6 +39,7 @@ export function SystemTrackerDashboard() {
   const { currentSession, loadCurrentSession, loadHistory, activeFronters } = useFrontStore();
   const { loadGroups } = useGroupsStore();
   const { loadEntries } = useJournalStore();
+  const { loadMessages } = useChatStore();
 
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');

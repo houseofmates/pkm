@@ -29,15 +29,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Edit, Eye, Trash2, Copy, MoreVertical } from 'lucide-react';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-  DragStartEvent,
+DragStartEvent,
   DragOverlay,
   UniqueIdentifier,
 } from '@dnd-kit/core';
