@@ -77,7 +77,7 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
     await sendMessage({
       memberId: selectedMember,
       content: newMessage.trim(),
-      threadId: threadId || undefined
+      ...(threadId && { threadId })
     });
 
     setNewMessage('');
