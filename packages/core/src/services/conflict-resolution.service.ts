@@ -1,269 +1,350 @@
-import { toast } from 'sonner';
-import type { OpLogEntry, DrawOp } from '@/features/edgeless/storage/oplog';
-import { resolveConflicts } from '@/features/edgeless/storage/oplog';
+/**
+ * conflict resolution service with visual notifications and diff viewing
+ * implements last-write-wins strategy with user awareness
+ */
 
-export interface ConflictEvent {
-  id: string;
-  drawingId: string;
-  timestamp: number;
-  localOps: OpLogEntry[];
-  remoteOps: OpLogEntry[];
-  resolution: 'local-wins' | 'remote-wins' | 'manual';
-  resolvedAt?: number;
-  diff?: ConflictDiff;
+import { secureLogger } from '@/lib/secure-logger'
+
+interface ConflictData {
+  itemId: string
+  type: 'canvas' | 'headmates' | 'system'
+  localVersion: any
+  remoteVersion: any
+  timestamp: number
+  resolved: boolean
+  resolutionStrategy: 'last-write-wins' | 'manual'
+  resolvedAt?: number
 }
 
-export interface ConflictDiff {
-  added: OpLogEntry[];
-  removed: OpLogEntry[];
-  modified: { local: OpLogEntry; remote: OpLogEntry }[];
+interface ConflictNotification {
+  id: string
+  type: 'conflict'
+  data: ConflictData
+  message: string
+  severity: 'info' | 'warning' | 'error'
+  actions: Array<{
+    label: string
+    action: string
+    primary?: boolean
+  }>
 }
 
 class ConflictResolutionService {
-  private static instance: ConflictResolutionService;
-  private conflicts: Map<string, ConflictEvent> = new Map();
-  private listeners: Set<(conflict: ConflictEvent) => void> = new Set();
+  private conflicts: Map<string, ConflictData> = new Map()
+  private notifications: ConflictNotification[] = []
+  private eventListeners: Map<string, Function[]> = new Map()
 
-  static getInstance(): ConflictResolutionService {
-    if (!ConflictResolutionService.instance) {
-      ConflictResolutionService.instance = new ConflictResolutionService();
+  /**
+   * detect and resolve conflicts between local and remote versions
+   */
+  async resolveConflict(
+    itemId: string,
+    type: ConflictData['type'],
+    localVersion: any,
+    remoteVersion: any
+  ): Promise<ConflictData> {
+    const conflict: ConflictData = {
+      itemId,
+      type,
+      localVersion,
+      remoteVersion,
+      timestamp: Date.now(),
+      resolved: false,
+      resolutionStrategy: 'last-write-wins'
     }
-    return ConflictResolutionService.instance;
+
+    // detect if there's actually a conflict
+    if (!this.hasActualConflict(localVersion, remoteVersion)) {
+      conflict.resolved = true
+      conflict.resolvedAt = Date.now()
+      return conflict
+    }
+
+    // store conflict for tracking
+    this.conflicts.set(itemId, conflict)
+
+    // apply last-write-wins strategy
+    const resolvedVersion = this.applyLastWriteWins(localVersion, remoteVersion)
+    conflict.resolved = true
+    conflict.resolvedAt = Date.now()
+
+    // create notification for user
+    this.createConflictNotification(conflict)
+
+    // emit events for UI updates
+    this.emitEvent('conflict-detected', conflict)
+    this.emitEvent('conflict-resolved', { ...conflict, resolvedVersion })
+
+    secureLogger.info(`[ConflictResolution] resolved conflict for ${itemId} using last-write-wins`)
+
+    return conflict
   }
 
   /**
-   * Detect conflicts between local and remote operations
+   * check if there's an actual conflict between versions
    */
-  async detectConflicts(
-    localOps: OpLogEntry[],
-    remoteOps: OpLogEntry[],
-    drawingId: string
-  ): Promise<ConflictEvent[]> {
-    const conflicts: ConflictEvent[] = [];
+  private hasActualConflict(local: any, remote: any): boolean {
+    // simple timestamp comparison for most cases
+    const localTime = this.extractTimestamp(local)
+    const remoteTime = this.extractTimestamp(remote)
 
-    // Group operations by targetId to identify conflicts
-    const localByTarget = this.groupByTarget(localOps);
-    const remoteByTarget = this.groupByTarget(remoteOps);
+    // if timestamps are the same, no conflict
+    if (localTime === remoteTime) return false
 
-    const allTargets = new Set([...localByTarget.keys(), ...remoteByTarget.keys()]);
+    // if one version is much newer, it's not really a conflict
+    const timeDiff = Math.abs(localTime - remoteTime)
+    if (timeDiff > 60000) return false // more than 1 minute difference
 
-    for (const targetId of allTargets) {
-      const localTargetOps = localByTarget.get(targetId) || [];
-      const remoteTargetOps = remoteByTarget.get(targetId) || [];
-
-      if (this.hasConflictingOperations(localTargetOps, remoteTargetOps)) {
-        const conflict: ConflictEvent = {
-          id: `conflict-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          drawingId,
-          timestamp: Date.now(),
-          localOps: localTargetOps,
-          remoteOps: remoteTargetOps,
-          resolution: 'manual',
-          diff: this.calculateDiff(localTargetOps, remoteTargetOps)
-        };
-
-        conflicts.push(conflict);
-        this.conflicts.set(conflict.id, conflict);
-        this.notifyListeners(conflict);
-      }
-    }
-
-    return conflicts;
+    // otherwise, treat as conflict
+    return true
   }
 
   /**
-   * Auto-resolve conflicts using last-write-wins strategy
+   * extract timestamp from version data
    */
-  async autoResolve(conflictId: string): Promise<OpLogEntry[]> {
-    const conflict = this.conflicts.get(conflictId);
-    if (!conflict) {
-      throw new Error(`Conflict ${conflictId} not found`);
-    }
-
-    // Combine all operations and let the existing conflict resolution handle it
-    const allOps = [...conflict.localOps, ...conflict.remoteOps];
-    const resolved = resolveConflicts(allOps);
-
-    // Update conflict
-    conflict.resolution = 'remote-wins'; // Last-write-wins typically favors remote
-    conflict.resolvedAt = Date.now();
-
-    // Show notification
-    this.showConflictNotification(conflict);
-
-    this.notifyListeners(conflict);
-    return resolved;
+  private extractTimestamp(data: any): number {
+    if (data?.timestamp) return data.timestamp
+    if (data?.updatedAt) return new Date(data.updatedAt).getTime()
+    if (data?.createdAt) return new Date(data.createdAt).getTime()
+    return Date.now()
   }
 
   /**
-   * Manually resolve conflict with user choice
+   * apply last-write-wins strategy
    */
-  async manualResolve(
-    conflictId: string,
-    resolution: 'local-wins' | 'remote-wins'
-  ): Promise<OpLogEntry[]> {
-    const conflict = this.conflicts.get(conflictId);
-    if (!conflict) {
-      throw new Error(`Conflict ${conflictId} not found`);
-    }
+  private applyLastWriteWins(local: any, remote: any): any {
+    const localTime = this.extractTimestamp(local)
+    const remoteTime = this.extractTimestamp(remote)
 
-    const resolvedOps = resolution === 'local-wins'
-      ? resolveConflicts([...conflict.remoteOps, ...conflict.localOps])
-      : resolveConflicts([...conflict.localOps, ...conflict.remoteOps]);
-
-    conflict.resolution = resolution;
-    conflict.resolvedAt = Date.now();
-
-    this.showConflictNotification(conflict);
-    this.notifyListeners(conflict);
-
-    return resolvedOps;
+    return localTime > remoteTime ? local : remote
   }
 
   /**
-   * Get all unresolved conflicts
+   * create visual notification for conflict
    */
-  getUnresolvedConflicts(): ConflictEvent[] {
-    return Array.from(this.conflicts.values()).filter(c => !c.resolvedAt);
+  private createConflictNotification(conflict: ConflictData): void {
+    const notification: ConflictNotification = {
+      id: `conflict-${conflict.itemId}`,
+      type: 'conflict',
+      data: conflict,
+      message: `Conflict resolved automatically for ${conflict.type} "${conflict.itemId}"`,
+      severity: 'info',
+      actions: [
+        {
+          label: 'view diff',
+          action: 'view-diff',
+          primary: false
+        },
+        {
+          label: 'dismiss',
+          action: 'dismiss',
+          primary: true
+        }
+      ]
+    }
+
+    this.notifications.push(notification)
+    this.emitEvent('notification', notification)
+
+    // auto-dismiss after 10 seconds
+    setTimeout(() => {
+      this.dismissNotification(notification.id)
+    }, 10000)
   }
 
   /**
-   * Get conflict by ID
+   * get diff between two versions for viewing
    */
-  getConflict(id: string): ConflictEvent | undefined {
-    return this.conflicts.get(id);
+  getDiff(itemId: string): {
+    local: any
+    remote: any
+    diff: Array<{
+      path: string
+      type: 'added' | 'removed' | 'modified'
+      localValue?: any
+      remoteValue?: any
+    }>
+  } | null {
+    const conflict = this.conflicts.get(itemId)
+    if (!conflict) return null
+
+    return {
+      local: conflict.localVersion,
+      remote: conflict.remoteVersion,
+      diff: this.calculateDiff(conflict.localVersion, conflict.remoteVersion)
+    }
   }
 
   /**
-   * Subscribe to conflict events
+   * calculate simple diff between objects
    */
-  subscribe(listener: (conflict: ConflictEvent) => void): () => void {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
-  }
+  private calculateDiff(local: any, remote: any): Array<{
+    path: string
+    type: 'added' | 'removed' | 'modified'
+    localValue?: any
+    remoteValue?: any
+  }> {
+    const diff: Array<{
+      path: string
+      type: 'added' | 'removed' | 'modified'
+      localValue?: any
+      remoteValue?: any
+    }> = []
 
-  private groupByTarget(ops: OpLogEntry[]): Map<string, OpLogEntry[]> {
-    const groups = new Map<string, OpLogEntry[]>();
+    const compareObjects = (obj1: any, obj2: any, path = ''): void => {
+      const keys = new Set([...Object.keys(obj1 || {}), ...Object.keys(obj2 || {})])
 
-    for (const op of ops) {
-      const targetId = this.getTargetId(op.op);
-      if (!targetId) continue;
+      for (const key of keys) {
+        const currentPath = path ? `${path}.${key}` : key
+        const localValue = obj1?.[key]
+        const remoteValue = obj2?.[key]
 
-      if (!groups.has(targetId)) {
-        groups.set(targetId, []);
-      }
-      groups.get(targetId)!.push(op);
-    }
-
-    return groups;
-  }
-
-  private getTargetId(op: DrawOp): string | null {
-    switch (op.type) {
-      case 'path':
-      case 'erase':
-      case 'transform':
-      case 'delete':
-      case 'bitmap-replace':
-      case 'element-remove':
-      case 'element-update':
-        return op.targetId;
-      case 'element-add':
-        return op.element.id;
-      case 'layer-create':
-      case 'layer-delete':
-        return op.layerId;
-      default:
-        return null;
-    }
-  }
-
-  private hasConflictingOperations(
-    localOps: OpLogEntry[],
-    remoteOps: OpLogEntry[]
-  ): boolean {
-    // Check if there are operations affecting the same target
-    const localTargets = new Set(localOps.map(op => this.getTargetId(op.op)).filter(Boolean));
-    const remoteTargets = new Set(remoteOps.map(op => this.getTargetId(op.op)).filter(Boolean));
-
-    // Check for overlapping targets
-    for (const target of localTargets) {
-      if (remoteTargets.has(target)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  private calculateDiff(
-    localOps: OpLogEntry[],
-    remoteOps: OpLogEntry[]
-  ): ConflictDiff {
-    const localIds = new Set(localOps.map(op => op.id));
-    const remoteIds = new Set(remoteOps.map(op => op.id));
-
-    const added = remoteOps.filter(op => !localIds.has(op.id));
-    const removed = localOps.filter(op => !remoteIds.has(op.id));
-
-    // Find modified operations (same target, different data)
-    const modified: { local: OpLogEntry; remote: OpLogEntry }[] = [];
-    const localByTarget = this.groupByTarget(localOps);
-    const remoteByTarget = this.groupByTarget(remoteOps);
-
-    for (const [targetId, localTargetOps] of localByTarget) {
-      const remoteTargetOps = remoteByTarget.get(targetId);
-      if (remoteTargetOps) {
-        // Simple comparison - in real implementation, you'd do deeper comparison
-        if (localTargetOps.length !== remoteTargetOps.length) {
-          modified.push({
-            local: localTargetOps[localTargetOps.length - 1]!,
-            remote: remoteTargetOps[remoteTargetOps.length - 1]!
-          });
+        if (localValue === undefined && remoteValue !== undefined) {
+          diff.push({
+            path: currentPath,
+            type: 'added',
+            remoteValue
+          })
+        } else if (localValue !== undefined && remoteValue === undefined) {
+          diff.push({
+            path: currentPath,
+            type: 'removed',
+            localValue
+          })
+        } else if (JSON.stringify(localValue) !== JSON.stringify(remoteValue)) {
+          if (typeof localValue === 'object' && typeof remoteValue === 'object') {
+            compareObjects(localValue, remoteValue, currentPath)
+          } else {
+            diff.push({
+              path: currentPath,
+              type: 'modified',
+              localValue,
+              remoteValue
+            })
+          }
         }
       }
     }
 
-    return { added, removed, modified };
+    compareObjects(local, remote)
+    return diff
   }
 
-  private showConflictNotification(conflict: ConflictEvent): void {
-    const resolutionText = conflict.resolution === 'local-wins'
-      ? 'Local version kept'
-      : conflict.resolution === 'remote-wins'
-        ? 'Remote version kept'
-        : 'Manual resolution required';
+  /**
+   * get all conflicts
+   */
+  getConflicts(): ConflictData[] {
+    return Array.from(this.conflicts.values())
+  }
 
-    if (conflict.resolution === 'manual') {
-      toast.warning(`Sync conflict detected in drawing ${conflict.drawingId}`, {
-        description: `${conflict.diff?.added.length || 0} new, ${conflict.diff?.removed.length || 0} removed operations`,
-        action: {
-          label: 'Review',
-          onClick: () => this.openConflictDialog(conflict.id)
-        }
-      });
-    } else {
-      toast.info(`Conflict resolved: ${resolutionText}`, {
-        description: `Drawing ${conflict.drawingId} synced successfully`
-      });
+  /**
+   * get active notifications
+   */
+  getNotifications(): ConflictNotification[] {
+    return this.notifications.filter(n => !this.isNotificationDismissed(n.id))
+  }
+
+  /**
+   * dismiss notification
+   */
+  dismissNotification(notificationId: string): void {
+    const index = this.notifications.findIndex(n => n.id === notificationId)
+    if (index !== -1) {
+      this.notifications.splice(index, 1)
+      this.emitEvent('notification-dismissed', { notificationId })
     }
   }
 
-  private openConflictDialog(conflictId: string): void {
-    // This would open a modal/dialog for manual conflict resolution
-    // For now, we'll just log it
-    console.log(`Opening conflict dialog for ${conflictId}`);
+  /**
+   * check if notification is dismissed
+   */
+  private isNotificationDismissed(notificationId: string): boolean {
+    return !this.notifications.some(n => n.id === notificationId)
   }
 
-  private notifyListeners(conflict: ConflictEvent): void {
-    this.listeners.forEach(listener => {
-      try {
-        listener(conflict);
-      } catch (error) {
-        console.error('Error in conflict listener:', error);
+  /**
+   * add event listener
+   */
+  addEventListener(event: string, callback: Function): void {
+    if (!this.eventListeners.has(event)) {
+      this.eventListeners.set(event, [])
+    }
+    this.eventListeners.get(event)!.push(callback)
+  }
+
+  /**
+   * remove event listener
+   */
+  removeEventListener(event: string, callback: Function): void {
+    const listeners = this.eventListeners.get(event)
+    if (listeners) {
+      const index = listeners.indexOf(callback)
+      if (index !== -1) {
+        listeners.splice(index, 1)
       }
-    });
+    }
+  }
+
+  /**
+   * emit event to listeners
+   */
+  private emitEvent(event: string, data: any): void {
+    const listeners = this.eventListeners.get(event)
+    if (listeners) {
+      listeners.forEach(callback => {
+        try {
+          callback(data)
+        } catch (error) {
+          secureLogger.error(`[ConflictResolution] event listener error:`, error)
+        }
+      })
+    }
+  }
+
+  /**
+   * clear old conflicts
+   */
+  cleanup(maxAge = 24 * 60 * 60 * 1000): number {
+    const cutoff = Date.now() - maxAge
+    let removed = 0
+
+    for (const [id, conflict] of this.conflicts.entries()) {
+      if (conflict.timestamp < cutoff) {
+        this.conflicts.delete(id)
+        removed++
+      }
+    }
+
+    // also clean up old notifications
+    this.notifications = this.notifications.filter(n =>
+      n.data.timestamp > cutoff && !this.isNotificationDismissed(n.id)
+    )
+
+    secureLogger.info(`[ConflictResolution] cleaned up ${removed} old conflicts`)
+    return removed
+  }
+
+  /**
+   * get conflict statistics
+   */
+  getStats(): {
+    total: number
+    resolved: number
+    byType: Record<string, number>
+    recent: number
+  } {
+    const conflicts = Array.from(this.conflicts.values())
+
+    return {
+      total: conflicts.length,
+      resolved: conflicts.filter(c => c.resolved).length,
+      byType: conflicts.reduce((acc, c) => {
+        acc[c.type] = (acc[c.type] || 0) + 1
+        return acc
+      }, {} as Record<string, number>),
+      recent: conflicts.filter(c => Date.now() - c.timestamp < 60000).length
+    }
   }
 }
 
-export const conflictResolutionService = ConflictResolutionService.getInstance();
+export const conflictResolution = new ConflictResolutionService()
