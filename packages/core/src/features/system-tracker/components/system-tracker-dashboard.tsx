@@ -21,6 +21,7 @@ import { useSystemStore } from '../stores/system-store';
 import { useMembersStore } from '../stores/members-store';
 import { useFrontStore } from '../stores/front-store';
 import { useGroupsStore } from '../stores/groups-store';
+import { useJournalStore } from '../stores/journal-store';
 import { MemberCard } from './members/member-card';
 import { MemberForm } from './members/member-form';
 import { FrontPanel } from './front/front-panel';
@@ -35,6 +36,7 @@ export function SystemTrackerDashboard() {
   const { members, loadMembers, loadCustomFields, addMember } = useMembersStore();
   const { currentSession, loadCurrentSession, loadHistory, activeFronters } = useFrontStore();
   const { loadGroups } = useGroupsStore();
+  const { loadEntries } = useJournalStore();
 
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
