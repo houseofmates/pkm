@@ -3,8 +3,8 @@
  * ensures no changes are ever lost even if connection drops completely
  */
 
-import { open } from 'sqlite'
-import sqlite3 from 'sqlite3'
+// Note: SQLite operations are handled by the backend service
+// This service provides the interface and fallback storage
 import { secureLogger } from '@/lib/secure-logger'
 
 interface QueueItem {
@@ -457,65 +457,7 @@ class OfflineQueueService {
     }
   }
 
-  async enqueue(event: string, args: any[], priority = 0): Promise<string> {
-    await this.ensureInitialized()
 
-    const id = `${event}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-    const now = new Date().toISOString()
-
-    try {
-      await this.db.run(
-        `INSERT INTO queue_items 
-         (id, type, payload, timestamp, retries, maxRetries, nextRetryAt, priority, createdAt, updatedAt)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          id,
-          this.getEventType(event),
-          JSON.stringify({ event, args }),
-          Date.now(),
-          0,
-          10,
-          Date.now(),
-          priority,
-          now,
-          now
-        ]
-      )
-
-      secureLogger.debug(`[OfflineQueue] enqueued item ${id} of type ${event}`)
-      return id
-    } catch (error) {
-      secureLogger.error(`[OfflineQueue] failed to enqueue item ${id}:`, error)
-      throw error
-    }
-  }
-
-  async dequeue(limit = 50): Promise<any[]> {
-    await this.ensureInitialized()
-
-    try {
-      const items = await this.db.all(
-        `SELECT * FROM queue_items 
-         WHERE nextRetryAt <= ? 
-         ORDER BY priority DESC, timestamp ASC 
-         LIMIT ?`,
-        [Date.now(), limit]
-      )
-
-      return items.map(item => ({
-        id: item.id,
-        event: JSON.parse(item.payload).event,
-        args: JSON.parse(item.payload).args,
-        type: item.type,
-        timestamp: item.timestamp,
-        retries: item.retries,
-        maxRetries: item.maxRetries
-      }))
-    } catch (error) {
-      secureLogger.error('[OfflineQueue] failed to dequeue items:', error)
-      return []
-    }
-  }
 
   async requeueFailed(operations: any[]): Promise<void> {
     await this.ensureInitialized()
