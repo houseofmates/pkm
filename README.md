@@ -1,58 +1,226 @@
-# pkm — a calm, infinitely reliable thought space
+# PKM - Personal Knowledge Manager
 
-> offline-first, infinite-canvas knowledge manager with bidirectional git sync, real-time collaboration, and zero-effort operation.
+A reliable, beautiful, and self-healing knowledge management workspace that rivals Obsidian Canvas and Notion, but fully local-first, synced, and zero-effort to run.
 
-## what is this?
+## ✨ Features
 
-pkm is a self-sustaining personal knowledge workspace designed for people who need their tools to just work — forever. it combines an infinite edgeless canvas, structured data through nocobase, real-time websocket collaboration, and automatic bidirectional git sync so your ideas are never lost, no matter what happens to your hardware.
+- **🎨 Infinite Canvas**: Draw, write, and organize without limits with smooth zoom, momentum panning, and mobile touch support
+- **🔄 Real-time Sync**: WebSocket-based synchronization with exponential backoff, jitter, and persistent offline queue using IndexedDB
+- **💾 Auto-save & Backup**: Never lose your work with automatic local and cloud backups, change detection, and configurable intervals
+- **🔀 Git Integration**: Bidirectional sync with automatic conflict resolution (last-write-wins + diff viewing), cron-like scheduling, and status indicators
+- **📱 Mobile Ready**: Touch gestures, responsive design, and cross-platform compatibility (web, desktop, Android)
+- **🛡️ Zero Maintenance**: Self-healing system with systemd resilience, health checks, and automatic recovery
+- **🧠 Memory Friendly**: Designed for users with memory difficulties with gentle onboarding, visual identity tracking, and fail-safe data preservation
+- **🎯 Visual Identity Tracking**: Plural system support with headmates management, identity badges, and fronting status
+- **🌙 Consistent Dark Theme**: Beautiful dark theme with Varela Round typography and warm yellow accents
+- **⚡ High Performance**: Canvas element pooling, spatial indexing, and optimized rendering for large workspaces
 
-## philosophy
+## 🚀 One-Command Setup
 
-- **offline-first**: your data lives on your device first. sync is a convenience, not a requirement.
-- **never lose a thought**: auto-save, auto-sync, auto-backup to git. if the internet drops, changes queue locally and replay when it returns.
-- **zero maintenance**: systemd services auto-restart on crash. health checks monitor every component. conflicts resolve automatically with visual notifications.
-- **calm by design**: dark theme, lowercase typography (varela round), gentle animations, no clutter.
+### Prerequisites
+- Node.js 18+ 
+- Git (for version control)
+- Optional: GitHub/GitLab repository for cloud backup
 
-## one-command setup
+### Quick Install
+```bash
+# Clone and setup in one command
+git clone https://github.com/houseofmates/pkm.git && cd pkm && npm install && npm run dev
+```
+
+That's it! The PKM workspace will be available at:
+- Frontend: http://localhost:3010
+- Backend: http://localhost:4100
+
+### First Launch
+On first launch, you'll be guided through a gentle onboarding flow to:
+1. **Git Repository Setup**: Initialize local repo and connect to remote for automatic backups
+2. **NocoBase Connection** (Optional): Connect to external database for advanced features
+3. **Sync Settings**: Configure auto-save intervals, backup frequency, and sync preferences
+4. **System Test**: Verify all services are working correctly
+5. **Workspace Customization**: Set up your personal preferences
+
+The onboarding is completely skippable and can be revisited anytime from settings.
+
+## 🛠️ Development
 
 ```bash
-# 1. clone the repository
-git clone https://github.com/houseofmates/pkm.git
-cd pkm
-
-# 2. install dependencies (exact versions locked in package-lock.json)
+# Install dependencies
 npm install
 
-# 3. start the development stack (frontend + backend)
+# Start development servers
 npm run dev
+
+# Run tests
+npm test
+
+# Lint code
+npm run lint
+
+# Build for production
+npm run build
 ```
 
-the web app will be available at `http://localhost:3010` and the backend at `http://localhost:4100`.
+## 📦 Production Deployment
 
-## production deployment
-
-### systemd services (recommended)
-
-copy the service files and enable them:
+### Systemd Service (Recommended)
 
 ```bash
-sudo cp scripts/pkm-backend.service /etc/systemd/system/
-sudo cp scripts/bidirectional-git-sync.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now pkm-backend.service
-sudo systemctl enable --now bidirectional-git-sync.service
+# Install as systemd service
+sudo npm run sync:install-service
+
+# Start service
+sudo systemctl start pkm-backend
+sudo systemctl enable pkm-backend
+
+# Check status
+sudo systemctl status pkm-backend
 ```
 
-services include:
-- **auto-restart on crash** (`restart=always`)
-- **oom protection** (`oomscoreadjust=-100`)
-- **memory limits** (512m backend, 256m sync)
-- **health checks** via `/api/health` and `/health`
-
-### docker (optional)
+### Docker Deployment
 
 ```bash
+# Build and run with Docker
 docker-compose up -d
+
+# View logs
+docker-compose logs -f
+```
+
+## 🔄 Sync & Backup
+
+### Git Integration
+PKM includes bulletproof automatic Git synchronization:
+
+```bash
+# Configure Git repository (done via onboarding)
+git remote add origin https://github.com/your-repo/pkm-data.git
+
+# Auto-sync runs every 5 minutes with exponential backoff
+# Manual sync available in UI and via CLI
+npm run sync:daemon
+```
+
+### Backup Strategy
+- **Auto-save**: Every 30 seconds (configurable) with change detection
+- **Daily backups**: Automatic JSON export with 10-day retention
+- **Git history**: Full version control with conflict resolution
+- **Offline queue**: IndexedDB-based persistent queue survives browser crashes
+- **Real-time sync**: WebSocket connection with automatic reconnection
+
+### Data Safety Guarantees
+✅ **Never loses data**: All changes queued locally until confirmed synced  
+✅ **Automatic recovery**: Restores from last known good state after crashes  
+✅ **Conflict resolution**: Last-write-wins with visual diff viewing  
+✅ **Version history**: Full Git history with automatic commits  
+✅ **Mobile safe**: Works offline and syncs when reconnected
+
+## 🏥 Health & Recovery
+
+### Health Check
+```bash
+# Check backend health
+curl http://localhost:4100/api/health
+
+# Expected response
+{
+  "status": "ok",
+  "timestamp": "2026-05-09T23:58:00.000Z",
+  "uptime": 3600,
+  "memory": {...},
+  "connections": {...}
+}
+```
+
+### Recovery Procedures
+
+#### If Backend Crashes
+```bash
+# Restart systemd service
+sudo systemctl restart pkm-backend
+
+# If that fails, manual restart
+npm run backend
+```
+
+#### If Data is Lost
+```bash
+# Restore from Git history
+git log --oneline
+git checkout <commit-hash>
+
+# Restore from backup file
+# Import the latest backup from your downloads folder
+```
+
+#### If Sync Fails
+1. Check network connection
+2. Verify Git remote is accessible
+3. Check sync status panel in UI (bottom status bar)
+4. Manual sync: `npm run sync:daemon`
+5. Check health endpoint: `curl http://localhost:4100/api/health`
+
+## 🎨 Architecture Overview
+
+### Core Technologies
+- **Frontend**: React 18 + Vite + Tailwind CSS + Fabric.js (canvas)
+- **Backend**: Node.js + Express + Socket.io + SQLite
+- **Storage**: IndexedDB (client) + File system (server) + Git (version control)
+- **Sync**: WebSocket real-time + Git bidirectional + Offline queue
+- **Deployment**: Systemd service + Docker + Multi-platform builds
+
+### Key Features Implementation
+- **Canvas Engine**: Spatial indexing, element pooling, optimized rendering
+- **Sync Engine**: Exponential backoff reconnection, conflict resolution, offline queue
+- **Auto-save**: Change detection via MutationObserver, configurable intervals
+- **Mobile Support**: Touch gestures, responsive design, PWA capabilities
+- **Security**: Rate limiting, CORS protection, input validation
+
+## 🔧 Advanced Configuration
+
+### Environment Variables
+```bash
+# Backend configuration
+PORT=4100
+NODE_ENV=production
+SENTRY_DSN=your-sentry-dsn
+ALLOWED_ORIGINS=http://localhost:3010,https://yourdomain.com
+
+# Git sync configuration
+BROADCAST_AUTH_KEY=your-secret-key
+```
+
+### Service Management
+```bash
+# Check service status
+./pkm-control.sh status
+
+# Restart services  
+./pkm-control.sh restart
+
+# View logs
+./pkm-control.sh logs
+
+# Check sync status
+./pkm-control.sh sync-status
+```
+
+## 🤝 Contributing
+
+This project is designed to be a reliable, maintenance-free knowledge management system. When contributing:
+
+1. **Test thoroughly**: Ensure auto-save and sync work correctly
+2. **Follow conventions**: Use existing patterns and styling
+3. **Document changes**: Update README and inline comments
+4. **Test recovery**: Verify crash recovery and data integrity
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+---
+
+**PKM**: Your calm, infinitely reliable thought space that never loses a single idea.
 ```
 
 ## architecture

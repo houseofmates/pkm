@@ -378,8 +378,70 @@ app.get('/api/status', (req, res) => {
   });
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  try {
+    const mem = process.memoryUsage();
+    const uptime = process.uptime();
+    const clients = io.engine.clientsCount;
+
+    // Check database connectivity (if applicable)
+    let dbStatus = 'ok';
+    let dbError = null;
+
+    // Check if we can write to filesystem
+    let fsStatus = 'ok';
+    try {
+      const testFile = path.join(process.cwd(), '.health-check');
+      await fs.promises.writeFile(testFile, 'ok');
+      await fs.promises.unlink(testFile);
+    } catch (fsErr) {
+      fsStatus = 'error';
+      dbError = fsErr.message;
+    }
+
+    // Determine overall health
+    const isHealthy = (
+      mem.heapUsed < 800 * 1024 * 1024 && // Less than 800MB heap
+      uptime > 5 && // Been running for at least 5 seconds
+      fsStatus === 'ok'
+    );
+
+    const healthData = {
+      status: isHealthy ? 'ok' : 'degraded',
+      timestamp: new Date().toISOString(),
+      uptime: Math.floor(uptime),
+      memory: {
+        heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
+        heapTotal: Math.round(mem.heapTotal / 1024 / 1024),
+        external: Math.round(mem.external / 1024 / 1024),
+        rss: Math.round(mem.rss / 1024 / 1024)
+      },
+      connections: {
+        websocket: clients,
+        http: 'N/A' // Could be tracked with middleware
+      },
+      services: {
+        database: dbStatus,
+        filesystem: fsStatus
+      },
+      version: process.env.APP_VERSION || '0.0.0',
+      nodeVersion: process.version,
+      platform: process.platform
+    };
+
+    if (dbError) {
+      healthData.error = dbError;
+    }
+
+    res.status(isHealthy ? 200 : 503).json(healthData);
+  } catch (error) {
+    console.error('[Health] Health check failed:', error);
+    res.status(503).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
 });
 
 // version endpoint for update checking

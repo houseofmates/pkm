@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { secureLogger } from '@/lib/secure-logger';
+import { offlineQueueService } from '@/services/offline-queue.service';
 
 // connection state machine types
 type SocketStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
@@ -15,7 +16,7 @@ let lastPingMs = 0;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
 let heartbeatTimeout: ReturnType<typeof setTimeout> | null = null;
-let pendingEmits: { event: string; args: any[] }[] = [];
+let isProcessingQueue = false;
 
 const STATUS_LISTENERS = new Set<() => void>();
 
@@ -87,11 +88,42 @@ function attemptReconnect() {
   }, delay);
 }
 
-function flushPendingEmits() {
-  if (!socket || !socket.connected) return;
-  while (pendingEmits.length > 0) {
-    const item = pendingEmits.shift();
-    if (item) socket.emit(item.event, ...item.args);
+async function flushPendingEmits() {
+  if (!socket || !socket.connected || isProcessingQueue) return;
+
+  isProcessingQueue = true;
+  try {
+    // process queued operations from persistent storage
+    const operations = await offlineQueueService.dequeue();
+
+    for (const op of operations) {
+      if (!socket.connected) break;
+
+      try {
+        await new Promise<void>((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('Emit timeout')), 5000);
+
+          socket.emit(op.event, ...op.args, (ack: any) => {
+            clearTimeout(timeout);
+            if (ack?.error) {
+              reject(new Error(ack.error));
+            } else {
+              resolve();
+            }
+          });
+        });
+
+        console.debug(`[Socket] Successfully sent queued operation ${op.id}`);
+      } catch (error) {
+        console.warn(`[Socket] Failed to send queued operation ${op.id}:`, error);
+        // requeue failed operations
+        await offlineQueueService.requeueFailed([op]);
+      }
+    }
+  } catch (error) {
+    secureLogger.error('[Socket] Error processing offline queue:', error);
+  } finally {
+    isProcessingQueue = false;
   }
 }
 
@@ -122,7 +154,7 @@ function initSocket() {
     lastPingMs = 0;
     notifyStatusListeners();
     startHeartbeat(s);
-    flushPendingEmits();
+    flushPendingEmits(); // process offline queue when reconnected
   });
 
   s.on('disconnect', (reason) => {
@@ -196,12 +228,17 @@ export const useSocket = () => {
   }, []);
 
   // wrap emit to queue when offline
-  const emit = useCallback((event: string, ...args: any[]) => {
+  const emit = useCallback(async (event: string, ...args: any[]) => {
     const s = socketRef.current;
     if (s && s.connected) {
-      s.emit(event, ...args);
+      try {
+        s.emit(event, ...args);
+      } catch (error) {
+        secureLogger.warn(`[Socket] Emit failed, queuing operation:`, error);
+        await offlineQueueService.enqueue(event, args, 'normal');
+      }
     } else {
-      pendingEmits.push({ event, args });
+      await offlineQueueService.enqueue(event, args, 'normal');
       secureLogger.debug(`[Socket] queued emit '${event}' (offline)`);
     }
   }, []);

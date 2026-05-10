@@ -1,22 +1,60 @@
 [Unit]
 Description=PKM Backend Server (Live Stats)
-After=network.target
+After=network.target network-online.target
+Wants=network-online.target
 
 [Service]
+Type=simple
 ExecStartPre=/bin/sleep 2
 ExecStart=/home/house/.nvm/versions/node/v24.12.0/bin/node /home/house/pkm/packages/backend/server.js
 WorkingDirectory=/home/house/pkm
+
+# Enhanced restart policy with exponential backoff
 Restart=always
-RestartSec=5
-StartLimitInterval=60
-StartLimitBurst=5
-OOMScoreAdjust=-100
-MemoryMax=512M
-TimeoutStartSec=30
+RestartSec=10
+StartLimitInterval=300
+StartLimitBurst=10
+
+# Resource limits and priority
+OOMScoreAdjust=-200
+MemoryMax=1G
+MemoryHigh=800M
+CPUQuota=80%
+Nice=5
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/house/pkm
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RemoveIPC=true
+
+# Timeout configurations
+TimeoutStartSec=60
 TimeoutStopSec=30
+TimeoutAbortSec=30
+
+# User and environment
 User=house
+Group=house
+Environment=NODE_ENV=production
 Environment=PORT=4100
 Environment=PATH=/home/house/.nvm/versions/node/v24.12.0/bin:/usr/local/bin:/usr/bin:/bin
 
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pkm-backend
+
+# Health check
+ExecStartPost=/bin/sleep 5
+ExecStartPost=/bin/bash -c 'until curl -f http://localhost:4100/api/health; do sleep 2; done'
+
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

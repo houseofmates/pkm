@@ -6,6 +6,8 @@ import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from '@/lib/secure-logger';
 import { toast } from 'sonner';
 import { useSocket } from '@/hooks/use-socket';
+import { usePluralSystem } from '@/features/plural-system/stores/use-plural-system';
+import * as pluralDB from '@/features/plural-system/db/plural-system-db';
 import {
   DndContext,
   closestCenter,
@@ -278,6 +280,75 @@ export const HeadmatesPage: React.FC = () => {
     };
   }, [socket, isConnected]);
 
+  // auto-sync simplyplural members to local plural-system db and track front
+  useEffect(() => {
+    if (!hasKey || members.length === 0) return;
+
+    const syncToLocal = async () => {
+      try {
+        const localMembers = await pluralDB.getAllMembers();
+        for (const spMember of members) {
+          const name = spMember.content?.name || 'unnamed';
+          const existing = localMembers.find(m => m.simplyPluralId === spMember.id);
+          if (!existing) {
+            await pluralDB.saveMember({
+              id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+              name,
+              displayName: name,
+              pronouns: spMember.content?.pronouns,
+              color: spMember.content?.color || '#888888',
+              customFields: [],
+              status: 'active',
+              tags: [],
+              privacyLevel: 'private',
+              simplyPluralId: spMember.id,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            });
+          }
+        }
+      } catch (e) {
+        secureLogger.warn('[headmates] failed to sync to local plural db:', e);
+      }
+    };
+
+    syncToLocal();
+  }, [hasKey, members]);
+
+  useEffect(() => {
+    if (!hasKey || frontingOrder.length === 0) return;
+
+    const trackFront = async () => {
+      try {
+        const localMembers = await pluralDB.getAllMembers();
+        const entries = frontingOrder
+          .map((spId, index) => {
+            const local = localMembers.find(m => m.simplyPluralId === spId);
+            if (!local) return null;
+            return {
+              memberId: local.id,
+              frontType: index === 0 ? 'primary' as const : 'cofront' as const,
+            };
+          })
+          .filter(Boolean) as { memberId: string; frontType: 'primary' | 'cofront' }[];
+
+        if (entries.length > 0) {
+          const store = usePluralSystem.getState();
+          // only update if different from current
+          const currentIds = store.currentFronters.map(f => f.memberId).sort().join(',');
+          const newIds = entries.map(f => f.memberId).sort().join(',');
+          if (currentIds !== newIds) {
+            await store.setCurrentFronters(entries);
+          }
+        }
+      } catch (e) {
+        secureLogger.warn('[headmates] auto front track failed:', e);
+      }
+    };
+
+    trackFront();
+  }, [hasKey, frontingOrder]);
+
   useEffect(() => {
     if (!socket || !isConnected) return;
 
@@ -432,7 +503,35 @@ export const HeadmatesPage: React.FC = () => {
 
   return (
     <div ref={containerRef} className="h-full w-full p-2 overflow-auto">
-      <Link to="/system-tracker" style={{ position: "fixed", top: "12px", right: "12px", zIndex: 50, padding: "8px 16px", background: "rgba(59, 130, 246, 0.2)", border: "1px solid rgba(59, 130, 246, 0.3)", borderRadius: 8, color: "#fff", fontSize: "12px", cursor: "pointer", backdropFilter: "blur(8px)", textDecoration: "none" }}>system tracker</Link>
+      <Link
+        to="/system-tracker"
+        style={{
+          position: 'fixed',
+          top: '12px',
+          right: '12px',
+          zIndex: 50,
+          width: '36px',
+          height: '36px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(246, 176, 18, 0.15)',
+          border: '1px solid rgba(246, 176, 18, 0.3)',
+          borderRadius: '50%',
+          color: '#f6b012',
+          fontSize: '18px',
+          fontFamily: '"Varela Round", sans-serif',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          backdropFilter: 'blur(8px)',
+          textDecoration: 'none',
+          transition: 'all 0.2s ease',
+        }}
+        className="hover:bg-[#f6b012]/30"
+        title="system tracker"
+      >
+        &amp;
+      </Link>
       {!hasKey ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
