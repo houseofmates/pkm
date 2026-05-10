@@ -176,13 +176,14 @@ export function SystemTrackerDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview" className="lowercase">overview</TabsTrigger>
           <TabsTrigger value="members" className="lowercase">members</TabsTrigger>
           <TabsTrigger value="groups" className="lowercase">groups</TabsTrigger>
           <TabsTrigger value="fronting" className="lowercase">fronting</TabsTrigger>
           <TabsTrigger value="journal" className="lowercase">journal</TabsTrigger>
           <TabsTrigger value="chat" className="lowercase">chat</TabsTrigger>
+          <TabsTrigger value="data" className="lowercase">data</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
