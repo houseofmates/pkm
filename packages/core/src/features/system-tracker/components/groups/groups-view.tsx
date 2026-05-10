@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { 
-  Users, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import {
+  Users,
+  Plus,
+  Edit,
+  Trash2,
   Search,
   Filter,
   UserPlus,
@@ -23,7 +23,7 @@ import type { Group } from '../../types/schema';
 export function GroupsView() {
   const { groups, loadGroups, addGroup, updateGroup, deleteGroup, getGroupsForMember } = useGroupsStore();
   const { members } = useMembersStore();
-  
+
   const [search, setSearch] = useState('');
   const [isAddGroupOpen, setIsAddGroupOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
@@ -71,7 +71,7 @@ export function GroupsView() {
   };
 
   const getMembersNotInGroup = (group: Group) => {
-    return members.filter(member => 
+    return members.filter(member =>
       !group.memberIds.includes(member.id) && member.status === 'active'
     );
   };
@@ -131,14 +131,13 @@ export function GroupsView() {
               {filteredGroups.map(group => (
                 <div
                   key={group.id}
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                    selectedGroupId === group.id ? 'border-primary bg-primary/5' : 'hover:bg-muted'
-                  }`}
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${selectedGroupId === group.id ? 'border-primary bg-primary/5' : 'hover:bg-muted'
+                    }`}
                   onClick={() => setSelectedGroupId(group.id)}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div 
+                      <div
                         className="w-4 h-4 rounded-full"
                         style={{ backgroundColor: group.color }}
                       />
@@ -182,8 +181,8 @@ export function GroupsView() {
                 <div className="text-center py-8 text-muted-foreground">
                   <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>no groups found</p>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="mt-2"
                     onClick={() => setIsAddGroupOpen(true)}
                   >
@@ -201,7 +200,7 @@ export function GroupsView() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <div 
+                  <div
                     className="w-5 h-5 rounded-full"
                     style={{ backgroundColor: selectedGroup.color }}
                   />
@@ -221,18 +220,18 @@ export function GroupsView() {
                         <div
                           key={memberId}
                           className="flex items-center justify-between p-2 border rounded"
-                          style={{ 
+                          style={{
                             backgroundColor: member?.color + '10',
                             borderColor: member?.color + '30'
                           }}
                         >
                           <div className="flex items-center gap-2">
-                            <div 
+                            <div
                               className="w-3 h-3 rounded-full"
                               style={{ backgroundColor: member?.color }}
                             />
                             <span>{member?.name || 'unknown'}</span>
-                            {member?.status !== 'active' && (
+                            {member?.status && member.status !== 'active' && (
                               <Badge variant="secondary" className="text-xs">
                                 {member.status}
                               </Badge>
@@ -262,7 +261,7 @@ export function GroupsView() {
                         onClick={() => addMemberToGroup(selectedGroup.id, member.id)}
                         className="justify-start"
                       >
-                        <div 
+                        <div
                           className="w-3 h-3 rounded-full mr-2"
                           style={{ backgroundColor: member.color }}
                         />
