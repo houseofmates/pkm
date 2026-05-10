@@ -29,10 +29,6 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Edit, Eye, Trash2, Copy, MoreVertical } from 'lucide-react';
-DragStartEvent,
-  DragOverlay,
-  UniqueIdentifier,
-} from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
