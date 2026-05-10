@@ -1,10 +1,8 @@
 /**
  * sqlite-based offline queue for bulletproof data persistence
- * ensures no changes are ever lost even if connection drops completely
+ * ensures no changes are never lost even if connection drops completely
  */
 
-// Note: SQLite operations are handled by the backend service
-// This service provides the interface and fallback storage
 import { secureLogger } from '@/lib/secure-logger'
 
 interface QueueItem {
