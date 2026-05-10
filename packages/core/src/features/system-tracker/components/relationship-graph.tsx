@@ -88,7 +88,7 @@ const EMPTY_FORM: FormState = {
 const memberName = (m: Headmate) => m.name || m.id;
 
 export function RelationshipGraph() {
-  const { members } = useFronter();
+  const { members, refresh: refreshMembers } = useFronter();
   const { connections, refreshConnections, createConnection, deleteConnection, loading } = useSystemTracker();
 
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
@@ -103,6 +103,12 @@ export function RelationshipGraph() {
   const resetForm = () => {
     setForm({ ...EMPTY_FORM });
     setCreateError(null);
+  };
+
+    const handleOpenAddDialog = () => {
+    resetForm();
+    refreshMembers();
+    setShowAddDialog(true);
   };
 
   useEffect(() => {
@@ -273,7 +279,7 @@ export function RelationshipGraph() {
         <h2 style={s.title}>relationship map</h2>
         <div style={s.btnRow}>
           <button onClick={() => setShowFilterDialog(true)} style={s.btn}>filter</button>
-          <button onClick={() => { resetForm(); setShowAddDialog(true); }} style={s.btnAccent}>+ add</button>
+          <button onClick={handleOpenAddDialog} style={s.btnAccent}>+ add</button>
           <button onClick={() => { setSelectedNode(null); setSelectedLink(null); }} style={s.btn}>clear</button>
         </div>
       </div>
