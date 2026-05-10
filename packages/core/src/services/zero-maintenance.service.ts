@@ -335,7 +335,7 @@ class ZeroMaintenanceService {
         timestamp: Date.now(),
         reason,
         canvas: (window as any).pkmGetCanvasJSON?.(),
-        elements: useEdgelessStore?.getState?.()?.elements || [],
+        elements: ((window as any).useEdgelessStore?.getState?.()?.elements) || [],
         config: this.config,
         status: this.status
       }
