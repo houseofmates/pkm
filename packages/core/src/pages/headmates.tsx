@@ -161,6 +161,10 @@ function SortableHeadmateCard({
       {...listeners}
       onClick={onClick}
       onKeyDown={onKeyDown}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onContextMenu?.(e, member.id);
+      }}
       role="button"
       tabIndex={0}
       aria-label={`${member.content?.name || 'unknown'}${isSelected ? `, fronting position ${frontPosition}` : ', not fronting'}`}

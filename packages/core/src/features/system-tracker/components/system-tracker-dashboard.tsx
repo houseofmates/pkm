@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Users, 
-  Clock, 
-  Calendar, 
-  MessageSquare, 
-  BookOpen, 
+import {
+  Users,
+  Clock,
+  Calendar,
+  MessageSquare,
+  BookOpen,
   Settings,
   Plus,
   Activity,
@@ -22,6 +22,8 @@ import { useMembersStore } from '../stores/members-store';
 import { useFrontStore } from '../stores/front-store';
 import { MemberCard } from './members/member-card';
 import { MemberForm } from './members/member-form';
+import { FrontPanel } from './front/front-panel';
+import { FrontTimeline } from './front/front-timeline';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { SystemMember } from '../types/schema';
 
@@ -29,7 +31,7 @@ export function SystemTrackerDashboard() {
   const { system, loadSystem } = useSystemStore();
   const { members, loadMembers, loadCustomFields, addMember } = useMembersStore();
   const { currentSession, loadCurrentSession, loadHistory, activeFronters } = useFrontStore();
-  
+
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -181,8 +183,8 @@ export function SystemTrackerDashboard() {
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {members.slice(0, 6).map(member => (
-                    <MemberCard 
-                      key={member.id} 
+                    <MemberCard
+                      key={member.id}
                       member={member}
                       onClick={() => setActiveTab('members')}
                     />
@@ -192,8 +194,8 @@ export function SystemTrackerDashboard() {
                   <div className="text-center py-8 text-muted-foreground">
                     <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>no members yet</p>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="mt-2"
                       onClick={() => setIsAddMemberOpen(true)}
                     >
