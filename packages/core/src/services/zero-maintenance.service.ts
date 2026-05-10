@@ -9,7 +9,6 @@ import { autoGitSync } from './auto-git-sync.service'
 import { offlineQueue } from './offline-queue.service'
 import { conflictResolution } from './conflict-resolution.service'
 import { secureLogger } from '@/lib/secure-logger'
-import { useState, useEffect } from 'react'
 
 interface ZeroMaintenanceConfig {
   autoSave: boolean
