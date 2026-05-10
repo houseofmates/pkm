@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# configuration and watcher settings
-REPO_URL="github.com/houseofmates/pkm.git"
-BRANCH="main"
-EXCLUDE="(\.git/|node_modules/|dist/|\.gemini/|_work/)"
+# Get configuration from environment or defaults
+REPO_URL="${REPO_URL:-github.com/houseofmates/pkm.git}"
+BRANCH="${BRANCH:-main}"
+EXCLUDE="${EXCLUDE:-(\\.git/|node_modules/|dist/|\\.gemini/|_work/)}"
+USERNAME="${USERNAME:-houseofmates}"
 
 # Check requirements
 if ! command -v inotifywait &> /dev/null; then
@@ -40,7 +41,7 @@ while true; do
     git commit -m "Auto-save: $(date '+%Y-%m-%d %H:%M:%S')"
     
     # Push using token
-    git push "https://houseofmates:$GITHUB_TOKEN@$REPO_URL" "$BRANCH"
+    git push "https://$USERNAME:$GITHUB_TOKEN@$REPO_URL" "$BRANCH"
     
     if [ $? -eq 0 ]; then
         echo "✅ Synced successfully."
