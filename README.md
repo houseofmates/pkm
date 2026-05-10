@@ -11,7 +11,7 @@ A reliable, beautiful, and self-healing knowledge management workspace that riva
 - **📱 Mobile Ready**: Touch gestures, responsive design, and cross-platform compatibility (web, desktop, Android)
 - **🛡️ Zero Maintenance**: Self-healing system with systemd resilience, health checks, and automatic recovery
 - **🧠 Memory Friendly**: Designed for users with memory difficulties with gentle onboarding, visual identity tracking, and fail-safe data preservation
-- **🎯 Visual Identity Tracking**: Plural system support with headmates management, identity badges, and fronting status
+- **🎯 Visual Identity Tracking**: Plural system support with headmates management, identity badges, and fronting status with right-click context menus
 - **🌙 Consistent Dark Theme**: Beautiful dark theme with Varela Round typography and warm yellow accents
 - **⚡ High Performance**: Canvas element pooling, spatial indexing, and optimized rendering for large workspaces
 
@@ -41,6 +41,283 @@ On first launch, you'll be guided through a gentle onboarding flow to:
 5. **Workspace Customization**: Set up your personal preferences
 
 The onboarding is completely skippable and can be revisited anytime from settings.
+
+## 🛠️ Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development servers (frontend on 3010, backend on 4100)
+npm run dev
+
+# Run tests
+npm test
+
+# Lint code
+npm run lint
+
+# Build for production
+npm run build
+```
+
+## 🏗️ Architecture
+
+### Monorepo Structure
+```
+pkm/
+├── apps/
+│   ├── web/              # Main Vite-based web app (port 3010)
+│   ├── mobile/           # Capacitor Android app
+│   ├── desktop-electron/ # Electron desktop app
+│   └── desktop-tauri/    # Tauri desktop app
+├── packages/
+│   ├── core/             # Shared core library and components
+│   └── backend/          # Node.js Express + Socket.IO server (port 4100)
+├── scripts/              # Build scripts, linters, and utilities
+└── public/               # Static assets and documentation
+```
+
+### Service Topology
+- **Frontend**: Vite React app with subdomain-based routing
+- **Backend**: Express + Socket.IO server for real-time events
+- **NocoBase**: Headless CMS/API server (external, port 1337 or remote)
+- **Git**: Automatic version control and backup system
+
+### Data Flow
+1. Frontend proxies API requests to backend or NocoBase based on path
+2. Backend broadcasts real-time events via Socket.IO
+3. Optimistic UI pattern: immediate update, then API call, rollback on failure
+
+## 🔧 Configuration
+
+### Environment Variables
+Create `.env` file in the root directory:
+
+```env
+# Backend Configuration
+PORT=4100
+NODE_ENV=production
+BROADCAST_AUTH_KEY=your-secret-key
+
+# Frontend Configuration
+VITE_SOCKET_URL=http://localhost:4100
+VITE_NOCOBASE_URL=http://localhost:1337
+VITE_PKM_ENCRYPTION=true
+
+# Git Sync Configuration
+VITE_GIT_REMOTE_URL=https://github.com/yourusername/pkm-backup.git
+VITE_GIT_SYNC_ENABLED=true
+VITE_GIT_AUTO_SYNC_INTERVAL=5
+
+# Optional External Services
+VITE_SIMPLYPLURAL_API_KEY=your-api-key
+VITE_N8N_WEBHOOK_URL=your-webhook-url
+```
+
+### Git Sync Setup
+```bash
+# Install systemd service for automatic git sync
+npm run sync:install-service
+
+# Check sync status
+./pkm-control.sh sync-status
+
+# View sync logs
+./pkm-control.sh sync-logs
+```
+
+## 📱 Mobile & Desktop Apps
+
+### Android App
+```bash
+# Build Android APK
+npm run build:android
+
+# Install on device
+npx cap run android
+```
+
+### Desktop Apps
+```bash
+# Electron app
+npm run electron:dev
+npm run electron:build
+
+# Tauri app
+npm run tauri:dev
+npm run tauri:build
+```
+
+## 🔄 Sync Engine Details
+
+### WebSocket Resilience
+- **Exponential Backoff**: 1s base delay, 60s max delay, with jitter
+- **Persistent Queue**: IndexedDB storage with 10,000 operation limit
+- **Conflict Resolution**: Last-write-wins with visual diff viewing
+- **Health Monitoring**: Automatic reconnection with heartbeat pings
+
+### Git Sync Features
+- **Automatic Commits**: Configurable intervals with smart change detection
+- **Conflict Resolution**: Visual diff viewing with manual override options
+- **Status Indicators**: Real-time sync status in UI
+- **Backup Strategy**: Automatic push to remote with fallback to local
+
+### Offline Queue
+- **Priority System**: High/normal/low priority operations
+- **Retry Logic**: Exponential backoff with max retry limits
+- **Health Monitoring**: Queue size and conflict tracking
+- **Data Safety**: Never loses operations, even during extended outages
+
+## 🛡️ Security & Reliability
+
+### Systemd Service
+The backend runs as a systemd service with:
+- **Auto-restart**: Automatic restart on crashes with exponential backoff
+- **Resource Limits**: Memory and CPU constraints to prevent system overload
+- **Health Monitoring**: Watchdog with periodic health checks
+- **Security Hardening**: Restricted permissions and sandboxing
+
+### Data Safety
+- **Local First**: All data stored locally in IndexedDB
+- **Automatic Backups**: Git commits with configurable frequency
+- **Encryption**: Optional end-to-end encryption for sensitive data
+- **Recovery**: Complete data recovery from any failure state
+
+### Security Features
+- **Input Validation**: All user inputs validated and sanitized
+- **Rate Limiting**: Protection against abuse and DoS attacks
+- **CORS Protection**: Secure cross-origin resource sharing
+- **Security Headers**: Comprehensive security header implementation
+
+## 🧠 Memory-Friendly Features
+
+### Visual Identity Tracking
+- **Headmates Management**: Full CRUD operations with inline editing
+- **Right-Click Context Menus**: Quick access to view, edit, copy, delete actions
+- **Fronting Status**: Visual indicators for current fronting members
+- **Identity Badges**: Color-coded member identification
+
+### Accessibility
+- **Gentle Onboarding**: Step-by-step setup with skip options
+- **Visual Feedback**: Clear status indicators and progress tracking
+- **Error Recovery**: Automatic error handling with user-friendly messages
+- **Memory Aids**: Persistent state and automatic save reminders
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+#### Backend Won't Start
+```bash
+# Check logs
+sudo journalctl -u pkm-backend -f
+
+# Restart service
+sudo systemctl restart pkm-backend
+
+# Check configuration
+npm run backend
+```
+
+#### Sync Not Working
+```bash
+# Check git status
+git status
+
+# Check sync configuration
+./pkm-control.sh sync-status
+
+# Force sync
+npm run sync:daemon
+```
+
+#### Frontend Connection Issues
+```bash
+# Check backend health
+curl http://localhost:4100/api/health
+
+# Check WebSocket connection
+# Open browser dev tools and check Network tab
+```
+
+### Recovery Procedures
+
+#### Data Recovery
+```bash
+# Restore from git history
+git log --oneline
+git checkout <commit-hash>
+
+# Export offline queue
+# Data stored in IndexedDB, accessible via browser dev tools
+
+# Reset sync state
+rm .sync-status.json
+./pkm-control.sh restart
+```
+
+#### Complete Reset
+```bash
+# Warning: This will delete all local data
+rm -rf node_modules package-lock.json
+npm install
+npm run dev
+```
+
+## 📚 API Reference
+
+### Backend Endpoints
+- `GET /api/health` - System health check
+- `POST /api/sync` - Manual sync trigger
+- `WebSocket /socket.io` - Real-time events
+
+### Frontend Components
+- `SyncStatusPanel` - Sync status display
+- `ConflictResolutionModal` - Conflict resolution UI
+- `OnboardingWizard` - First-time setup flow
+
+### Services
+- `gitSyncService` - Git synchronization
+- `offlineQueueService` - Offline operation queue
+- `conflictResolutionService` - Conflict handling
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
+
+### Code Style
+- All comments and UI text must be lowercase
+- Use TypeScript for all new code
+- Follow existing component patterns
+- Test critical functionality
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- Built with React, Vite, and Socket.IO
+- Canvas powered by Fabric.js
+- Sync engine inspired by CRDT principles
+- UI components from Radix UI and Tailwind CSS
+
+## 📞 Support
+
+For issues and questions:
+1. Check the troubleshooting section above
+2. Search existing GitHub issues
+3. Create a new issue with detailed information
+4. Join our community discussions
+
+---
+
+**PKM** - Your reliable, self-healing knowledge management workspace. Never lose an idea again.
 
 ## 🛠️ Development
 
