@@ -120,7 +120,17 @@ class CanvasSyncService {
         title: meta?.title || 'untitled',
       }
 
-      const result = await this.sendToServer(payload)
+      // use robust sync if enabled, otherwise fall back to direct sync
+      let result: { success: true; serverId?: string } | { success: false; error?: string }
+
+      if (this.isRobustSyncEnabled) {
+        // queue for robust sync
+        await robustSync.queueSync('canvas', payload)
+        await offlineQueue.enqueue('canvas', payload)
+        result = { success: true, serverId: 'queued' }
+      } else {
+        result = await this.sendToServer(payload)
+      }
 
       if (result.success) {
         // mark any unsynced ops as synced
