@@ -211,7 +211,7 @@ class ZeroMaintenanceService {
       const backupData = {
         timestamp,
         canvas: (window as any).pkmGetCanvasJSON?.(),
-        elements: useEdgelessStore?.getState?.()?.elements || [],
+        elements: ((window as any).useEdgelessStore?.getState?.()?.elements) || [],
         version: '1.0.0'
       }
 
