@@ -1006,7 +1006,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       cols.push(columnHelper.display({
         id: 'actions',
         size: 90,
-        minSize: 60,
+        minSize: 20,
         header: () => (
           <div className="grid place-items-center h-full w-full px-0.5" onDoubleClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-center gap-0.5">
@@ -1183,7 +1183,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         ),
         cell: (props) => (
           <div className="grid place-items-center h-full w-full">
-            <div className="flex items-center justify-center border-r border-[#222] pr-2">
+            <div className="flex items-center justify-center">
               {onEditRef.current && (
                 <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onEditRef.current!(props.row.original); }}>
                   <Edit2 className="h-3.5 w-3.5" />
