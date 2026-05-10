@@ -277,6 +277,10 @@ export function SystemTrackerDashboard() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="groups" className="space-y-6">
+          <GroupsView />
+        </TabsContent>
+
         <TabsContent value="fronting" className="space-y-6">
           <FrontPanel />
           <FrontTimeline />
