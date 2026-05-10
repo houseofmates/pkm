@@ -480,26 +480,3 @@ class ZeroMaintenanceService {
 }
 
 export const zeroMaintenance = new ZeroMaintenanceService()
-
-// Hook for React components
-export function useZeroMaintenance() {
-  const [status, setStatus] = useState<MaintenanceStatus>(zeroMaintenance.getStatus())
-
-  useEffect(() => {
-    const updateStatus = () => {
-      setStatus(zeroMaintenance.getStatus())
-    }
-
-    updateStatus()
-    const interval = setInterval(updateStatus, 5000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  return {
-    status,
-    forceSave: () => zeroMaintenance.forceSave(),
-    forceBackup: () => zeroMaintenance.forceBackup(),
-    forceRecovery: (id?: string) => zeroMaintenance.forceRecovery(id)
-  }
-}
