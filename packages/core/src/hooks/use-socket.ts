@@ -28,8 +28,8 @@ function notifyStatusListeners() {
 
 function getBackoffDelay(attempt: number): number {
   const baseDelay = 1000;
-  const maxDelay = 60000; // Increased max delay for better resilience
-  const jitter = Math.random() * 2000; // Increased jitter for better distribution
+  const maxDelay = 60000; // increased max delay for better resilience
+  const jitter = Math.random() * 2000; // increased jitter for better distribution
   return Math.min(maxDelay, baseDelay * Math.pow(2, Math.min(attempt, 10))) + jitter;
 }
 
@@ -101,12 +101,12 @@ async function flushPendingEmits() {
 
       try {
         await new Promise<void>((resolve, reject) => {
-          const timeout = setTimeout(() => reject(new Error('Emit timeout')), 10000); // Increased timeout
+          const timeout = setTimeout(() => reject(new Error('Emit timeout')), 10000); // increased timeout
 
           socket.emit(op.event, ...op.args, async (ack: any) => {
             clearTimeout(timeout);
 
-            // Check for conflicts in server response
+            // check for conflicts in server response
             const hasConflict = await offlineQueueService.detectConflict(op, ack);
             if (hasConflict) {
               const conflictInfo = await offlineQueueService.handleConflict(op, ack);
@@ -132,11 +132,11 @@ async function flushPendingEmits() {
       }
     }
 
-    // After processing, check for any conflicts that need resolution
+    // after processing, check for any conflicts that need resolution
     const pendingConflicts = await offlineQueueService.getPendingConflicts();
     if (pendingConflicts.length > 0) {
       secureLogger.warn(`[Socket] ${pendingConflicts.length} conflicts pending resolution`);
-      // TODO: Show conflict resolution UI
+      // todo: show conflict resolution ui
     }
   } catch (error) {
     secureLogger.error('[Socket] Error processing offline queue:', error);
