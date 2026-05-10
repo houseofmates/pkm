@@ -470,3 +470,4 @@ class OfflineQueueService {
 }
 
 export const offlineQueueService = new OfflineQueueService()
+export const offlineQueue = offlineQueueService // For backward compatibility
