@@ -82,8 +82,8 @@ export interface NavItem {
 }
 
 interface NavigationProps {
-  activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar';
-  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar') => void;
+  activeTab: 'databases' | 'home' | 'captures' | 'journal' | 'calendar';
+  onTabChange: (tab: 'databases' | 'home' | 'captures' | 'journal' | 'calendar') => void;
   className?: string;
   onSelectCollection: (name: string | null) => void;
   selectedCollection: string | null;
@@ -611,6 +611,13 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             tab={{ id: 'chat', icon: MessageSquare, label: 'wilson chat' }}
             isActive={false}
             onClick={handleOpenChat}
+          />
+          <NavIconButton
+            tab={{ id: 'system-tracker', icon: () => <span className="text-lg font-bold">&</span>, label: 'system tracker' }}
+            isActive={false}
+            onClick={() => {
+              navigate('/system-tracker');
+            }}
           />
           {tabs.map(tab => (
             <NavIconButton

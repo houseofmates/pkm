@@ -254,7 +254,164 @@ class OfflineQueueService {
     }
 
     await tx.done;
-    console.info(`[OfflineQueue] Imported ${operations.length} operations from backup`);
+    secureLogger.info(`[OfflineQueue] Imported ${operations.length} operations from backup`);
+  }
+
+  // Conflict resolution methods
+  async detectConflict(operation: QueuedOperation, serverResponse?: any): Promise<boolean> {
+    // Simple conflict detection based on server response
+    if (serverResponse?.conflict || serverResponse?.status === 409) {
+      return true;
+    }
+
+    // Check for timestamp conflicts with existing operations
+    const existingOps = await this.getOperationsByEvent(operation.event);
+    const recentOps = existingOps.filter(op =>
+      Math.abs(op.timestamp - operation.timestamp) < 5000 && // Within 5 seconds
+      op.id !== operation.id
+    );
+
+    return recentOps.length > 0;
+  }
+
+  async handleConflict(operation: QueuedOperation, serverState?: any, localState?: any): Promise<ConflictInfo> {
+    const conflictInfo: ConflictInfo = {
+      operation,
+      serverState,
+      localState,
+      resolution: 'pending'
+    };
+
+    // Store conflict for later resolution
+    await this.storeConflict(conflictInfo);
+
+    // Apply default resolution strategy
+    if (operation.conflictResolution === 'last-wins') {
+      conflictInfo.resolution = 'resolved';
+      secureLogger.info(`[OfflineQueue] Auto-resolved conflict for operation ${operation.id} using last-wins strategy`);
+    } else {
+      conflictInfo.resolution = 'pending';
+      secureLogger.warn(`[OfflineQueue] Manual conflict resolution required for operation ${operation.id}`);
+    }
+
+    return conflictInfo;
+  }
+
+  private async storeConflict(conflict: ConflictInfo): Promise<void> {
+    if (!this.db) return;
+
+    await this.db.put(this.CONFLICTS_STORE, {
+      operationId: conflict.operation.id,
+      ...conflict,
+      timestamp: Date.now()
+    });
+  }
+
+  async getPendingConflicts(): Promise<ConflictInfo[]> {
+    await this.init();
+    if (!this.db) throw new Error('Database not initialized');
+
+    const conflicts = await this.db.getAllFromIndex(this.CONFLICTS_STORE, 'resolution', 'pending');
+    return conflicts;
+  }
+
+  async resolveConflict(operationId: string, resolution: 'resolved' | 'failed'): Promise<void> {
+    await this.init();
+    if (!this.db) throw new Error('Database not initialized');
+
+    const tx = this.db.transaction(this.CONFLICTS_STORE, 'readwrite');
+    const store = tx.objectStore(this.CONFLICTS_STORE);
+
+    const conflict = await store.get(operationId);
+    if (conflict) {
+      conflict.resolution = resolution;
+      await store.put(conflict);
+    }
+
+    await tx.done;
+    secureLogger.info(`[OfflineQueue] Resolved conflict for operation ${operationId} as ${resolution}`);
+  }
+
+  private async getOperationsByEvent(event: string): Promise<QueuedOperation[]> {
+    if (!this.db) return [];
+
+    // For simplicity, get all operations and filter
+    const allOps = await this.db.getAll(this.STORE_NAME);
+    return allOps.filter(op => op.event === event);
+  }
+
+  // Enhanced retry logic with exponential backoff
+  async retryFailedOperations(): Promise<void> {
+    await this.init();
+    if (!this.db) throw new Error('Database not initialized');
+
+    const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
+    const store = tx.objectStore(this.STORE_NAME);
+
+    // Get operations that haven't exceeded max retries and haven't been retried recently
+    const now = Date.now();
+    const retryDelay = 60000; // 1 minute between retries
+    let retried = 0;
+
+    let cursor = await store.openCursor();
+    while (cursor && retried < this.BATCH_SIZE) {
+      const op = cursor.value;
+
+      if (op.retryCount < this.MAX_RETRIES &&
+        (now - op.lastRetry) > (retryDelay * Math.pow(2, op.retryCount))) {
+
+        op.retryCount++;
+        op.lastRetry = now;
+        await cursor.update(op);
+        retried++;
+
+        secureLogger.debug(`[OfflineQueue] Retrying operation ${op.id} (attempt ${op.retryCount})`);
+      }
+
+      cursor = await cursor.continue();
+    }
+
+    await tx.done;
+    secureLogger.info(`[OfflineQueue] Retried ${retried} failed operations`);
+  }
+
+  // Health check method
+  async getHealthStatus(): Promise<{
+    queueSize: number;
+    conflictsCount: number;
+    avgRetryCount: number;
+    oldestOperation: number;
+    status: 'healthy' | 'warning' | 'critical';
+  }> {
+    await this.init();
+    if (!this.db) throw new Error('Database not initialized');
+
+    const queueSize = await this.db.count(this.STORE_NAME);
+    const conflictsCount = await this.db.countFromIndex(this.CONFLICTS_STORE, 'resolution', 'pending');
+
+    const operations = await this.db.getAll(this.STORE_NAME);
+    const avgRetryCount = operations.length > 0
+      ? operations.reduce((sum, op) => sum + op.retryCount, 0) / operations.length
+      : 0;
+
+    const oldestOperation = operations.length > 0
+      ? Math.min(...operations.map(op => op.timestamp))
+      : 0;
+
+    let status: 'healthy' | 'warning' | 'critical' = 'healthy';
+    if (queueSize > 1000 || conflictsCount > 10 || avgRetryCount > 5) {
+      status = 'critical';
+    } else if (queueSize > 500 || conflictsCount > 5 || avgRetryCount > 3) {
+      status = 'warning';
+    }
+
+    return {
+      queueSize,
+      conflictsCount,
+      avgRetryCount,
+      oldestOperation,
+      status
+    };
   }
 }
 

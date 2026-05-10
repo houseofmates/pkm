@@ -101,10 +101,21 @@ async function flushPendingEmits() {
 
       try {
         await new Promise<void>((resolve, reject) => {
-          const timeout = setTimeout(() => reject(new Error('Emit timeout')), 5000);
+          const timeout = setTimeout(() => reject(new Error('Emit timeout')), 10000); // Increased timeout
 
-          socket.emit(op.event, ...op.args, (ack: any) => {
+          socket.emit(op.event, ...op.args, async (ack: any) => {
             clearTimeout(timeout);
+
+            // Check for conflicts in server response
+            const hasConflict = await offlineQueueService.detectConflict(op, ack);
+            if (hasConflict) {
+              const conflictInfo = await offlineQueueService.handleConflict(op, ack);
+              if (conflictInfo.resolution === 'failed') {
+                reject(new Error('Conflict resolution failed'));
+                return;
+              }
+            }
+
             if (ack?.error) {
               reject(new Error(ack.error));
             } else {
@@ -113,12 +124,19 @@ async function flushPendingEmits() {
           });
         });
 
-        console.debug(`[Socket] Successfully sent queued operation ${op.id}`);
+        secureLogger.debug(`[Socket] Successfully sent queued operation ${op.id}`);
       } catch (error) {
-        console.warn(`[Socket] Failed to send queued operation ${op.id}:`, error);
-        // requeue failed operations
+        secureLogger.warn(`[Socket] Failed to send queued operation ${op.id}:`, error);
+        // requeue failed operations with conflict detection
         await offlineQueueService.requeueFailed([op]);
       }
+    }
+
+    // After processing, check for any conflicts that need resolution
+    const pendingConflicts = await offlineQueueService.getPendingConflicts();
+    if (pendingConflicts.length > 0) {
+      secureLogger.warn(`[Socket] ${pendingConflicts.length} conflicts pending resolution`);
+      // TODO: Show conflict resolution UI
     }
   } catch (error) {
     secureLogger.error('[Socket] Error processing offline queue:', error);
