@@ -27,11 +27,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
  .__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
  if (internals?.ReactCurrentDispatcher?.current == null) {
  const initialToken = storageManager.getCachedSecret("nocobase_token");
+ const persistTokenAndReload = async (nextToken: string) => {
+ await storageManager.setEncryptedItem("nocobase_token", nextToken);
+ (globalThis as any).location?.reload?.();
+ };
  const stub: AuthContextType = {
  token: initialToken,
  isAuthenticated: !!initialToken,
- login: async () => {},
- loginWithApiKey: async () => {},
+ login: async (emailOrToken: string, password?: string) => {
+ await persistTokenAndReload(password ?? emailOrToken);
+ },
+ loginWithApiKey: persistTokenAndReload,
  logout: async () => {
  pb.authStore.clear();
  (globalThis as any).location?.reload?.();
