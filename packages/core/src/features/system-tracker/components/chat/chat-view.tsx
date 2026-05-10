@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { 
-  MessageSquare, 
-  Plus, 
+import {
+  MessageSquare,
+  Plus,
   Search,
   Users,
   Hash,
@@ -22,7 +22,7 @@ import type { ChatMessage } from '../../types/schema';
 export function ChatView() {
   const { messages, loadMessages, getThreads, searchMessages } = useChatStore();
   const { members } = useMembersStore();
-  
+
   const [search, setSearch] = useState('');
   const [isCreateThreadOpen, setIsCreateThreadOpen] = useState(false);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
@@ -53,7 +53,7 @@ export function ChatView() {
   const getThreadPreview = (threadId: string) => {
     const threadMessages = messages.filter(msg => msg.threadId === threadId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    
+
     const latestMessage = threadMessages[0];
     if (!latestMessage) return null;
 
@@ -61,8 +61,8 @@ export function ChatView() {
     return {
       memberName: member?.name || 'unknown',
       memberColor: member?.color || '#3b82f6',
-      preview: latestMessage.content.length > 50 
-        ? latestMessage.content.substring(0, 50) + '...' 
+      preview: latestMessage.content.length > 50
+        ? latestMessage.content.substring(0, 50) + '...'
         : latestMessage.content,
       timestamp: new Date(latestMessage.createdAt).toLocaleString(),
       messageCount: threadMessages.length
@@ -71,15 +71,17 @@ export function ChatView() {
 
   const getMainChatPreview = () => {
     if (mainChatMessages.length === 0) return null;
-    
+
     const latestMessage = mainChatMessages[mainChatMessages.length - 1];
+    if (!latestMessage) return null;
+
     const member = members.find(m => m.id === latestMessage.memberId);
-    
+
     return {
       memberName: member?.name || 'unknown',
       memberColor: member?.color || '#3b82f6',
-      preview: latestMessage.content.length > 50 
-        ? latestMessage.content.substring(0, 50) + '...' 
+      preview: latestMessage.content.length > 50
+        ? latestMessage.content.substring(0, 50) + '...'
         : latestMessage.content,
       timestamp: new Date(latestMessage.createdAt).toLocaleString(),
       messageCount: mainChatMessages.length
@@ -92,9 +94,9 @@ export function ChatView() {
     setSelectedThreadId(null);
   };
 
-  const displayedMessages = isSearching ? searchResults : 
+  const displayedMessages = isSearching ? searchResults :
     selectedThreadId ? messages.filter(msg => msg.threadId === selectedThreadId) :
-    mainChatMessages;
+      mainChatMessages;
 
   return (
     <div className="space-y-6">
@@ -134,7 +136,7 @@ export function ChatView() {
               <Badge variant="secondary">searching...</Badge>
             )}
           </div>
-          
+
           {searchResults.length > 0 && (
             <div className="mt-4">
               <p className="text-sm text-muted-foreground mb-2">
@@ -146,7 +148,7 @@ export function ChatView() {
                   return (
                     <div key={message.id} className="p-2 border rounded">
                       <div className="flex items-center gap-2 mb-1">
-                        <div 
+                        <div
                           className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: member?.color }}
                         />
@@ -180,9 +182,8 @@ export function ChatView() {
             <CardContent className="space-y-2">
               {/* Main Chat */}
               <div
-                className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                  !selectedThreadId ? 'border-primary bg-primary/5' : 'hover:bg-muted'
-                }`}
+                className={`p-3 border rounded-lg cursor-pointer transition-colors ${!selectedThreadId ? 'border-primary bg-primary/5' : 'hover:bg-muted'
+                  }`}
                 onClick={() => setSelectedThreadId(null)}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -197,7 +198,7 @@ export function ChatView() {
                 {getMainChatPreview() && (
                   <div className="text-sm text-muted-foreground">
                     <div className="flex items-center gap-2 mb-1">
-                      <div 
+                      <div
                         className="w-2 h-2 rounded-full"
                         style={{ backgroundColor: getMainChatPreview()?.memberColor }}
                       />
@@ -217,9 +218,8 @@ export function ChatView() {
                 return (
                   <div
                     key={threadId}
-                    className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                      selectedThreadId === threadId ? 'border-primary bg-primary/5' : 'hover:bg-muted'
-                    }`}
+                    className={`p-3 border rounded-lg cursor-pointer transition-colors ${selectedThreadId === threadId ? 'border-primary bg-primary/5' : 'hover:bg-muted'
+                      }`}
                     onClick={() => setSelectedThreadId(threadId)}
                   >
                     <div className="flex items-center justify-between mb-2">
@@ -233,7 +233,7 @@ export function ChatView() {
                     </div>
                     <div className="text-sm text-muted-foreground">
                       <div className="flex items-center gap-2 mb-1">
-                        <div 
+                        <div
                           className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: preview.memberColor }}
                         />
@@ -294,7 +294,7 @@ export function ChatView() {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              threads allow you to organize conversations by topic. 
+              threads allow you to organize conversations by topic.
               start a thread from any message to begin.
             </p>
             <div className="flex gap-2">
