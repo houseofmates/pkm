@@ -31,6 +31,7 @@ import { GroupsView } from './groups/groups-view';
 import { JournalView } from './journal/journal-view';
 import { ChatView } from './chat/chat-view';
 import { ImportExport } from './data/import-export';
+import { AppLock } from './privacy/app-lock';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { SystemMember } from '../types/schema';
 
@@ -176,7 +177,7 @@ export function SystemTrackerDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview" className="lowercase">overview</TabsTrigger>
           <TabsTrigger value="members" className="lowercase">members</TabsTrigger>
           <TabsTrigger value="groups" className="lowercase">groups</TabsTrigger>
@@ -184,6 +185,7 @@ export function SystemTrackerDashboard() {
           <TabsTrigger value="journal" className="lowercase">journal</TabsTrigger>
           <TabsTrigger value="chat" className="lowercase">chat</TabsTrigger>
           <TabsTrigger value="data" className="lowercase">data</TabsTrigger>
+          <TabsTrigger value="privacy" className="lowercase">privacy</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
