@@ -241,13 +241,13 @@ export function GentleOnboarding({ onComplete, onSkip, className }: OnboardingPr
   }
 
   const handleStepAction = async () => {
-    if (!currentStepData.action) return
+    if (!currentStepData?.action) return
 
     setIsProcessing(true)
 
     try {
       const success = await currentStepData.action.handler()
-      setStepProgress(prev => ({ ...prev, [currentStepData.id]: success }))
+      setStepProgress(prev => ({ ...prev, [currentStepData.id!]: success }))
     } catch (error) {
       console.error('Action failed:', error)
     } finally {
@@ -257,13 +257,13 @@ export function GentleOnboarding({ onComplete, onSkip, className }: OnboardingPr
 
   // Auto-advance completed steps
   useEffect(() => {
-    if (stepProgress[currentStepData.id] && currentStep < onboardingSteps.length - 1) {
+    if (currentStepData && stepProgress[currentStepData.id] && currentStep < onboardingSteps.length - 1) {
       const timer = setTimeout(() => {
         setCurrentStep(prev => prev + 1)
       }, 1500)
       return () => clearTimeout(timer)
     }
-  }, [stepProgress, currentStepData.id, currentStep, onboardingSteps.length])
+  }, [stepProgress, currentStepData, currentStep, onboardingSteps.length])
 
   if (isCompleted) {
     return (
@@ -302,47 +302,47 @@ export function GentleOnboarding({ onComplete, onSkip, className }: OnboardingPr
           <div className="flex items-start space-x-4">
             <div className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0",
-              stepProgress[currentStepData.id]
+              currentStepData && stepProgress[currentStepData.id]
                 ? "bg-primary/20 text-primary"
                 : "bg-muted text-muted-foreground"
             )}>
-              <currentStepData.icon className="w-6 h-6" />
+              {currentStepData && <currentStepData.icon className="w-6 h-6" />}
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold mb-2">{currentStepData.title}</h2>
+              <h2 className="text-xl font-bold mb-2">{currentStepData?.title}</h2>
               <p className="text-muted-foreground leading-relaxed">
-                {currentStepData.description}
+                {currentStepData?.description}
               </p>
             </div>
           </div>
 
           {/* Action button */}
-          {currentStepData.action && (
+          {currentStepData?.action && (
             <div className="flex flex-col space-y-2">
               <Button
                 onClick={handleStepAction}
-                disabled={isProcessing || stepProgress[currentStepData.id]}
+                disabled={isProcessing || (currentStepData && stepProgress[currentStepData.id])}
                 className={cn(
                   "w-full",
-                  stepProgress[currentStepData.id] && "bg-green-600 hover:bg-green-700"
+                  currentStepData && stepProgress[currentStepData.id] && "bg-green-600 hover:bg-green-700"
                 )}
               >
                 {isProcessing ? (
                   "working..."
-                ) : stepProgress[currentStepData.id] ? (
+                ) : (currentStepData && stepProgress[currentStepData.id]) ? (
                   <>
                     <Check className="w-4 h-4 mr-2" />
                     completed
                   </>
                 ) : (
-                  currentStepData.action.label
+                  currentStepData?.action?.label
                 )}
               </Button>
 
-              {currentStepData.action.skipable && !stepProgress[currentStepData.id] && (
+              {currentStepData?.action?.skipable && !(currentStepData && stepProgress[currentStepData.id]) && (
                 <Button
                   variant="ghost"
-                  onClick={() => setStepProgress(prev => ({ ...prev, [currentStepData.id]: true }))}
+                  onClick={() => currentStepData && setStepProgress(prev => ({ ...prev, [currentStepData.id]: true }))}
                   className="w-full"
                 >
                   skip this step
@@ -352,7 +352,7 @@ export function GentleOnboarding({ onComplete, onSkip, className }: OnboardingPr
           )}
 
           {/* Tips */}
-          {showTips && currentStepData.tips.length > 0 && (
+          {showTips && currentStepData?.tips && currentStepData.tips.length > 0 && (
             <div className="bg-muted/50 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-muted-foreground">helpful tips</span>

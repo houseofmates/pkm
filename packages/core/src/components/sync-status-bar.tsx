@@ -2,6 +2,8 @@ import React from 'react';
 import { useSocketState } from '@/hooks/use-socket';
 import { useSystemStatus } from '@/hooks/use-system-status';
 import { useOfflineStatus } from '@/services/offline-service';
+import { useConflictResolution } from '@/components/conflict-resolution-dialog';
+import { offlineQueueService } from '@/services/offline-queue.service';
 
 const STATUS_DOT_SIZE = 8;
 
@@ -35,6 +37,8 @@ export function SyncStatusBar() {
   const { status: socketStatus, retryCount, lastPingMs } = useSocketState();
   const { backendOnline, latencyMs } = useSystemStatus();
   const { pendingChanges, deadLetterCount } = useOfflineStatus();
+  const { ConflictResolutionDialog, showConflictDialog } = useConflictResolution();
+  const [conflictCount, setConflictCount] = React.useState(0);
 
   // git sync status from .sync-status.json if available
   const [gitStatus, setGitStatus] = React.useState<string>('unknown');
@@ -55,6 +59,27 @@ export function SyncStatusBar() {
     }
     fetchGitStatus();
     const interval = setInterval(fetchGitStatus, 30000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Check for conflicts periodically
+  React.useEffect(() => {
+    let cancelled = false;
+    async function checkConflicts() {
+      try {
+        const conflicts = await offlineQueueService.getPendingConflicts();
+        if (!cancelled) {
+          setConflictCount(conflicts.length);
+        }
+      } catch (error) {
+        // ignore - service may not be initialized
+      }
+    }
+    checkConflicts();
+    const interval = setInterval(checkConflicts, 10000); // Check every 10 seconds
     return () => {
       cancelled = true;
       clearInterval(interval);
@@ -117,6 +142,25 @@ export function SyncStatusBar() {
       {deadLetterCount > 0 && (
         <StatusItem label="dead" color="#ef4444" value={`${deadLetterCount}`} />
       )}
+      {conflictCount > 0 && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginRight: 16,
+            cursor: 'pointer',
+            textDecoration: 'underline'
+          }}
+          onClick={showConflictDialog}
+        >
+          <StatusDot color="#f97316" />
+          <span style={{ opacity: 0.7 }}>conflicts:</span>
+          <span style={{ marginLeft: 4, fontWeight: 500, color: '#f97316' }}>
+            {conflictCount}
+          </span>
+        </div>
+      )}
+      <ConflictResolutionDialog />
     </div>
   );
 }

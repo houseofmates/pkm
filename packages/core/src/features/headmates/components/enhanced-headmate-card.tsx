@@ -27,44 +27,46 @@ interface HeadmateCardProps {
 
 export type { HeadmateCardProps }
 
-export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ 
-  member, 
-  collection, 
-  onClick, 
-  className, 
-  isSelected, 
-  frontPosition, 
+export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({
+  member,
+  collection,
+  onClick,
+  className,
+  isSelected,
+  frontPosition,
   isFronting = false,
   onFrontingChange,
-  ...props 
+  ...props
 }, ref) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [pulseIntensity, setPulseIntensity] = useState(0)
-  const [sparkles, setSparkles] = useState<Array<{id: number, x: number, y: number}>>([])
+  const [sparkles, setSparkles] = useState<Array<{ id: number, x: number, y: number }>>([])
   const cardRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number>()
 
-  // Auto-generate sparkles for fronting members
+  // Auto-generate sparkles for fronting members with enhanced patterns
   useEffect(() => {
     if (isFronting) {
       const interval = setInterval(() => {
-        if (cardRef.current && Math.random() > 0.7) {
+        if (cardRef.current && Math.random() > 0.6) {
           const rect = cardRef.current.getBoundingClientRect()
+          const angle = Math.random() * Math.PI * 2
+          const distance = Math.random() * rect.width * 0.4
           const newSparkle = {
             id: Date.now() + Math.random(),
-            x: Math.random() * rect.width,
-            y: Math.random() * rect.height
+            x: rect.width / 2 + Math.cos(angle) * distance,
+            y: rect.height / 2 + Math.sin(angle) * distance
           }
-          setSparkles(prev => [...prev.slice(-10), newSparkle])
-          
-          // Remove sparkle after animation
+          setSparkles(prev => [...prev.slice(-12), newSparkle])
+
+          // Remove sparkle after animation with fade out
           setTimeout(() => {
             setSparkles(prev => prev.filter(s => s.id !== newSparkle.id))
-          }, 2000)
+          }, 2500)
         }
-      }, 800)
-      
+      }, 600)
+
       return () => clearInterval(interval)
     }
   }, [isFronting])
@@ -79,7 +81,7 @@ export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, Headma
         animationRef.current = requestAnimationFrame(animate)
       }
       animationRef.current = requestAnimationFrame(animate)
-      
+
       return () => {
         if (animationRef.current) {
           cancelAnimationFrame(animationRef.current)
@@ -92,11 +94,11 @@ export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, Headma
 
   const handleCardClick = (e: React.MouseEvent) => {
     secureLogger.debug('CLICK REGISTERED:', member.name, member.id)
-    
+
     // Toggle fronting state with delightful feedback
     if (onFrontingChange) {
       onFrontingChange(!isFronting)
-      
+
       // Create burst of sparkles on fronting change
       if (!isFronting && cardRef.current) {
         const rect = cardRef.current.getBoundingClientRect()
@@ -106,14 +108,14 @@ export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, Headma
           y: rect.height / 2
         }))
         setSparkles(prev => [...prev, ...burst])
-        
+
         // Clear burst after animation
         setTimeout(() => {
           setSparkles(prev => prev.filter(s => !burst.some(b => b.id === s.id)))
         }, 1500)
       }
     }
-    
+
     if (onClick) {
       onClick()
     }
@@ -146,7 +148,7 @@ export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, Headma
   if (!rawName || isId(rawName)) {
     rawName = member.name || member.content?.name || rawName || "Unknown"
   }
-  
+
   const displayTextColor = member[textColorField.name] || member[colorField.name] || getStringColor(rawName)
   const borderColor = member[colorField.name] || getStringColor(rawName)
 
@@ -164,15 +166,15 @@ export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, Headma
     const hoverScale = isHovered ? 1.02 : 1
     const frontingScale = isFronting ? 1.05 : 1
     const scale = baseScale * hoverScale * frontingScale
-    
+
     const glowIntensity = isFronting ? pulseIntensity * 20 : 0
     const glowColor = isFronting ? borderColor : 'transparent'
-    
+
     return {
       transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
       border: `4px solid ${isSelected ? borderColor : borderColor + '80'}`,
       borderRadius: "12px",
-      boxShadow: isSelected 
+      boxShadow: isSelected
         ? `0 8px 32px ${borderColor}66, 0 4px 16px rgba(0,0,0,0.5), 0 0 ${glowIntensity}px ${glowColor}`
         : `0 2px 8px rgba(0,0,0,0.3), 0 0 ${glowIntensity}px ${glowColor}`,
       transform: `scale(${scale}) ${isFronting ? `translateY(${pulseIntensity * 2}px)` : ''}`,
@@ -231,7 +233,7 @@ export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, Headma
                 loading="lazy"
               />
               {/* Overlay gradient for better text readability */}
-              <div 
+              <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
                   background: `linear-gradient(to bottom, 
@@ -244,7 +246,7 @@ export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, Headma
             </>
           ) : (
             <div className="h-full w-full flex items-center justify-center text-6xl opacity-20 select-none bg-muted">
-              <div 
+              <div
                 className="w-full h-full flex items-center justify-center"
                 style={{ backgroundColor: borderColor + '20' }}
               >
@@ -256,7 +258,7 @@ export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, Headma
 
         {/* Fronting indicator ring */}
         {isFronting && (
-          <div 
+          <div
             className="absolute inset-0 pointer-events-none rounded-xl"
             style={{
               border: `3px solid ${borderColor}`,
@@ -296,7 +298,7 @@ export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, Headma
               WebkitTextStroke: '3px black',
               paintOrder: 'stroke fill',
               fontWeight: 900,
-              textShadow: isFronting 
+              textShadow: isFronting
                 ? `0 0 ${10 + pulseIntensity * 5}px ${borderColor}40`
                 : '0 3px 3px rgba(0,0,0,0.6)'
             }}
@@ -314,7 +316,7 @@ export const EnhancedHeadmateCard = React.memo(forwardRef<HTMLDivElement, Headma
         {/* Status indicator for fronting */}
         {isFronting && (
           <div className="absolute top-2 left-2 z-20">
-            <div 
+            <div
               className="w-3 h-3 rounded-full animate-pulse"
               style={{
                 backgroundColor: borderColor,

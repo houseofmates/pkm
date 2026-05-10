@@ -31,6 +31,8 @@ const SCHEDULED_SYNC_MS = 300000; // 5 minutes cron-like sync
 const MAX_RETRIES = 3;
 const SIGNIFICANT_FILES_THRESHOLD = 5;
 const SIGNIFICANT_SIZE_THRESHOLD = 100 * 1024; // 100kb
+const SYNC_HEALTH_CHECK_MS = 60000; // 1 minute health check
+const MAX_SYNC_FAILURES = 5; // Max consecutive failures before alerting
 
 // paths to ignore (don't trigger sync)
 const IGNORE_PATHS = [
@@ -51,6 +53,9 @@ let isSyncing = false;
 let watchHandles = [];
 let changedFiles = new Set();
 let changedSizeEstimate = 0;
+let consecutiveFailures = 0;
+let lastSuccessfulSync = null;
+let healthCheckTimer = null;
 
 // logging helpers
 const timestamp = () => new Date().toISOString();
@@ -67,12 +72,83 @@ function writeSyncStatus(status, extra = {}) {
       lastSyncAt: timestamp(),
       lastError: extra.lastError || null,
       pendingChanges: extra.pendingChanges || false,
-      remoteAhead: extra.remoteAhead || false
+      remoteAhead: extra.remoteAhead || false,
+      consecutiveFailures,
+      lastSuccessfulSync,
+      healthCheck: 'ok'
     };
     fs.writeFileSync(STATUS_FILE, JSON.stringify(payload, null, 2));
   } catch (e) {
     logError(`failed to write sync status: ${e.message}`);
   }
+}
+
+function incrementFailureCount() {
+  consecutiveFailures++;
+  if (consecutiveFailures >= MAX_SYNC_FAILURES) {
+    logError(`CRITICAL: ${consecutiveFailures} consecutive sync failures - manual intervention may be required`);
+    writeSyncStatus('critical', {
+      lastError: `${consecutiveFailures} consecutive failures`,
+      pendingChanges: hasLocalModifications()
+    });
+  }
+}
+
+function resetFailureCount() {
+  if (consecutiveFailures > 0) {
+    log(`recovered from ${consecutiveFailures} consecutive failures`);
+  }
+  consecutiveFailures = 0;
+  lastSuccessfulSync = timestamp();
+}
+
+function performHealthCheck() {
+  try {
+    // Check if git repo is healthy
+    if (!validateRepo()) {
+      logError('health check: git repository is corrupted');
+      return false;
+    }
+
+    // Check if we can access remote
+    const remoteStatus = checkRemoteChanges();
+    if (remoteStatus === 'unknown') {
+      logError('health check: cannot reach remote repository');
+      return false;
+    }
+
+    // Check disk space (basic check)
+    try {
+      const stats = fs.statSync(REPO_DIR);
+      // This is a basic check - in production you'd want more sophisticated monitoring
+    } catch (e) {
+      logError('health check: cannot access repository directory');
+      return false;
+    }
+
+    return true;
+  } catch (e) {
+    logError(`health check failed: ${e.message}`);
+    return false;
+  }
+}
+
+function startHealthCheck() {
+  if (healthCheckTimer) clearInterval(healthCheckTimer);
+
+  healthCheckTimer = setInterval(() => {
+    const isHealthy = performHealthCheck();
+    if (!isHealthy) {
+      incrementFailureCount();
+    } else {
+      // Update status with healthy check
+      const currentStatus = JSON.parse(fs.readFileSync(STATUS_FILE, 'utf8') || '{}');
+      writeSyncStatus(currentStatus.status || 'unknown', {
+        lastError: currentStatus.lastError,
+        pendingChanges: currentStatus.pendingChanges
+      });
+    }
+  }, SYNC_HEALTH_CHECK_MS);
 }
 
 // check if path should be ignored
@@ -91,8 +167,8 @@ function shouldIgnore(filepath) {
 function gitExec(command, options = {}) {
   const { retries = 0, cwd = REPO_DIR } = options;
   try {
-    const result = execSync(command, { 
-      cwd, 
+    const result = execSync(command, {
+      cwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe']
     });
@@ -154,11 +230,11 @@ function checkRemoteChanges() {
   try {
     // fetch without merging
     gitExec('git fetch origin');
-    
+
     const local = gitExec('git rev-parse HEAD');
     const remote = gitExec(`git rev-parse origin/${getCurrentBranch()}`);
     const base = gitExec(`git merge-base HEAD origin/${getCurrentBranch()}`);
-    
+
     if (local === remote) {
       return 'up-to-date';
     } else if (base === local) {
@@ -178,7 +254,7 @@ function checkRemoteChanges() {
 async function syncToRemote() {
   if (isSyncing) return;
   isSyncing = true;
-  
+
   try {
     if (!hasLocalModifications()) {
       log('no local changes to sync');
@@ -186,28 +262,30 @@ async function syncToRemote() {
       isSyncing = false;
       return;
     }
-    
+
     log('📝 syncing local changes to github...');
-    
+
     // stage all changes
     gitExec('git add -A');
-    
+
     // commit with timestamp
     const commitMsg = `auto-sync: local changes ${new Date().toISOString()}`;
     gitExec(`git commit -m "${commitMsg}" --no-verify`);
-    
+
     // push to remote (bypass hooks since npm may not be available in systemd env)
     gitExec('git push origin HEAD --no-verify');
-    
+
     log('✅ local changes pushed to github');
     hasLocalChanges = false;
     changedFiles.clear();
     changedSizeEstimate = 0;
+    resetFailureCount();
     writeSyncStatus('synced');
   } catch (error) {
     logError(`failed to push: ${error.message}`);
+    incrementFailureCount();
     writeSyncStatus('error', { lastError: error.message, pendingChanges: true });
-    
+
     // if push failed due to remote changes, we'll handle in next poll
     if (error.message.includes('rejected') || error.message.includes('behind')) {
       log('remote has changes, will pull and retry...');
@@ -260,26 +338,26 @@ function attemptThreeWayMerge(filePath) {
 async function syncFromRemote() {
   if (isSyncing) return;
   isSyncing = true;
-  
+
   try {
     const remoteStatus = checkRemoteChanges();
-    
+
     if (remoteStatus === 'up-to-date') {
       writeSyncStatus('synced');
     } else if (remoteStatus === 'behind') {
       log('📥 remote has new changes, pulling...');
-      
+
       // if we have local changes, stash them first
       const hadLocalChanges = hasLocalModifications();
       if (hadLocalChanges) {
         log('stashing local changes before pull...');
         gitExec('git stash push -m "auto-stash-before-pull"');
       }
-      
+
       // pull remote changes
       gitExec('git pull origin HEAD --no-rebase');
       log('✅ pulled remote changes to local filesystem');
-      
+
       // restore stashed changes if any
       if (hadLocalChanges) {
         try {
@@ -289,13 +367,13 @@ async function syncFromRemote() {
           setTimeout(() => syncToRemote(), 5000);
         } catch (stashError) {
           logError('conflict restoring stashed changes - attempting 3-way merge');
-          
+
           // find conflicted files
           const status = gitExec('git status --porcelain');
           const conflicted = status.split('\n')
             .filter(line => line.startsWith('UU') || line.startsWith('AA') || line.startsWith('DD'))
             .map(line => line.slice(3).trim());
-          
+
           let resolvedAny = false;
           for (const rel of conflicted) {
             const fullPath = path.join(REPO_DIR, rel);
@@ -304,7 +382,7 @@ async function syncFromRemote() {
               if (ok) resolvedAny = true;
             }
           }
-          
+
           if (resolvedAny) {
             // commit the merge resolution
             try {
@@ -315,14 +393,14 @@ async function syncFromRemote() {
               logError(`failed to commit merge resolution: ${commitErr.message}`);
               writeSyncStatus('conflict', { lastError: commitErr.message });
               fs.writeFileSync(
-                path.join(REPO_DIR, '.sync-conflict'), 
+                path.join(REPO_DIR, '.sync-conflict'),
                 `conflict detected at ${timestamp()}\nrun: git stash pop\n`
               );
             }
           } else {
             writeSyncStatus('conflict', { lastError: stashError.message });
             fs.writeFileSync(
-              path.join(REPO_DIR, '.sync-conflict'), 
+              path.join(REPO_DIR, '.sync-conflict'),
               `conflict detected at ${timestamp()}\nrun: git stash pop\n`
             );
           }
@@ -331,7 +409,7 @@ async function syncFromRemote() {
       writeSyncStatus('synced');
     } else if (remoteStatus === 'diverged') {
       log('⚠️ branches have diverged, attempting merge...');
-      
+
       // try to auto-merge
       try {
         gitExec('git pull origin HEAD --no-rebase');
@@ -369,7 +447,7 @@ async function syncFromRemote() {
 function onLocalChange(eventType, filename) {
   if (!filename) return;
   if (shouldIgnore(filename)) return;
-  
+
   const fullPath = path.join(REPO_DIR, filename);
   if (fs.existsSync(fullPath)) {
     try {
@@ -378,33 +456,33 @@ function onLocalChange(eventType, filename) {
     } catch { /* ignore */ }
   }
   changedFiles.add(filename);
-  
+
   // determine if this is a significant change
   const isSignificant = changedFiles.size > SIGNIFICANT_FILES_THRESHOLD || changedSizeEstimate > SIGNIFICANT_SIZE_THRESHOLD;
   const debounceMs = isSignificant ? SIGNIFICANT_DEBOUNCE_MS : DEBOUNCE_LOCAL_MS;
-  
+
   // debounce rapid changes
   if (localChangeTimer) {
     clearTimeout(localChangeTimer);
   }
-  
+
   hasLocalChanges = true;
   localChangeTimer = setTimeout(() => {
     syncToRemote();
   }, debounceMs);
-  
+
   log(`📝 detected ${eventType}: ${filename} (${changedFiles.size} files, ~${Math.round(changedSizeEstimate / 1024)}kb) (will sync in ${debounceMs}ms)`);
 }
 
 // setup recursive file watcher
 function setupWatcher() {
   log('👁️ setting up filesystem watcher...');
-  
+
   const watchOptions = {
     recursive: true,
     persistent: true
   };
-  
+
   try {
     const handle = fs.watch(REPO_DIR, watchOptions, onLocalChange);
     watchHandles.push(handle);
@@ -462,34 +540,37 @@ async function main() {
   log(`⏱️  local debounce: ${DEBOUNCE_LOCAL_MS}ms`);
   log(`⏱️  remote poll: ${POLL_REMOTE_MS}ms`);
   log(`⏱️  scheduled sync: ${SCHEDULED_SYNC_MS}ms`);
-  
+
   // validate repo
   if (!validateRepo()) {
     logError('not a valid git repository');
     process.exit(1);
   }
-  
+
   // check initial state
   const branch = getCurrentBranch();
   log(`🌿 current branch: ${branch}`);
-  
+
   // do initial sync check
   await syncFromRemote();
-  
+
+  // setup health monitoring
+  startHealthCheck();
+
   // setup filesystem watcher for local → github
   setupWatcher();
-  
+
   // setup polling for github → local (catches jules/pr changes)
   setInterval(() => {
     syncFromRemote();
   }, POLL_REMOTE_MS);
-  
+
   // cron-like scheduled full sync every 5 minutes
   setInterval(() => {
     log('⏰ scheduled sync triggered');
     syncFromRemote();
   }, SCHEDULED_SYNC_MS);
-  
+
   // also check for local changes periodically as backup
   setInterval(() => {
     if (hasLocalModifications() && !isSyncing) {
@@ -497,11 +578,11 @@ async function main() {
       syncToRemote();
     }
   }, POLL_REMOTE_MS * 2);
-  
+
   log('✅ bidirectional sync active');
   log('   local changes → auto-push to github');
   log('   github changes (jules/prs) → auto-pull to local');
-  
+
   // handle graceful shutdown
   process.on('SIGINT', cleanup);
   process.on('SIGTERM', cleanup);

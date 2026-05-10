@@ -47,9 +47,25 @@ class OfflineQueueService {
           updatedAt TEXT NOT NULL
         );
         
+        CREATE TABLE IF NOT EXISTS conflicts (
+          id TEXT PRIMARY KEY,
+          operationId TEXT NOT NULL,
+          type TEXT NOT NULL,
+          clientData TEXT NOT NULL,
+          serverData TEXT NOT NULL,
+          timestamp INTEGER NOT NULL,
+          resolution TEXT DEFAULT 'pending',
+          resolvedAt INTEGER,
+          resolvedData TEXT,
+          createdAt TEXT NOT NULL,
+          updatedAt TEXT NOT NULL
+        );
+        
         CREATE INDEX IF NOT EXISTS idx_queue_type ON queue_items(type);
         CREATE INDEX IF NOT EXISTS idx_queue_retry ON queue_items(nextRetryAt);
         CREATE INDEX IF NOT EXISTS idx_queue_priority ON queue_items(priority DESC, timestamp);
+        CREATE INDEX IF NOT EXISTS idx_conflicts_resolution ON conflicts(resolution);
+        CREATE INDEX IF NOT EXISTS idx_conflicts_timestamp ON conflicts(timestamp);
       `)
 
       this.isInitialized = true
@@ -275,6 +291,259 @@ class OfflineQueueService {
       secureLogger.info('[OfflineQueue] closed database connection')
     }
   }
+
+  // Conflict resolution methods
+  async detectConflict(operation: any, serverResponse: any): Promise<boolean> {
+    await this.ensureInitialized()
+
+    try {
+      // Check if server response indicates a conflict
+      if (serverResponse?.conflict || serverResponse?.versionMismatch) {
+        return true
+      }
+
+      // For canvas operations, check version conflicts
+      if (operation.type === 'canvas' && serverResponse?.serverVersion) {
+        const clientVersion = operation.payload.version || 0
+        if (clientVersion < serverResponse.serverVersion) {
+          secureLogger.warn(`[OfflineQueue] Version conflict detected: client=${clientVersion}, server=${serverResponse.serverVersion}`)
+          return true
+        }
+      }
+
+      return false
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] Conflict detection failed:', error)
+      return false
+    }
+  }
+
+  async handleConflict(operation: any, serverResponse: any): Promise<{
+    resolution: 'resolved' | 'failed' | 'manual_required'
+    resolvedData?: any
+    conflictInfo?: any
+  }> {
+    await this.ensureInitialized()
+
+    try {
+      // Last-write-wins strategy with user notification
+      const serverData = serverResponse?.serverData || serverResponse
+      const clientData = operation.payload
+
+      // Create conflict record for UI notification
+      const conflictRecord = {
+        id: `conflict-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+        operationId: operation.id,
+        type: operation.type,
+        clientData,
+        serverData,
+        timestamp: Date.now(),
+        resolution: 'pending'
+      }
+
+      // Store conflict for UI display
+      await this.db.run(
+        `INSERT INTO conflicts (id, operationId, type, clientData, serverData, timestamp, resolution)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          conflictRecord.id,
+          conflictRecord.operationId,
+          conflictRecord.type,
+          JSON.stringify(conflictRecord.clientData),
+          JSON.stringify(conflictRecord.serverData),
+          conflictRecord.timestamp,
+          conflictRecord.resolution
+        ]
+      )
+
+      // Apply last-write-wins resolution (server wins)
+      secureLogger.info(`[OfflineQueue] Auto-resolving conflict with last-write-wins: ${conflictRecord.id}`)
+
+      // Mark conflict as resolved
+      await this.db.run(
+        'UPDATE conflicts SET resolution = ?, resolvedAt = ? WHERE id = ?',
+        ['server_wins', Date.now(), conflictRecord.id]
+      )
+
+      // Notify user about conflict resolution
+      this.notifyConflictResolution(conflictRecord, 'server_wins', serverData)
+
+      return {
+        resolution: 'resolved',
+        resolvedData: serverData,
+        conflictInfo: conflictRecord
+      }
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] Conflict resolution failed:', error)
+      return {
+        resolution: 'failed',
+        conflictInfo: { error: error.message }
+      }
+    }
+  }
+
+  async getPendingConflicts(): Promise<any[]> {
+    await this.ensureInitialized()
+
+    try {
+      const conflicts = await this.db.all(
+        'SELECT * FROM conflicts WHERE resolution = "pending" ORDER BY timestamp ASC'
+      )
+
+      return conflicts.map(conflict => ({
+        ...conflict,
+        clientData: JSON.parse(conflict.clientData),
+        serverData: JSON.parse(conflict.serverData)
+      }))
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] Failed to get pending conflicts:', error)
+      return []
+    }
+  }
+
+  async resolveConflict(conflictId: string, resolution: 'client_wins' | 'server_wins'): Promise<void> {
+    await this.ensureInitialized()
+
+    try {
+      const conflict = await this.db.get('SELECT * FROM conflicts WHERE id = ?', [conflictId])
+      if (!conflict) {
+        secureLogger.warn(`[OfflineQueue] Conflict ${conflictId} not found`)
+        return
+      }
+
+      const resolvedData = resolution === 'client_wins'
+        ? JSON.parse(conflict.clientData)
+        : JSON.parse(conflict.serverData)
+
+      // Update conflict record
+      await this.db.run(
+        'UPDATE conflicts SET resolution = ?, resolvedAt = ?, resolvedData = ? WHERE id = ?',
+        [resolution, Date.now(), JSON.stringify(resolvedData), conflictId]
+      )
+
+      // Notify user about resolution
+      this.notifyConflictResolution(conflict, resolution, resolvedData)
+
+      secureLogger.info(`[OfflineQueue] Manually resolved conflict ${conflictId} with ${resolution}`)
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] Manual conflict resolution failed:', error)
+      throw error
+    }
+  }
+
+  private notifyConflictResolution(conflict: any, resolution: string, resolvedData: any): void {
+    // Emit event for UI components to handle
+    const event = new CustomEvent('pkm:conflict-resolved', {
+      detail: {
+        conflictId: conflict.id,
+        type: conflict.type,
+        resolution,
+        resolvedData,
+        timestamp: Date.now()
+      }
+    })
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(event)
+    }
+
+    // Also use toast notification if available
+    if (typeof window !== 'undefined' && (window as any).toast) {
+      const message = resolution === 'server_wins'
+        ? `Conflict resolved: Server version kept for ${conflict.type}`
+        : `Conflict resolved: Your version kept for ${conflict.type}`
+
+        ; (window as any).toast.info(message)
+    }
+  }
+
+  async enqueue(event: string, args: any[], priority = 0): Promise<string> {
+    await this.ensureInitialized()
+
+    const id = `${event}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+    const now = new Date().toISOString()
+
+    try {
+      await this.db.run(
+        `INSERT INTO queue_items 
+         (id, type, payload, timestamp, retries, maxRetries, nextRetryAt, priority, createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id,
+          this.getEventType(event),
+          JSON.stringify({ event, args }),
+          Date.now(),
+          0,
+          10,
+          Date.now(),
+          priority,
+          now,
+          now
+        ]
+      )
+
+      secureLogger.debug(`[OfflineQueue] enqueued item ${id} of type ${event}`)
+      return id
+    } catch (error) {
+      secureLogger.error(`[OfflineQueue] failed to enqueue item ${id}:`, error)
+      throw error
+    }
+  }
+
+  async dequeue(limit = 50): Promise<any[]> {
+    await this.ensureInitialized()
+
+    try {
+      const items = await this.db.all(
+        `SELECT * FROM queue_items 
+         WHERE nextRetryAt <= ? 
+         ORDER BY priority DESC, timestamp ASC 
+         LIMIT ?`,
+        [Date.now(), limit]
+      )
+
+      return items.map(item => ({
+        id: item.id,
+        event: JSON.parse(item.payload).event,
+        args: JSON.parse(item.payload).args,
+        type: item.type,
+        timestamp: item.timestamp,
+        retries: item.retries,
+        maxRetries: item.maxRetries
+      }))
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] failed to dequeue items:', error)
+      return []
+    }
+  }
+
+  async requeueFailed(operations: any[]): Promise<void> {
+    await this.ensureInitialized()
+
+    for (const op of operations) {
+      try {
+        const nextRetryAt = Date.now() + this.getRetryDelay(op.retries)
+        await this.updateRetry(op.id, op.retries + 1, nextRetryAt)
+        secureLogger.debug(`[OfflineQueue] requeued operation ${op.id} (retry ${op.retries + 1})`)
+      } catch (error) {
+        secureLogger.error(`[OfflineQueue] failed to requeue operation ${op.id}:`, error)
+      }
+    }
+  }
+
+  private getEventType(event: string): QueueItem['type'] {
+    if (event.includes('canvas') || event.includes('drawing')) return 'canvas'
+    if (event.includes('headmate') || event.includes('system')) return 'headmates'
+    return 'system'
+  }
+
+  private getRetryDelay(retryCount: number): number {
+    // Exponential backoff with jitter
+    const baseDelay = 1000
+    const maxDelay = 30000
+    const jitter = Math.random() * 1000
+    return Math.min(maxDelay, baseDelay * Math.pow(2, Math.min(retryCount, 8))) + jitter
+  }
 }
 
-export const offlineQueue = new OfflineQueueService()
+export const offlineQueueService = new OfflineQueueService()
