@@ -16,6 +16,13 @@ StartLimitInterval=600
 StartLimitBurst=20
 # Exponential backoff will be handled by the application itself
 
+# Crash recovery and resilience
+RestartForceExitStatus=SIGTERM SIGINT
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+SendSIGKILL=no
+
 # Resource limits and priority
 OOMScoreAdjust=-200
 MemoryMax=1G
@@ -59,6 +66,14 @@ ExecStartPost=/bin/bash -c 'for i in {1..30}; do curl -f -s http://localhost:410
 # Watchdog for continuous health monitoring
 WatchdogSec=30
 ExecReload=/bin/kill -HUP $MAINPID
+
+# Additional resilience features
+NotifyAccess=all
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
 
 [Install]
 WantedBy=multi-user.target
