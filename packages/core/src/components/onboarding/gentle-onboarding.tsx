@@ -198,6 +198,7 @@ export function GentleOnboarding({ onComplete, onSkip, className }: OnboardingPr
 
   const handleNext = useCallback(async () => {
     const step = onboardingSteps[currentStep]
+    if (!step) return
 
     if (step.action && !stepProgress[step.id]) {
       setIsProcessing(true)
