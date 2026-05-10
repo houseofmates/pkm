@@ -1,0 +1,340 @@
+{/* eslint-disable */}
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import { useAppSetting } from "@/hooks/use-app-setting";
+import { HexColorPicker } from "react-colorful";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Trash2, Palette } from "lucide-react";
+import { IconPicker } from "@/components/icon-picker-dialog";
+import { secureLogger } from "@/lib/secure-logger";
+
+const ICON_COLORS = [
+  "#f97316",
+  "#facc15",
+  "#22c55e",
+  "#06b6d4",
+  "#3b82f6",
+  "#a855f7",
+  "#f472b6",
+  "#f4f4f5",
+  "#d4d4d8",
+  "#64748b",
+  "#94a3b8",
+  "#0ea5e9",
+  "#10b981",
+  "#84cc16",
+  "#ef4444",
+];
+
+interface FieldSettingsDialogProps {
+  collectionName: string;
+  field: any;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onFieldUpdated: () => void;
+}
+
+const FIELD_TYPES = [
+  { value: "input", label: "single line text" },
+  { value: "textarea", label: "long text" },
+  { value: "markdown", label: "markdown" },
+  { value: "richText", label: "rich text" },
+  { value: "number", label: "number" },
+  { value: "integer", label: "integer" },
+  { value: "percent", label: "percent" },
+  { value: "checkbox", label: "checkbox" },
+  { value: "date", label: "date" },
+  { value: "datetime", label: "date time" },
+  { value: "time", label: "time" },
+  { value: "attachment", label: "attachment" },
+  { value: "email", label: "email" },
+  { value: "phone", label: "phone" },
+  { value: "url", label: "url" },
+  { value: "color", label: "color" },
+  { value: "password", label: "password" },
+  { value: "select", label: "single select" },
+  { value: "multipleSelect", label: "multiple select" },
+  { value: "radioGroup", label: "radio group" },
+  { value: "checkboxGroup", label: "checkbox group" },
+  { value: "formula", label: "formula" },
+  { value: "linkTo", label: "relation" },
+];
+
+export function FieldSettingsDialog({
+  collectionName,
+  field,
+  open,
+  onOpenChange,
+  onFieldUpdated,
+}: FieldSettingsDialogProps) {
+  const { client } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState("");
+  const [interfaceType, setInterfaceType] = useState("");
+
+  // local metadata for property colors/icons
+  const [metadata, setMetadata] = useAppSetting<Record<string, any>>(
+    "collection_metadata",
+    {},
+    { pollIntervalMs: 3000 },
+  );
+  const collMeta = metadata[collectionName] || {};
+  const fieldColor = collMeta.fieldColors?.[field?.name] || "#64748b";
+  const fieldIconInfo: {
+    icon?: string;
+    iconType?: "lucide" | "emoji" | "image";
+    iconColor?: string;
+  } = collMeta.fieldIcons?.[field?.name] || {};
+  const [iconPickerOpen, setIconPickerOpen] = useState(false);
+
+  const fieldIconColor = fieldIconInfo.iconColor || "#ffffff";
+
+  useEffect(() => {
+    if (field && open) {
+      setTitle(field.uiSchema?.title || field.title || field.name || "");
+      setInterfaceType(field.interface || field.type || "input");
+    }
+  }, [field, open]);
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!field) return;
+    setLoading(true);
+
+    try {
+      // 1. update nocobase schema
+      await client.updateField(collectionName, field.name, {
+        uiSchema: {
+          ...field.uiSchema,
+          title: title,
+        },
+        interface: interfaceType,
+      });
+
+      toast.success("field updated successfully");
+      onFieldUpdated();
+      onOpenChange(false);
+    } catch (error: any) {
+      secureLogger.error(error);
+      toast.error(error.message || "failed to update field");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const setFieldColor = (color: string) => {
+    const collMeta = metadata[collectionName] || {};
+    const fieldColors = collMeta.fieldColors || {};
+
+    setMetadata({
+      ...metadata,
+      [collectionName]: {
+        ...collMeta,
+        fieldColors: {
+          ...fieldColors,
+          [field.name]: color,
+        },
+      },
+    });
+  };
+
+  const setFieldIcon = (icon: string, type: "lucide" | "emoji" | "image") => {
+    const collMeta = metadata[collectionName] || {};
+    const icons = collMeta.fieldIcons || {};
+    setMetadata({
+      ...metadata,
+      [collectionName]: {
+        ...collMeta,
+        fieldIcons: {
+          ...icons,
+          [field.name]: {
+            ...icons[field.name],
+            icon,
+            iconType: type,
+          },
+        },
+      },
+    });
+  };
+
+  const setFieldIconColor = (color: string) => {
+    const collMeta = metadata[collectionName] || {};
+    const icons = collMeta.fieldIcons || {};
+    setMetadata({
+      ...metadata,
+      [collectionName]: {
+        ...collMeta,
+        fieldIcons: {
+          ...icons,
+          [field.name]: {
+            ...icons[field.name],
+            iconColor: color,
+          },
+        },
+      },
+    });
+  };
+
+  if (!field) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="lowercase">
+            field settings: {field.name}
+          </DialogTitle>
+          <DialogDescription className="lowercase">
+            edit properties for this column in <strong>{collectionName}</strong>
+            .
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleUpdate} className="space-y-6 py-4">
+          <div className="space-y-2">
+            <Label className="lowercase">display name</Label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. status, priority"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="lowercase">property type</Label>
+            <Select value={interfaceType} onValueChange={setInterfaceType}>
+              <SelectTrigger className="lowercase">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {FIELD_TYPES.map((t) => (
+                  <SelectItem
+                    key={t.value}
+                    value={t.value}
+                    className="lowercase"
+                  >
+                    {t.label.toLowerCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* icon selection */}
+          <div className="space-y-2">
+            <Label className="lowercase">icon</Label>
+            <div className="flex gap-1 items-center">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-start gap-2 h-8"
+                onClick={() => setIconPickerOpen(true)}
+              >
+                {fieldIconInfo.iconType === "image" ? (
+                  <img
+                    src={fieldIconInfo.icon}
+                    className="h-4 w-4 object-contain"
+                  />
+                ) : (
+                  <span className="text-xs" style={{ color: fieldIconColor }}>
+                    {fieldIconInfo.icon || "select"}
+                  </span>
+                )}
+              </Button>
+              {fieldIconInfo.icon && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setFieldIcon("", "lucide")}
+                  title="clear icon"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              )}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    title="icon color"
+                  >
+                    <Palette className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-2">
+                  <div className="grid grid-cols-7 gap-1">
+                    {ICON_COLORS.map((c) => (
+                      <Button
+                        key={c}
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 rounded-full border border-border/50 hover:scale-110 transition-transform p-0"
+                        style={{ backgroundColor: c }}
+                        onClick={() => setFieldIconColor(c)}
+                      />
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          {/* associated color for text */}
+          <div className="space-y-2">
+            <Label className="lowercase">associated color</Label>
+            <div className="flex gap-4 items-start">
+              <div
+                className="w-10 h-10 rounded border shadow-sm shrink-0"
+                style={{ backgroundColor: fieldColor }}
+              />
+              <div className="flex-1">
+                <HexColorPicker
+                  color={fieldColor}
+                  onChange={setFieldColor}
+                  className="!w-full !h-32"
+                />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="pt-4">
+            <Button type="submit" disabled={loading} className="lowercase">
+              {loading ? "saving..." : "save settings"}
+            </Button>
+          </DialogFooter>
+        </form>
+
+        <IconPicker
+          onSelect={(icon, type) => setFieldIcon(icon, type)}
+          open={iconPickerOpen}
+          onOpenChange={setIconPickerOpen}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}

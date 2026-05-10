@@ -1,0 +1,16 @@
+[Unit]
+Description=PKM Hermes Chat Bridge
+After=network.target
+
+[Service]
+Type=simple
+User=house
+WorkingDirectory=/home/house/pkm/bridge
+ExecStart=/usr/bin/node /home/house/pkm/bridge/chat_bridge.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_NO_WARNINGS=1
+Environment=PKM_BRIDGE_PORT=3101
+
+[Install]
+WantedBy=default.target

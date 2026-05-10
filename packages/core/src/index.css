@@ -1,0 +1,580 @@
+/* local font - avoids firefox tracking protection blocking google fonts */
+@font-face {
+  font-family: 'Varela Round';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/varela-round-regular.woff2') format('woff2');
+}
+
+/* stylelint-disable at-rule-no-unknown */
+/* postcss-ignore */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: 'Varela Round', sans-serif !important;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 5%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 95%;
+
+    /* the void blueprint default: warm yellow */
+    --primary: 37 92% 52%;
+    --primary-foreground: 0 0% 0%;
+    --primary-soft: hsl(var(--primary) / 0.15);
+
+    /* recolorable white: defaults to white, becomes headmate color via usethemereactor */
+    --headmate-white: 0 0% 100%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: var(--primary);
+    /* match primary default */
+
+    --radius: 0.75rem;
+    --header-sep: 2px;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Varela Round', sans-serif !important;
+    color-scheme: dark;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Varela Round', sans-serif !important;
+}
+
+/* --- override: visual repair v2 --- */
+aside,
+.sidebar,
+nav,
+.card-header,
+[class*="header"] {
+  border-bottom-width: 0px !important;
+  border-right-width: 0px !important;
+  border-left-width: 0px !important;
+  border-top-width: 0px !important;
+}
+
+aside {
+  border-right: none !important;
+}
+
+.card,
+[class*="card"] {
+  overflow: hidden !important;
+  border-radius: var(--radius) !important;
+  border: 1px solid hsl(var(--border));
+  /* ensure border is visible */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  /* restore shadow if border: none removed it? no, shadow-sm class does it. */
+}
+
+.card-content,
+[class*="cardcontent"] {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  display: none;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+}
+
+/* --- the void blueprint overrides --- */
+
+/* force icons to inherit variable directly */
+svg,
+.lucide,
+[class*="icon"] {
+  /* color: var(--primary) !important; */
+  /* stroke: var(--primary) !important; */
+  fill: none;
+  /* reset fill mostly, or let it handle itself */
+}
+
+/* explicitly targeted selection logic */
+.nav-selected,
+[data-selected="true"] {
+  background-color: var(--primary-soft) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* soft background utility */
+.bg-primary-soft {
+  background-color: var(--primary-soft) !important;
+}
+
+/* ensure focus states use primary *only when visible (keyboard/accessible) */
+*:focus-visible {
+  outline-color: var(--primary) !important;
+  --tw-ring-color: var(--primary) !important;
+  outline-width: 2px;
+  outline-offset: 2px;
+}
+
+/* suppress any focus ring/outline inside table cells (inline editors are clipped by overflow)
+   this covers both the <td> and any descendant input/element that may receive focus */
+table td:focus,
+table td:focus-within,
+table td *:focus,
+table td *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  --tw-ring-offset-width: 0 !important;
+  --tw-ring-width: 0 !important;
+}
+
+/* kill generic white text/borders that shouldn't exist */
+.text-white {
+  color: hsl(var(--headmate-white)) !important;
+}
+
+.border-white {
+  border-color: hsl(var(--headmate-white) / 0.2) !important;
+}
+
+/* --- critical ui repair spec --- */
+.card-fix {
+  border-radius: 0.75rem;
+  /* rounded-xl */
+  overflow: hidden;
+  isolation: isolate;
+  /* forces new stacking context */
+  mask-image: radial-gradient(white, black);
+  /* safari/webkit fix for rounding */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  border: 2px solid transparent;
+  /* reserve space for layout */
+  position: relative;
+}
+
+/* pseudo-element border to sit on top of opaque children */
+.card-fix::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 2px var(--border-color, hsl(var(--headmate-white) / 0.1));
+  pointer-events: none;
+  z-index: 50;
+  /* ensure on top of content */
+}
+
+/* spec: force rounded inherit on children of .card-fix */
+.card-fix>* {
+  border-radius: inherit;
+}
+
+/* --- utility: hide scrollbars --- */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* --- interactive polish --- */
+.interactive-pop {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, filter 0.2s ease !important;
+}
+
+.interactive-pop:hover {
+  transform: scale(1.025) translatey(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  filter: brightness(1.1);
+  z-index: 50;
+}
+
+.interactive-pop:active {
+  transform: scale(0.98) translatey(0px);
+  filter: brightness(0.9);
+  transition: transform 0.05s linear !important;
+}
+
+::selection {
+  background: hsl(var(--primary) / 0.35);
+  color: hsl(var(--foreground));
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* specific fix for buttons in components */
+button.interactive-pop:hover {
+  filter: brightness(1.2);
+}
+
+/* --- global force lowercase (removed) --- */
+/* user requested capitalization preservation. */
+* {
+  font-variant: normal !important;
+}
+
+
+/* selected icon styling: color the icon instead of button background */
+.selected-icon-btn {
+  background: transparent !important;
+  /* keep bold text where used */
+  font-weight: 700 !important;
+  color: inherit !important;
+}
+
+/* strongly enforce icon coloring for selected state, including nested children
+   this overrides inline fills / hardcoded tailwind utility colors on svg or paths. */
+.selected-icon-btn svg,
+.selected-icon-btn svg *,
+.selected-icon-btn .lucide,
+.selected-icon-btn .lucide *,
+.selected-icon-btn .icon,
+.selected-icon-btn .icon * {
+  color: var(--primary) !important;
+  stroke: currentcolor !important;
+  fill: currentcolor !important;
+  -webkit-text-fill-color: currentcolor !important;
+}
+
+/* additional aggressive overrides to neutralize hardcoded yellow utilities
+   and inline svg fills that are still present in many components/builds. */
+.selected-icon-btn {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* override tailwind-like utility classname usages that embed the yellow color */
+.selected-icon-btn [class*="text-[var(--primary)]"],
+.selected-icon-btn [class*="bg-[var(--primary)]"],
+.selected-icon-btn [class*="fill-[var(--primary)]"],
+.selected-icon-btn [class*="stroke-[var(--primary)]"] {
+  color: var(--primary) !important;
+  background-color: transparent !important;
+  fill: currentcolor !important;
+  stroke: currentcolor !important;
+}
+
+/* catch inline svg attributes and style attributes that reference the hex */
+
+
+.selected-icon-btn svg [fill="var(--primary)"],
+.selected-icon-btn svg [stroke="var(--primary)"],
+.selected-icon-btn [style*="var(--primary)"] {
+  fill: currentcolor !important;
+  stroke: currentcolor !important;
+  color: var(--primary) !important;
+}
+
+/* generic fallback: force any svg children to use currentcolor */
+.selected-icon-btn svg,
+.selected-icon-btn svg * {
+  fill: currentcolor !important;
+  stroke: currentcolor !important;
+  color: var(--primary) !important;
+}
+
+/* --- nuclear override (user request) --- */
+.selected-icon-btn svg,
+.selected-icon-btn path,
+.selected-icon-btn circle {
+  fill: hsl(var(--primary)) !important;
+  stroke: hsl(var(--primary)) !important;
+  color: hsl(var(--primary)) !important;
+}
+
+.selected-icon-btn {
+  /* transparency fix: clear container background and shadows */
+  background: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* universal nested selector to catch wrappers/spans around svgs */
+.selected-icon-btn * {
+  fill: hsl(var(--primary)) !important;
+  stroke: hsl(var(--primary)) !important;
+}
+
+/* --- nuclear ui fix round 2 (user request) --- */
+
+/* --- nuclear override refined --- */
+/* avoid global border removal, it breaks status widgets and selection outlines. */
+.sidebar *,
+.nav-container *,
+header * {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+/* restore for header/sidebar only */
+/* .sidebar-container, removed to fix bottom border regression */
+.nav-header {
+  border-bottom: var(--header-sep) solid hsl(var(--primary)) !important;
+}
+
+/* 2. sidebar icons specific target */
+.sidebar svg,
+.nav-item svg,
+.top-nav svg {
+  /* inherit the text color of parent (which may be a custom item color) */
+  color: currentColor !important;
+  stroke: currentColor !important;
+  /* do not force fill: most icons are stroked/outline and should remain transparent inside */
+  /* unify dimensions regardless of neighboring text length; bump size for better visibility */
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* --- high contrast & visibility restoration (user request) --- */
+
+/* restore sidebar background */
+.sidebar,
+.nav-container {
+  background-color: #050505 !important;
+  background: #050505 !important;
+}
+
+/* --- v5 emergency fix (coherent) --- */
+
+/* 1. header & sidebar background (dark grey/black) */
+/* 1. header & sidebar background (dark grey/black) */
+header,
+.nav-header {
+  background-color: #050505 !important;
+  background: #050505 !important;
+}
+
+/* 2. button outlines -> headmate color */
+button,
+.btn,
+.icon-btn,
+[role="button"] {
+  border-color: hsl(var(--primary)) !important;
+  outline-color: hsl(var(--primary)) !important;
+}
+
+/* 3. selected/highlighted items: dynamic accent background + rounded corners */
+.bg-primary-soft,
+.nav-selected,
+[data-selected="true"] {
+  background-color: var(--primary-soft);
+  border-radius: 0.5rem !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 4. icons: allow components to handle their own icons, only force color where needed */
+.sidebar-icon,
+[class*='sidebar'] svg,
+.selected-icon-btn svg {
+  /* allow individual item color to dictate icon hue */
+  color: currentColor !important;
+  stroke: currentColor !important;
+  /* do not alter fill so outlines remain hollow */
+}
+
+/* improve contrast for icons on dark bg */
+.sidebar svg {
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.2));
+}
+
+/* explicitly allow images like favicons/avatars to not be colored */
+img svg,
+img .lucide,
+.avatar svg,
+.no-color svg,
+.no-color {
+  color: inherit !important;
+  stroke: inherit !important;
+}
+
+/* clear shadow-sm on selected items to avoid "underneath" look */
+.nav-item.selected {
+  box-shadow: none !important;
+}
+
+/* kill random white borders, force them to primary or transparent */
+/* disabled: this was preventing widget borders from using custom colors
+*[style*="border"],
+[class*="border"] {
+  border-color: var(--primary) !important;
+}
+*/
+
+/* force cmdk items to always be visible and clickable */
+[cmdk-item] {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+[cmdk-item][hidden] {
+  display: flex !important;
+}
+
+[cmdk-group] {
+  display: block !important;
+}
+
+[cmdk-group][hidden] {
+  display: block !important;
+}
+
+/* --- sidebar scrollbar fix --- */
+.sidebar-container div[class*="overflow-y-auto"]::-webkit-scrollbar,
+.sidebar-container ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  display: block;
+}
+
+.sidebar-container div[class*="overflow-y-auto"]::-webkit-scrollbar-track,
+.sidebar-container ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-container div[class*="overflow-y-auto"]::-webkit-scrollbar-thumb,
+.sidebar-container ::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.3);
+  border-radius: 3px;
+}
+
+.sidebar-container div[class*="overflow-y-auto"]::-webkit-scrollbar-thumb:hover,
+.sidebar-container ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.5);
+}
+
+/* --- blog custom scrollbar --- */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  display: block;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: hsl(var(--headmate-white) / 0.05);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+  opacity: 1;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) hsl(var(--headmate-white) / 0.05);
+}
+
+/* --- mobile safe area support for bottom navigation --- */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* fallback for browsers without safe-area support */
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}
+
+/* --- canvas cursor system --- */
+/* pen/eraser use a native svg css cursor applied directly to the fabric canvas elements.
+   no cursor-none class or overlay div needed — the browser positions native cursors
+   correctly in all environments including electron appimage. */
+
+/* --- global interactive cursor hints (always active) --- */
+/* pointer hand for clickable elements */
+button,
+[role="button"],
+.btn,
+a[href],
+.cursor-pointer,
+label[for],
+label.cursor-pointer,
+[onclick],
+[tabindex]:not([tabindex="-1"]) {
+  cursor: pointer;
+}
+
+/* grab (palm) cursor for sliders */
+input[type="range"] {
+  cursor: grab;
+}
+
+input[type="range"]:active {
+  cursor: grabbing;
+}
+
+/* --- column resize handle active state --- */
+[data-resizing="true"] > div {
+  background: #f6b012 !important;
+}

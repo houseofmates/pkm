@@ -1,0 +1,204 @@
+const { app, BrowserWindow, shell, ipcMain, dialog, Menu, protocol, net } = require('electron');
+const path = require('path');
+const url = require('url');
+const fs = require('fs');
+const contextServer = require('./context-server.cjs');
+
+protocol.registerSchemesAsPrivileged([
+    {
+        scheme: 'pkm',
+        privileges: {
+            standard: true,
+            secure: true,
+            supportFetchAPI: true,
+            bypassCSP: false,
+            corsEnabled: true
+        }
+    }
+]);
+
+const isDev = !app.isPackaged;
+let mainWindow = null;
+let currentVersion = null;
+let updateCheckInterval = null;
+
+// Fetch version from server to detect updates
+async function checkForUpdates() {
+    if (!mainWindow || isDev) return;
+
+    const remoteUrl = process.env.PKM_REMOTE_URL || 'https://pkm.houseofmates.space';
+
+    try {
+        const response = await fetch(`${remoteUrl}/api/version`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const serverVersion = data.version || data.buildTime || data.hash;
+
+        if (!serverVersion) return;
+
+        // First check - just store the version
+        if (!currentVersion) {
+            currentVersion = serverVersion;
+            console.log(`[Update Check] Initial version: ${currentVersion}`);
+            return;
+        }
+
+        // Version changed - update available
+        if (serverVersion !== currentVersion) {
+            console.log(`[Update Check] Update available! ${currentVersion} -> ${serverVersion}`);
+
+            const result = dialog.showMessageBoxSync(mainWindow, {
+                type: 'info',
+                title: 'pkm update',
+                message: 'a new version of pkm is available.',
+                detail: 'The app will now reload to get the latest updates.',
+                buttons: ['Reload Now', 'Later'],
+                defaultId: 0,
+                cancelId: 1
+            });
+
+            if (result === 0) {
+                currentVersion = serverVersion;
+                mainWindow.loadURL(remoteUrl);
+            }
+        }
+    } catch (err) {
+        // Silent fail - server might be down
+        console.log('[Update Check] Could not reach server:', err.message);
+    }
+}
+
+function startUpdateChecker() {
+    if (updateCheckInterval) clearInterval(updateCheckInterval);
+    // Check every 30 seconds for updates
+    updateCheckInterval = setInterval(checkForUpdates, 30000);
+    console.log('[Update Check] Started checking every 30 seconds');
+}
+
+function stopUpdateChecker() {
+    if (updateCheckInterval) {
+        clearInterval(updateCheckInterval);
+        updateCheckInterval = null;
+    }
+}
+
+function createWindow() {
+    mainWindow = new BrowserWindow({
+        width: 1280,
+        height: 800,
+        title: 'pkm',
+        frame: true,
+        autoHideMenuBar: true,
+        webPreferences: {
+            nodeIntegration: false,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js'),
+            webSecurity: false
+        },
+    });
+
+    // prevent page from changing window title
+    mainWindow.webContents.on('page-title-updated', (e, title) => {
+        e.preventDefault();
+    });
+
+    // open links in external browser
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        if (url.startsWith('https:') || url.startsWith('http:')) {
+            shell.openExternal(url);
+            return { action: 'deny' };
+        }
+        return { action: 'allow' };
+    });
+
+    const remoteUrl = process.env.PKM_REMOTE_URL || 'https://pkm.houseofmates.space';
+
+    if (isDev) {
+        mainWindow.loadURL('http://localhost:3010');
+        mainWindow.webContents.openDevTools();
+    } else if (process.env.PKM_REMOTE_URL || !app.isPackaged) {
+        // Live update mode: load from remote and check for updates
+        mainWindow.loadURL(remoteUrl);
+        console.log(`[pkm] Live-update mode: Loading from ${remoteUrl}`);
+        console.log(`[pkm] The app will auto-reload when code changes are deployed.`);
+
+        // Start checking for updates after initial load
+        mainWindow.webContents.on('did-finish-load', () => {
+            // Wait a bit then do first version check
+            setTimeout(checkForUpdates, 5000);
+            startUpdateChecker();
+        });
+    } else {
+        // Always use live-update mode: load from remote to share localStorage with web app
+        // This fixes JWT token sync between web and AppImage
+        mainWindow.loadURL(remoteUrl);
+        console.log(`[pkm] Live-update mode: Loading from ${remoteUrl}`);
+        console.log(`[pkm] Shares localStorage with web app for JWT token compatibility`);
+
+        // Start checking for updates after initial load
+        mainWindow.webContents.on('did-finish-load', () => {
+            setTimeout(checkForUpdates, 5000);
+            startUpdateChecker();
+        });
+    }
+
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+        stopUpdateChecker();
+    });
+}
+
+app.whenReady().then(() => {
+    // Remove menu bar BEFORE creating window (important for Linux)
+    Menu.setApplicationMenu(null);
+    
+    protocol.handle('pkm', (request) => {
+        let urlPath = request.url.slice('pkm://app/'.length);
+        urlPath = urlPath.split('?')[0].split('#')[0];
+        if (!urlPath) urlPath = 'index.html';
+
+        let basePath;
+        if (app.isPackaged) {
+            basePath = path.join(__dirname, '../node_modules/@pkm/core/dist');
+        } else {
+            basePath = path.join(__dirname, '../../../packages/core/dist');
+        }
+
+        let filePath = path.join(basePath, urlPath);
+        if (!fs.existsSync(filePath)) {
+            filePath = path.join(basePath, 'index.html');
+        }
+        return net.fetch(url.pathToFileURL(filePath).toString());
+    });
+
+    createWindow();
+
+    // start the context api server (serves llm context to renderer)
+    contextServer.start();
+
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
+
+    // ipc listener: receive context updates from renderer and update server state
+    ipcMain.on('context:update', (event, data) => {
+        contextServer.updateContext(data);
+    });
+
+    // Handle update check from renderer
+    ipcMain.on('app:check-update', () => {
+        checkForUpdates();
+    });
+});
+
+app.on('window-all-closed', () => {
+    // stop server when all windows closed
+    contextServer.stop();
+    stopUpdateChecker();
+    if (process.platform !== 'darwin') app.quit();
+});

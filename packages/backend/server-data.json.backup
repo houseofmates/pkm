@@ -1,0 +1,36 @@
+{
+  "chatHistory": [
+    {
+      "type": "join",
+      "player": "system",
+      "message": "Steve joined the game",
+      "timestamp": "2026-02-12T19:59:16.000Z"
+    },
+    {
+      "type": "chat",
+      "player": "TestUser",
+      "message": "hello",
+      "timestamp": "2026-02-12T22:00:00Z"
+    },
+    {
+      "type": "join",
+      "player": "system",
+      "message": "masked_killaa joined the game",
+      "timestamp": "2026-02-14T00:04:55.223Z"
+    },
+    {
+      "type": "leave",
+      "player": "system",
+      "message": "masked_killaa left the game",
+      "timestamp": "2026-02-14T00:05:00.010Z"
+    }
+  ],
+  "lastServerStats": {
+    "online": true,
+    "players": 0,
+    "maxPlayers": 20,
+    "tps": 20,
+    "uptime": "Unknown",
+    "lastUpdated": "2026-02-14T05:18:53.306Z"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "pkm-web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --workspace=@pkm/core",
+    "build": "npm run build --workspace=@pkm/core",
+    "preview": "npm run preview --workspace=@pkm/core",
+    "lint": "npm run lint --workspace=@pkm/core",
+    "test": "npm run test --workspace=@pkm/core"
+  },
+  "dependencies": {
+    "@pkm/core": "*",
+    "framer-motion": "^12.25.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "zustand": "^5.0.9"
+  }
+}

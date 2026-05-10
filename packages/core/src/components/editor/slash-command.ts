@@ -1,0 +1,193 @@
+/* eslint-disable */
+import { Extension } from '@tiptap/core';
+import Suggestion from '@tiptap/suggestion';
+import { ReactRenderer } from '@tiptap/react';
+import tippy, { type Instance } from 'tippy.js';
+import { SlashMenu } from './SlashMenu';
+import { CommandActions } from './command-actions';
+
+export const SlashCommand = Extension.create({
+  name: 'slashCommand',
+
+  addOptions() {
+  return {
+  suggestion: {
+ char: '/',
+ command: ({ editor, range, props }: any) => {
+ props.command({ editor, range });
+ },
+  },
+  }
+  },
+
+  addProseMirrorPlugins() {
+  return [
+  Suggestion({
+ editor: this.editor,
+ ...this.options.suggestion,
+  }),
+  ]
+  },
+});
+
+export const getSuggestionItems = async ({ query }: { query: string }) => {
+  const commands = [
+  {
+  title: 'Text',
+  description: 'Just start writing.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).setParagraph().run();
+  },
+  },
+  {
+  title: 'Heading 1',
+  description: 'Big section heading.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).setNode('heading', { level: 1 }).run();
+  },
+  },
+  {
+  title: 'Heading 2',
+  description: 'Medium section heading.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).setNode('heading', { level: 2 }).run();
+  },
+  },
+  // --- columns ---
+  {
+  title: '2 Columns',
+  description: 'Create two equal columns.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).setColumns(2).run();
+  },
+  },
+  {
+  title: '3 Columns',
+  description: 'Create three equal columns.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).setColumns(3).run();
+  },
+  },
+  {
+  title: '4 Columns',
+  description: 'Create four equal columns.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).setColumns(4).run();
+  },
+  },
+  // --- widgets ---
+  {
+  title: 'Database View',
+  description: 'Embed a view from any database.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).run();
+ window.dispatchEvent(new CustomEvent('pkm:open-widget-picker', { detail: { filter: 'database', onSelect: (type: string, data: any) => { editor.chain().focus().insertContent({ type: 'widgetBlock', attrs: { type, data } }).run(); } } }));
+  },
+  },
+  {
+  title: 'Insert Widget',
+  description: 'Pick a widget from the registry.',
+  command: ({ editor, range }: any) => {
+ // this will trigger the react state in the parent component to open the picker
+ // since we can't easily access react state from here without a context bridge,
+ // we'll dispatch a custom event.
+ editor.chain().focus().deleteRange(range).run();
+ window.dispatchEvent(new CustomEvent('pkm:open-widget-picker', {
+ detail: {
+ onSelect: (type: string, data: any) => {
+ // insert widget block
+ editor.chain().focus().insertContent({
+ type: 'widgetBlock',
+ attrs: { type, data }
+ }).run();
+ }
+ }
+ }));
+  },
+  },
+  // --- lists ---
+  {
+  title: 'Bullet List',
+  description: 'Simple bulleted list.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).toggleBulletList().run();
+  },
+  },
+  {
+  title: 'Task List',
+  description: 'Checkboxes for tasks.',
+  command: ({ editor, range }: any) => {
+ CommandActions.insertTodo(editor, range);
+  },
+  },
+  {
+  title: 'Image',
+  description: 'Upload an image.',
+  command: ({ editor, range }: any) => {
+ CommandActions.triggerImageUpload(editor, range);
+  },
+  },
+  {
+  title: 'Divider',
+  description: 'Visual separator.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).setHorizontalRule().run();
+  },
+  },
+  ].filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
+
+  return commands;
+};
+
+export const renderItems = () => {
+  let component: ReactRenderer | null = null;
+  let popup: Instance[] | null = null;
+
+  return {
+  onStart: (props: any) => {
+  component = new ReactRenderer(SlashMenu, {
+ props,
+ editor: props.editor,
+  });
+
+  if (!props.clientRect) {
+ return;
+  }
+
+  popup = tippy('body', {
+ getReferenceClientRect: props.clientRect,
+ appendTo: () => document.body,
+ content: component.element,
+ showOnCreate: true,
+ interactive: true,
+ trigger: 'manual',
+ placement: 'bottom-start',
+  });
+  },
+
+  onUpdate(props: any) {
+  component?.updateProps(props);
+
+  if (!props.clientRect) {
+ return;
+  }
+
+  popup?.[0].setProps({
+ getReferenceClientRect: props.clientRect,
+  });
+  },
+
+  onKeyDown(props: any) {
+  if (props.event.key === 'Escape') {
+ popup?.[0].hide();
+ return true;
+  }
+  return (component?.ref as any)?.onKeyDown(props);
+  },
+
+  onExit() {
+  popup?.[0].destroy();
+  component?.destroy();
+  },
+  };
+};

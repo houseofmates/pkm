@@ -1,0 +1,22 @@
+[Unit]
+Description=PKM Backend Server (Live Stats)
+After=network.target
+
+[Service]
+ExecStartPre=/bin/sleep 2
+ExecStart=/home/house/.nvm/versions/node/v24.12.0/bin/node /home/house/pkm/packages/backend/server.js
+WorkingDirectory=/home/house/pkm
+Restart=always
+RestartSec=5
+StartLimitInterval=60
+StartLimitBurst=5
+OOMScoreAdjust=-100
+MemoryMax=512M
+TimeoutStartSec=30
+TimeoutStopSec=30
+User=house
+Environment=PORT=4100
+Environment=PATH=/home/house/.nvm/versions/node/v24.12.0/bin:/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=default.target

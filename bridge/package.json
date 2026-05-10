@@ -1,0 +1,24 @@
+{
+  "name": "pkm-hermes-bridge",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "mcp_server.js",
+  "bin": {
+    "pkm-mcp-server": "./mcp_server.js",
+    "pkm-chat-bridge": "./chat_bridge.js"
+  },
+  "scripts": {
+    "start": "node mcp_server.js",
+    "start-bridge": "node chat_bridge.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "http-proxy-middleware": "^3.0.5",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.14.1",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.1"
+  }
+}

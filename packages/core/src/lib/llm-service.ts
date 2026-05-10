@@ -1,0 +1,55 @@
+/* eslint-disable */
+import { secureLogger } from './secure-logger'
+import { DEFAULT_OLLAMA_MODEL } from './llm-config'
+
+export interface LLMRequest {
+  model: string
+  prompt: string
+  stream?: boolean
+  options?: Record<string, any>
+}
+
+export interface LLMResponse {
+  response: string
+  done: boolean
+}
+
+export async function generateText(prompt: string, model: string = DEFAULT_OLLAMA_MODEL, endpoint: string): Promise<string | null> {
+  try {
+    // if this looks like the gemini api, send the request in the gemini format.
+    const isGemini = /generativeai\.googleapis\.com\//i.test(endpoint);
+
+    const body = isGemini
+      ? {
+          prompt: { text: prompt },
+          // optional: control generation length / temperature here
+        }
+      : ({ model, prompt, stream: false } as LLMRequest);
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      throw new Error(`LLM API Error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (isGemini) {
+      // gemini returns candidates array
+      const candidate = data?.candidates?.[0]?.content;
+      return typeof candidate === 'string' ? candidate : null;
+    }
+
+    const parsed = data as LLMResponse;
+    return parsed.response;
+  } catch (e) {
+    secureLogger.warn('Hermes Silent Fail:', e);
+    return null;
+  }
+}

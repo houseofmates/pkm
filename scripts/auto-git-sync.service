@@ -1,0 +1,15 @@
+[Unit]
+Description=Auto Git Sync (pkm repo)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/house/pkm
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/env node /home/house/pkm/scripts/auto-git-sync.js
+Restart=always
+RestartSec=10
+User=house
+
+[Install]
+WantedBy=multi-user.target

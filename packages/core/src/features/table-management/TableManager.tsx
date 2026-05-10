@@ -1,0 +1,102 @@
+import React, { useState, useEffect } from 'react';
+import { dataService } from '@/services/data.service';
+import { useCollectionsStore } from '@/store/useCollectionsStore';
+import type { FieldInstance } from '@/services/schema.service';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from 'sonner';
+
+export const TableManager: React.FC = () => {
+  // subscribe to the collections from the central zustand store
+  const collections = useCollectionsStore((state) => state.collections);
+  const [newTableName, setNewTableName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+
+  // when the component mounts, trigger a sync to load cached data and fetch fresh data.
+  useEffect(() => {
+    dataService.syncTables();
+  }, []);
+
+  const handleCreateTable = async () => {
+    if (newTableName.trim() === '') {
+      toast.error('table name cannot be empty.');
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      // for simplicity, new tables will have a single 'name' field by default.
+      const defaultFields: FieldInstance[] = [{ name: 'name', type: 'text' }];
+      await dataService.createTable(newTableName, defaultFields);
+      setNewTableName('');
+      // no need to manually refresh; createtable now triggers a sync automatically.
+      toast.success(`collection '${newTableName}' created successfully`);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(`failed to create table: ${error.message}`);
+      } else {
+        toast.error('an unknown error occurred.');
+      }
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const SYSTEM_COLLECTIONS = new Set([
+    'server-stats', 'pkm_backend', 'pkm_canvases', 'pkm_settings',
+    'form-submissions', 'public_blocks', 'public_pages', 'site-pages',
+    'website', 'front_history', 'sidebar_item_colors',
+    'dupemates-stats', 'dupemates-pages', 'dupe-forms', 'llms',
+    'roles', 'users',
+  ]);
+
+  const visibleCollections = collections
+    .filter((c) => !SYSTEM_COLLECTIONS.has(c.name))
+    .filter((c) => {
+      const title = c.title || c.name || '';
+      if (title.startsWith('{{t(') || title.startsWith('{{ t(')) return false;
+      return true;
+    })
+    .filter((c, i, arr) => arr.findIndex((x) => x.name === c.name) === i)
+    .sort((a, b) => (a.title || a.name).localeCompare(b.title || b.name));
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="lowercase">create new collection</CardTitle>
+        </CardHeader>
+        <CardContent className="flex gap-2">
+          <Input
+            placeholder="enter new collection name"
+            value={newTableName}
+            onChange={(e) => setNewTableName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleCreateTable()}
+            disabled={isCreating}
+          />
+          <Button onClick={handleCreateTable} disabled={isCreating}>
+            {isCreating ? 'creating...' : 'create'}
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>existing collections</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {visibleCollections.length > 0 ? (
+            <ul className="list-disc pl-5 space-y-1">
+              {visibleCollections.map(collection => (
+                <li key={collection.name}>{collection.title || collection.name}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No collections found. They may be loading...</p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};

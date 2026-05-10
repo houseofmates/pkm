@@ -1,0 +1,195 @@
+# PKM Live Update Guide
+
+this document explains how the live update system works for both the linux electron app and the android apk.
+
+---
+
+## ⚡ Quick Answer: Do I Need to Rebuild the APK?
+
+**NO** - For most changes, you do NOT need to create a new APK. Just:
+1. Deploy your code changes to the server
+2. Fully close the app (swipe it away from recents)
+3. Reopen the app - changes will load automatically
+
+**YES** - You only need a new APK when:
+- Changing native Android code or Capacitor plugins
+- Changing the server URL in capacitor.config.ts
+- Changing app icons or native configuration
+
+---
+
+## How It Works
+
+both apps are configured to load the pkm web app from a remote server (`https://pkm.houseofmates.space`) instead of bundling the web assets locally. this means:
+
+1. you deploy code changes to your server
+2. the apps automatically fetch the latest version on launch/reload
+3. no need to rebuild or redistribute the apps for most code changes
+
+---
+
+## Android APK
+
+### Configuration
+the APK is configured in `capacitor.config.ts`:
+```typescript
+server: {
+  url: 'https://pkm.houseofmates.space',
+  allowNavigation: ['*'],
+  cleartext: true
+}
+```
+
+### How to Update (Important!)
+
+**The APK loads code from the server on EVERY cold start.**
+
+To see your changes:
+1. **Deploy** your code changes to `https://pkm.houseofmates.space`
+2. **Fully close** the APK (swipe it away from recent apps - NOT just minimize)
+3. **Reopen** the APK - it will fetch the latest code from the server
+
+**Why didn't my changes show up?**
+- ❌ Minimizing and reopening the app (app was still running in background)
+- ❌ The WebView cached the old version
+- ❌ The server wasn't updated yet
+- ✅ **Fix:** Swipe the app away from recents completely, then reopen
+
+### Offline Mode (New!)
+the APK now supports offline functionality:
+
+**what works offline:**
+- view up to 200 recently accessed records (cached locally)
+- create, edit, delete records (changes are queued)
+- all changes sync automatically when back online
+
+**how it works:**
+- records are cached as you view them (LRU eviction when full)
+- changes are queued and retried up to 5 times
+- sync happens automatically when connection restored
+
+**does the cache persist across app restarts?**
+yes! the 200 cached records and any pending changes are stored in the WebView's localStorage. they survive:
+- closing and reopening the app
+- phone restarts
+- temporary loss of internet
+
+the cache only clears if you:
+- explicitly clear app data (android settings > apps > pkm > storage > clear data)
+- the app evicts old records to make room for new ones (LRU)
+
+### Limitations
+- the APK only checks for code updates on **cold start** (fully close and reopen)
+- to force a refresh: close the app completely (swipe away from recents) and reopen
+- some native plugin changes may still require an APK rebuild
+
+---
+
+## Linux Electron App
+
+### Configuration
+the electron app has two modes:
+
+**Live Update Mode** (default when `PKM_REMOTE_URL` is set):
+```bash
+export PKM_REMOTE_URL=https://pkm.houseofmates.space
+npm run electron:build
+```
+
+**Offline Mode** (bundled files, no live update):
+```bash
+# don't set PKM_REMOTE_URL
+npm run electron:build
+```
+
+### How to Update
+
+**Automatic (Every 30 seconds):**
+the electron app checks `/api/version` on your backend every 30 seconds. when a new version is detected, it shows a dialog:
+- click "reload now" to immediately get updates
+- click "later" to keep using the current version
+
+**Manual:**
+- press `ctrl+r` (or `cmd+r` on mac) to reload
+- use the menu: `view > check for updates`
+- close and reopen the app
+
+### Backend Version Endpoint
+the backend exposes `/api/version` which returns:
+```json
+{
+  "version": "2025-01-15T10:30:00.000Z",
+  "buildTime": "2025-01-15T10:30:00.000Z",
+  "env": "production"
+}
+```
+
+the electron app compares this version string with the one it stored on first load. if different, an update is available.
+
+---
+
+## Deployment Checklist
+
+when you make code changes:
+
+1. **build and deploy the web app:**
+   ```bash
+   npm run build
+   # deploy dist/ to your server at pkm.houseofmates.space
+   ```
+
+2. **restart the backend** (if you changed backend code):
+   ```bash
+   # on your server
+   pm2 restart pkm-backend  # or however you run it
+   ```
+
+3. **apps will auto-update:**
+   - APK: close and reopen
+   - Electron: will prompt you within 30 seconds, or press ctrl+r
+
+---
+
+## Troubleshooting
+
+### APK not showing updates
+
+**Most common issue:** You didn't fully close the app!
+
+On Android, swiping up to go home doesn't close the app - it just minimizes it. The app continues running in the background with the old code loaded.
+
+**To properly close the app:**
+1. Open the recent apps view (swipe up from bottom or press square button)
+2. Find the PKM app
+3. Swipe it away to the side (or tap X)
+4. Now reopen the app from your home screen
+
+**Other things to check:**
+- ensure the APK has internet access
+- check that `https://pkm.houseofmates.space` is reachable from the device
+- try clearing the app's cache (android settings > apps > pkm > storage > clear cache)
+- verify your changes are actually deployed to the server by checking in a web browser
+
+### Electron not detecting updates
+- check the console for errors (view > toggle developer tools)
+- verify `/api/version` returns a different timestamp after deployment
+- ensure `PKM_REMOTE_URL` was set when building
+- try manual reload with ctrl+r
+
+### Backend version endpoint not working
+- verify the backend is running: `curl http://localhost:4100/api/version`
+- check that the backend was restarted after code changes
+- the `BUILD_TIME` is set when the backend starts, so restarting updates the version
+
+---
+
+## When You Need to Rebuild
+
+you only need to rebuild the apps when:
+
+- changing native/capacitor plugins (android)
+- changing electron main process code (linux)
+- changing the app icon or native configuration
+- the live update server URL changes
+
+for all UI changes, database schema changes, and most feature additions, just deploy to the server.

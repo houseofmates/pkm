@@ -1,0 +1,11 @@
+{
+  "primary": "#f6b012",
+  "secondary": "#252525",
+  "accent": "#ef4444",
+  "background": "#0a0a0a",
+  "sidebar": {
+    "default": "#252525",
+    "active": "#f6b012",
+    "hover": "#f6b01299"
+  }
+}

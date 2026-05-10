@@ -1,0 +1,99 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+app.log
+dev.log
+backend.log
+packages/backend/backend.log
+
+# Runtime artifacts
+node_modules
+dist
+dist-ssr
+*.local
+.pkm.pid
+.pkm-backend.pid
+tmp/
+test-results/
+.sync-status.json
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Agent / auto-generated tooling
+.agents/
+.factory/
+.chat/
+.claude/
+.cursor/
+.qodo/
+.kilo/
+.windsurf/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.example
+
+# Build artifacts
+release/
+build/
+
+# Tauri
+src-tauri/target/
+
+# Electron
+electron/dist/
+
+# Capacitor
+android/app/build/
+android/.gradle/
+android/local.properties
+
+# Backend data
+packages/backend/server-data.json
+packages/backend/server-data.json.backup
+packages/backend/public/*.png
+packages/backend/public/*.jpg
+packages/backend/public/*.jpeg
+packages/backend/public/*.gif
+packages/backend/public/*.webp
+packages/backend/public/*.pdf
+
+# AppImage squashfs extraction artifacts
+squashfs-root/
+
+# Releases
+releases/
+*.zip
+
+# Test artifacts
+packages/core/test-notion-*/
+
+# Personal / stray files
+*.private.*
+.aider*
+server-data.json
+indexes.sql
+dashboard_p*.tsx
+homepage-widgets.html
+all_workflows.json
+current_workflows.json
+n8n-schema.json
+fixed-*.json
+smoke-template.png
+.sync-pause

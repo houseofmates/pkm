@@ -1,0 +1,25 @@
+{
+  "name": "pkm-wiki",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "wiki:dev": "vitepress dev content --port 4173 --host",
+    "wiki:build": "vitepress build content",
+    "wiki:preview": "vitepress preview content --port 4173",
+    "wiki:backlinks": "node scripts/generate-backlinks.js",
+    "wiki:search-index": "node scripts/generate-search-index.js",
+    "wiki:lint": "node scripts/lowercase-md.js && node scripts/link-checker.js"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.0",
+    "vue": "^3.5.12",
+    "tailwindcss": "^3.4.17",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.0",
+    "flexsearch": "^0.7.21",
+    "remark-wiki-link": "^1.0.4",
+    "gray-matter": "^4.0.3",
+    "typescript": "^5.6.3",
+    "@types/node": "^22.14.2"
+  }
+}

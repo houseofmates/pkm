@@ -1,0 +1,999 @@
+{/* eslint-disable */}
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
+import { HexColorPicker } from 'react-colorful';
+import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check, Image as ImageIcon, type LucideIcon } from 'lucide-react';
+// note: static import of lucide-react gets tree-shaken by bundlers. a number of
+// other modules rely on some of the helper icons above, so we keep those
+// exports around, but the full namespace may still be pruned.
+//
+// to avoid a completely empty picker when the module is tree‑shaken (which was
+// the original user complaint), we dynamically load the library at runtime and
+// cache the result.  additionally we trigger a background import as soon as
+// this file loads so that the first time the context menu is opened the icons
+// are already available.
+import { ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from "@/components/ui/context-menu";
+import { EyeOff } from 'lucide-react';
+
+// --- lazy loader helpers ----------------------------------------------------
+
+let lucideModuleCache: Record<string, unknown> | null = null;
+let lucideModulePromise: Promise<Record<string, unknown>> | null = null;
+
+function loadLucideModule(): Promise<Record<string, unknown>> {
+  if (lucideModuleCache) {
+    return Promise.resolve(lucideModuleCache);
+  }
+  if (lucideModulePromise) {
+    return lucideModulePromise;
+  }
+  lucideModulePromise = import('lucide-react').then((mod) => {
+    lucideModuleCache = mod;
+    return mod;
+  });
+  return lucideModulePromise;
+}
+
+// immediately kick off the import so that the network/chunk load happens
+// long before the user actually opens a context menu.
+loadLucideModule();
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { useAppSetting } from '@/hooks/use-app-setting';
+import { generateGeminiIcon, enhancePromptWithGemini, removeBackground, getGeminiApiKey, saveGeminiApiKey } from '@/lib/vertex-image';
+
+interface RichResourceContextMenuProps {
+  currentName?: string;
+  currentColor?: string;
+  onUpdate: (data: { name?: string; color?: string; icon?: string; iconType?: 'emoji' | 'lucide' | 'image' }) => void;
+  onHide?: () => void;
+  children?: React.ReactNode;
+  itemId?: string; // for syncing with nocobase
+}
+
+interface CustomIconEntry {
+  id: string;
+  dataUrl: string;
+  prompt?: string;
+  createdAt?: string;
+}
+
+// instead of computing the complete icon list at module load time we
+// populate it dynamically when the menu is rendered.  bundlers like vite
+// aggressively tree‑shake unused exports from `lucide-react` which means the
+// namespace object may only contain the handful of icons that were imported
+// statically elsewhere in the bundle.  as a result, a static all_icons array
+// could end up empty or missing most of the icons, which is exactly what
+// manifested when right‑clicking a sidebar item – the "icons" tab would be
+// completely blank.
+//
+// loading the module with a dynamic `import()` ensures we receive the full
+// export list at runtime (the library cannot be pruned) and allows us to
+// rebuild the list when the context menu opens.  we also keep the filtering
+// logic the same so we still exclude internal helpers and duplicates.
+
+// helper used in `useeffect` below; not exported because it's only relevant in
+// this file.
+//
+// lucide's module shape has changed a few times – during development the
+// namespace might expose every icon as a top‑level export, and in production
+// builds a single `icons` object may be provided instead.  the previous
+// implementation blindly filtered out the `icons` property which meant that
+// when *only* that container was present we ended up with an empty list and the
+// picker appeared blank.  that exactly matched the bug described by users:
+// "i right click a sidebar item, i cant see any lucide icons to scroll through
+// or search for".  to be robust we now merge both locations and dedupe the
+// results.
+function computeIconNames(obj: Record<string, unknown>): string[] {
+  // some module mocks (vitest) or bundler outputs may put the real exports under
+  // a `default` property.  make sure we examine both locations.
+  const source: Record<string, unknown> = { ...(obj as any) };
+  if (obj.default && typeof obj.default === 'object') {
+    Object.assign(source, obj.default as Record<string, unknown>);
+  }
+
+  const names = new Set<string>();
+
+  function addKey(key: string) {
+    // ignore helpers and lowercase exports
+    if (
+      key === 'icons' ||
+      key === 'createlucideicon' ||
+      key === 'default' ||
+      key.startsWith('lucide') ||
+      // the original code filtered out lowercase "icon" suffix; keep the
+      // upper‑case variant since many library exports include both
+      key.endsWith('icon') ||
+      !/^[A-Z]/.test(key)
+    ) {
+      return;
+    }
+    names.add(key);
+  }
+
+  Object.keys(obj).forEach(addKey);
+
+  // also inspect nested `icons` object if present (bundlers sometimes put all
+  // of the icons there to avoid polluting the top-level namespace).
+  if (obj.icons && typeof obj.icons === 'object') {
+    Object.keys(obj.icons as Record<string, unknown>).forEach((k) => {
+      if (/^[A-Z]/.test(k)) {
+        names.add(k);
+      }
+    });
+  }
+
+  return Array.from(names);
+}
+
+// semantic keywords for "smart search"
+const iconKeywords: Record<string, string[]> = {
+  // food & drink
+  'food': ['Apple', 'Banana', 'Cherry', 'Citrus', 'Coffee', 'Cookie', 'Croissant', 'CupSoda', 'Donut', 'Egg', 'Fish', 'Grape', 'IceCream', 'Lollipop', 'Martini', 'Milk', 'Nut', 'Pizza', 'Popcorn', 'Potato', 'Sandwich', 'Soup', 'Utensils', 'Wheat', 'Wine', 'Beef', 'Beer', 'Candy', 'Carrot', 'Vegan', 'Cake', 'IceCream2'],
+  'drink': ['Beer', 'Coffee', 'CupSoda', 'Martini', 'Milk', 'Wine', 'GlassWater'],
+
+  // nature & environment
+  'nature': ['Cloud', 'Sun', 'Moon', 'Tree', 'Flower', 'Leaf', 'Mountain', 'Snowflake', 'Flame', 'Zap', 'Droplets', 'Waves', 'Wind', 'Cat', 'Dog', 'Bird', 'Fish', 'Rabbit', 'Squirrel', 'Bug', 'Palmtree', 'Tent', 'Flower2'],
+  'weather': ['Cloud', 'CloudRain', 'CloudSnow', 'CloudLightning', 'Sun', 'Moon', 'Thermometer', 'Umbrella', 'Wind', 'Rainbow', 'Sunset', 'Sunrise'],
+  'beach': ['Palmtree', 'Umbrella', 'Sun', 'Waves', 'Shell', 'Fish'],
+  'garden': ['Flower', 'Shovel', 'Sprout', 'Tree', 'Fence'],
+
+  // tech & electronics
+  'tech': ['Cpu', 'Database', 'HardDrive', 'Keyboard', 'Laptop', 'Monitor', 'Mouse', 'Phone', 'Server', 'Smartphone', 'Tablet', 'Tv', 'Watch', 'Wifi', 'Battery', 'Bluetooth', 'Camera', 'Headphones', 'Speaker', 'Radio', 'Gamepad', 'Printer', 'Scanner'],
+  'computer': ['Monitor', 'Laptop', 'Cpu', 'Keyboard', 'Mouse', 'HardDrive', 'Server', 'Code', 'Terminal'],
+  'gaming': ['Gamepad', 'Gamepad2', 'Joystick', 'Dice', 'Sword', 'Ghost', 'Skull', 'Trophy', 'Crown'],
+  'xbox': ['Gamepad', 'Gamepad2'], // specific request
+  'boombox': ['BoomBox', 'Speaker', 'Radio'], // specific request
+
+  // money & finance
+  'money': ['Banknote', 'CircleDollarSign', 'Coins', 'CreditCard', 'DollarSign', 'Gem', 'Landmark', 'PiggyBank', 'Receipt', 'Wallet', 'BadgeDollarSign', 'HandCoins', 'CircleDollarSign'],
+  'finance': ['TrendingUp', 'TrendingDown', 'BarChart', 'PieChart', 'LineChart', 'Activity', 'BadgePercent', 'Calculator'],
+
+  // objects & life
+  'life': ['Home', 'Bed', 'Bath', 'Briefcase', 'ShoppingBag', 'ShoppingCart', 'Ticket', 'Key', 'Lock', 'Map', 'Compass', 'Gift', 'Tag', 'Bookmark'],
+  'home': ['Home', 'Bed', 'AppWindow', 'Armchair', 'Bath', 'ConciergeBell', 'DoorOpen', 'Fan', 'Lamp', 'Refrigerator', 'Sofa', 'Tv', 'WashingMachine'],
+  'minecraft': ['Box', 'Cuboid', 'Ghost', 'Pickaxe', 'Axe', 'Shovel', 'Sword'], // specific request
+
+  // office & work
+  'office': ['Folder', 'File', 'Archive', 'Briefcase', 'Calculator', 'Clipboard', 'Paperclip', 'Printer', 'Scissors', 'Stapler', 'Trash', 'Briefcase', 'Calendar'],
+
+  // transport
+  'transport': ['Bike', 'Bus', 'Car', 'Plane', 'Rocket', 'Ship', 'Train', 'Truck', 'Anchor', 'Sailboat', 'TramFront'],
+
+  // misc specific requests
+  'cane': ['CandyCane', 'Accessibility', 'Crutch'], // "cane"
+  'umbrella': ['Umbrella'],
+  'cart': ['ShoppingCart', 'ShoppingBag'],
+};
+
+// fallback emoji list (common)
+const DEFAULT_EMOJIS = [
+  { unified: '1f600', short_name: 'grinning face' },
+  { unified: '1f603', short_name: 'grinning face with big eyes' },
+  { unified: '1f604', short_name: 'grinning face with smiling eyes' },
+  { unified: '1f601', short_name: 'beaming face with smiling eyes' },
+  { unified: '1f606', short_name: 'grinning squinting face' },
+  { unified: '1f605', short_name: 'grinning face with sweat' },
+  { unified: '1f923', short_name: 'rolling on the floor laughing' },
+  { unified: '1f602', short_name: 'face with tears of joy' },
+  { unified: '1f642', short_name: 'slightly smiling face' },
+  { unified: '1f643', short_name: 'upside-down face' },
+  { unified: '1f60d', short_name: 'smiling face with heart-eyes' },
+  { unified: '1f929', short_name: 'star-struck' },
+  { unified: '1f618', short_name: 'face blowing a kiss' },
+  { unified: '1f617', short_name: 'kissing face' },
+  { unified: '1f61a', short_name: 'kissing face with closed eyes' },
+  { unified: '1f619', short_name: 'kissing face with smiling eyes' },
+  { unified: '1f60b', short_name: 'face savoring food' },
+  { unified: '1f61b', short_name: 'face with tongue' },
+  { unified: '1f61c', short_name: 'winking face with tongue' },
+  { unified: '1f92a', short_name: 'zany face' },
+  { unified: '1f61d', short_name: 'squinting face with tongue' },
+  { unified: '1f911', short_name: 'money-mouth face' },
+  { unified: '1f917', short_name: 'hugging face' },
+  { unified: '1f92d', short_name: 'face with hand over mouth' },
+  { unified: '1f92b', short_name: 'shushing face' },
+  { unified: '1f914', short_name: 'thinking face' },
+  { unified: '1f910', short_name: 'zipper-mouth face' },
+  { unified: '1f928', short_name: 'face with raised eyebrow' },
+  { unified: '1f610', short_name: 'neutral face' },
+  { unified: '1f611', short_name: 'expressionless face' },
+  { unified: '1f636', short_name: 'face without mouth' },
+  { unified: '1f60f', short_name: 'smirking face' },
+  { unified: '1f612', short_name: 'unamused face' },
+  { unified: '1f644', short_name: 'face with rolling eyes' },
+  { unified: '1f62c', short_name: 'grimacing face' },
+  { unified: '1f925', short_name: 'lying face' },
+  { unified: '1f60c', short_name: 'relieved face' },
+  { unified: '1f614', short_name: 'pensive face' },
+  { unified: '1f62a', short_name: 'sleepy face' },
+  { unified: '1f924', short_name: 'drooling face' },
+  { unified: '1f634', short_name: 'sleeping face' },
+  { unified: '1f637', short_name: 'face with medical mask' },
+  { unified: '1f912', short_name: 'face with thermometer' },
+  { unified: '1f915', short_name: 'face with head-bandage' },
+  { unified: '1f922', short_name: 'nauseated face' },
+  { unified: '1f92e', short_name: 'face vomiting' },
+  { unified: '1f927', short_name: 'sneezing face' },
+  { unified: '1f975', short_name: 'hot face' },
+  { unified: '1f976', short_name: 'cold face' },
+  { unified: '1f974', short_name: 'woozy face' },
+  { unified: '1f635', short_name: 'dizzy face' },
+  { unified: '1f92f', short_name: 'exploding head' },
+  { unified: '1f920', short_name: 'cowboy hat face' },
+  { unified: '1f973', short_name: 'partying face' },
+  { unified: '1f60e', short_name: 'smiling face with sunglasses' },
+  { unified: '1f913', short_name: 'nerd face' },
+  { unified: '1f9d0', short_name: 'face with monocle' },
+  { unified: '1f615', short_name: 'confused face' },
+  { unified: '1f61f', short_name: 'worried face' },
+  { unified: '1f641', short_name: 'slightly frowning face' },
+  { unified: '2639', short_name: 'frowning face' },
+  { unified: '1f62e', short_name: 'face with open mouth' },
+  { unified: '1f62f', short_name: 'hushed face' },
+  { unified: '1f632', short_name: 'astonished face' },
+  { unified: '1f633', short_name: 'flushed face' },
+  { unified: '1f97a', short_name: 'pleading face' },
+  { unified: '1f626', short_name: 'frowning face with open mouth' },
+  { unified: '1f627', short_name: 'anguished face' },
+  { unified: '1f628', short_name: 'fearful face' },
+  { unified: '1f630', short_name: 'face screaming in fear' },
+  { unified: '1f625', short_name: 'sad but relieved face' },
+  { unified: '1f622', short_name: 'crying face' },
+  { unified: '1f62d', short_name: 'loudly crying face' },
+  { unified: '1f631', short_name: 'face screaming in fear' },
+  { unified: '1f616', short_name: 'confounded face' },
+  { unified: '1f623', short_name: 'persevering face' },
+  { unified: '1f61e', short_name: 'disappointed face' },
+  { unified: '1f613', short_name: 'downcast face with sweat' },
+  { unified: '1f629', short_name: 'weary face' },
+  { unified: '1f62b', short_name: 'tired face' },
+  { unified: '1f971', short_name: 'yawning face' },
+  { unified: '1f624', short_name: 'face with steam from nose' },
+  { unified: '1f621', short_name: 'pouting face' },
+  { unified: '1f620', short_name: 'angry face' },
+  { unified: '1f92c', short_name: 'face with symbols on mouth' },
+  { unified: '1f608', short_name: 'smiling face with horns' },
+  { unified: '1f47f', short_name: 'angry face with horns' },
+  { unified: '1f480', short_name: 'skull' },
+  { unified: '2620', short_name: 'skull and crossbones' },
+  { unified: '1f4a9', short_name: 'pile of poo' },
+  { unified: '1f921', short_name: 'clown face' },
+  { unified: '1f479', short_name: 'ogre' },
+  { unified: '1f47a', short_name: 'goblin' },
+  { unified: '1f47b', short_name: 'ghost' },
+  { unified: '1f47d', short_name: 'alien' },
+  { unified: '1f47e', short_name: 'alien monster' },
+  { unified: '1f916', short_name: 'robot' },
+  { unified: '1f63a', short_name: 'smiling cat face with open mouth' },
+  { unified: '1f638', short_name: 'grinning cat face with smiling eyes' },
+  { unified: '1f639', short_name: 'cat face with tears of joy' },
+  { unified: '1f63b', short_name: 'smiling cat face with heart-eyes' },
+  { unified: '1f63c', short_name: 'cat face with wry smile' },
+  { unified: '1f63d', short_name: 'kissing cat face' },
+  { unified: '1f640', short_name: 'weary cat face' },
+  { unified: '1f63f', short_name: 'crying cat face' },
+  { unified: '1f63e', short_name: 'pouting cat face' },
+  { unified: '1f648', short_name: 'see-no-evil monkey' },
+  { unified: '1f649', short_name: 'hear-no-evil monkey' },
+  { unified: '1f64a', short_name: 'speak-no-evil monkey' },
+  { unified: '1f48b', short_name: 'kiss mark' },
+  { unified: '1f48c', short_name: 'love letter' },
+  { unified: '1f498', short_name: 'heart with arrow' },
+  { unified: '1f49d', short_name: 'heart with ribbon' },
+  { unified: '1f496', short_name: 'sparkling heart' },
+  { unified: '1f497', short_name: 'growing heart' },
+  { unified: '1f493', short_name: 'beating heart' },
+  { unified: '1f49e', short_name: 'revolving hearts' },
+  { unified: '1f495', short_name: 'two hearts' },
+  { unified: '1f49f', short_name: 'heart decoration' },
+  { unified: '2763', short_name: 'heart exclamation' },
+  { unified: '1f494', short_name: 'broken heart' },
+  { unified: '2764', short_name: 'red heart' },
+  { unified: '1f9e1', short_name: 'orange heart' },
+  { unified: '1f49b', short_name: 'yellow heart' },
+  { unified: '1f49a', short_name: 'green heart' },
+  { unified: '1f499', short_name: 'blue heart' },
+  { unified: '1f49c', short_name: 'purple heart' },
+  { unified: '1f90e', short_name: 'brown heart' },
+  { unified: '1f5a4', short_name: 'black heart' },
+  { unified: '1f90d', short_name: 'white heart' },
+  { unified: '1f4af', short_name: 'hundred points' },
+  { unified: '1f4a2', short_name: 'anger symbol' },
+  { unified: '1f4a5', short_name: 'collision' },
+  { unified: '1f4ab', short_name: 'dizzy' },
+  { unified: '1f4a6', short_name: 'sweat droplets' },
+  { unified: '1f4a8', short_name: 'dashing away' },
+  { unified: '1f573', short_name: 'hole' },
+  { unified: '1f4a3', short_name: 'bomb' },
+  { unified: '1f4ac', short_name: 'speech balloon' },
+  { unified: '1f441', short_name: 'eye in speech bubble' },
+  { unified: '1f5e8', short_name: 'left speech bubble' },
+  { unified: '1f5ef', short_name: 'right anger bubble' },
+  { unified: '1f4ad', short_name: 'thought balloon' },
+  { unified: '1f4a4', short_name: 'zzz' },
+  { unified: '1f44b', short_name: 'waving hand' },
+  { unified: '1f91a', short_name: 'raised back of hand' },
+  { unified: '1f590', short_name: 'hand with fingers splayed' },
+  { unified: '270b', short_name: 'raised hand' },
+  { unified: '1f596', short_name: 'vulcan salute' },
+  { unified: '1f44c', short_name: 'OK hand' },
+  { unified: '1f90f', short_name: 'pinching hand' },
+  { unified: '270c', short_name: 'victory hand' },
+  { unified: '1f91e', short_name: 'crossed fingers' },
+  { unified: '1f91f', short_name: 'love-you gesture' },
+  { unified: '1f918', short_name: 'sign of the horns' },
+  { unified: '1f919', short_name: 'call me hand' },
+  { unified: '1f448', short_name: 'backhand index pointing left' },
+  { unified: '1f449', short_name: 'backhand index pointing right' },
+  { unified: '1f446', short_name: 'backhand index pointing up' },
+  { unified: '1f595', short_name: 'middle finger' },
+  { unified: '1f447', short_name: 'backhand index pointing down' },
+  { unified: '261d', short_name: 'index pointing up' },
+  { unified: '1f44d', short_name: 'thumbs up' },
+  { unified: '1f44e', short_name: 'thumbs down' },
+  { unified: '270a', short_name: 'raised fist' },
+  { unified: '1f44a', short_name: 'oncoming fist' },
+  { unified: '1f91b', short_name: 'left-facing fist' },
+  { unified: '1f91c', short_name: 'right-facing fist' },
+  { unified: '1f44f', short_name: 'clapping hands' },
+  { unified: '1f64c', short_name: 'raising hands' },
+  { unified: '1f450', short_name: 'open hands' },
+  { unified: '1f932', short_name: 'palms up together' },
+  { unified: '1f91d', short_name: 'handshake' },
+  { unified: '1f64f', short_name: 'folded hands' },
+  { unified: '270d', short_name: 'writing hand' },
+  { unified: '1f485', short_name: 'nail polish' },
+  { unified: '1f933', short_name: 'selfie' },
+  { unified: '1f4aa', short_name: 'flexed biceps' },
+  { unified: '1f9be', short_name: 'mechanical arm' },
+  { unified: '1f9bf', short_name: 'mechanical leg' },
+  { unified: '1f9b5', short_name: 'leg' },
+  { unified: '1f9b6', short_name: 'foot' },
+  { unified: '1f442', short_name: 'ear' },
+  { unified: '1f9bb', short_name: 'ear with hearing aid' },
+  { unified: '1f443', short_name: 'nose' },
+  { unified: '1f9e0', short_name: 'brain' },
+  { unified: '1f9b7', short_name: 'tooth' },
+  { unified: '1f9b4', short_name: 'bone' },
+  { unified: '1f440', short_name: 'eyes' },
+  { unified: '1f441', short_name: 'eye' },
+  { unified: '1f445', short_name: 'tongue' },
+  { unified: '1f444', short_name: 'mouth' },
+  { unified: '1f476', short_name: 'baby' },
+  { unified: '1f9d2', short_name: 'child' },
+  { unified: '1f466', short_name: 'boy' },
+  { unified: '1f467', short_name: 'girl' },
+  { unified: '1f9d1', short_name: 'person' },
+  { unified: '1f471', short_name: 'person with blond hair' },
+  { unified: '1f468', short_name: 'man' },
+  { unified: '1f9d4', short_name: 'person with beard' },
+  { unified: '1f468', short_name: 'man with beard' },
+  { unified: '1f9d4', short_name: 'woman with beard' },
+  { unified: '1f469', short_name: 'woman' },
+  { unified: '1f9d3', short_name: 'older person' },
+  { unified: '1f474', short_name: 'old man' },
+  { unified: '1f475', short_name: 'old woman' },
+  { unified: '1f64d', short_name: 'person frowning' },
+  { unified: '1f64e', short_name: 'person pouting' },
+  { unified: '1f645', short_name: 'person gesturing NO' },
+  { unified: '1f646', short_name: 'person gesturing OK' },
+  { unified: '1f481', short_name: 'person tipping hand' },
+  { unified: '1f64b', short_name: 'person raising hand' },
+  { unified: '1f9cf', short_name: 'deaf person' },
+  { unified: '1f647', short_name: 'person bowing' },
+  { unified: '1f926', short_name: 'person facepalming' },
+  { unified: '1f937', short_name: 'person shrugging' },
+];
+
+export function RichResourceContextMenuContent({ currentName, currentColor, onUpdate, onHide, children, itemId }: RichResourceContextMenuProps) {
+  return (
+    <ErrorBoundary fallback={<div className="text-red-500">menu failed</div>}>
+      {renderMenu({ currentName, currentColor, onUpdate, onHide, children, itemId })}
+    </ErrorBoundary>
+  );
+}
+
+function renderMenu({ currentName, currentColor, onUpdate, onHide, children, itemId }: RichResourceContextMenuProps) {
+  const [search, setSearch] = useState('');
+  const FALLBACK_ICONS = ['Folder', 'File', 'Database', 'Layout', 'Settings', 'User', 'Users', 'Home', 'Search', 'Plus', 'Minus'];
+  const [allIcons, setAllIcons] = useState<string[]>(FALLBACK_ICONS);
+  const [activeTab, setActiveTab] = useState<'icons' | 'emojis' | 'color'>('icons');
+  const [localColor, setLocalColor] = useState(currentColor || '#f5af12');
+  const emojiSearchRef = useRef<HTMLInputElement | null>(null);
+  const iconSearchRef = useRef<HTMLInputElement | null>(null);
+  const contextMenuRef = useRef<HTMLDivElement | null>(null);
+  const promptInputRef = useRef<HTMLInputElement | null>(null);
+  const [localName, setLocalName] = useState(currentName || '');
+  const [customIcons, setCustomIcons] = useAppSetting<CustomIconEntry[]>('custom_icons', []);
+  const [aiMode, setAiMode] = useState(false);
+  const [prompt, setPrompt] = useState('');
+  const [lastPrompt, setLastPrompt] = useState('');
+  const [generating, setGenerating] = useState(false);
+  const [enhancing, setEnhancing] = useState(false);
+  const [removingBg, setRemovingBg] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showPromptInput, setShowPromptInput] = useState(false);
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [apiKey, setApiKeyState] = useState<string | null>(() => getGeminiApiKey());
+  const [pendingApiKey, setPendingApiKey] = useState('');
+  const renameDebounce = useRef<NodeJS.Timeout | null>(null);
+
+  // sync local name if prop changes
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      if (currentName) setLocalName(currentName);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [currentName]);
+
+  useEffect(() => {
+    if (showPromptInput && promptInputRef.current) {
+      promptInputRef.current.focus();
+    }
+  }, [showPromptInput]);
+
+  // emoji state
+  const [emojis, setEmojis] = useState<any[]>(DEFAULT_EMOJIS);
+  const [loadingEmojis, setLoadingEmojis] = useState(false);
+
+  // store dynamically imported lucide-react module to avoid tree-shaking
+  const [lucideModule, setLucideModule] = useState<Record<string, unknown> | null>(null);
+
+  // when the current resource changes we treat that as a fresh open and
+  // reset the search query so icons are immediately visible; if we keep the
+  // previous value the user can accidentally end up with a filter that
+  // matches nothing (e.g. they previously searched "journal" then opened the
+  // menu on the "journal" sidebar item and wondered why the grid was empty).
+  useEffect(() => {
+    setSearch('');
+    setActiveTab('icons');
+  }, [currentName]);
+
+  // dynamically import the lucide-react namespace when the menu mounts. this
+  // avoids tree‑shaking issues where only the icons that are statically
+  // imported elsewhere remain in the bundle.  we also cache the promise so
+  // subsequent openings are instantaneous, and kick off a background prefetch
+  // at module load time so the first right‑click doesn't feel empty.
+  useEffect(() => {
+    let cancelled = false;
+    loadLucideModule().then((mod) => {
+      if (cancelled) return;
+      setLucideModule(mod);
+      const names = computeIconNames(mod);
+      if (names.length === 0) {
+        // if the imported module looked empty for whatever reason, fall back to
+        // the small static set so the user at least has something to click on.
+        setAllIcons(FALLBACK_ICONS);
+      } else {
+        setAllIcons(names);
+      }
+    }).catch(() => {
+      if (!cancelled) setAllIcons(FALLBACK_ICONS);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  // get icon component from dynamically loaded module
+  const getLucideIcon = useCallback((name: string): LucideIcon | undefined => {
+    if (!lucideModule) return undefined;
+    return lucideModule[name] as LucideIcon | undefined;
+  }, [lucideModule]);
+
+  // load emojis (twemoji based source or standard list)
+  useEffect(() => {
+    if (activeTab === 'emojis' && emojis.length === DEFAULT_EMOJIS.length) {
+      const raf = requestAnimationFrame(() => setLoadingEmojis(true));
+      // fetch a comprehensive emoji list
+      fetch('https://unpkg.com/emoji-datasource-twitter@15.0.0/emoji.json')
+        .then(res => res.json())
+        .then((data: any[]) => {
+          // sort by sort_order to ensure smileys are first (fixing the "flags only" issue)
+          const sorted = data.sort((a, b) => a.sort_order - b.sort_order);
+          setEmojis(sorted);
+          setLoadingEmojis(false);
+        })
+        .catch(() => {
+          // fail silently, we have defaults
+          setLoadingEmojis(false);
+        });
+      return () => cancelAnimationFrame(raf);
+    }
+  }, [activeTab, emojis.length]);
+
+  const filteredEmojis = useMemo(() => {
+    if (!search) return emojis.slice(0, 200); // limit initial render
+    return emojis.filter(e => e.short_name.includes(search.toLowerCase())).slice(0, 100);
+  }, [emojis, search]);
+
+  const filteredIcons = useMemo(() => {
+    // use the dynamic list we populated above; this will be empty while the
+    // import is in-flight, which is why the component needs to handle the
+    // "no icons found" message gracefully.
+    if (!search) return allIcons.slice(0, 200);
+
+    const lowerSearch = search.toLowerCase();
+
+    // 1. direct search
+    const directMatches = allIcons.filter(name => name.toLowerCase().includes(lowerSearch));
+
+    // 2. keyword search
+    const keywordMatches = Object.entries(iconKeywords)
+      .filter(([key]) => key.includes(lowerSearch))
+      .flatMap(([, icons]) => icons);
+
+    // combine and dedup
+    const unique = Array.from(new Set([...directMatches, ...keywordMatches]));
+    return unique.slice(0, 100);
+  }, [search, allIcons]);
+
+  // twemoji url helper
+  const getTwemojiUrl = (unified: string) => {
+    const code = unified.toLowerCase().replace(/-fe0f/g, '');
+    return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${code}.png`;
+  };
+
+  // file upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onUpdate({ icon: reader.result as string, iconType: 'image' });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const resetAiState = () => {
+    setAiMode(false);
+    setPrompt('');
+    setGeneratedImage(null);
+    setError(null);
+    setShowPromptInput(false);
+    setShowApiKeyInput(false);
+    setPendingApiKey('');
+    setEnhancing(false);
+    setRemovingBg(false);
+  };
+
+  const runGeneration = async (p?: string) => {
+    const effectivePrompt = (p ?? prompt).trim();
+    if (!effectivePrompt) { setError('prompt required'); return; }
+    const key = apiKey;
+    if (!key) { setShowApiKeyInput(true); return; }
+    setError(null);
+    setGenerating(true);
+    try {
+      const img = await generateGeminiIcon(effectivePrompt, key);
+      setGeneratedImage(img);
+      setLastPrompt(effectivePrompt);
+      setAiMode(true);
+      setShowPromptInput(true);
+    } catch (err: any) {
+      setError(err?.message || 'failed to generate');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleEnhancePrompt = async () => {
+    const key = apiKey;
+    if (!key || !prompt.trim()) return;
+    setEnhancing(true);
+    setError(null);
+    try {
+      const enhanced = await enhancePromptWithGemini(prompt, key);
+      setPrompt(enhanced);
+    } catch (err: any) {
+      setError(err?.message || 'failed to enhance prompt');
+    } finally {
+      setEnhancing(false);
+    }
+  };
+
+  const handleRemoveBg = async () => {
+    if (!generatedImage) return;
+    setRemovingBg(true);
+    setError(null);
+    try {
+      const noBg = await removeBackground(generatedImage);
+      setGeneratedImage(noBg);
+    } catch (err: any) {
+      setError(err?.message || 'failed to remove background');
+    } finally {
+      setRemovingBg(false);
+    }
+  };
+
+  const saveCustomIcon = () => {
+    if (!generatedImage) return;
+    const entry: CustomIconEntry = {
+      id: crypto.randomUUID(),
+      dataUrl: generatedImage,
+      prompt: lastPrompt,
+      createdAt: new Date().toISOString(),
+    };
+    setCustomIcons((prev = []) => [entry, ...prev].slice(0, 50));
+    onUpdate({ icon: generatedImage, iconType: 'image' });
+    resetAiState();
+  };
+
+  const useOnce = () => {
+    if (!generatedImage) return;
+    onUpdate({ icon: generatedImage, iconType: 'image' });
+    resetAiState();
+  };
+
+  const sortedCustomIcons = useMemo(() => {
+    return [...(customIcons || [])].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  }, [customIcons]);
+
+  return (
+    <ContextMenuContent
+      ref={contextMenuRef}
+      className="w-[90vw] sm:w-[360px] p-0 overflow-y-auto bg-[#050505] border-border/50 flex flex-col transition-all duration-300"
+    >
+      {/* header: name & color toggle */}
+      <div className="p-4 border-b shrink-0 relative flex items-center gap-3">
+        <div className="flex-1 space-y-1.5">
+          <Label className="text-[10px] font-bold  text-muted-foreground/70">name</Label>
+          <Input
+            value={localName}
+            onChange={(e) => {
+              const val = e.target.value;
+              setLocalName(val);
+              // debounce rename to avoid multiple updates per spacebar tap
+              if (renameDebounce.current) clearTimeout(renameDebounce.current);
+              renameDebounce.current = setTimeout(() => {
+                if (val !== currentName && val.trim()) {
+                  onUpdate({ name: val });
+                  // close context menu after rename
+                  setTimeout(() => {
+                    // try to close the menu (works for radix ui context menu)
+                    if (contextMenuRef.current) {
+                      const evt = new Event('pointerdown', { bubbles: true });
+                      contextMenuRef.current.dispatchEvent(evt);
+                    }
+                  }, 100);
+                }
+              }, 200);
+            }}
+            onBlur={() => {
+              if (localName !== currentName && localName.trim()) {
+                onUpdate({ name: localName });
+                setTimeout(() => {
+                  if (contextMenuRef.current) {
+                    const evt = new Event('pointerdown', { bubbles: true });
+                    contextMenuRef.current.dispatchEvent(evt);
+                  }
+                }, 100);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.currentTarget.blur();
+              }
+            }}
+            className="h-9 font-medium text-sm bg-transparent border-transparent hover:border-input focus:border-ring transition-colors px-2 shadow-none"
+            placeholder="untitled"
+          />
+        </div>
+
+      </div>
+
+      {/* color dot toggle removed - moved to tabs */}
+
+      {/* main content area */}
+      {/* explicit h-[300px] required: contextmenucontent has no intrinsic height so
+           flex-1 resolves to 0, causing h-full on tabs to also be 0 and hiding icons */}
+      <div className="h-[300px] w-full flex flex-col relative">
+        <Tabs defaultValue="icons" className="w-full h-full flex flex-col" onValueChange={(v) => setActiveTab(v as 'icons' | 'emojis' | 'color')}>
+          <div className="px-0 border-b bg-muted/30 shrink-0 flex items-center">
+            <TabsList className="bg-transparent p-0 h-12 w-full flex justify-between gap-0">
+              <TabsTrigger
+                value="icons"
+                className="flex-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground data-[state=active]:underline underline-offset-8 rounded-none h-full px-0 font-semibold text-base text-muted-foreground/60 transition-all hover:text-foreground/80"
+              >
+                icons
+              </TabsTrigger>
+              <TabsTrigger
+                value="emojis"
+                className="flex-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground data-[state=active]:underline underline-offset-8 rounded-none h-full px-0 font-semibold text-base text-muted-foreground/60 transition-all hover:text-foreground/80"
+              >
+                emojis
+              </TabsTrigger>
+              <TabsTrigger
+                value="color"
+                className="flex-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:underline underline-offset-8 rounded-none h-full px-0 font-semibold text-base transition-all hover:opacity-80"
+                style={{ color: localColor }}
+              >
+                color
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          {/* search bar - moved below tabs to prevent overlap */}
+          {(activeTab === 'icons' || activeTab === 'emojis') && (
+            <div className="p-2 border-b bg-muted/10 shrink-0 relative">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="search..."
+                  className="h-9 pl-9 text-sm bg-background border-input shadow-sm w-full"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="flex-1 min-h-0 relative">
+            <TabsContent value="emojis" className="absolute inset-0 m-0">
+              {loadingEmojis ? (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  <Loader2 className="h-6 w-6 animate-spin mr-2" /> loading...
+                </div>
+              ) : (
+                <ScrollArea className="h-full p-2">
+                  <div className="grid grid-cols-7 gap-1">
+                    {filteredEmojis.map((emoji: any) => (
+                      <button
+                        key={emoji.unified}
+                        className="flex items-center justify-center h-9 w-9 text-xl hover:bg-muted rounded-md active:scale-90 transition-transform"
+                        onClick={() => onUpdate({ icon: emoji.unified, iconType: 'emoji' })}
+                        title={emoji.short_name}
+                      >
+                        <img
+                          src={getTwemojiUrl(emoji.unified)}
+                          alt={emoji.short_name}
+                          className="h-6 w-6 object-contain pointer-events-none"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  {!filteredEmojis.length && (
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
+                      <span className="text-2xl mb-2">🤔</span>
+                      <span className="text-xs">no emojis found</span>
+                    </div>
+                  )}
+                </ScrollArea>
+              )}
+            </TabsContent>
+
+            <TabsContent value="icons" className="absolute inset-0 m-0">
+              <ScrollArea className="h-full p-2 space-y-3">
+                {(showApiKeyInput || showPromptInput || generatedImage || generating || aiMode) && (
+                  <div className="space-y-2 p-3 rounded-xl border border-border/60 bg-muted/20">
+
+                    {/* ── api key input ── */}
+                    {showApiKeyInput && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Sparkles className="h-3.5 w-3.5" /> gemini api key
+                        </div>
+                        <Input
+                          type="password"
+                          autoFocus
+                          placeholder="AIza..."
+                          value={pendingApiKey}
+                          onChange={(e) => setPendingApiKey(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && pendingApiKey.trim()) {
+                              saveGeminiApiKey(pendingApiKey.trim());
+                              setApiKeyState(pendingApiKey.trim());
+                              setShowApiKeyInput(false);
+                              setShowPromptInput(true);
+                            }
+                          }}
+                          className="bg-background border-primary/40"
+                        />
+                        <div className="flex gap-2">
+                          <Button size="sm" className="flex-1" onClick={() => {
+                            if (pendingApiKey.trim()) {
+                              saveGeminiApiKey(pendingApiKey.trim());
+                              setApiKeyState(pendingApiKey.trim());
+                              setShowApiKeyInput(false);
+                              setShowPromptInput(true);
+                            }
+                          }}>save key</Button>
+                          <Button variant="ghost" size="sm" onClick={() => { setShowApiKeyInput(false); setPendingApiKey(''); }}>cancel</Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── prompt input ── */}
+                    {!showApiKeyInput && (showPromptInput || generating || aiMode) && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          <span>icon prompt</span>
+                          <button
+                            className="ml-auto text-[10px] text-muted-foreground/40 hover:text-muted-foreground underline"
+                            onClick={() => { setPendingApiKey(apiKey ?? ''); setShowApiKeyInput(true); }}
+                          >change key</button>
+                        </div>
+                        <textarea
+                          ref={promptInputRef as any}
+                          value={prompt}
+                          onChange={(e) => setPrompt(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              runGeneration();
+                            }
+                          }}
+                          placeholder="e.g. neon fox head silhouette"
+                          rows={2}
+                          className="w-full resize-none rounded-md border border-primary/40 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                        />
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Button size="sm" onClick={() => runGeneration()} disabled={generating || enhancing} className="gap-1.5">
+                            {generating
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <Sparkles className="h-3.5 w-3.5" />}
+                            generate
+                          </Button>
+                          {lastPrompt && (
+                            <Button size="sm" variant="secondary" title="redo with last prompt" onClick={() => runGeneration(lastPrompt)} disabled={generating || enhancing} className="gap-1.5">
+                              <RotateCcw className="h-3.5 w-3.5" /> redo
+                            </Button>
+                          )}
+                          <Button size="sm" variant="outline" onClick={handleEnhancePrompt} disabled={enhancing || generating || !prompt.trim()} className="gap-1.5">
+                            {enhancing
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <Wand2 className="h-3.5 w-3.5" />}
+                            enhance
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={resetAiState} className="ml-auto text-xs">cancel</Button>
+                        </div>
+                        {error && !generatedImage && <div className="text-xs text-red-400">{error}</div>}
+                      </div>
+                    )}
+
+                    {/* ── generated image ── */}
+                    {generatedImage && (
+                      <div className="space-y-2">
+                        <div className="w-32 h-32 mx-auto rounded-lg border border-border/60 bg-[#050505] flex items-center justify-center overflow-hidden">
+                          <img src={generatedImage} alt="generated icon" className="h-full w-full object-contain" />
+                        </div>
+                        {error && <div className="text-xs text-red-400">{error}</div>}
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <Button variant="secondary" size="sm" onClick={() => runGeneration(lastPrompt)} disabled={generating || removingBg} className="gap-1.5">
+                            <RotateCcw className="h-3.5 w-3.5" /> redo
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={handleRemoveBg} disabled={removingBg || generating} className="gap-1.5">
+                            {removingBg
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <ImageIcon className="h-3.5 w-3.5" />}
+                            remove bg
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={useOnce} className="gap-1.5">
+                            <Check className="h-3.5 w-3.5" /> use once
+                          </Button>
+                          <Button variant="default" size="sm" onClick={saveCustomIcon} className="gap-1.5">
+                            <Save className="h-3.5 w-3.5" /> save
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+                    <span>custom icons</span>
+                    <Button variant="ghost" size="xs" className="h-7 text-[11px] gap-1" onClick={() => {
+                      if (!apiKey) { setShowApiKeyInput(true); }
+                      else { setShowPromptInput(true); }
+                    }}>
+                      <Sparkles className="h-3 w-3" /> ai icon
+                    </Button>
+                  </div>
+                  {sortedCustomIcons.length ? (
+                    <div className="grid grid-cols-6 gap-2">
+                      {sortedCustomIcons.map((c) => (
+                        <button
+                          key={c.id}
+                          className="flex items-center justify-center h-12 w-12 rounded-md border border-border/50 bg-background/40 hover:border-primary/60 hover:shadow-sm transition"
+                          onClick={() => onUpdate({ icon: c.dataUrl, iconType: 'image' })}
+                          title={c.prompt || 'custom icon'}
+                        >
+                          <img src={c.dataUrl} alt="icon" className="h-8 w-8 object-contain" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-[11px] text-muted-foreground px-1">no saved custom icons yet</div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+                    <span>lucide icons</span>
+                  </div>
+                  <div className="grid grid-cols-7 gap-1">
+                    {filteredIcons.map(name => {
+                      const IconComponent = getLucideIcon(name);
+                      if (!IconComponent) return null;
+                      return (
+                        <button
+                          key={name}
+                          className="flex items-center justify-center h-9 w-9 hover:bg-muted rounded-md active:scale-90 transition-transform"
+                          onClick={() => onUpdate({ icon: name, iconType: 'lucide' })}
+                          style={{ color: localColor }}
+                          title={name}
+                        >
+                          <IconComponent className="h-5 w-5 pointer-events-none" strokeWidth={1.5} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {!filteredIcons.length && (
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
+                      <Search className="h-8 w-8 mb-2 opacity-50" />
+                      <span className="text-xs">no icons found</span>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </TabsContent>
+
+            <TabsContent value="color" className="absolute inset-0 m-0 flex flex-col items-center justify-center p-4 bg-muted/10">
+              <div
+                className="bg-popover p-2 rounded-xl shadow-xl border animate-in fade-in zoom-in-95 duration-200"
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                <HexColorPicker
+                  color={localColor}
+                  onChange={(c) => { setLocalColor(c); onUpdate({ color: c }); }}
+                  style={{ width: '220px', height: '220px' }}
+                />
+              </div>
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
+
+      {/* footer: upload */}
+      <div className="p-3 border-t bg-muted/30 shrink-0">
+        <Button
+          variant="outline"
+          className="w-full h-10 text-sm font-medium border-dashed border-muted-foreground/30 hover:bg-muted hover:text-foreground transition-all rounded-xl"
+          onClick={() => document.getElementById('icon-upload')?.click()}
+        >
+          <Upload className="h-4 w-4 mr-2" /> upload custom icon
+        </Button>
+        {/* hidden children or separator logic if needed, but 'children' props seemed unused in snippet view context or just generic actions */}
+        {children && (
+          <div className="mt-2 pt-2 border-t border-border/50 flex flex-col gap-1">
+            {children}
+          </div>
+        )}
+        {onHide && (
+          <Button
+            variant="ghost"
+            className="w-full h-10 text-sm font-medium hover:bg-muted hover:text-foreground transition-all rounded-xl mt-2"
+            onClick={onHide}
+          >
+            <EyeOff className="h-4 w-4 mr-2" /> hide from sidebar
+          </Button>
+        )}
+        <input
+          id="icon-upload"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileUpload}
+        />
+      </div>
+    </ContextMenuContent >
+  );
+}

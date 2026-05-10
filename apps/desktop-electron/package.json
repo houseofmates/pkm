@@ -1,0 +1,70 @@
+{
+  "name": "pkm-desktop-electron",
+  "version": "0.0.0",
+  "description": "pkm desktop app",
+  "author": "houseofmates <house@houseofmates.space>",
+  "homepage": "https://houseofmates.space",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k \"npm run dev --workspace=@pkm/core\" \"wait-on http://localhost:3010 && electron .\"",
+    "build": "npm run build --workspace=@pkm/core && electron-builder"
+  },
+  "dependencies": {
+    "@pkm/core": "*",
+    "axios": "^1.13.6",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "framer-motion": "^12.25.0",
+      "react": "18.2.0",
+      "react-dom": "18.2.0",
+    "zustand": "^5.0.9"
+  },
+  "build": {
+    "appId": "com.houseofmates.pkm",
+    "productName": "pkm",
+    "electronVersion": "39.2.7",
+    "publish": null,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "../../packages/core/dist/**/*",
+      "electron/main.js",
+      "electron/preload.js",
+      "electron/context-server.cjs",
+      "electron/server.js",
+      "electron/sidebar-colors.js"
+    ],
+    "asar": true,
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ],
+      "category": "Office",
+      "maintainer": "houseofmates <house@houseofmates.space>"
+    }
+  }
+}

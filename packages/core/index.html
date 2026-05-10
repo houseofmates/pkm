@@ -1,0 +1,164 @@
+<!doctype html>
+  <html lang="en" class="dark" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <base href="/" />
+  <!-- use a generic png icon instead of the vite logo; the
+         `root-layout` component will override this again later based
+         on the hostname. -->
+  <link rel="icon" type="image/png" href="/favicon.png" id="favicon" />
+  <!-- local font preload - avoids firefox tracking protection blocking google fonts -->
+  <link rel="preload" href="/fonts/varela-round-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+
+  <!-- Critical CSS to prevent FOUC - loaded immediately -->
+  <style>
+    /* local font face - avoids firefox tracking protection */
+    @font-face {
+      font-family: 'Varela Round';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('/fonts/varela-round-regular.woff2') format('woff2');
+    }
+
+    /* Reset and base styles */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'Varela Round', sans-serif;
+      background-color: #050505;
+      /* full-viewport void background */
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    /* Hide all content until React loads */
+    #root {
+      height: 100vh;
+      background-color: #050505;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Simple circular spinner (yellow) */
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.06);
+      border-top-color: #f6b012;
+      /* yellow accent */
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+
+  <script>
+    window._startupErrors = [];
+    window.addEventListener('error', function (e) {
+      if (window.__APP_MOUNTED__) return;
+      window._startupErrors.push(e.message + '\n' + e.filename + ':' + e.lineno + ':' + e.colno + '\n' + (e.error && e.error.stack ? e.error.stack : ''));
+      showErrors();
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      if (window.__APP_MOUNTED__) return;
+      window._startupErrors.push('Promise Rejection: ' + (e.reason && e.reason.stack ? e.reason.stack : e.reason));
+      showErrors();
+    });
+    function showErrors() {
+      var errDiv = document.getElementById('global-error-display');
+      if (!errDiv) {
+        errDiv = document.createElement('div');
+        errDiv.id = 'global-error-display';
+        errDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#900;color:#fff;padding:20px;font-family:monospace;white-space:pre-wrap;overflow-y:auto;z-index:999999;';
+        if (document.body) {
+          document.body.appendChild(errDiv);
+        } else {
+          document.addEventListener('DOMContentLoaded', () => document.body.appendChild(errDiv));
+        }
+      }
+      errDiv.innerHTML = '<h2>Fatal Startup Error</h2>\n' + window._startupErrors.join('\n\n---\n\n');
+    }
+  </script>
+
+  <title>pkm</title>
+  <!-- Immediately update title to hostname for houseofmates domains
+       so the user never sees "pkm" in their browser tab when on those
+       sites. This runs before React mounts. -->
+  <script>
+    try {
+      const host = window.location.hostname;
+      // map a few well-known hosts to friendly titles
+      let title = 'pkm';
+      if (host === 'dupe.example.com') title = 'dupemates';
+      else if (host === 'blog.example.com') title = 'blog';
+      else if (host === 'example.com') title = 'houseofmates';
+      else if (host === 'pkm.example.com') title = 'pkm';
+
+      // lowercase all titles
+      title = title.toLowerCase();
+
+      // also set favicon before React loads
+      const favIcon = document.getElementById('favicon');
+      if (favIcon) {
+        if (host === 'dupe.example.com') favIcon.href = '/favicon-dupe.png';
+        else if (host === 'home.example.com') favIcon.href = '/favicon-home-subdomain.png';
+        else if (host === 'blog.example.com') favIcon.href = '/favicon-blog.png';
+        else if (host === 'example.com') favIcon.href = '/favicon-houseofmates.png';
+        else favIcon.href = '/favicon.png';
+      }
+      document.title = title;
+    } catch (e) {
+      console.warn('failed to set dynamic title', e);
+    }
+  </script>
+</head>
+
+<body class="fonts-loading">
+  <div id="root">
+    <div class="loading">
+      <!-- Simple circular spinner, no text -->
+      <div class="spinner" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <script>
+    // Font loading detection
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        document.body.classList.remove('fonts-loading');
+        document.body.classList.add('fonts-loaded');
+      });
+    }
+
+    // Prevent layout shift
+    document.documentElement.style.visibility = 'visible';
+  </script>
+
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>

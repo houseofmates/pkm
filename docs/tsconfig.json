@@ -1,0 +1,27 @@
+{
+  // removed extends because the shared tsconfig isn't installed in this workspace,
+  // and the docs folder is only used for static site generation.  keeping a
+  // self-contained config avoids the compile errors that were showing up.
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "allowJs": true,
+    "checkJs": false,
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": [
+    "content/**/*.ts",
+    "content/**/*.d.ts",
+    "content/**/*.tsx",
+    "content/**/*.vue",
+    ".vitepress/**/*"
+  ]
+}
+
