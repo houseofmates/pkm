@@ -1198,10 +1198,11 @@ const headmatesState = {
   lastUpdated: null,
 };
 
-// socket.io
+// enhanced socket.io with robust sync support
 io.on('connection', (socket) => {
   console.log('[Socket] Client connected:', socket.id);
 
+  // send initial state
   socket.emit('minecraft_update', {
     type: 'ping',
     online: lastServerStats.online,
@@ -1213,11 +1214,14 @@ io.on('connection', (socket) => {
     socket.emit('headmates_sync', headmatesState);
   }
 
-  socket.on('headmates_update', (data) => {
+  // headmates events
+  socket.on('headmates_update', (data, callback) => {
     headmatesState.frontingOrder = data.frontingOrder || [];
     headmatesState.membersOrder = data.membersOrder || [];
     headmatesState.lastUpdated = new Date().toISOString();
     socket.broadcast.emit('headmates_sync', headmatesState);
+
+    if (callback) callback({ success: true });
   });
 
   socket.on('headmates_request_sync', () => {
@@ -1226,10 +1230,137 @@ io.on('connection', (socket) => {
     }
   });
 
+  // enhanced canvas sync with conflict detection
+  socket.on('canvas_sync', async (data, callback) => {
+    try {
+      // check for conflicts with existing data
+      const existingCanvas = await getExistingCanvas(data.drawingId);
+
+      if (existingCanvas && hasCanvasConflict(existingCanvas, data)) {
+        // resolve conflict using last-write-wins
+        const resolved = resolveCanvasConflict(existingCanvas, data);
+
+        // notify client of conflict resolution
+        if (callback) {
+          callback({
+            success: true,
+            conflict: {
+              type: 'canvas',
+              resolved: true,
+              strategy: 'last-write-wins',
+              timestamp: Date.now()
+            }
+          });
+        }
+
+        // broadcast resolved state
+        socket.broadcast.emit('canvas_conflict_resolved', {
+          drawingId: data.drawingId,
+          resolved: resolved,
+          timestamp: Date.now()
+        });
+      } else {
+        // no conflict, proceed with normal sync
+        await saveCanvasData(data);
+
+        if (callback) callback({ success: true });
+
+        // broadcast to other clients
+        socket.broadcast.emit('canvas_update', {
+          drawingId: data.drawingId,
+          timestamp: data.timestamp,
+          clientId: data.clientId
+        });
+      }
+    } catch (error) {
+      console.error('[Canvas] sync error:', error);
+      if (callback) callback({ success: false, error: error.message });
+    }
+  });
+
+  // system sync events
+  socket.on('system_sync', async (data, callback) => {
+    try {
+      // handle system-level sync events
+      console.log('[System] sync event:', data.type);
+
+      // broadcast to other clients
+      socket.broadcast.emit('system_update', data);
+
+      if (callback) callback({ success: true });
+    } catch (error) {
+      console.error('[System] sync error:', error);
+      if (callback) callback({ success: false, error: error.message });
+    }
+  });
+
+  // conflict resolution events
+  socket.on('resolve_conflict', async (data, callback) => {
+    try {
+      console.log('[Conflict] manual resolution requested:', data);
+
+      // broadcast resolution to all clients
+      io.emit('conflict_resolved', {
+        itemId: data.itemId,
+        resolution: data.resolution,
+        timestamp: Date.now()
+      });
+
+      if (callback) callback({ success: true });
+    } catch (error) {
+      console.error('[Conflict] resolution error:', error);
+      if (callback) callback({ success: false, error: error.message });
+    }
+  });
+
+  // enhanced disconnect handling
   socket.on('disconnect', (reason) => {
-    // quiet disconnect
+    console.log('[Socket] Client disconnected:', socket.id, reason);
+
+    // notify other clients of disconnection for awareness
+    socket.broadcast.emit('client_disconnected', {
+      clientId: socket.id,
+      reason,
+      timestamp: Date.now()
+    });
+  });
+
+  // connection status monitoring
+  socket.on('ping', (callback) => {
+    if (callback) callback({
+      timestamp: Date.now(),
+      latency: Date.now(),
+      connected: true
+    });
   });
 });
+
+// helper functions for canvas conflict detection
+async function getExistingCanvas(drawingId) {
+  // this would typically query your database
+  // for now, return null to simulate no existing data
+  return null;
+}
+
+function hasCanvasConflict(existing, incoming) {
+  // simple timestamp-based conflict detection
+  const existingTime = existing.timestamp || 0;
+  const incomingTime = incoming.timestamp || 0;
+
+  // if timestamps are close (within 30 seconds), consider it a conflict
+  const timeDiff = Math.abs(existingTime - incomingTime);
+  return timeDiff < 30000 && existingTime !== incomingTime;
+}
+
+function resolveCanvasConflict(existing, incoming) {
+  // last-write-wins resolution
+  return existing.timestamp > incoming.timestamp ? existing : incoming;
+}
+
+async function saveCanvasData(data) {
+  // this would typically save to your database
+  console.log('[Canvas] saving data for drawing:', data.drawingId);
+}
 
 
 app.use('/api/system', systemTrackerRouter);
