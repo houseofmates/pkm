@@ -21,7 +21,7 @@ import {
   Check,
   ArrowRight,
   ArrowLeft,
-  Skip,
+  X, // Using X instead of Skip
   Sparkles,
   Database,
   Wifi,
