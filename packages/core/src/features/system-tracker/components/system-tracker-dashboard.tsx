@@ -44,7 +44,8 @@ export function SystemTrackerDashboard() {
     loadCustomFields();
     loadCurrentSession();
     loadHistory();
-  }, [loadSystem, loadMembers, loadCustomFields, loadCurrentSession, loadHistory]);
+    loadGroups();
+  }, [loadSystem, loadMembers, loadCustomFields, loadCurrentSession, loadHistory, loadGroups]);
 
   const handleAddMember = async (memberData: SystemMember) => {
     await addMember(memberData);
@@ -166,9 +167,10 @@ export function SystemTrackerDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview" className="lowercase">overview</TabsTrigger>
           <TabsTrigger value="members" className="lowercase">members</TabsTrigger>
+          <TabsTrigger value="groups" className="lowercase">groups</TabsTrigger>
           <TabsTrigger value="fronting" className="lowercase">fronting</TabsTrigger>
           <TabsTrigger value="journal" className="lowercase">journal</TabsTrigger>
         </TabsList>
