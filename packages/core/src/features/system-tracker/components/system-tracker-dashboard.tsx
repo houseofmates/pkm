@@ -22,6 +22,7 @@ import { useMembersStore } from '../stores/members-store';
 import { useFrontStore } from '../stores/front-store';
 import { useGroupsStore } from '../stores/groups-store';
 import { useJournalStore } from '../stores/journal-store';
+import { useChatStore } from '../stores/chat-store';
 import { MemberCard } from './members/member-card';
 import { MemberForm } from './members/member-form';
 import { FrontPanel } from './front/front-panel';
