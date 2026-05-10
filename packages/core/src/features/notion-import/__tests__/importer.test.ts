@@ -1,14 +1,18 @@
 /* eslint-disable */
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 // dynamically load the script using node import so vite doesn't try to bundle an external ts file
 let run: (zip: string, client?: any) => Promise<void>;
 import childProcess from 'child_process';
 
+const tempPaths: string[] = [];
+
 // helper to create zipped sample workspace
 async function makeZippedSample(): Promise<string> {
-    const tmp = await fs.promises.mkdtemp(path.join(process.cwd(), 'test-notion-'));
+    const tmp = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'pkm-test-notion-'));
+    tempPaths.push(tmp);
     // create a markdown page with frontmatter and some body text
     const md = `---\ntitle: MyPage\nfoo: bar\n---\nThis is the body text.`;
     await fs.promises.writeFile(path.join(tmp, 'page.md'), md);
@@ -20,11 +24,16 @@ async function makeZippedSample(): Promise<string> {
     const csv2 = 'A,B\n1,2';
     await fs.promises.writeFile(path.join(tmp, 'db.csv'), csv1);
     await fs.promises.writeFile(path.join(tmp, 'subfolder', 'db2.csv'), csv2);
-    const zipPath = path.join(process.cwd(), `sample-${Date.now()}.zip`);
+    const zipPath = path.join(os.tmpdir(), `pkm-sample-${Date.now()}.zip`);
+    tempPaths.push(zipPath);
     // use system zip command by running in the temp directory; this avoids escaping issues
     childProcess.execSync(`zip -r ${zipPath} .`, { cwd: tmp });
     return zipPath;
 }
+
+afterEach(async () => {
+    await Promise.all(tempPaths.splice(0).map(p => fs.promises.rm(p, { recursive: true, force: true })));
+});
 
 beforeAll(async () => {
     // the script lives at the repository root, not inside packages/core
