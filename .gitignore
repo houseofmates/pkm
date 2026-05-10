@@ -6,11 +6,20 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+app.log
+dev.log
+backend.log
+packages/backend/backend.log
 
+# Runtime artifacts
 node_modules
 dist
 dist-ssr
 *.local
+.pkm.pid
+.pkm-backend.pid
+tmp/
+test-results/
 
 # Editor directories and files
 .vscode/*
@@ -23,12 +32,21 @@ dist-ssr
 *.sln
 *.sw?
 
+# Agent / auto-generated tooling
+.agents/
+.factory/
+.chat/
+.claude/
+.cursor/
+.qodo/
+.kilo/
+.windsurf/
+
 # Environment variables
 .env
 .env.local
 .env.production
 .env.example
-# Ignore other sensitive files as needed
 
 # Build artifacts
 release/
@@ -58,10 +76,22 @@ packages/backend/public/*.pdf
 # AppImage squashfs extraction artifacts
 squashfs-root/
 
-# Personal files
-!releases/
-*.private.*
-.aider*
+# Releases
 releases/
 *.zip
+
+# Test artifacts
 packages/core/test-notion-*/
+
+# Personal / stray files
+*.private.*
+.aider*
+server-data.json
+indexes.sql
+dashboard_p*.tsx
+homepage-widgets.html
+all_workflows.json
+current_workflows.json
+n8n-schema.json
+fixed-*.json
+smoke-template.png
