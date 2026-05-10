@@ -237,7 +237,6 @@ export function RootLayout() {
   const handleTabChange = (tab: any) => {
     if (tab === 'home') navigate('/');
     else if (tab === 'captures') navigate('/captures');
-    else if (tab === 'headmates') navigate('/headmates');
     else if (tab === 'journal') navigate('/journal');
     else if (tab === 'calendar') navigate('/calendar');
     else if (tab === 'databases') navigate('/databases', { state: { fromSidebar: true } });
