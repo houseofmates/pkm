@@ -87,7 +87,7 @@ a cli/ui tool that lets you export yourotion workspace directly into pkm/nocobas
 
 <h2 align="center">canvas drawing</h2>
 
-The embedded drawing canvas uses a pleasant-to-use feature-rich brush and eraser tool alongside selecting and transforming of strokes. when editing drawings you can:
+the embedded drawing canvas uses a pleasant-to-use feature-rich brush and eraser tool alongside selecting and transforming of strokes. when editing drawings you can:
 
 - resize the brush or eraser with the size slider
 - control **individual opacity** for brush and eraser
@@ -125,7 +125,7 @@ The backend endpoint (`POST /api/notion-import`) accepts the ZIP via multipart/f
 
 the parser is tolerant of malformed files, logging warnings and continuing. Large exports are streamed to avoid high memory usage.
 
-### code structure
+<h3 align="center">code structure</h3>
 
 - `src/features/notion-import/parser.ts` – recursive directory walker, CSV and Markdown loader.
 - `src/features/notion-import/transformer.ts` – turns parsed workspace into a sequence of import instructions.
@@ -139,3 +139,7 @@ a future extension could allow direct client‑side parsing or more advanced fie
 
 <h2 align="center">why?</h2>
 im a neurodivergent system with highly specific needs and visual preferences. pkm is a project in addition to my main brain, the one i can use when i cant trust my own
+
+<div align="center">
+  <a href="./LICENSE">mates license</a>
+</div>
