@@ -28,9 +28,9 @@ function notifyStatusListeners() {
 
 function getBackoffDelay(attempt: number): number {
   const baseDelay = 1000;
-  const maxDelay = 30000;
-  const jitter = Math.random() * 1000;
-  return Math.min(maxDelay, baseDelay * Math.pow(2, attempt)) + jitter;
+  const maxDelay = 60000; // Increased max delay for better resilience
+  const jitter = Math.random() * 2000; // Increased jitter for better distribution
+  return Math.min(maxDelay, baseDelay * Math.pow(2, Math.min(attempt, 10))) + jitter;
 }
 
 function clearTimers() {
