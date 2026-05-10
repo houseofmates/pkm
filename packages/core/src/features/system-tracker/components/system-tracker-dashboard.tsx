@@ -20,10 +20,12 @@ import {
 import { useSystemStore } from '../stores/system-store';
 import { useMembersStore } from '../stores/members-store';
 import { useFrontStore } from '../stores/front-store';
+import { useGroupsStore } from '../stores/groups-store';
 import { MemberCard } from './members/member-card';
 import { MemberForm } from './members/member-form';
 import { FrontPanel } from './front/front-panel';
 import { FrontTimeline } from './front/front-timeline';
+import { GroupsView } from './groups/groups-view';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { SystemMember } from '../types/schema';
 
@@ -31,6 +33,7 @@ export function SystemTrackerDashboard() {
   const { system, loadSystem } = useSystemStore();
   const { members, loadMembers, loadCustomFields, addMember } = useMembersStore();
   const { currentSession, loadCurrentSession, loadHistory, activeFronters } = useFrontStore();
+  const { loadGroups } = useGroupsStore();
 
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');

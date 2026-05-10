@@ -878,6 +878,10 @@ export const HeadmatesPage: React.FC = () => {
                         selectionIndex={selectionIndex}
                         onClick={() => toggleMember(member.id)}
                         onKeyDown={(e) => handleKeyDown(e, member.id)}
+                        onContextMenu={handleContextMenu}
+                        onEdit={handleEdit}
+                        onView={handleView}
+                        onDelete={handleDelete}
                       />
                     );
                   })}
@@ -913,6 +917,104 @@ export const HeadmatesPage: React.FC = () => {
         </motion.button>
       )}
     </div>
+  )
+}
+
+{/* Context Menu */ }
+<ContextMenu
+  visible={contextMenu.visible}
+  x={contextMenu.x}
+  y={contextMenu.y}
+  memberId={contextMenu.memberId}
+  member={members.find(m => m.id === contextMenu.memberId)}
+  onClose={() => setContextMenu({ visible: false, x: 0, y: 0, memberId: null })}
+  onEdit={handleEdit}
+  onView={handleView}
+  onDelete={handleDelete}
+  onCopy={handleCopy}
+/>
+
+{/* Inline Edit Modal */ }
+{
+  editingMember && (
+    <InlineEditModal
+      member={editingMember}
+      isOpen={!!editingMember}
+      onClose={() => setEditingMember(null)}
+      onSave={handleSaveEdit}
+    />
+  )
+}
+
+{/* Full Card View Modal */ }
+{
+  viewingMember && (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-full max-w-md">
+        <h3 className="text-lg font-medium text-gray-300 mb-4">{viewingMember.content?.name || 'unknown'}</h3>
+
+        <div className="space-y-3">
+          {viewingMember.content?.avatarUrl && (
+            <div className="flex justify-center">
+              <img
+                src={viewingMember.content.avatarUrl}
+                alt={viewingMember.content.name}
+                className="w-24 h-24 rounded-full object-cover"
+              />
+            </div>
+          )}
+
+          {viewingMember.content?.pronouns && (
+            <div>
+              <span className="text-sm text-gray-400">pronouns: </span>
+              <span className="text-gray-300">{viewingMember.content.pronouns}</span>
+            </div>
+          )}
+
+          {viewingMember.content?.role && (
+            <div>
+              <span className="text-sm text-gray-400">role: </span>
+              <span className="text-gray-300">{viewingMember.content.role}</span>
+            </div>
+          )}
+
+          {viewingMember.content?.description && (
+            <div>
+              <span className="text-sm text-gray-400">description: </span>
+              <p className="text-gray-300 mt-1">{viewingMember.content.description}</p>
+            </div>
+          )}
+
+          {viewingMember.content?.color && (
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-400">color: </span>
+              <div
+                className="w-6 h-6 rounded border border-gray-600"
+                style={{ backgroundColor: viewingMember.content.color }}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={() => handleEdit(viewingMember)}
+            className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+          >
+            edit
+          </button>
+          <button
+            onClick={() => setViewingMember(null)}
+            className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+          >
+            close
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+    </div >
   );
 };
 
