@@ -93,7 +93,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
 
     setSelectedThread: (threadId) => {
       set({ selectedThreadId: threadId });
-      get().loadMessages(threadId);
+      get().loadMessages(threadId || undefined);
     },
 
     addTypingMember: (memberId) => {

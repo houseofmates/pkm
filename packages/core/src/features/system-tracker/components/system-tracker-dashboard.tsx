@@ -28,6 +28,7 @@ import { FrontPanel } from './front/front-panel';
 import { FrontTimeline } from './front/front-timeline';
 import { GroupsView } from './groups/groups-view';
 import { JournalView } from './journal/journal-view';
+import { ChatView } from './chat/chat-view';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { SystemMember } from '../types/schema';
 
