@@ -310,6 +310,10 @@ export function SystemTrackerDashboard() {
         <TabsContent value="data" className="space-y-6">
           <ImportExport />
         </TabsContent>
+
+        <TabsContent value="privacy" className="space-y-6">
+          <AppLock />
+        </TabsContent>
       </Tabs>
 
       {/* Add Member Dialog */}
