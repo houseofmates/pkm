@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  MessageSquare, 
-  Send, 
-  Edit, 
-  Trash2, 
+import {
+  MessageSquare,
+  Send,
+  Edit,
+  Trash2,
   Reply,
   Smile,
   MoreHorizontal,
@@ -25,23 +25,23 @@ interface ChatWindowProps {
 }
 
 export function ChatWindow({ threadId, className }: ChatWindowProps) {
-  const { 
-    messages, 
-    loadMessages, 
-    sendMessage, 
-    editMessage, 
+  const {
+    messages,
+    loadMessages,
+    sendMessage,
+    editMessage,
     deleteMessage,
     selectedThreadId,
-    typingMembers 
+    typingMembers
   } = useChatStore();
   const { members } = useMembersStore();
-  
+
   const [newMessage, setNewMessage] = useState('');
   const [selectedMember, setSelectedMember] = useState('');
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -77,7 +77,7 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
     await sendMessage({
       memberId: selectedMember,
       content: newMessage.trim(),
-      threadId: threadId || null
+      threadId: threadId || undefined
     });
 
     setNewMessage('');
@@ -86,7 +86,7 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
 
   const handleEditMessage = async (messageId: string) => {
     if (!editContent.trim()) return;
-    
+
     await editMessage(messageId, editContent.trim());
     setEditingMessageId(null);
     setEditContent('');
@@ -109,9 +109,9 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
   };
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(dateString).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
@@ -154,9 +154,9 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
           ) : (
             <>
               {threadMessages.map((message, index) => {
-                const showDate = index === 0 || 
+                const showDate = index === 0 ||
                   formatDate(threadMessages[index - 1].createdAt) !== formatDate(message.createdAt);
-                
+
                 return (
                   <div key={message.id}>
                     {showDate && (
@@ -164,15 +164,15 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
                         {formatDate(message.createdAt)}
                       </div>
                     )}
-                    
+
                     <div className="flex gap-3 group">
-                      <div 
+                      <div
                         className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-medium"
                         style={{ backgroundColor: getMemberColor(message.memberId) }}
                       >
                         {getMemberName(message.memberId).charAt(0).toUpperCase()}
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium text-sm">
@@ -187,7 +187,7 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
                             </span>
                           )}
                         </div>
-                        
+
                         {editingMessageId === message.id ? (
                           <div className="flex gap-2">
                             <Input
@@ -206,7 +206,7 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
                         ) : (
                           <div className="bg-muted/50 rounded-lg p-3">
                             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                            
+
                             <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <Button
                                 variant="ghost"
@@ -232,7 +232,7 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
                   </div>
                 );
               })}
-              
+
               <div ref={messagesEndRef} />
             </>
           )}
@@ -241,7 +241,7 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
         {/* Typing indicators */}
         {typingMembers.size > 0 && (
           <div className="px-4 py-2 text-xs text-muted-foreground">
-            {Array.from(typingMembers).map(memberId => getMemberName(memberId)).join(', ')} 
+            {Array.from(typingMembers).map(memberId => getMemberName(memberId)).join(', ')}
             {typingMembers.size === 1 ? ' is' : ' are'} typing...
           </div>
         )}
@@ -269,7 +269,7 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
                 {activeMembers.map(member => (
                   <SelectItem key={member.id} value={member.id}>
                     <div className="flex items-center gap-2">
-                      <div 
+                      <div
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: member.color }}
                       />
@@ -295,7 +295,7 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
               disabled={!selectedMember}
             />
 
-            <Button 
+            <Button
               onClick={handleSendMessage}
               disabled={!newMessage.trim() || !selectedMember}
               size="sm"

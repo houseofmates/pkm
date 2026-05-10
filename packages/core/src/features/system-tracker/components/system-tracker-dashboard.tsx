@@ -52,7 +52,8 @@ export function SystemTrackerDashboard() {
     loadHistory();
     loadGroups();
     loadEntries();
-  }, [loadSystem, loadMembers, loadCustomFields, loadCurrentSession, loadHistory, loadGroups, loadEntries]);
+    loadMessages();
+  }, [loadSystem, loadMembers, loadCustomFields, loadCurrentSession, loadHistory, loadGroups, loadEntries, loadMessages]);
 
   const handleAddMember = async (memberData: SystemMember) => {
     await addMember(memberData);
@@ -174,12 +175,13 @@ export function SystemTrackerDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview" className="lowercase">overview</TabsTrigger>
           <TabsTrigger value="members" className="lowercase">members</TabsTrigger>
           <TabsTrigger value="groups" className="lowercase">groups</TabsTrigger>
           <TabsTrigger value="fronting" className="lowercase">fronting</TabsTrigger>
           <TabsTrigger value="journal" className="lowercase">journal</TabsTrigger>
+          <TabsTrigger value="chat" className="lowercase">chat</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
