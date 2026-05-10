@@ -7,17 +7,25 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
+// Progress component - simple inline implementation
+const Progress = ({ value, className }: { value: number; className?: string }) => (
+  <div className={cn("w-full bg-muted rounded-full h-2", className)}>
+    <div
+      className="bg-primary h-2 rounded-full transition-all duration-500"
+      style={{ width: `${value}%` }}
+    />
+  </div>
+)
 import { cn } from '@/lib/utils'
-import { 
-  Check, 
-  ArrowRight, 
-  ArrowLeft, 
-  Skip, 
-  Sparkles, 
-  Database, 
-  Wifi, 
-  GitBranch, 
+import {
+  Check,
+  ArrowRight,
+  ArrowLeft,
+  Skip,
+  Sparkles,
+  Database,
+  Wifi,
+  GitBranch,
   Users,
   Palette,
   Shield
@@ -190,14 +198,14 @@ export function GentleOnboarding({ onComplete, onSkip, className }: OnboardingPr
 
   const handleNext = useCallback(async () => {
     const step = onboardingSteps[currentStep]
-    
+
     if (step.action && !stepProgress[step.id]) {
       setIsProcessing(true)
-      
+
       try {
         const success = await step.action.handler()
         setStepProgress(prev => ({ ...prev, [step.id]: success }))
-        
+
         if (success) {
           setTimeout(() => {
             setCurrentStep(prev => prev + 1)
@@ -233,9 +241,9 @@ export function GentleOnboarding({ onComplete, onSkip, className }: OnboardingPr
 
   const handleStepAction = async () => {
     if (!currentStepData.action) return
-    
+
     setIsProcessing(true)
-    
+
     try {
       const success = await currentStepData.action.handler()
       setStepProgress(prev => ({ ...prev, [currentStepData.id]: success }))
@@ -293,8 +301,8 @@ export function GentleOnboarding({ onComplete, onSkip, className }: OnboardingPr
           <div className="flex items-start space-x-4">
             <div className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0",
-              stepProgress[currentStepData.id] 
-                ? "bg-primary/20 text-primary" 
+              stepProgress[currentStepData.id]
+                ? "bg-primary/20 text-primary"
                 : "bg-muted text-muted-foreground"
             )}>
               <currentStepData.icon className="w-6 h-6" />
@@ -329,7 +337,7 @@ export function GentleOnboarding({ onComplete, onSkip, className }: OnboardingPr
                   currentStepData.action.label
                 )}
               </Button>
-              
+
               {currentStepData.action.skipable && !stepProgress[currentStepData.id] && (
                 <Button
                   variant="ghost"
@@ -392,7 +400,7 @@ export function GentleOnboarding({ onComplete, onSkip, className }: OnboardingPr
               <Skip className="w-4 h-4" />
               skip setup
             </Button>
-            
+
             <Button
               onClick={handleNext}
               disabled={isProcessing}
@@ -427,7 +435,7 @@ export function useOnboarding() {
       try {
         const hasCompletedOnboarding = localStorage.getItem('pkm-onboarding-completed')
         const hasSkippedOnboarding = localStorage.getItem('pkm-onboarding-skipped')
-        
+
         if (!hasCompletedOnboarding && !hasSkippedOnboarding) {
           setShouldShow(true)
         }
