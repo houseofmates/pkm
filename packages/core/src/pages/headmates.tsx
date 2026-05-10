@@ -1006,8 +1006,5 @@ export const HeadmatesPage: React.FC = () => {
     </div>
   )
 }
-    </div >
-  );
-};
 
 export default HeadmatesPage;
