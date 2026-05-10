@@ -28,6 +28,27 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Edit, Eye, Trash2, Copy, MoreVertical } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
+  UniqueIdentifier,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface HeadmateMember {
   id: string;
@@ -36,7 +57,17 @@ interface HeadmateMember {
     avatarUrl?: string;
     pronouns?: string;
     color?: string;
+    description?: string;
+    role?: string;
+    birthday?: string;
   };
+}
+
+interface ContextMenuState {
+  visible: boolean;
+  x: number;
+  y: number;
+  memberId: string | null;
 }
 
 const FRONTING_KEY = 'headmates_fronting';
@@ -83,6 +114,10 @@ interface SortableHeadmateCardProps {
   selectionIndex: number;
   onClick: () => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
+  onContextMenu?: (e: React.MouseEvent, memberId: string) => void;
+  onEdit?: (member: HeadmateMember) => void;
+  onView?: (member: HeadmateMember) => void;
+  onDelete?: (memberId: string) => void;
 }
 
 function SortableHeadmateCard({
@@ -91,6 +126,10 @@ function SortableHeadmateCard({
   frontPosition,
   onClick,
   onKeyDown,
+  onContextMenu,
+  onEdit,
+  onView,
+  onDelete,
 }: SortableHeadmateCardProps) {
   const {
     attributes,
