@@ -48,7 +48,8 @@ export function SystemTrackerDashboard() {
     loadCurrentSession();
     loadHistory();
     loadGroups();
-  }, [loadSystem, loadMembers, loadCustomFields, loadCurrentSession, loadHistory, loadGroups]);
+    loadEntries();
+  }, [loadSystem, loadMembers, loadCustomFields, loadCurrentSession, loadHistory, loadGroups, loadEntries]);
 
   const handleAddMember = async (memberData: SystemMember) => {
     await addMember(memberData);
@@ -290,21 +291,7 @@ export function SystemTrackerDashboard() {
         </TabsContent>
 
         <TabsContent value="journal" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                system journal
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <BookOpen className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                <p className="text-lg mb-2">journal coming soon</p>
-                <p className="mb-4">this will show system-wide and individual journals</p>
-              </div>
-            </CardContent>
-          </Card>
+          <JournalView />
         </TabsContent>
       </Tabs>
 
