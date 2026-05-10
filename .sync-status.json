@@ -1,0 +1,10 @@
+{
+  "status": "error",
+  "lastSyncAt": "2026-05-10T21:02:05.343Z",
+  "lastError": "unknown remote status: unknown",
+  "pendingChanges": false,
+  "remoteAhead": false,
+  "consecutiveFailures": 47,
+  "lastSuccessfulSync": null,
+  "healthCheck": "ok"
+}
