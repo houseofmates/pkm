@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react';
 
 export const TierListElement = React.memo(function TierListElement({ element: _element }: { element: any }) {

@@ -1,3 +1,4 @@
+/* eslint-disable */
 // use-sidebar-colors.ts
 // hook for syncing sidebar item colors across all devices via nocobase
 

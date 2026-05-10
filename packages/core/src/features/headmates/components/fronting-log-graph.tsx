@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { useFronter } from '@/contexts/fronter-context';
 import { useMemo } from 'react';

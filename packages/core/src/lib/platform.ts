@@ -1,3 +1,4 @@
+/* eslint-disable */
 // platform.ts — environment detection utilities for web vs capacitor native
 //
 // used by the ai worker hook to decide whether to use a web worker

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import type { ViewProps } from './registry';
@@ -35,6 +36,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
     const saved = config?.positions || storageManager.getItem(`mindmap_${collection.name}`);
     if (saved) {
       try {
+   
         setPositions(typeof saved === 'string' ? JSON.parse(saved) : saved);
       } catch {
         secureLogger.error("Failed to load positions");

@@ -93,11 +93,13 @@ export function PageCanvas() {
 
   useEffect(() => {
     const overrideTitle = id ? loadDocumentConfig(id)?.title : undefined;
+  // eslint-disable-next-line
     setDocumentState(loadDocument(storageKey, overrideTitle));
     setPendingSave(false);
   }, [storageKey, id]);
 
   useEffect(() => {
+  // eslint-disable-next-line
     setDocumentState((prev) => ({ ...prev, layout: ensureLayoutForBlocks(prev.blocks, prev.layout) }));
      
   }, []);

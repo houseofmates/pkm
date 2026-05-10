@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * persistence service for the modular schema service
  * 

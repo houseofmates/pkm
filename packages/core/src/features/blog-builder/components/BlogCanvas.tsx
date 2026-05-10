@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';

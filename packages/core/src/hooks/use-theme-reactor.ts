@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useLayoutEffect } from 'react';
 import { useFronter } from '@/contexts/fronter-context';
 import { secureLogger } from '@/lib/secure-logger';

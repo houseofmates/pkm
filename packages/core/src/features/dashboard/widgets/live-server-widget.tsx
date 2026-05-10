@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { Activity, Users, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';

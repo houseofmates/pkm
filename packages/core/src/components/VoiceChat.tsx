@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Mic, Square, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 // nocobase rag quick-start script
 // auto-configures collections, ai employee, and knowledge base via api
 

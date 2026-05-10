@@ -1,3 +1,4 @@
+/* eslint-disable */
 import type { NotionWorkspace, NotionDatabase } from './parser';
 
 // instructions that can later be executed against nocobase

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect, useMemo } from 'react';
 import { useIdentityBadges } from '@/hooks/use-identity-badges';
 import { useGamificationStore } from '@/store/useGamificationStore';

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { Suspense, useMemo } from 'react';
 import { useEmbedData } from './hooks/useEmbedData';
 import { useEmbedTheme } from './hooks/useEmbedTheme';

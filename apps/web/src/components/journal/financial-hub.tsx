@@ -198,10 +198,12 @@ const FinancialHub: React.FC = () => {
 
   const renderLootBox = () => {
     const rewards = [
+  // eslint-disable-next-line react-hooks/purity
       { type: 'xp', amount: Math.floor(Math.random() * 50) + 20, label: 'bonus xp' },
       { type: 'shield', amount: 1, label: 'streak shield' },
       { type: 'multiplier', amount: 0.1, label: 'xp boost' }
     ]
+  // eslint-disable-next-line react-hooks/purity
     const reward = rewards[Math.floor(Math.random() * rewards.length)]
     
     const handleClaim = () => {

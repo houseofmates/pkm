@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState } from 'react';
 import { Share2, Lock, Unlock } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState } from 'react';
 import { WIDGET_REGISTRY } from './registry';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';

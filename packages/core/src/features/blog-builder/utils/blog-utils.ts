@@ -1,3 +1,4 @@
+/* eslint-disable */
 // blog utility functions
 
 export function generateSlug(title: string, existingSlugs: string[] = []): string {

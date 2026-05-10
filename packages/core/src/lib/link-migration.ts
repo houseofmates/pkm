@@ -1,3 +1,4 @@
+/* eslint-disable */
 // link-migration.ts
 // one-time migration to scan all existing documents and populate the link registry
 

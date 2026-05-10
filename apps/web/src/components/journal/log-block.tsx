@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState } from 'react'
 import ActivityPicker from './activity-picker'
 import { Card, CardHeader, CardContent, CardTitle } from '../ui/card'

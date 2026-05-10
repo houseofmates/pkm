@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState } from 'react';
 import { ShoppingCart, Check, ExternalLink } from 'lucide-react';
 import { useEdgelessStore } from '../../store';

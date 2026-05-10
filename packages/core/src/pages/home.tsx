@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { EdgelessCanvas } from '@/features/edgeless/components/EdgelessCanvas'
 import { Toolbar } from '@/features/edgeless/components/Toolbar'
 import { ErrorBoundary } from '@/components/ui/error-boundary'

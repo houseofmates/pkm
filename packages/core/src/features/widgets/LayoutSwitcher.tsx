@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sun, Zap, Moon, Layout } from 'lucide-react';

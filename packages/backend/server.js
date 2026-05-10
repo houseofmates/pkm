@@ -261,14 +261,6 @@ app.get('/apk', (req, res) => {
 app.use('/apk', express.static(apkDir, { redirect: false }));
 
 // authentication middleware
-const authenticate = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-
-  // allow if no auth required for public endpoints (though applied globally here for specific routes)
-  // we only protect specific routes
-  return next();
-};
-
 const requireAuth = (req, res, next) => {
   if (process.env.NODE_ENV !== 'production' && process.env.MOCK_NOTION_IMPORT === 'true') {
     return next();
@@ -385,7 +377,7 @@ app.get('/api/version', (req, res) => {
   });
 });
 
-app.get('/api/sidebar-colors', (req, res) => {
+app.get('/api/sidebar-colors', requireAuth, (req, res) => {
   res.json({
     primary: '#f6b012',
     secondary: '#252525',
@@ -429,6 +421,7 @@ app.post('/api/upload/banner', requireAuth, upload.single('file'), (req, res) =>
 import { run as notionRun, getApiClient } from '../../scripts/notion-import.js';
 import EventEmitter from 'events';
 import Papa from 'papaparse';
+import { systemTrackerRouter } from './system-tracker.js';
 
 const importTasks = new Map();
 // each entry: { emitter, status, logs: string[] }
@@ -616,9 +609,7 @@ function handleNotionImport(req, res) {
   res.json({ taskId });
 }
 
-// primary endpoint uses shorter name to avoid cloudflare filtering
-app.post('/api/nb-import', requireAuth, importUpload.single('file'), handleNotionImport);
-// legacy route still available for local tests
+// primary endpoint for notion import (short name to avoid cloudflare filtering)
 app.post('/api/notion-import', requireAuth, importUpload.single('file'), handleNotionImport);
 
 // multi-csv import endpoint for notion databases
@@ -763,8 +754,6 @@ async function handleCsvImport(req, res) {
   return res.json({ taskId, summary: `Scheduled import of ${req.files.length} files` });
 }
 
-app.post('/nb-import-csv', csvUpload.array('files', 60), handleCsvImport);
-
 // alias under /api path since vite proxy rewrites to /api
 app.post('/api/nb-import-csv', requireAuth, csvUpload.array('files', 60), handleCsvImport);
 
@@ -883,8 +872,8 @@ app.post('/api/upload-background', requireAuth, upload.single('file'), (req, res
 // ideally, this should be removed or strictly controlled.
 app.get('/api/players', requireAuth, async (req, res) => {
   try {
-    // hardcoded safe path
-    const scriptPath = '/home/house/Documents/docker/dupemates/data/read_player_data.py';
+    // use environment variable for script path
+    const scriptPath = process.env.DUPEMATES_DATA_DIR + '/read_player_data.py';
 
     // ensure the path exists before running
     if (!fs.existsSync(scriptPath)) {
@@ -925,7 +914,7 @@ app.get('/api/public/doc/:slug', (req, res) => {
 
 // webhook handler (from previous implementation, consolidated)
 const sendWebhook = async (type, player, message, timestamp, online) => {
-  const webhookUrl = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/webhook/leave-join';
+  const webhookUrl = process.env.N8N_WEBHOOK_URL || process.env.N8N_LOCAL_WEBHOOK_URL || 'http://localhost:5678/webhook/leave-join';
   try {
     await axios.post(webhookUrl, {
       type: type === 'quit' ? 'leave' : type,
@@ -1166,6 +1155,8 @@ io.on('connection', (socket) => {
 });
 
 
+app.use('/api/system', systemTrackerRouter);
+
 if (process.env.NODE_ENV !== 'test') {
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`[Backend] Server running on port ${PORT}`);
@@ -1254,7 +1245,7 @@ function parseActionsFromResponse(responseText) {
 
 
 // allow configuration via environment variables, with sensible defaults
-const OLLAMA_DEFAULT_URL = process.env.OLLAMA_URL || process.env.OLLAMA_HOST || 'http://localhost:11434';
+const OLLAMA_DEFAULT_URL = process.env.OLLAMA_URL || process.env.OLLAMA_HOST || process.env.OLLAMA_LOCAL_URL || 'http://localhost:11434';
 
 const PREFERRED_QWEN_MODELS = [
   process.env.OLLAMA_QWEN_MODEL,
@@ -1587,34 +1578,6 @@ app.post('/api/ai/remember', requireAuth, async (req, res) => {
   }
 });
 
-app.post('/api/ai/memory', requireAuth, async (req, res) => {
-  try {
-    const { type, content, action } = req.body;
-
-    if (!type || !content) {
-      return res.status(400).json({ error: 'type and content required' });
-    }
-
-    const fileName = `${type}.md`;
-    let success = false;
-
-    if (action === 'append') {
-      success = appendMemory(fileName, content);
-    } else {
-      success = writeMemory(fileName, content);
-    }
-
-    if (success) {
-      res.json({ success: true, type });
-    } else {
-      res.status(500).json({ error: 'failed to write memory' });
-    }
-  } catch (err) {
-    console.error('[AI] memory write error:', err.message);
-    res.status(500).json({ error: 'failed to write memory' });
-  }
-});
-
 app.delete('/api/ai/memory', requireAuth, async (req, res) => {
   try {
     const { type } = req.query;
@@ -1644,7 +1607,7 @@ app.get('/api/ai/pieces/status', requireAuth, async (req, res) => {
     const connected = await isPiecesConnected();
     res.json({
       connected,
-      mcpUrl: process.env.PIECES_MCP_URL || 'http://192.168.4.250:39301/model_context_protocol/2025-03-26/mcp'
+      mcpUrl: process.env.PIECES_MCP_URL || process.env.PIECES_MCP_LOCAL_URL || `http://${process.env.OLLAMA_LOCAL_IP || '192.168.4.250'}:39301/model_context_protocol/2025-03-26/mcp`
     });
   } catch (err) {
     res.json({ connected: false, error: err.message });

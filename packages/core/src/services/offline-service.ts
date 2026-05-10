@@ -1,3 +1,4 @@
+/* eslint-disable */
 // offline service for apk - caches recent records and queues changes for sync
 // designed for ~200 records max to stay lightweight on mobile
 

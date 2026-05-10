@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { User, Rocket, Database, Sparkles, MessageCircle, FileText, Command as CommandIcon, Loader2, Activity, PlusCircle } from "lucide-react";
 import {

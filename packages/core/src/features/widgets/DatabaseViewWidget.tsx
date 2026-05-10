@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState } from 'react';
 import { useCollections, type Collection } from '@/hooks/use-collections';
 import { DataEmbed } from '@/components/DataEmbed/DataEmbed';

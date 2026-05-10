@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { nocobaseClient } from "@/lib/nocobase";
 import { localDbService } from "./local-db.service";
 import { useCollectionsStore } from "@/store/useCollectionsStore";

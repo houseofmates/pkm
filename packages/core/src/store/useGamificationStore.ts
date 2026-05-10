@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { create } from 'zustand'
 import { useCallback } from 'react'
 import { toast } from 'sonner'

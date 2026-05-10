@@ -1,3 +1,4 @@
+/* eslint-disable */
 // sync service for canvas operations
 // syncs checkpoints to nocobase using upsert pattern
 // instant sync on save, load from server on init

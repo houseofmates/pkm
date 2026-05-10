@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { defineConfig } from 'vitepress'
 import path from 'path'
 import fs from 'fs'

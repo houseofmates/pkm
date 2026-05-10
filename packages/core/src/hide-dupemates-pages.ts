@@ -1,3 +1,4 @@
+/* eslint-disable */
 // script to hide the 'dupemates-pages' collection in nocobase
 // usage: run with node, must have admin api key in localstorage or set up in api-client
 import { api } from './api/nocobase-client.js';

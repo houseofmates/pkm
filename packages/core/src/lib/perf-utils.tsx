@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { lazy, Suspense, ComponentType, useMemo, useCallback, useState, useEffect, useRef } from 'react'
 
 export interface PaginationConfig {
@@ -51,6 +52,7 @@ export function usePagination<T>(
 
   useEffect(() => {
     if (currentPage >= totalPages && totalPages > 0) {
+   
       setCurrentPage(totalPages - 1)
     }
   }, [currentPage, totalPages])

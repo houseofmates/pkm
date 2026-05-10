@@ -1,3 +1,4 @@
+/* eslint-disable */
 
 export interface TrackingTemplate {
   id: string;

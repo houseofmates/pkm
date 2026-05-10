@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';

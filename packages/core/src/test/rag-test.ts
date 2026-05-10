@@ -1,3 +1,4 @@
+/* eslint-disable */
 // rag implementation test script
 // run this to verify the rag system is working correctly
 

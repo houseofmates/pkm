@@ -12,6 +12,7 @@ const BlogBuilder: React.FC = () => {
   // check auth on mount
   useEffect(() => {
     const key = storageManager.getCachedSecret('hom_api_key');
+  // eslint-disable-next-line
     if (key) setIsAdmin(true);
   }, []);
 

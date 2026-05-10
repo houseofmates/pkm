@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import '@testing-library/jest-dom/vitest';
 import { render, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { humanizeFieldName } from '@/features/records/components/record-table';

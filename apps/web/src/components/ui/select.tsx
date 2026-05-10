@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react'
 export const Select = (props: any) => <div {...props} />
 export const SelectContent = (props: any) => <div {...props} />

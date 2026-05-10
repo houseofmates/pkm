@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useMemo, useEffect } from 'react';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';

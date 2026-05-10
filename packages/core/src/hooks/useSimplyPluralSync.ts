@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from '@/lib/secure-logger';

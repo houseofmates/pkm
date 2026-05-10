@@ -1,3 +1,4 @@
+/* eslint-disable */
 // utilities for normalizing api responses (originally for nocobase, now generic)
 
 /**

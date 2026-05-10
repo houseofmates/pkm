@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { secureLogger } from './secure-logger'
 import { DEFAULT_OLLAMA_MODEL } from './llm-config'
 

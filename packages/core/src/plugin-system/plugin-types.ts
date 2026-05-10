@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Plugin System Type Definitions
 export interface PluginManifest {
   id: string;

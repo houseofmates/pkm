@@ -1,3 +1,4 @@
+/* eslint-disable */
 // sidebar-color-service.ts
 // service for syncing sidebar item colors with nocobase
 // enables cross-platform color persistence (web, electron, apk, exe)

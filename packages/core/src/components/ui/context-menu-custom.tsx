@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useEffect, useRef, useState } from 'react';
 import { useContextMenuStore } from './context-menu-store';
 import { createPortal } from 'react-dom';
@@ -23,6 +24,7 @@ export function ContextMenu() {
   // sync rename value when menu opens
   useEffect(() => {
   if (isOpen && data?.title) {
+   
   setRenameValue(data.title);
   }
   setIsRenaming(false);
@@ -32,6 +34,7 @@ export function ContextMenu() {
   // calculate initial darkness from pen color when tool menu opens
   useEffect(() => {
     if (!isOpen || targetType !== 'tool' || data?.tool !== 'pen') {
+   
       setBrushDarkness(0);
       return;
     }

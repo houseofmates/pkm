@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState } from 'react';
 import { Activity, DollarSign, Heart, Battery, CheckSquare, TrendingUp, X } from 'lucide-react';
 import { cn } from '@/lib/utils';

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';

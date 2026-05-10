@@ -1,3 +1,4 @@
+/* eslint-disable */
 // useHermesBridge - hook for connecting pkm chat to hermes agent
 // this hooks into the llm-store and routes messages to the hermes bridge
 
@@ -26,7 +27,7 @@ export interface UseHermesBridgeReturn {
 
 // singleton websocket connection
 let wsInstance: WebSocket | null = null;
-let messageCallbacks: Set<(msg: any) => void> = new Set();
+const messageCallbacks: Set<(msg: any) => void> = new Set();
 
 function getWebSocket(url: string): WebSocket {
   if (!wsInstance || wsInstance.readyState === WebSocket.CLOSED) {

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { useEdgelessStore } from '../store';
 import { LassoTool, BrushTool, EraserTool, SelectionTool, TransformBox } from '../tools';

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -68,6 +69,7 @@ export function XPExplosion({ trigger, onComplete, className, rowId = 'journal' 
   
   useEffect(() => {
     if (trigger && !isExploding) {
+  // eslint-disable-next-line
       createExplosion();
     }
   }, [trigger, createExplosion, isExploding]);

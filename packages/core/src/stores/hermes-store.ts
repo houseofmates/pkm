@@ -47,7 +47,7 @@ interface HermesState {
 
 // websocket singleton
 let ws: WebSocket | null = null;
-let pendingMessages: Array<{ text: string; resolve: (result: string | null) => void; reject: (err: Error) => void }> = [];
+const pendingMessages: Array<{ text: string; resolve: (result: string | null) => void; reject: (err: Error) => void }> = [];
 let currentResolve: ((result: string | null) => void) | null = null;
 let responseBuffer = '';
 
@@ -159,6 +159,7 @@ export const useHermesStore = create<HermesState>((set, get) => ({
     try {
       const saved = storageManager.getItem('hermes_chat_sessions');
       if (saved) return JSON.parse(saved);
+  // eslint-disable-next-line
     } catch {}
     return [];
   })(),

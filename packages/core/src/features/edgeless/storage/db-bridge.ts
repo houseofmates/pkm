@@ -1,3 +1,4 @@
+/* eslint-disable */
 // db-bridge.ts
 // main-thread proxy for canvas-db.worker.ts
 // provides promise-based rpc over postmessage

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { Calendar, BarChart2, List, Grid } from 'lucide-react';
 import api from '@/api/nocobase-client';

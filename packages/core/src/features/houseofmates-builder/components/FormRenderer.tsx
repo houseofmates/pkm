@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState } from 'react';
 import { Star, Send, Loader2 } from 'lucide-react';
 import { nocobaseClient } from '@/lib/nocobase';

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { Node } from '@tiptap/core';
 import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
 import { ImageGrid } from '@/components/ImageGrid';

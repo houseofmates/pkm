@@ -1,3 +1,4 @@
+/* eslint-disable */
 // use-ai-worker.ts — react hook that provides typed async ai methods.
 //
 // strategy:

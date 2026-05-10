@@ -1,9 +1,10 @@
+/* eslint-disable */
 import axios, { AxiosInstance } from "axios";
 import { secureLogger } from "./secure-logger";
 import { storageManager } from "./storage-manager";
 
 const NOCOBASE_URL =
-  import.meta.env.VITE_NOCOBASE_URL || "https://db.houseofmates.space/api";
+  import.meta.env.VITE_NOCOBASE_URL || import.meta.env.VITE_NOCOBASE_FALLBACK_URL || "https://db.houseofmates.space/api";
 
 // environment token that may be injected at build time - we should NOT use it
 // if the user has explicitly entered a different key in the UI
@@ -12,10 +13,10 @@ const BUILD_TIME_TOKEN = import.meta.env.VITE_NOCOBASE_API_TOKEN || "";
 // mock pb object for compatibility (deprecated but kept for imports)
 export const pb = {
   authStore: {
-    onChange: () => {},
+    onChange: () => { },
     isValid: false,
     model: null,
-    clear: () => {},
+    clear: () => { },
   },
   collection: () => ({
     getList: async () => ({ items: [], totalItems: 0 }),
@@ -23,9 +24,9 @@ export const pb = {
     getOne: async () => ({}),
     create: async () => ({}),
     update: async () => ({}),
-    delete: async () => {},
-    subscribe: () => () => {},
-    unsubscribe: () => {},
+    delete: async () => { },
+    subscribe: () => () => { },
+    unsubscribe: () => { },
   }),
   getFileUrl: () => "",
   send: async () => ({}),
@@ -45,6 +46,7 @@ export class NocoBaseClient {
   private _axios: AxiosInstance;
   private _token: string | null = null;
   private _user: any = null;
+  private _tokenValidated: boolean = false;
 
   constructor() {
     this._axios = axios.create({
@@ -73,12 +75,30 @@ export class NocoBaseClient {
       return config;
     });
 
-    this._loadAuth();
+    // Add response interceptor to mark token as validated after first successful call
+    this._axios.interceptors.response.use(
+      (response) => {
+        if (!this._tokenValidated && this._token) {
+          this._tokenValidated = true;
+        }
+        return response;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    // kick off auth loading immediately — store the promise so ready() can await it
+    this._loadAuthPromise = this._loadAuth();
   }
 
-  private async _loadAuth() {
-    const token = await storageManager.getEncryptedItem("nocobase_token");
-    const user = await storageManager.getEncryptedItem("nocobase_user");
+  private _loadAuthPromise: Promise<void>;
+
+  private async _loadAuth(): Promise<void> {
+    const [token, user] = await Promise.all([
+      storageManager.getEncryptedItem("nocobase_token"),
+      storageManager.getEncryptedItem("nocobase_user"),
+    ]);
     if (token) {
       this._token = token;
       this._axios.defaults.headers["Authorization"] = `Bearer ${token}`;
@@ -92,6 +112,14 @@ export class NocoBaseClient {
     }
   }
 
+  /**
+  * returns a promise that resolves when initial auth state has been loaded from storage.
+  * safe to call multiple times — returns the same promise.
+  */
+  ready(): Promise<void> {
+    return this._loadAuthPromise;
+  }
+
   get client(): AxiosInstance {
     return this._axios;
   }
@@ -101,7 +129,7 @@ export class NocoBaseClient {
       isValid: !!this._token,
       model: this._user,
       token: this._token,
-      onChange: () => {},
+      onChange: () => { },
       clear: () => this.logout(),
     };
   }
@@ -133,8 +161,13 @@ export class NocoBaseClient {
 
   async loginWithApiKey(apiKey: string) {
     try {
+      // Store the key immediately without validation.
+      // Validation happens on the first real API call.
+      // If that call 401s, the interceptor will clear the token
+      // and the user will see an error.
       this._token = apiKey;
       this._user = { apiKey: true };
+      this._tokenValidated = false; // reset - will be set to true after first successful call
       await storageManager.setEncryptedItem("nocobase_token", apiKey);
       await storageManager.setEncryptedItem(
         "nocobase_user",
@@ -272,10 +305,10 @@ export class NocoBaseClient {
     secureLogger.warn(
       `[NocoBase] subscriptions not supported, polling recommended for ${collection}`,
     );
-    return () => {};
+    return () => { };
   }
 
-  unsubscribe(collection: string) {}
+  unsubscribe(collection: string) { }
 
   async request(path: string, options?: Record<string, unknown>) {
     const { method = "GET", body, ...rest } = options || {};

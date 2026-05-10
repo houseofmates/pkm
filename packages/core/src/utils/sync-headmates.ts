@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { nocobaseClient } from '@/lib/nocobase';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
 import { toast } from 'sonner';

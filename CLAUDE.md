@@ -68,7 +68,6 @@ pkm/
 - **backend**: express + socket.io server (port 4100) for real-time events
 - **nocobase**: headless cms/api server (external, port 1337 or remote)
 - **n8n**: workflow automation (external, port 5678)
-- **ollama**: local llm server (external, port 11434)
 
 ### data flow
 1. frontend proxies api requests to backend or nocobase based on path

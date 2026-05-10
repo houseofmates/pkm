@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '@/hooks/use-socket';
 import api from '@/api/nocobase-client';

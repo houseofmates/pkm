@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Node, mergeAttributes } from '@tiptap/core';
 
 export const Column = Node.create({

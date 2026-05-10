@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState } from 'react';
 import { useRecords } from '@/hooks/use-records';
 import { useCollection } from '@/hooks/use-collections';

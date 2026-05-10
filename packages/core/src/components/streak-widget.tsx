@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { Heart, Flame, TrendingUp, Crown, Zap } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';

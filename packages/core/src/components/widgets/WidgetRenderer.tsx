@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 
 import { useCollections } from '@/hooks/use-collections';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';

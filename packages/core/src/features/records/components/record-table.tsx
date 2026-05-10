@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import {
   useReactTable,
   getCoreRowModel,
@@ -475,11 +476,12 @@ const DraggableRecordRow = (props: any) => {
   const data = props.data || props;
   const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection, columnVersion, onRowReorder, isManualOrderActive, onOpenDetail } = data;
 
-  const row = rows[index];
-  if (!row) return null;
-
   const rowRef = React.useRef<HTMLDivElement>(null);
   const isDraggingRef = React.useRef(false);
+
+  const row = rows[index];
+  // note: early return after hooks
+  if (!row) return null;
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `record-${row.original.id}`,

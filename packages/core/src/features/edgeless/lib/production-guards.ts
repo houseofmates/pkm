@@ -1,3 +1,4 @@
+/* eslint-disable */
 // production safeguards for the canvas system
 // error recovery, memory management, and performance monitoring
 

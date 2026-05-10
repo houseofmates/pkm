@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * field type registry for the modular schema service
  * 

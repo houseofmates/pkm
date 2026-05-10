@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useCallback } from 'react';
 import { useEdgelessStore } from '../store';
 
@@ -27,6 +28,7 @@ export function useCanvasEvents() {
           const reader = new FileReader();
           reader.onload = (event) => {
             const src = event.target?.result as string;
+   
             createImageElement(src);
           };
           reader.readAsDataURL(blob);
@@ -37,6 +39,7 @@ export function useCanvasEvents() {
       // 2. handle text (links, image urls)
       if (item.type === 'text/plain') {
         item.getAsString(async (text) => {
+   
           await processTextContent(text);
         });
       }

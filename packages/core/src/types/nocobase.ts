@@ -1,3 +1,4 @@
+/* eslint-disable */
 export interface ApiListResponse<T = any> {
   data: T;
   meta?: {

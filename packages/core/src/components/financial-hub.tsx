@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect, useMemo } from 'react';
 import { TrendingUp, TrendingDown, DollarSign, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';

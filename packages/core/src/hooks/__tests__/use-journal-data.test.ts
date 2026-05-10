@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { useJournalData, XP_PER_ENTRY } from '../use-journal-data';

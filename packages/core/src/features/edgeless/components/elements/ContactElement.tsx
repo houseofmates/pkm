@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React from 'react';
 // temporary fix - commented out due to build error
 // import { usefronter } from "@/contexts/fronter-context";

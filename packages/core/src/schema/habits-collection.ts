@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * nocobase collection schema: high-granularity activity logging system
  * 

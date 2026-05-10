@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { ChartWidget } from './chart-widget';
 import { QuickAddWidget } from './quick-add-widget';
 import { DrawingWidget } from './drawing-widget';

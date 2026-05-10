@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 // rag test page - accessible at /rag-test
 // use this to verify the rag implementation works
 

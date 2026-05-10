@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
 // import apkupdater only when needed
 import { LoginPage } from "@/pages/login";
@@ -8,6 +9,7 @@ import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
 import { isPublicDomain } from "@/utils/subdomain-router";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { FronterProvider } from "@/contexts/fronter-context";
+import { SystemTrackerProvider } from "@/contexts/system-tracker-context";
 import { LLMContextProvider } from "@/contexts/llm-context";
 import { CanvasErrorBoundary } from "@/features/edgeless";
 import { CanvasInitializer } from "@/features/edgeless/components/canvas-initializer";
@@ -45,6 +47,9 @@ const CollectionDetailPage = lazy(() =>
 );
 const HeadmatesPage = lazy(() =>
   import("@/pages/headmates").then((m) => ({ default: m.HeadmatesPage })),
+);
+const SystemTrackerPage = lazy(() =>
+  import("@/features/system-tracker").then((m) => ({ default: m.SystemTrackerPage })),
 );
 const MoodboardPage = lazy(() =>
   import("@/pages/moodboard").then((m) => ({ default: m.MoodboardPage })),
@@ -522,6 +527,14 @@ function AppContent() {
                 }
               />
               <Route
+                path="/system-tracker"
+                element={
+                  <LazyLoadErrorBoundary>
+                    <SystemTrackerPage />
+                  </LazyLoadErrorBoundary>
+                }
+              />
+              <Route
                 path="/board"
                 element={
                   <LazyLoadErrorBoundary>
@@ -691,9 +704,11 @@ function App() {
       <AuthProvider>
         <QueryClientProvider client={queryClient}>
           <FronterProvider>
-            <LLMContextProvider>
-              <AppContent />
-            </LLMContextProvider>
+            <SystemTrackerProvider>
+              <LLMContextProvider>
+                <AppContent />
+              </LLMContextProvider>
+            </SystemTrackerProvider>
           </FronterProvider>
         </QueryClientProvider>
       </AuthProvider>

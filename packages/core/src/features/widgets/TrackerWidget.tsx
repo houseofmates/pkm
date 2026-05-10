@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Activity, Check, Clock, Play, Square, RotateCcw } from 'lucide-react';

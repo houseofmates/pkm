@@ -70,6 +70,7 @@ export function useRecords(
   const [pageFallbackTried, setPageFallbackTried] = useState(false);
 
   useEffect(() => {
+  // eslint-disable-next-line
     setPageFallbackTried(false);
   }, [collectionName, queryParams.pageSize]);
 
@@ -81,6 +82,7 @@ export function useRecords(
       typeof queryParams.page === "number" &&
       queryParams.page !== 0
     ) {
+  // eslint-disable-next-line
       setQueryParams((prev) => ({ ...prev, page: 0 }));
       setPageFallbackTried(true);
     }

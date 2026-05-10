@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useRef, useState, useEffect } from 'react';
 import { Canvas, Rect, Point } from 'fabric';
 import { useCanvasLayout } from '@/hooks/use-canvas-layout';

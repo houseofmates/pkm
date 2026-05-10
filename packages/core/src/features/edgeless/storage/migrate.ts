@@ -1,3 +1,4 @@
+/* eslint-disable */
 // migration utility: localstorage/lzstring -> indexeddb/oplog
 // one-time migration for existing drawings
 

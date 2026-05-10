@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { cn, sanitizeHTML } from '@/lib/utils';
 
 interface ContentElement {

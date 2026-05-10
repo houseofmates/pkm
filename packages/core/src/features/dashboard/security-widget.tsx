@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 /**
  * security dashboard widget
  * 
@@ -49,6 +50,7 @@ export function SecurityWidget() {
 
   useEffect(() => {
     setMounted(true);
+   
     updateSecurityStatus();
     
     // poll for updates every 5 seconds

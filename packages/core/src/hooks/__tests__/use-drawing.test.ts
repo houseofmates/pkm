@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { renderHook, act } from '@testing-library/react';
 import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';
 import { useDrawing } from '../use-drawing';

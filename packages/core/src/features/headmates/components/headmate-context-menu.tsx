@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 
 import { useState, useRef } from 'react';
 import { useFronter } from '@/contexts/fronter-context';

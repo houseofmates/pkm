@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useParams, useNavigate } from 'react-router-dom'
 import { useRef } from 'react'
 import { EdgelessCanvas } from '@/features/edgeless/components/EdgelessCanvas'

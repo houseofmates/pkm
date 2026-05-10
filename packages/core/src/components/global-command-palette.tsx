@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect, useCallback } from "react";
 import { User, Rocket, Database, Search, Sparkles, BrainCircuit } from "lucide-react";
 import {

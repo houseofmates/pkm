@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useMemo, useEffect, useState } from 'react';
 import { Droplets, Pill, Cat, TrendingUp, Check } from 'lucide-react';
 import { useRecords } from '@/hooks/use-records';

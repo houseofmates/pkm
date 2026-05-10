@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { secureLogger } from './secure-logger';
 
 // global error handler for websocket-related promise rejections

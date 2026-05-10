@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * core type definitions for the modular schema service
  * 

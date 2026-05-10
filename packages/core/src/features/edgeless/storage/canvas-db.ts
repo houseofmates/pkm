@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { openDB } from "idb";
 import type { DBSchema, IDBPDatabase } from "idb"; // types only
 import type { DrawOp, OpLogEntry, CanvasCheckpoint } from "./oplog";

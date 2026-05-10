@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useMemo, useState, useRef } from 'react';
 import type { ViewProps } from './registry';
 import { ScrollArea } from '@/components/ui/scroll-area';

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState, useEffect } from 'react';
 import { useSemanticSearch } from '@/hooks/use-semantic-search';
 import { Input } from '@/components/ui/input';

@@ -8,16 +8,20 @@ import { nocobaseClient } from "./nocobase-client";
 
 // nvidia api configuration
 export const NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1";
-export const NVIDIA_MODEL = "moonshotai/kimi-k2.5";
+export const NVIDIA_MODEL = "moonshotai/kimi-k2.6";
 
 // ollama defaults (for local inference)
 export const DEFAULT_OLLAMA_MODEL = "gemma4:e4b";
-export const DEFAULT_OLLAMA_URL = "http://192.168.4.250:11434";
+export const DEFAULT_OLLAMA_URL = import.meta.env.VITE_OLLAMA_URL || "http://192.168.4.250:11434";
 
 // cached api keys from nocobase
 let cachedApiKeys: ApiKeyEntry[] = [];
 let currentKeyIndex = 0;
 let lastFetchTime = 0;
+
+// round-robin nvidia api key pool from environment
+let nvidiaKeyPool: string[] = [];
+let nvidiaKeyIndex = 0;
 
 interface ApiKeyEntry {
   id: number;
@@ -30,13 +34,54 @@ interface ApiKeyEntry {
   last429At?: number;
 }
 
+// initialize nvidia api key pool from environment variables
+function initializeNvidiaKeyPool(): void {
+  const keys: string[] = [];
+
+  // extract all nvidia api keys from environment (NVIDIA_API_KEY_1, NVIDIA_API_KEY_2, etc.)
+  for (let i = 1; i <= 100; i++) {
+    const key = import.meta.env[`NVIDIA_API_KEY_${i}`];
+    if (key && typeof key === 'string' && key.trim()) {
+      keys.push(key.trim());
+    }
+  }
+
+  // also check for single NVIDIA_API_KEY (backward compatibility)
+  const singleKey = import.meta.env.NVIDIA_API_KEY;
+  if (singleKey && typeof singleKey === 'string' && singleKey.trim()) {
+    keys.push(singleKey.trim());
+  }
+
+  nvidiaKeyPool = keys;
+  nvidiaKeyIndex = 0;
+
+  if (keys.length > 0) {
+    console.log(`[llm-config] initialized ${keys.length} nvidia api keys from environment`);
+  }
+}
+
+// get next nvidia api key in round-robin fashion
+function getNextNvidiaApiKey(): string | null {
+  if (nvidiaKeyPool.length === 0) {
+    initializeNvidiaKeyPool();
+  }
+
+  if (nvidiaKeyPool.length === 0) {
+    return null;
+  }
+
+  const key = nvidiaKeyPool[nvidiaKeyIndex];
+  nvidiaKeyIndex = (nvidiaKeyIndex + 1) % nvidiaKeyPool.length;
+  return key;
+}
+
 // fetch api keys from nocobase (called once on app start, then cached)
 export async function fetchApiKeysFromServer(): Promise<void> {
- try {
- const client = nocobaseClient;
- if (!client) return;
- 
- const response = await client.request('pkm_api_keys:list', {
+  try {
+    const client = nocobaseClient;
+    if (!client) return;
+
+    const response = await client.request('pkm_api_keys:list', {
       params: {
         filter: { enabled: { $eq: true } },
         sort: ['priority'],
@@ -44,12 +89,12 @@ export async function fetchApiKeysFromServer(): Promise<void> {
       },
       silent: true,
     });
-    
+
     const data = (response as { data?: ApiKeyEntry[] }).data || [];
     cachedApiKeys = data.filter(k => k.enabled).sort((a, b) => a.priority - b.priority);
     currentKeyIndex = 0;
     lastFetchTime = Date.now();
-    
+
     console.log('[llm-config] loaded', cachedApiKeys.length, 'api keys from server');
   } catch (e) {
     console.error('[llm-config] failed to fetch api keys:', e);
@@ -59,38 +104,38 @@ export async function fetchApiKeysFromServer(): Promise<void> {
 // get current active api key (with 429 fallback)
 export function getCurrentApiKey(): { key: string; model: string; provider: string } | null {
   const now = Date.now();
-  
+
   // refresh if stale (5 minutes)
   if (now - lastFetchTime > 300000) {
     fetchApiKeysFromServer(); // async, will use cached for now
   }
-  
+
   // find first available key (not recently rate limited)
   for (let i = 0; i < cachedApiKeys.length; i++) {
     const idx = (currentKeyIndex + i) % cachedApiKeys.length;
     const k = cachedApiKeys[idx];
-    
+
     // skip if rate limited within last 60 seconds
     if (k.last429At && now - k.last429At < 60000) continue;
-    
+
     return { key: k.key, model: k.model, provider: k.provider };
   }
-  
+
   return null;
 }
 
 // mark current key as rate limited, advance to next
 export async function markKeyRateLimited(): Promise<{ key: string; model: string; provider: string } | null> {
   if (cachedApiKeys.length === 0) return null;
-  
+
   const currentKey = cachedApiKeys[currentKeyIndex];
   if (!currentKey?.id) return null;
-  
- // update in database
- try {
- const client = nocobaseClient;
- if (client) {
- await client.request('pkm_api_keys:update', {
+
+  // update in database
+  try {
+    const client = nocobaseClient;
+    if (client) {
+      await client.request('pkm_api_keys:update', {
         params: { filterByTk: currentKey.id },
         values: { last429At: Date.now() },
         silent: true,
@@ -99,26 +144,32 @@ export async function markKeyRateLimited(): Promise<{ key: string; model: string
   } catch (e) {
     console.error('[llm-config] failed to update 429 timestamp:', e);
   }
-  
+
   // advance to next key
   currentKeyIndex = (currentKeyIndex + 1) % cachedApiKeys.length;
   const nextKey = cachedApiKeys[currentKeyIndex];
-  
+
   if (nextKey) {
     console.log('[llm-config] 429 detected, switching to:', nextKey.name);
     return { key: nextKey.key, model: nextKey.model, provider: nextKey.provider };
   }
-  
+
   return null;
 }
 
 export async function getStoredNvidiaApiKey(): Promise<string | null> {
-  // first check server-stored keys
+  // first try round-robin nvidia api keys from environment
+  const envKey = getNextNvidiaApiKey();
+  if (envKey) {
+    return envKey;
+  }
+
+  // then check server-stored keys
   const currentKey = getCurrentApiKey();
   if (currentKey && currentKey.provider === 'nvidia') {
     return currentKey.key;
   }
-  
+
   // fallback to local storage (legacy)
   try {
     const stored = await storageManager.getEncryptedItem?.("nvidia_api_key");
@@ -129,9 +180,9 @@ export async function getStoredNvidiaApiKey(): Promise<string | null> {
   const plain = storageManager.getItem("nvidia_api_key");
   if (plain) return String(plain).trim();
 
-  // also check env variable
-  const envKey = import.meta.env.NVIDIA_API_KEY;
-  if (envKey) return String(envKey).trim();
+  // finally check single env variable (backward compatibility)
+  const singleEnvKey = import.meta.env.NVIDIA_API_KEY;
+  if (singleEnvKey) return String(singleEnvKey).trim();
 
   return null;
 }
@@ -233,7 +284,13 @@ export function storeApiConfig(url?: string, model?: string): void {
 // get the base url for the llm api
 // priority: nvidia api (if key configured) > stored config > env > default ollama
 export function getOllamaBase(): string {
-  // check for nvidia api key first
+  // check for nvidia api key first (including round-robin pool)
+  initializeNvidiaKeyPool();
+  if (nvidiaKeyPool.length > 0) {
+    return NVIDIA_API_URL;
+  }
+
+  // also check legacy single key and storage
   const nvidiaKey =
     storageManager.getItem("nvidia_api_key") || import.meta.env.NVIDIA_API_KEY;
   if (nvidiaKey) {
@@ -254,7 +311,13 @@ export function getOllamaBase(): string {
 // get the model to use for the llm
 // priority: nvidia api (if key configured) > stored config > env > default
 export function getOllamaModel(): string {
-  // check for nvidia api key first
+  // check for nvidia api key first (including round-robin pool)
+  initializeNvidiaKeyPool();
+  if (nvidiaKeyPool.length > 0) {
+    return NVIDIA_MODEL;
+  }
+
+  // also check legacy single key and storage
   const nvidiaKey =
     storageManager.getItem("nvidia_api_key") || import.meta.env.NVIDIA_API_KEY;
   if (nvidiaKey) {

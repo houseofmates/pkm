@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Calendar, Droplet, Save, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

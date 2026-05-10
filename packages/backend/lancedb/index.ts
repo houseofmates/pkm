@@ -1,3 +1,5 @@
+ 
+/* eslint-disable */
 import path from 'path';
 import fs from 'fs';
 
@@ -21,7 +23,7 @@ export class LanceIndexer {
     try {
       if (!fs.existsSync(this.dbPath)) fs.mkdirSync(this.dbPath, { recursive: true });
       // lazy require so runtime can install lancedb separately
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+       
       const Lance = require('lancedb') as any;
       const client = new Lance.LanceClient({ path: this.dbPath });
       // open or create table

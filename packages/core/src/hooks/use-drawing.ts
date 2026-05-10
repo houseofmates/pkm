@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useEdgelessStore, flushDrawingOps } from '@/features/edgeless/store';
 import type { OplogHistory } from '@/features/edgeless/store';

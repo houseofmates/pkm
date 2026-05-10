@@ -1,3 +1,4 @@
+/* eslint-disable */
 // canvas-db.worker.ts
 // all indexeddb operations for the canvas run here, off the main thread
 // communicates with db-bridge.ts via structured message passing

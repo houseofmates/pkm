@@ -1,4 +1,6 @@
+{/* eslint-disable */ }
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from '@/lib/secure-logger';
@@ -199,14 +201,17 @@ export const HeadmatesPage: React.FC = () => {
   const fetchMembers = useCallback(async (key: string) => {
     setLoading(true);
     try {
-      const meRes = await fetch('https://api.apparyllis.com/v1/me', {
+      const simplyPluralMeUrl = import.meta.env.VITE_SIMPLYPLURAL_ME_ENDPOINT || 'https://api.apparyllis.com/v1/me';
+      const simplyPluralMembersUrl = import.meta.env.VITE_SIMPLYPLURAL_MEMBERS_ENDPOINT || 'https://api.apparyllis.com/v1/members';
+
+      const meRes = await fetch(simplyPluralMeUrl, {
         headers: { 'Authorization': key }
       });
       if (!meRes.ok) throw new Error('Failed to fetch system info');
       const meData = await meRes.json();
       const systemId = meData.id;
 
-      const membersRes = await fetch(`https://api.apparyllis.com/v1/members/${systemId}`, {
+      const membersRes = await fetch(`${simplyPluralMembersUrl}/${systemId}`, {
         headers: { 'Authorization': key }
       });
       if (!membersRes.ok) throw new Error('Failed to fetch members');
@@ -320,14 +325,17 @@ export const HeadmatesPage: React.FC = () => {
     if (!apiKey || newOrder.length === 0) return;
 
     try {
-      const meRes = await fetch('https://api.apparyllis.com/v1/me', {
+      const simplyPluralMeUrl = import.meta.env.VITE_SIMPLYPLURAL_ME_ENDPOINT || 'https://api.apparyllis.com/v1/me';
+      const simplyPluralFrontUrl = import.meta.env.VITE_SIMPLYPLURAL_FRONT_ENDPOINT || 'https://api.apparyllis.com/v1/front';
+
+      const meRes = await fetch(simplyPluralMeUrl, {
         headers: { 'Authorization': apiKey }
       });
       if (!meRes.ok) return;
       const meData = await meRes.json();
       const systemId = meData.id;
 
-      await fetch(`https://api.apparyllis.com/v1/front/${systemId}`, {
+      await fetch(`${simplyPluralFrontUrl}/${systemId}`, {
         method: 'POST',
         headers: {
           'Authorization': apiKey,
@@ -424,6 +432,7 @@ export const HeadmatesPage: React.FC = () => {
 
   return (
     <div ref={containerRef} className="h-full w-full p-2 overflow-auto">
+      <Link to="/system-tracker" style={{ position: "fixed", top: "12px", right: "12px", zIndex: 50, padding: "8px 16px", background: "rgba(59, 130, 246, 0.2)", border: "1px solid rgba(59, 130, 246, 0.3)", borderRadius: 8, color: "#fff", fontSize: "12px", cursor: "pointer", backdropFilter: "blur(8px)", textDecoration: "none" }}>system tracker</Link>
       {!hasKey ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}

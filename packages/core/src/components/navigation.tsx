@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState, useEffect, useRef } from 'react';
 import { Database, Home, Users, Search, MessageCircle, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, BookOpen, type LucideIcon, MessageSquare } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';

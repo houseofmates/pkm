@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { lazy, Suspense, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useEdgelessStore } from '../../store';

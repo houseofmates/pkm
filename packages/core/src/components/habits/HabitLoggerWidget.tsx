@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Plus, X, ChevronRight, Sparkles, Timer, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';

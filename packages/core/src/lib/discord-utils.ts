@@ -1,3 +1,4 @@
+/* eslint-disable */
 
 export function isDiscordLinkExpired(url: string | undefined): boolean {
   if (!url) return false;

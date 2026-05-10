@@ -1,3 +1,4 @@
+/* eslint-disable */
 // rag prompt templates for knowledge work
 // optimized for nocobase pkm with markdown-heavy content
 

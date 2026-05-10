@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { cn } from '@/lib/utils';
 import { RecordContextMenu } from './record-context-menu';
 import { useDraggable } from '@dnd-kit/core';

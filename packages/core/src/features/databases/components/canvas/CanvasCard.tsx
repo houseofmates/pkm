@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 // icons

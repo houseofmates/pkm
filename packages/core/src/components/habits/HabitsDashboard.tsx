@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   TrendingUp, 

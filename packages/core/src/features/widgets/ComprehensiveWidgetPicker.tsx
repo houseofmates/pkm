@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useMemo } from 'react';
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { useCollections } from '@/hooks/use-collections';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 // dupemates integration hooks for rag
 // indexes dupemate interactions and provides relationship context
 

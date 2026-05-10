@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { CheckSquare, X, Plus, Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';

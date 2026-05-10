@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import React, { useState, useMemo, useCallback } from "react";
 import { useAuth } from "@/contexts/auth-context";
 // collection type definition

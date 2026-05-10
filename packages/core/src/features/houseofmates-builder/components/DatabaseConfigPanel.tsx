@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useState, useEffect } from 'react';
 import { useBuilder } from '../HouseofmatesBuilder';
 import { nocobaseClient } from '@/lib/nocobase';

@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';

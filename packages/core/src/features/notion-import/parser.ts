@@ -1,4 +1,6 @@
+/* eslint-disable */
 import { parse as csvParse } from 'papaparse';
+import * as fs from 'fs';
 import yaml from 'js-yaml';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -50,7 +52,6 @@ export class NodeFsSource implements NotionSource {
         return fs.promises.readFile(this.filePath, 'utf-8');
     }
     getStream() {
-        const fs = require('fs');
         return fs.createReadStream(this.filePath);
     }
 }

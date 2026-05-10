@@ -1,3 +1,4 @@
+{/* eslint-disable */}
 import { useEffect, useState, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";

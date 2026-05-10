@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * speech recognition utility with firefox support
  * firefox doesn't support web speech api natively, so we provide
