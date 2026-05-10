@@ -31,6 +31,7 @@ class GitSyncService {
   private static instance: GitSyncService;
   private config: GitSyncConfig;
   private syncTimer: NodeJS.Timeout | null = null;
+  private changeTriggerTimer: NodeJS.Timeout | null = null;
   private isSyncing = false;
   private status: GitSyncStatus;
   private listeners: Set<(status: GitSyncStatus) => void> = new Set();
@@ -344,8 +345,12 @@ class GitSyncService {
     if (this.syncTimer) {
       clearTimeout(this.syncTimer);
       this.syncTimer = null;
-      secureLogger.info('Auto-sync stopped');
     }
+    if (this.changeTriggerTimer) {
+      clearTimeout(this.changeTriggerTimer);
+      this.changeTriggerTimer = null;
+    }
+    secureLogger.info('Auto-sync stopped');
   }
 
   // Trigger sync on significant changes
