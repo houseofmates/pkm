@@ -1,5 +1,5 @@
-const API_BASE = 'http://localhost:13000/api';
-const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGVOYW1lIjoicm9vdCIsImlhdCI6MTc3NDY0NTY5MiwiZXhwIjoxNzc0NzMyMDkyfQ.ktX5jcezmLhxZISaBqqHS_eg45FIIogkW8NQb-EL7n4';
+const API_BASE = process.env.NOCOBASE_URL || 'http://localhost:13000/api';
+const TOKEN = process.env.NOCOBASE_API_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGVOYW1lIjoicm9vdCIsImlhdCI6MTc3NDY0NTY5MiwiZXhwIjoxNzc0NzMyMDkyfQ.ktX5jcezmLhxZISaBqqHS_eg45FIIogkW8NQb-EL7n4';
 
 const headers = {
   'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ async function createExerciseCollection() {
   for (const field of fields) {
     await createField('exercise', field);
   }
-  console.log('Exercise collection created!\n');
+  console.log('Exercise collection created!\\n');
 }
 
 // Sleep Collection
@@ -123,7 +123,7 @@ async function createSleepCollection() {
   for (const field of fields) {
     await createField('sleep', field);
   }
-  console.log('Sleep collection created!\n');
+  console.log('Sleep collection created!\\n');
 }
 
 // Finances Collection
@@ -163,7 +163,7 @@ async function createFinancesCollection() {
   for (const field of fields) {
     await createField('finances', field);
   }
-  console.log('Finances collection created!\n');
+  console.log('Finances collection created!\\n');
 }
 
 // Habits Collection
@@ -209,7 +209,7 @@ async function createHabitsCollection() {
   for (const field of fields) {
     await createField('habits', field);
   }
-  console.log('Habits collection created!\n');
+  console.log('Habits collection created!\\n');
 }
 
 // Media Collection
@@ -259,12 +259,12 @@ async function createMediaCollection() {
   for (const field of fields) {
     await createField('media', field);
   }
-  console.log('Media collection created!\n');
+  console.log('Media collection created!\\n');
 }
 
 // Main execution
 async function main() {
-  console.log('Creating NocoBase collections...\n');
+  console.log('Creating NocoBase collections...\\n');
   
   await createExerciseCollection();
   await createSleepCollection();
