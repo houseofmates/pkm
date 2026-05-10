@@ -2,46 +2,82 @@
 import '@testing-library/jest-dom';
 import 'fake-indexeddb/auto';
 import { vi } from 'vitest';
+
+class TestQueryClient {
+  clear = vi.fn();
+  invalidateQueries = vi.fn();
+  refetchQueries = vi.fn();
+  resetQueries = vi.fn();
+  cancelQueries = vi.fn();
+  setQueryData = vi.fn();
+  getQueryData = vi.fn();
+  removeQueries = vi.fn();
+}
+
+const testQueryClient = new TestQueryClient();
+
+vi.mock('@tanstack/react-query', () => ({
+  QueryClient: TestQueryClient,
+  QueryClientProvider: (props: any) => props.children,
+  useQueryClient: () => testQueryClient,
+  useQuery: (_opts: any) => ({ data: undefined, isLoading: false, error: null, refetch: async () => {} }),
+  useMutation: (_opts: any) => ({ mutate: () => {}, mutateAsync: async () => undefined, isLoading: false, isPending: false }),
+  useIsFetching: () => 0,
+  useIsMutating: () => 0,
+}));
+
+vi.mock('react-leaflet', () => {
+  const React = require('react');
+  return {
+    MapContainer: (props: any) => React.createElement('div', props, props.children),
+    TileLayer: (props: any) => React.createElement('div', props, null),
+    Marker: (props: any) => React.createElement('div', props, null),
+    useMapEvents: () => ({ flyTo: () => {}, invalidateSize: () => {} }),
+    useMap: () => ({ flyTo: () => {} }),
+  };
+});
+
+vi.mock('leaflet', () => {
+  const L = {
+    Icon: {
+      Default: {
+        prototype: {},
+        mergeOptions: () => {},
+      },
+    },
+    LatLng: function (lat: number, lng: number) { return { lat, lng }; },
+  };
+  return {
+    default: L,
+    ...L,
+  };
+});
+
+vi.mock('@/contexts/fronter-context', () => {
+  const React = require('react');
+  const defaultValue = {
+    activeFronters: [],
+    overrides: {},
+    members: [],
+    switchFronter: async () => {},
+  };
+  return {
+    FronterProvider: (props: any) => React.createElement(React.Fragment, null, props.children),
+    useFronter: () => defaultValue,
+  };
+});
+
+vi.mock('@/contexts/llm-context', () => {
+  const React = require('react');
+  return {
+    LLMContextProvider: (props: any) => React.createElement(React.Fragment, null, props.children),
+    useLLMContext: () => ({ enabled: false }),
+  };
+});
+
 // provide sensible import.meta.env defaults for tests
 if (typeof (globalThis as any).importMetaEnv === 'undefined') {
   (globalThis as any).importMetaEnv = {};
-}
-
-// mock react-query context helpers to ensure tests using hooks don't crash
-try {
-  // create a global test QueryClient so the mock can access it from any scope
-  const rq = await vi.importActual<any>('@tanstack/react-query');
-  // expose the real module so our mock can reuse its provider component
-  (globalThis as any).__REAL_REACT_QUERY_MODULE__ = rq;
-  if (!(globalThis as any).__TEST_QUERY_CLIENT__) {
-    (globalThis as any).__TEST_QUERY_CLIENT__ = new rq.QueryClient();
-  }
-  // provide a broad stub for react-query to avoid needing a real provider in tests
-  vi.mock('@tanstack/react-query', () => {
-    const RealQueryClient = (globalThis as any).__TEST_QUERY_CLIENT__;
-    // try to reuse actual react-query provider if available so context-based
-    // hooks (useQueryClient) work as expected in components under test
-    const rq = (globalThis as any).__REAL_REACT_QUERY_MODULE__;
-    // fallback: if we have the actual module (via importActual earlier), use it
-    // otherwise the provider will be a passthrough.
-    return {
-      QueryClient: RealQueryClient?.constructor || class {},
-      QueryClientProvider: (props: any) => {
-        if (rq && rq.QueryClientProvider && RealQueryClient) {
-          return rq.QueryClientProvider({ client: RealQueryClient, children: props.children });
-        }
-        return props.children;
-      },
-      useQueryClient: () => RealQueryClient,
-      useQuery: (_opts: any) => ({ data: undefined, isLoading: false, error: null, refetch: async () => {} }),
-      useMutation: (_opts: any) => ({ mutate: () => {}, isLoading: false }),
-      // helpers sometimes imported from react-query
-      useIsFetching: () => 0,
-      useIsMutating: () => 0,
-    };
-  });
-} catch (e) {
-  // ignore if import/mock fails in some environments
 }
 
 // ensure import.meta.env exists in jsdom tests as expected by code
@@ -60,69 +96,6 @@ if (typeof (global as any).process === 'undefined') (global as any).process = { 
 // ensure window.fetch exists in test environment if needed by some modules
 if (typeof (globalThis as any).fetch === 'undefined') {
   (globalThis as any).fetch = () => Promise.resolve({ ok: true, text: async () => '{}' });
-}
-
-// mock browser-only mapping libraries used in some components to avoid ESM/runtime errors
-try {
-  vi.mock('react-leaflet', () => {
-    const React = require('react');
-    return {
-      MapContainer: (props: any) => React.createElement('div', props, props.children),
-      TileLayer: (props: any) => React.createElement('div', props, null),
-      Marker: (props: any) => React.createElement('div', props, null),
-      useMapEvents: () => ({ flyTo: () => {}, invalidateSize: () => {} }),
-      useMap: () => ({ flyTo: () => {} }),
-    };
-  });
-  vi.mock('leaflet', () => {
-    const L = {
-      Icon: {
-        Default: {
-          prototype: {},
-          mergeOptions: () => {},
-        },
-      },
-      LatLng: function (lat: number, lng: number) { return { lat, lng }; },
-    };
-    return {
-      default: L,
-      ...L,
-    };
-  });
-} catch (e) {
-  // ignore mocking failures
-}
-
-// mock fronter/context to avoid needing full provider in many component tests
-try {
-  vi.mock('@/contexts/fronter-context', () => {
-    const React = require('react');
-    const defaultValue = {
-      activeFronters: [],
-      overrides: {},
-      members: [],
-      switchFronter: async () => {},
-    };
-    return {
-      FronterProvider: (props: any) => React.createElement(React.Fragment, null, props.children),
-      useFronter: () => defaultValue,
-    };
-  });
-} catch (e) {
-  // ignore
-}
-
-// mock llm-context to avoid heavy initialization in tests
-try {
-  vi.mock('@/contexts/llm-context', () => {
-    const React = require('react');
-    return {
-      LLMContextProvider: (props: any) => React.createElement(React.Fragment, null, props.children),
-      useLLMContext: () => ({ enabled: false }),
-    };
-  });
-} catch (e) {
-  // ignore
 }
 
 // ensure window.location.pathname exists to avoid startsWith errors
