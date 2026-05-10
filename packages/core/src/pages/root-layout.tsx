@@ -74,14 +74,13 @@ export function RootLayout() {
   const getInitialTab = () => {
     const path = (typeof window !== 'undefined' && window.location && typeof window.location.pathname === 'string') ? window.location.pathname : '';
     if (path.startsWith('/databases')) return 'databases';
-    if (path.startsWith('/headmates')) return 'headmates';
     if (path.startsWith('/captures')) return 'captures';
     if (path.startsWith('/journal')) return 'journal';
     if (path.startsWith('/calendar')) return 'calendar';
     return 'home';
   };
 
-  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar'>(getInitialTab());
+  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'captures' | 'journal' | 'calendar'>(getInitialTab());
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
