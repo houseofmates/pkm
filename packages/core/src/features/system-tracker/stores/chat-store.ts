@@ -40,9 +40,9 @@ export const useChatStore = create<ChatState & ChatActions>()(
         const messages = await db.getChatMessages(threadId);
         set({ messages, loading: false });
       } catch (error) {
-        set({ 
-          error: error instanceof Error ? error.message : 'failed to load chat messages', 
-          loading: false 
+        set({
+          error: error instanceof Error ? error.message : 'failed to load chat messages',
+          loading: false
         });
       }
     },
@@ -55,9 +55,9 @@ export const useChatStore = create<ChatState & ChatActions>()(
         set({ loading: false });
         return id;
       } catch (error) {
-        set({ 
-          error: error instanceof Error ? error.message : 'failed to send message', 
-          loading: false 
+        set({
+          error: error instanceof Error ? error.message : 'failed to send message',
+          loading: false
         });
         throw error;
       }
@@ -67,12 +67,12 @@ export const useChatStore = create<ChatState & ChatActions>()(
       set({ loading: true, error: null });
       try {
         await db.updateChatMessage(id, { content });
-        await get().loadMessages(get().selectedThreadId); // Refresh messages
+        await get().loadMessages(get().selectedThreadId || undefined); // Refresh messages
         set({ loading: false });
       } catch (error) {
-        set({ 
-          error: error instanceof Error ? error.message : 'failed to edit message', 
-          loading: false 
+        set({
+          error: error instanceof Error ? error.message : 'failed to edit message',
+          loading: false
         });
       }
     },
@@ -81,12 +81,12 @@ export const useChatStore = create<ChatState & ChatActions>()(
       set({ loading: true, error: null });
       try {
         await db.deleteChatMessage(id);
-        await get().loadMessages(get().selectedThreadId); // Refresh messages
+        await get().loadMessages(get().selectedThreadId || undefined); // Refresh messages
         set({ loading: false });
       } catch (error) {
-        set({ 
-          error: error instanceof Error ? error.message : 'failed to delete message', 
-          loading: false 
+        set({
+          error: error instanceof Error ? error.message : 'failed to delete message',
+          loading: false
         });
       }
     },
@@ -118,7 +118,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
 
     getMessagesForThread: (threadId) => {
       const { messages } = get();
-      return messages.filter(msg => 
+      return messages.filter(msg =>
         threadId ? msg.threadId === threadId : !msg.threadId
       ).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     },
@@ -127,7 +127,7 @@ export const useChatStore = create<ChatState & ChatActions>()(
       try {
         return await db.searchChat(query);
       } catch (error) {
-        set({ 
+        set({
           error: error instanceof Error ? error.message : 'failed to search chat messages'
         });
         return [];
@@ -135,10 +135,10 @@ export const useChatStore = create<ChatState & ChatActions>()(
     },
 
     reset: () => {
-      set({ 
-        messages: [], 
-        loading: false, 
-        error: null, 
+      set({
+        messages: [],
+        loading: false,
+        error: null,
         selectedThreadId: null,
         typingMembers: new Set()
       });
