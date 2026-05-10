@@ -116,6 +116,8 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'unknown';
+
     const date = new Date(dateString);
     const today = new Date();
     const yesterday = new Date(today);
