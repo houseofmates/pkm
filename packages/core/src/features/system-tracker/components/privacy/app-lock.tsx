@@ -6,11 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
-import { 
-  Lock, 
-  Unlock, 
-  Eye, 
-  EyeOff, 
+import {
+  Lock,
+  Unlock,
+  Eye,
+  EyeOff,
   Shield,
   Key,
   CheckCircle,
@@ -21,7 +21,7 @@ import { storageManager } from '@/lib/storage-manager';
 
 export function AppLock() {
   const { system, updateSettings } = useSystemStore();
-  
+
   const [currentPin, setCurrentPin] = useState('');
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
@@ -45,7 +45,7 @@ export function AppLock() {
         }
       }
     };
-    
+
     checkLockStatus();
   }, [system?.settings?.autoLock]);
 
@@ -120,7 +120,7 @@ export function AppLock() {
       const pinHash = await storageManager.getEncryptedItem('app_lock_pin');
       if (pinHash && await verifyPin(currentPin, pinHash)) {
         await storageManager.removeItem('app_lock_pin');
-        await updateSettings({ autoLock: false, lockPinHash: undefined });
+        await updateSettings({ autoLock: false } as Partial<SystemSettings>);
         setLockEnabled(false);
         setCurrentPin('');
         setPinError('');
