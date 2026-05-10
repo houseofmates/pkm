@@ -282,7 +282,7 @@ export function ChatView() {
 
         {/* Chat Window */}
         <div className="lg:col-span-2">
-          <ChatWindow threadId={selectedThreadId} />
+          <ChatWindow threadId={selectedThreadId || undefined} />
         </div>
       </div>
 
