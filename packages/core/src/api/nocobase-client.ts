@@ -242,7 +242,11 @@ export class NocoBaseClient {
     collection: string,
     data: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
-    const response = await this.axios.post(`/${collection}:create`, data);
+    const payload =
+      collection === "notes" && data.entity_type == null
+        ? { ...data, entity_type: "note" }
+        : data;
+    const response = await this.axios.post(`/${collection}:create`, payload);
     return response.data;
   }
 
