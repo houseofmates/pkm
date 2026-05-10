@@ -298,6 +298,10 @@ export function SystemTrackerDashboard() {
         <TabsContent value="journal" className="space-y-6">
           <JournalView />
         </TabsContent>
+
+        <TabsContent value="chat" className="space-y-6">
+          <ChatView />
+        </TabsContent>
       </Tabs>
 
       {/* Add Member Dialog */}

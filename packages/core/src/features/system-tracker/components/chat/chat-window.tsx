@@ -155,7 +155,7 @@ export function ChatWindow({ threadId, className }: ChatWindowProps) {
             <>
               {threadMessages.map((message, index) => {
                 const showDate = index === 0 ||
-                  formatDate(threadMessages[index - 1].createdAt) !== formatDate(message.createdAt);
+                  (threadMessages[index - 1] && formatDate(threadMessages[index - 1].createdAt) !== formatDate(message.createdAt));
 
                 return (
                   <div key={message.id}>
