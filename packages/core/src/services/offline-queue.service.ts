@@ -96,6 +96,14 @@ class OfflineQueueService {
     await this.init();
     if (!this.db) throw new Error('Database not initialized');
 
+    // Check queue size to prevent memory issues
+    const currentSize = await this.db.count(this.STORE_NAME);
+    if (currentSize >= this.MAX_QUEUE_SIZE) {
+      // Remove oldest low-priority operations to make space
+      await this.pruneOldOperations();
+      secureLogger.warn('[OfflineQueue] Queue size limit reached, pruned old operations');
+    }
+
     const operation: QueuedOperation = {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       event,
@@ -104,10 +112,34 @@ class OfflineQueueService {
       retryCount: 0,
       lastRetry: 0,
       priority,
+      clientId: this.clientId,
+      sessionId: this.sessionId,
+      conflictResolution: 'last-wins', // Default conflict resolution strategy
     };
 
     await this.db.put(this.STORE_NAME, operation);
-    console.debug(`[OfflineQueue] Enqueued ${event} operation (${operation.id})`);
+    secureLogger.debug(`[OfflineQueue] Enqueued ${event} operation (${operation.id})`);
+  }
+
+  private async pruneOldOperations(): Promise<void> {
+    if (!this.db) return;
+
+    const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
+    const store = tx.objectStore(this.STORE_NAME);
+
+    // Get oldest low-priority operations
+    const index = store.index('priority');
+    const cursor = await index.openCursor('low');
+    let pruned = 0;
+
+    while (cursor && pruned < 100) { // Prune up to 100 old operations
+      await cursor.delete();
+      pruned++;
+      cursor = await cursor.continue();
+    }
+
+    await tx.done;
+    secureLogger.info(`[OfflineQueue] Pruned ${pruned} old low-priority operations`);
   }
 
   async dequeue(batchSize: number = this.BATCH_SIZE): Promise<QueuedOperation[]> {

@@ -1,4 +1,4 @@
-{/* eslint-disable */}
+{/* eslint-disable */ }
 import React, { useState, useEffect, useRef } from 'react';
 import { Database, Home, Users, Search, MessageCircle, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, BookOpen, type LucideIcon, MessageSquare } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
@@ -595,7 +595,6 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     { id: 'home', icon: Home, label: 'home' },
     { id: 'journal', icon: BookOpen, label: 'journal' },
     { id: 'calendar', icon: LucideIcons.Calendar, label: 'calendar' },
-    { id: 'headmates', icon: Users, label: 'headmates' },
   ] as const;
 
   const handleOpenChat = () => {
