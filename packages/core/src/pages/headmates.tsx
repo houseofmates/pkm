@@ -749,6 +749,47 @@ export const HeadmatesPage: React.FC = () => {
     }
   }, [toggleMember]);
 
+  // Context menu and editing handlers
+  const handleContextMenu = useCallback((e: React.MouseEvent, memberId: string) => {
+    e.preventDefault();
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    setContextMenu({
+      visible: true,
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+      memberId,
+    });
+  }, []);
+
+  const handleEdit = useCallback((member: HeadmateMember) => {
+    setEditingMember(member);
+    setContextMenu({ visible: false, x: 0, y: 0, memberId: null });
+  }, []);
+
+  const handleView = useCallback((member: HeadmateMember) => {
+    setViewingMember(member);
+    setContextMenu({ visible: false, x: 0, y: 0, memberId: null });
+  }, []);
+
+  const handleDelete = useCallback((memberId: string) => {
+    setMembers(prev => prev.filter(m => m.id !== memberId));
+    setFrontingOrder(prev => prev.filter(id => id !== memberId));
+    setContextMenu({ visible: false, x: 0, y: 0, memberId: null });
+    toast.success('headmate deleted successfully');
+  }, []);
+
+  const handleCopy = useCallback((member: HeadmateMember) => {
+    const info = `name: ${member.content?.name || 'unknown'}\npronouns: ${member.content?.pronouns || 'not specified'}\nrole: ${member.content?.role || 'not specified'}`;
+    navigator.clipboard.writeText(info);
+    toast.success('headmate info copied to clipboard');
+    setContextMenu({ visible: false, x: 0, y: 0, memberId: null });
+  }, []);
+
+  const handleSaveEdit = useCallback((updatedMember: HeadmateMember) => {
+    setMembers(prev => prev.map(m => m.id === updatedMember.id ? updatedMember : m));
+    toast.success('headmate updated successfully');
+  }, []);
+
   return (
     <div ref={containerRef} className="h-full w-full p-2 overflow-auto">
       <Link
