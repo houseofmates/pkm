@@ -308,23 +308,66 @@ class GitSyncService {
 
     this.stopAutoSync(); // Clear any existing timer
 
-    const intervalMs = this.config.syncInterval * 60 * 1000;
+    // Enhanced auto-sync with smart scheduling and jitter
+    const scheduleNextSync = async () => {
+      if (!this.config.enabled || !this.config.autoSync) return;
 
-    this.syncTimer = setInterval(async () => {
-      if (!this.isSyncing) {
-        await this.sync();
+      try {
+        // Check if there are significant changes before syncing
+        const status = await this.checkStatus();
+        const timeSinceLastSync = Date.now() - status.lastSync;
+        const minInterval = this.config.syncInterval * 60 * 1000;
+
+        const shouldSync = status.pendingChanges > 0 || timeSinceLastSync > minInterval;
+
+        if (shouldSync && !this.isSyncing) {
+          await this.sync();
+        }
+      } catch (error) {
+        secureLogger.error('Auto sync failed:', error);
       }
-    }, intervalMs);
 
-    secureLogger.info(`Auto-sync started: ${this.config.syncInterval} minutes`);
+      // Schedule next sync with jitter to avoid conflicts
+      const baseInterval = this.config.syncInterval * 60 * 1000;
+      const jitter = Math.random() * 60000; // Up to 1 minute jitter
+      const nextInterval = baseInterval + jitter;
+
+      this.syncTimer = setTimeout(scheduleNextSync, nextInterval);
+    };
+
+    // Start the scheduling loop
+    scheduleNextSync();
+    secureLogger.info(`Auto-sync started with smart scheduling (base interval: ${this.config.syncInterval} minutes)`);
   }
 
   stopAutoSync(): void {
     if (this.syncTimer) {
-      clearInterval(this.syncTimer);
+      clearTimeout(this.syncTimer);
       this.syncTimer = null;
       secureLogger.info('Auto-sync stopped');
     }
+  }
+
+  // Trigger sync on significant changes
+  async triggerSyncOnChanges(): Promise<void> {
+    if (!this.config.enabled || !this.config.autoSync) return;
+
+    // Debounced sync trigger for immediate sync on important changes
+    if (this.changeTriggerTimer) {
+      clearTimeout(this.changeTriggerTimer);
+    }
+
+    this.changeTriggerTimer = setTimeout(async () => {
+      try {
+        const status = await this.checkStatus();
+        if (status.pendingChanges > 0 && !this.isSyncing) {
+          await this.sync();
+          secureLogger.info('Change-triggered sync completed');
+        }
+      } catch (error) {
+        secureLogger.error('Change-triggered sync failed:', error);
+      }
+    }, 3000); // 3 second debounce
   }
 
   async triggerSync(): Promise<void> {

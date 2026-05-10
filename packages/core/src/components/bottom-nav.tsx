@@ -92,11 +92,11 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] min-w-[56px] rounded-3xl gap-0.5 hover:bg-white/10", activeTab === 'headmates' && "bg-primary/20 text-primary hover:bg-primary/30")}
-            onClick={() => onTabChange('headmates')}
+            className="flex flex-col items-center justify-center h-[56px] w-[56px] min-w-[56px] rounded-3xl gap-0.5 hover:bg-white/10"
+            onClick={() => window.location.href = '/system-tracker'}
           >
-            <Users className="h-10 w-10" />
-            <span className="text-[12px] font-medium lowercase">mates</span>
+            <span className="text-3xl font-bold">&</span>
+            <span className="text-[12px] font-medium lowercase">system</span>
           </Button>
 
         </div>
