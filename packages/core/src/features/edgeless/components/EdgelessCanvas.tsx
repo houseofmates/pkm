@@ -570,6 +570,17 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       })
 
     setFabricCanvas(canvas)
+
+    // initialize enhanced canvas interactions
+    useEnhancedCanvasInteractions(canvas, {
+      enableSmoothZoom: true,
+      enableMomentumPan: true,
+      enableInfinitePan: true,
+      zoomSpeed: 0.1,
+      momentumDecay: 0.92,
+      maxPanVelocity: 50
+    })
+
     // save initial empty canvas state as history baseline
     historyRef.current = [] // o(1) log
     if (onLoad) onLoad()
