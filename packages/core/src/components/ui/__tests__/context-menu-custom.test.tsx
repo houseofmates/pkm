@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { ContextMenu } from '../context-menu-custom';
 import { useContextMenuStore } from '../context-menu-store';
 import { useEdgelessStore } from '@/features/edgeless/store';
-import { AuthProvider } from '@/contexts/auth-context';
+import { AuthContext } from '@/contexts/auth-context';
 import { FronterProvider } from '@/contexts/fronter-context';
 
 // helper to open tool menu with given tool
@@ -20,10 +20,19 @@ function openToolMenu(tool: 'pen' | 'eraser') {
 }
 
 function renderWithProviders(ui: React.ReactElement) {
+  const authValue = {
+    token: null,
+    isAuthenticated: false,
+    login: async () => {},
+    loginWithApiKey: async () => {},
+    logout: async () => {},
+    client: {} as any,
+  };
+
   return render(
-    <AuthProvider>
+    <AuthContext.Provider value={authValue}>
       <FronterProvider>{ui}</FronterProvider>
-    </AuthProvider>
+    </AuthContext.Provider>
   );
 }
 
