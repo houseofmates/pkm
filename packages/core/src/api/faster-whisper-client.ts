@@ -2,7 +2,11 @@
 import { secureLogger } from '@/lib/secure-logger';
 
 // use environment variable for faster-whisper server endpoint
+<<<<<<< HEAD
 const FASTER_WHISPER_URL = import.meta.env.VITE_FASTER_WHISPER_URL || 'http://192.168.4.250:5000/transcribe';
+=======
+const FASTER_WHISPER_URL = import.meta.env.VITE_FASTER_WHISPER_URL || 'http://localhost:5000/transcribe';
+>>>>>>> main
 
 export interface FasterWhisperTranscriptionOptions {
   language?: string;
@@ -35,7 +39,11 @@ export interface FasterWhisperTranscriptionResult {
 }
 
 /**
+<<<<<<< HEAD
  * dedicated client for faster-whisper server running on 192.168.4.250:5000
+=======
+ * dedicated client for a faster-whisper server
+>>>>>>> main
  * optimized for local network transcription with wav/pcm streams
  */
 export class FasterWhisperClient {
@@ -178,7 +186,11 @@ export class FasterWhisperClient {
 
       // provide specific error messages for common failure scenarios
       if (error instanceof TypeError && error.message.includes('fetch')) {
+<<<<<<< HEAD
         throw new Error('local server unreachable at 192.168.4.250:5000 - check if desktop is online');
+=======
+        throw new Error(`local server unreachable at ${this.baseUrl} - check if desktop is online`);
+>>>>>>> main
       }
 
       if (error instanceof Error) {
@@ -190,7 +202,11 @@ export class FasterWhisperClient {
           throw new Error('whisper server is down or restarting - check desktop status');
         }
         if (error.message.includes('ECONNREFUSED') || error.message.includes('Failed to fetch')) {
+<<<<<<< HEAD
           throw new Error('local server unreachable at 192.168.4.250:5000 - check if desktop is online');
+=======
+          throw new Error(`local server unreachable at ${this.baseUrl} - check if desktop is online`);
+>>>>>>> main
         }
       }
 

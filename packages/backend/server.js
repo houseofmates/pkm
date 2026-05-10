@@ -46,12 +46,17 @@ import { promisify } from 'util';
 import { exec, execFile } from 'child_process';
 import axios from 'axios';
 import ical from 'node-ical';
+<<<<<<< HEAD
+=======
+import dotenv from 'dotenv';
+>>>>>>> main
 
 // pieces mcp and bot memory integration
 import { getPiecesRecentActivity, getPiecesContextForQuery, isPiecesConnected } from './pieces-mcp.js';
 import { getAllMemoryContext, addMemory, recordInteraction, readMemory, writeMemory, appendMemory, clearMemory } from './bot-memory.js';
 import { securityHeaders, additionalSecurityHeaders } from './security-headers.js';
 
+<<<<<<< HEAD
 // load environment variables if .env exists
 if (fs.existsSync('.env')) {
   // basic dotenv loader since we are in es module and might not have dotenv package installed
@@ -71,6 +76,9 @@ if (fs.existsSync('.env')) {
     }
   });
 }
+=======
+dotenv.config({ override: false });
+>>>>>>> main
 
 const PORT = process.env.PORT || 4100;
 
@@ -89,6 +97,7 @@ const server = http.createServer(app);
 // serve static assets for mobile and web clients
 app.use('/assets', express.static(path.join(process.cwd(), 'dist/assets')));
 app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));
+<<<<<<< HEAD
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map(s => s.trim())
@@ -96,6 +105,38 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
 
 function isAllowedOrigin(origin) {
   if (!origin) return true;
+=======
+function parseAllowedOrigins(value) {
+  return (value || '')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean)
+    .filter(origin => {
+      if (origin === 'null') return true;
+      if (origin.startsWith('*.')) return /^[*.][a-z0-9.-]+$/i.test(origin);
+      if (origin.includes('*')) {
+        try {
+          new URL(origin.replace(/\*/g, 'wildcard'));
+          return true;
+        } catch {
+          console.warn('[CORS] ignoring invalid wildcard origin');
+          return false;
+        }
+      }
+      try {
+        const parsed = new URL(origin);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+      } catch {
+        console.warn('[CORS] ignoring invalid origin');
+        return false;
+      }
+    });
+}
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  const allowedOrigins = parseAllowedOrigins(process.env.ALLOWED_ORIGINS || 'http://localhost:3010');
+>>>>>>> main
   for (const a of allowedOrigins) {
     if (a === origin) return true;
     if (a.includes('*')) {
@@ -123,9 +164,25 @@ const io = new Server(server, {
   pingTimeout: 60000,
   pingInterval: 25000,
   connectTimeout: 45000,
+<<<<<<< HEAD
   allowEIO3: true,
   transports: ['websocket', 'polling']
 });
+=======
+  maxHttpBufferSize: parseInt(process.env.MAX_WS_HTTP_BUFFER_BYTES || '1048576', 10),
+  allowEIO3: true,
+  transports: ['websocket', 'polling']
+});
+const MAX_WS_CONNECTIONS = parseInt(process.env.MAX_WS_CONNECTIONS || '1000', 10);
+let activeSocketConnections = 0;
+
+io.use((socket, next) => {
+  if (activeSocketConnections >= MAX_WS_CONNECTIONS) {
+    return next(new Error('server is at websocket capacity'));
+  }
+  next();
+});
+>>>>>>> main
 const pendingEmits = {};
 const debounceBroadcast = (event, payload, delay = 500) => {
   if (payload.type === "chat") {
@@ -224,7 +281,10 @@ app.use('/public', express.static(path.join(process.cwd(), 'public')));
 
 // serve apk files from releases directory (cwd/release)
 const apkDir = path.join(process.cwd(), 'releases');
+<<<<<<< HEAD
 console.log('[APK] serving from:', apkDir);
+=======
+>>>>>>> main
 
 // apk download endpoint - serves latest apk file in releases directory
 app.get('/apk', (req, res) => {
@@ -244,7 +304,10 @@ app.get('/apk', (req, res) => {
     }
 
     const latestApk = path.join(apkDir, latest.file);
+<<<<<<< HEAD
     console.log('[APK] serving latest:', latestApk);
+=======
+>>>>>>> main
 
     res.setHeader('Content-Type', 'application/vnd.android.package-archive');
     const safeFilename = latest.file.replace(/["\\]/g, '');
@@ -364,7 +427,88 @@ const execPromise = promisify(exec);
 // api routes
 
 app.get('/api/status', (req, res) => {
+<<<<<<< HEAD
   res.json({ status: 'online', clients: io.engine.clientsCount });
+=======
+  const mem = process.memoryUsage();
+  res.json({
+    status: 'online',
+    version: process.env.APP_VERSION || '0.0.0',
+    uptime: Math.floor(process.uptime()),
+    clients: io.engine.clientsCount,
+    memory: {
+      used: Math.round(mem.heapUsed / 1024 / 1024),
+      total: Math.round(mem.heapTotal / 1024 / 1024)
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/api/health', async (req, res) => {
+  try {
+    const mem = process.memoryUsage();
+    const uptime = process.uptime();
+    const clients = io.engine.clientsCount;
+
+    // Check database connectivity (if applicable)
+    let dbStatus = 'ok';
+    let dbError = null;
+
+    // Check if we can write to filesystem
+    let fsStatus = 'ok';
+    try {
+      const testFile = path.join(process.cwd(), '.health-check');
+      await fs.promises.writeFile(testFile, 'ok');
+      await fs.promises.unlink(testFile);
+    } catch (fsErr) {
+      fsStatus = 'error';
+      dbError = fsErr.message;
+    }
+
+    // Determine overall health
+    const isHealthy = (
+      mem.heapUsed < 800 * 1024 * 1024 && // Less than 800MB heap
+      uptime > 5 && // Been running for at least 5 seconds
+      fsStatus === 'ok'
+    );
+
+    const healthData = {
+      status: isHealthy ? 'ok' : 'degraded',
+      timestamp: new Date().toISOString(),
+      uptime: Math.floor(uptime),
+      memory: {
+        heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
+        heapTotal: Math.round(mem.heapTotal / 1024 / 1024),
+        external: Math.round(mem.external / 1024 / 1024),
+        rss: Math.round(mem.rss / 1024 / 1024)
+      },
+      connections: {
+        websocket: clients,
+        http: 'N/A' // Could be tracked with middleware
+      },
+      services: {
+        database: dbStatus,
+        filesystem: fsStatus
+      },
+      version: process.env.APP_VERSION || '0.0.0',
+      nodeVersion: process.version,
+      platform: process.platform
+    };
+
+    if (dbError) {
+      healthData.error = dbError;
+    }
+
+    res.status(isHealthy ? 200 : 503).json(healthData);
+  } catch (error) {
+    console.error('[Health] Health check failed:', error);
+    res.status(503).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
+>>>>>>> main
 });
 
 // version endpoint for update checking
@@ -611,6 +755,10 @@ function handleNotionImport(req, res) {
 
 // primary endpoint for notion import (short name to avoid cloudflare filtering)
 app.post('/api/notion-import', requireAuth, importUpload.single('file'), handleNotionImport);
+<<<<<<< HEAD
+=======
+app.post('/api/nb-import', requireAuth, importUpload.single('file'), handleNotionImport);
+>>>>>>> main
 
 // multi-csv import endpoint for notion databases
 async function handleCsvImport(req, res) {
@@ -1121,10 +1269,18 @@ const headmatesState = {
   lastUpdated: null,
 };
 
+<<<<<<< HEAD
 // socket.io
 io.on('connection', (socket) => {
   console.log('[Socket] Client connected:', socket.id);
 
+=======
+// enhanced socket.io with robust sync support
+io.on('connection', (socket) => {
+  activeSocketConnections += 1;
+
+  // send initial state
+>>>>>>> main
   socket.emit('minecraft_update', {
     type: 'ping',
     online: lastServerStats.online,
@@ -1136,11 +1292,21 @@ io.on('connection', (socket) => {
     socket.emit('headmates_sync', headmatesState);
   }
 
+<<<<<<< HEAD
   socket.on('headmates_update', (data) => {
+=======
+  // headmates events
+  socket.on('headmates_update', (data, callback) => {
+>>>>>>> main
     headmatesState.frontingOrder = data.frontingOrder || [];
     headmatesState.membersOrder = data.membersOrder || [];
     headmatesState.lastUpdated = new Date().toISOString();
     socket.broadcast.emit('headmates_sync', headmatesState);
+<<<<<<< HEAD
+=======
+
+    if (callback) callback({ success: true });
+>>>>>>> main
   });
 
   socket.on('headmates_request_sync', () => {
@@ -1149,11 +1315,146 @@ io.on('connection', (socket) => {
     }
   });
 
+<<<<<<< HEAD
   socket.on('disconnect', (reason) => {
     // quiet disconnect
   });
 });
 
+=======
+  // enhanced canvas sync with conflict detection
+  socket.on('canvas_sync', async (data, callback) => {
+    try {
+      // check for conflicts with existing data
+      const existingCanvas = await getExistingCanvas(data.drawingId);
+
+      if (existingCanvas && hasCanvasConflict(existingCanvas, data)) {
+        // resolve conflict using last-write-wins
+        const resolved = resolveCanvasConflict(existingCanvas, data);
+
+        // notify client of conflict resolution
+        if (callback) {
+          callback({
+            success: true,
+            conflict: {
+              type: 'canvas',
+              resolved: true,
+              strategy: 'last-write-wins',
+              timestamp: Date.now()
+            }
+          });
+        }
+
+        // broadcast resolved state
+        socket.broadcast.emit('canvas_conflict_resolved', {
+          drawingId: data.drawingId,
+          resolved: resolved,
+          timestamp: Date.now()
+        });
+      } else {
+        // no conflict, proceed with normal sync
+        await saveCanvasData(data);
+
+        if (callback) callback({ success: true });
+
+        // broadcast to other clients
+        socket.broadcast.emit('canvas_update', {
+          drawingId: data.drawingId,
+          timestamp: data.timestamp,
+          clientId: data.clientId
+        });
+      }
+    } catch (error) {
+      console.error('[Canvas] sync error:', error);
+      if (callback) callback({ success: false, error: error.message });
+    }
+  });
+
+  // system sync events
+  socket.on('system_sync', async (data, callback) => {
+    try {
+      // handle system-level sync events
+      console.log('[System] sync event:', data.type);
+
+      // broadcast to other clients
+      socket.broadcast.emit('system_update', data);
+
+      if (callback) callback({ success: true });
+    } catch (error) {
+      console.error('[System] sync error:', error);
+      if (callback) callback({ success: false, error: error.message });
+    }
+  });
+
+  // conflict resolution events
+  socket.on('resolve_conflict', async (data, callback) => {
+    try {
+      console.log('[Conflict] manual resolution requested:', data);
+
+      // broadcast resolution to all clients
+      io.emit('conflict_resolved', {
+        itemId: data.itemId,
+        resolution: data.resolution,
+        timestamp: Date.now()
+      });
+
+      if (callback) callback({ success: true });
+    } catch (error) {
+      console.error('[Conflict] resolution error:', error);
+      if (callback) callback({ success: false, error: error.message });
+    }
+  });
+
+  // enhanced disconnect handling
+  socket.on('disconnect', (reason) => {
+    activeSocketConnections = Math.max(0, activeSocketConnections - 1);
+
+    // notify other clients of disconnection for awareness
+    socket.broadcast.emit('client_disconnected', {
+      clientId: socket.id,
+      reason,
+      timestamp: Date.now()
+    });
+  });
+
+  // connection status monitoring
+  socket.on('ping', (callback) => {
+    if (callback) callback({
+      timestamp: Date.now(),
+      latency: Date.now(),
+      connected: true
+    });
+  });
+});
+
+// helper functions for canvas conflict detection
+async function getExistingCanvas(drawingId) {
+  // this would typically query your database
+  // for now, return null to simulate no existing data
+  return null;
+}
+
+function hasCanvasConflict(existing, incoming) {
+  // simple timestamp-based conflict detection
+  const existingTime = existing.timestamp || 0;
+  const incomingTime = incoming.timestamp || 0;
+
+  // if timestamps are close (within 30 seconds), consider it a conflict
+  const timeDiff = Math.abs(existingTime - incomingTime);
+  return timeDiff < 30000 && existingTime !== incomingTime;
+}
+
+function resolveCanvasConflict(existing, incoming) {
+  // last-write-wins resolution
+  return existing.timestamp > incoming.timestamp ? existing : incoming;
+}
+
+async function saveCanvasData(data) {
+  // this would typically save to your database
+  console.log('[Canvas] saving data for drawing:', data.drawingId);
+}
+
+>>>>>>> main
 
 app.use('/api/system', systemTrackerRouter);
 

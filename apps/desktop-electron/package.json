@@ -16,8 +16,11 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "framer-motion": "^12.25.0",
+<<<<<<< HEAD
       "react": "18.2.0",
       "react-dom": "18.2.0",
+=======
+>>>>>>> main
     "zustand": "^5.0.9"
   },
   "build": {
@@ -44,11 +47,23 @@
       "target": [
         {
           "target": "nsis",
+<<<<<<< HEAD
           "arch": ["x64"]
         },
         {
           "target": "portable",
           "arch": ["x64"]
+=======
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+>>>>>>> main
         }
       ]
     },
@@ -56,15 +71,31 @@
       "target": [
         {
           "target": "AppImage",
+<<<<<<< HEAD
           "arch": ["x64"]
         },
         {
           "target": "deb",
           "arch": ["x64"]
+=======
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+>>>>>>> main
         }
       ],
       "category": "Office",
       "maintainer": "houseofmates <house@houseofmates.space>"
     }
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> main

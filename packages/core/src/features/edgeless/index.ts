@@ -77,3 +77,7 @@ export { productionGuard, perfMonitor, checkStorageHealth } from './lib/producti
 
 // hooks
 export { useCanvasSafe } from './hooks/use-canvas-safe'
+<<<<<<< HEAD
+=======
+export { useCanvasViewport, MIN_ZOOM, MAX_ZOOM } from './hooks/use-canvas-viewport'
+>>>>>>> main

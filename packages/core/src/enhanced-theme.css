@@ -1,0 +1,424 @@
+/**
+ * enhanced pkm theme with refined typography and visual hierarchy
+ * builds on the existing dark theme foundation with improved consistency
+ * designed for users with memory difficulties - clear, calm, and intuitive
+ */
+
+/* Enhanced typography scale */
+@layer base {
+  :root {
+    /* Refined color palette with better contrast */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 96%;
+    
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 94%;
+    
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 94%;
+    
+    /* Warmer, more inviting primary yellow */
+    --primary: 38 92% 55%;
+    --primary-foreground: 0 0% 0%;
+    --primary-soft: hsl(var(--primary) / 0.12);
+    --primary-glow: hsl(var(--primary) / 0.25);
+    
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 92%;
+    
+    --muted: 0 0% 11%;
+    --muted-foreground: 0 0% 58%;
+    
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 92%;
+    
+    --destructive: 0 62% 35%;
+    --destructive-foreground: 0 0% 96%;
+    
+    --border: 0 0% 13%;
+    --input: 0 0% 13%;
+    --ring: var(--primary);
+    
+    /* Enhanced spacing scale */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+    
+    /* Typography scale */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    
+    /* Line heights for readability */
+    --leading-tight: 1.25;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.75;
+    
+    /* Enhanced shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 20px hsl(var(--primary) / 0.3);
+    
+    /* Border radius scale */
+    --radius-sm: 0.375rem;
+    --radius: 0.75rem;
+    --radius-md: 1rem;
+    --radius-lg: 1.5rem;
+    --radius-full: 9999px;
+    
+    /* Animation easing */
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+}
+
+/* Enhanced typography */
+@layer base {
+  html {
+    font-size: 16px;
+    line-height: var(--leading-normal);
+  }
+  
+  body {
+    font-family: 'Varela Round', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Enhanced heading hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Varela Round', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    color: hsl(var(--foreground));
+    margin-bottom: var(--space-sm);
+  }
+  
+  h1 {
+    font-size: var(--text-4xl);
+    margin-bottom: var(--space-md);
+  }
+  
+  h2 {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-md);
+  }
+  
+  h3 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-sm);
+  }
+  
+  h4 {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-sm);
+  }
+  
+  h5 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-xs);
+  }
+  
+  h6 {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-xs);
+  }
+  
+  /* Paragraph and text styling */
+  p {
+    margin-bottom: var(--space-md);
+    line-height: var(--leading-relaxed);
+    color: hsl(var(--foreground));
+  }
+  
+  /* Links */
+  a {
+    color: hsl(var(--primary));
+    text-decoration: none;
+    transition: color 0.2s var(--ease-out);
+  }
+  
+  a:hover {
+    color: hsl(var(--primary) / 0.8);
+    text-decoration: underline;
+  }
+  
+  a:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+  
+  /* Code styling */
+  code, pre {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    background-color: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    border-radius: var(--radius-sm);
+  }
+  
+  code {
+    padding: 0.125rem 0.25rem;
+    font-size: 0.875em;
+  }
+  
+  pre {
+    padding: var(--space-md);
+    overflow-x: auto;
+    line-height: var(--leading-normal);
+  }
+  
+  /* Blockquotes */
+  blockquote {
+    border-left: 4px solid hsl(var(--primary));
+    padding-left: var(--space-md);
+    margin: var(--space-md) 0;
+    font-style: italic;
+    color: hsl(var(--muted-foreground));
+  }
+  
+  /* Lists */
+  ul, ol {
+    margin-bottom: var(--space-md);
+    padding-left: var(--space-lg);
+  }
+  
+  li {
+    margin-bottom: var(--space-xs);
+    line-height: var(--leading-normal);
+  }
+  
+  /* Selection styling */
+  ::selection {
+    background-color: hsl(var(--primary-soft));
+    color: hsl(var(--foreground));
+  }
+  
+  /* Focus styles */
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+}
+
+/* Enhanced component styling */
+@layer components {
+  /* Cards with better depth */
+  .card {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s var(--ease-out);
+    overflow: hidden;
+  }
+  
+  .card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+  }
+  
+  /* Buttons with enhanced interactions */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s var(--ease-out);
+    border: 1px solid transparent;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  
+  .btn-primary {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-color: hsl(var(--primary));
+  }
+  
+  .btn-primary:hover {
+    background-color: hsl(var(--primary) / 0.9);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-1px);
+  }
+  
+  .btn-secondary {
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    border-color: hsl(var(--border));
+  }
+  
+  .btn-secondary:hover {
+    background-color: hsl(var(--secondary) / 0.8);
+    border-color: hsl(var(--primary) / 0.5);
+  }
+  
+  /* Input styling */
+  .input {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-size: var(--text-sm);
+    transition: all 0.2s var(--ease-out);
+  }
+  
+  .input:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 3px hsl(var(--primary-soft));
+  }
+  
+  /* Enhanced scrollbar */
+  .scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  
+  .scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: var(--radius-full);
+    border: 2px solid transparent;
+  }
+  
+  .scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground));
+  }
+  
+  /* Interactive elements */
+  .interactive {
+    transition: all 0.2s var(--ease-out);
+    cursor: pointer;
+  }
+  
+  .interactive:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+  }
+  
+  .interactive:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  /* Status indicators */
+  .status-online {
+    color: hsl(142 76% 36%);
+    background-color: hsl(142 76% 36% / 0.1);
+  }
+  
+  .status-offline {
+    color: hsl(var(--muted-foreground));
+    background-color: hsl(var(--muted));
+  }
+  
+  .status-warning {
+    color: hsl(38 92% 50%);
+    background-color: hsl(38 92% 50% / 0.1);
+  }
+  
+  .status-error {
+    color: hsl(var(--destructive));
+    background-color: hsl(var(--destructive) / 0.1);
+  }
+}
+
+/* Utility classes */
+@layer utilities {
+  .text-xs { font-size: var(--text-xs); }
+  .text-sm { font-size: var(--text-sm); }
+  .text-base { font-size: var(--text-base); }
+  .text-lg { font-size: var(--text-lg); }
+  .text-xl { font-size: var(--text-xl); }
+  .text-2xl { font-size: var(--text-2xl); }
+  .text-3xl { font-size: var(--text-3xl); }
+  .text-4xl { font-size: var(--text-4xl); }
+  
+  .leading-tight { line-height: var(--leading-tight); }
+  .leading-normal { line-height: var(--leading-normal); }
+  .leading-relaxed { line-height: var(--leading-relaxed); }
+  
+  .space-xs { gap: var(--space-xs); }
+  .space-sm { gap: var(--space-sm); }
+  .space-md { gap: var(--space-md); }
+  .space-lg { gap: var(--space-lg); }
+  .space-xl { gap: var(--space-xl); }
+  .space-2xl { gap: var(--space-2xl); }
+  
+  .shadow-sm { box-shadow: var(--shadow-sm); }
+  .shadow { box-shadow: var(--shadow); }
+  .shadow-md { box-shadow: var(--shadow-md); }
+  .shadow-lg { box-shadow: var(--shadow-lg); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  
+  .rounded-sm { border-radius: var(--radius-sm); }
+  .rounded { border-radius: var(--radius); }
+  .rounded-md { border-radius: var(--radius-md); }
+  .rounded-lg { border-radius: var(--radius-lg); }
+  .rounded-full { border-radius: var(--radius-full); }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0% 20%;
+    --muted-foreground: 0 0% 70%;
+  }
+  
+  .card {
+    border-width: 2px;
+  }
+}
+
+/* Dark mode optimization */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}

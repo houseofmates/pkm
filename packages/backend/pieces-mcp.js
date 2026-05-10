@@ -1,9 +1,17 @@
 // pieces mcp client - connects to pieces os mcp server to get recent activity context
+<<<<<<< HEAD
 // pieces os mcp url: http://192.168.4.250:39301/model_context_protocol/2025-03-26/mcp
 
 import axios from 'axios';
 
 const PIECES_MCP_URL = process.env.PIECES_MCP_URL || 'http://192.168.4.250:39301/model_context_protocol/2025-03-26/mcp';
+=======
+// pieces os mcp url defaults to localhost and can be overridden by environment
+
+import axios from 'axios';
+
+const PIECES_MCP_URL = process.env.PIECES_MCP_URL || 'http://localhost:39301/model_context_protocol/2025-03-26/mcp';
+>>>>>>> main
 const CONTEXT_HOURS = parseInt(process.env.PIECES_CONTEXT_HOURS || '2', 10);
 
 // mcp json-rpc request helper

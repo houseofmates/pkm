@@ -1,6 +1,10 @@
 # CLAUDE.md
 
+<<<<<<< HEAD
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+=======
+this file provides guidance to ai agents when working with code in this repository.
+>>>>>>> main
 
 ## quick start
 

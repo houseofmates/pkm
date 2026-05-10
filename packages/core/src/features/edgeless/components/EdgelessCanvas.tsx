@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 {/* eslint-disable */}
+=======
+{/* eslint-disable */ }
+>>>>>>> main
 import React, { useRef, useEffect, useMemo, useState, useCallback, memo } from 'react'
 import * as fabric from 'fabric'
 import { secureLogger } from '@/lib/secure-logger'
@@ -25,8 +29,15 @@ import { WidgetElement } from './elements/WidgetElement'
 import { useContextMenuStore } from '@/components/ui/context-menu-store'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
 import { useGestureManager } from '@/hooks/use-gesture-manager'
+<<<<<<< HEAD
 import { buildOverlaySpatialIndex } from '../spatial/spatial-index'
 import { useDrawingTools } from '../hooks/use-drawing-tools'
+=======
+import { useCanvasViewport, MIN_ZOOM, MAX_ZOOM } from '../hooks/use-canvas-viewport'
+import { buildOverlaySpatialIndex } from '../spatial/spatial-index'
+import { useDrawingTools } from '../hooks/use-drawing-tools'
+import { useEnhancedCanvasInteractions } from '../hooks/use-enhanced-canvas-interactions'
+>>>>>>> main
 import { applyOp, compactOplog, resolveConflicts } from '../storage/oplog'
 import type { OpLogEntry } from '../storage/oplog'
 
@@ -359,12 +370,21 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     isPinching: false,
     lastX: 0,
     lastY: 0,
+<<<<<<< HEAD
+=======
+    lastTime: 0,
+    velocityX: 0,
+    velocityY: 0,
+>>>>>>> main
     initialDistance: 0,
     initialZoom: 1,
     pointers: new Map<number, PointerEvent>(),
   })
+<<<<<<< HEAD
   
   const viewportRafRef = useRef<number | null>(null)
+=======
+>>>>>>> main
 
   // ── undo / redo history (o(1) differential actions) ──
   const historyRef = useRef<HistoryAction[]>([])
@@ -391,7 +411,11 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     if (!fc) return
 
     isLoadingStateRef.current = true
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> main
     switch (action.type) {
       case 'add':
         fc.remove(action.obj)
@@ -410,7 +434,11 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         })
         break
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> main
     fc.requestRenderAll()
     isLoadingStateRef.current = false
   }, [])
@@ -424,7 +452,11 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     if (!fc) return
 
     isLoadingStateRef.current = true
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> main
     switch (action.type) {
       case 'add':
         fc.add(action.obj)
@@ -443,7 +475,11 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         })
         break
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> main
     fc.requestRenderAll()
     isLoadingStateRef.current = false
   }, [])
@@ -469,7 +505,12 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
 
   const { handleDrop } = useCanvasEvents()
   useCanvasSafe()
+<<<<<<< HEAD
   
+=======
+  const { smoothZoomTo, startMomentum, cancelAnimations, syncViewport } = useCanvasViewport(fabricCanvas)
+
+>>>>>>> main
   // initialize drawing tools (lasso, transform, custom brush/eraser)
   useDrawingTools(fabricCanvas, pushHistoryAction)
 
@@ -506,6 +547,18 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
           performUndo()
         }
       },
+<<<<<<< HEAD
+=======
+      onDoubleTap: (e) => {
+        if (e.pointerType !== 'touch') return
+        const rect = wrapperRef.current?.getBoundingClientRect()
+        if (!rect || !fabricCanvas) return
+        const x = e.clientX - rect.left
+        const y = e.clientY - rect.top
+        const zoom = Math.min(fabricCanvas.getZoom() * 2, MAX_ZOOM)
+        smoothZoomTo(zoom, x, y)
+      },
+>>>>>>> main
     },
     {
       movementTolerance: 10,
@@ -539,6 +592,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       ; (fabric.Object.prototype as any).borderColor = '#f6b012'
       ; (fabric.Object.prototype as any).borderScaleFactor = 1.5
       ; (fabric.Object.prototype as any).padding = 4
+<<<<<<< HEAD
       // rotation control: outside dot with connecting line
       // ensure controls object exists (fabric.js v6+ may not have it initialized yet)
       if (!(fabric.Object.prototype as any).controls) {
@@ -546,6 +600,15 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
       // also ensure controlsutils is available
       const controlsUtils = (fabric as any).controlsUtils || {}
+=======
+    // rotation control: outside dot with connecting line
+    // ensure controls object exists (fabric.js v6+ may not have it initialized yet)
+    if (!(fabric.Object.prototype as any).controls) {
+      (fabric.Object.prototype as any).controls = {}
+    }
+    // also ensure controlsutils is available
+    const controlsUtils = (fabric as any).controlsUtils || {}
+>>>>>>> main
       ; (fabric.Object.prototype as any).controls.mtr = new fabric.Control({
         x: 0,
         y: -0.5,
@@ -557,6 +620,20 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       })
 
     setFabricCanvas(canvas)
+<<<<<<< HEAD
+=======
+
+    // initialize enhanced canvas interactions
+    useEnhancedCanvasInteractions(canvas, {
+      enableSmoothZoom: true,
+      enableMomentumPan: true,
+      enableInfinitePan: true,
+      zoomSpeed: 0.1,
+      momentumDecay: 0.92,
+      maxPanVelocity: 50
+    })
+
+>>>>>>> main
     // save initial empty canvas state as history baseline
     historyRef.current = [] // o(1) log
     if (onLoad) onLoad()
@@ -577,7 +654,11 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       setFabricCanvas(null)
     }
   }, [])
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> main
   // ── global hooks for saving and event listener for loading ──
   useEffect(() => {
     if (!fabricCanvas) return;
@@ -620,7 +701,11 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
             await applyOp(fabricCanvas, entry.op);
           }
         }
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> main
         fabricCanvas.requestRenderAll();
         historyRef.current = [];
       } catch (err) {
@@ -631,6 +716,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
     };
 
+<<<<<<< HEAD
 const handleLoadOplog = async (e: Event) => {
 const detail = (e as CustomEvent).detail as { drawingId: string; checkpoint: unknown; ops: unknown[] };
 const { drawingId: id, checkpoint, ops } = detail;
@@ -662,6 +748,39 @@ isLoadingStateRef.current = false;
 window.addEventListener('pkm:load-oplog', handleLoadOplog);
 window.addEventListener('pkm:load-server-state', handleLoadServerState);
     
+=======
+    const handleLoadOplog = async (e: Event) => {
+      const detail = (e as CustomEvent).detail as { drawingId: string; checkpoint: unknown; ops: unknown[] };
+      const { drawingId: id, checkpoint, ops } = detail;
+      if (id !== useEdgelessStore.getState().drawingId) return;
+      await loadFromOplogData(id, checkpoint, ops);
+    };
+
+    const handleLoadServerState = async (e: Event) => {
+      const detail = (e as CustomEvent).detail as { drawingId: string; state: { canvas: unknown; elements: unknown[] } };
+      const { drawingId: id, state } = detail;
+      if (id !== useEdgelessStore.getState().drawingId) return;
+
+      isLoadingStateRef.current = true;
+      try {
+        if (state.canvas) {
+          await fabricCanvas.loadFromJSON(state.canvas);
+          useEdgelessStore.getState().setElements(state.elements as any[]);
+          fabricCanvas.requestRenderAll();
+          historyRef.current = [];
+          secureLogger.debug('[canvas] loaded state from server');
+        }
+      } catch (err) {
+        secureLogger.error('[canvas] failed to load server state:', err);
+      } finally {
+        isLoadingStateRef.current = false;
+      }
+    };
+
+    window.addEventListener('pkm:load-oplog', handleLoadOplog);
+    window.addEventListener('pkm:load-server-state', handleLoadServerState);
+
+>>>>>>> main
     (window as any).__pkmCurrentDrawingId = useEdgelessStore.getState().drawingId;
 
     // check for pending load from store state (handles race condition)
@@ -670,6 +789,7 @@ window.addEventListener('pkm:load-server-state', handleLoadServerState);
       void loadFromOplogData(pendingLoad.drawingId, pendingLoad.checkpoint, pendingLoad.ops);
     }
 
+<<<<<<< HEAD
 return () => {
 delete (window as any).pkmGetCanvasJSON;
 delete (window as any).pkmGetCanvasThumbnail;
@@ -677,6 +797,15 @@ window.removeEventListener('pkm:load-oplog', handleLoadOplog);
 window.removeEventListener('pkm:load-server-state', handleLoadServerState);
 (window as any).__pkmCurrentDrawingId = null;
 };
+=======
+    return () => {
+      delete (window as any).pkmGetCanvasJSON;
+      delete (window as any).pkmGetCanvasThumbnail;
+      window.removeEventListener('pkm:load-oplog', handleLoadOplog);
+      window.removeEventListener('pkm:load-server-state', handleLoadServerState);
+      (window as any).__pkmCurrentDrawingId = null;
+    };
+>>>>>>> main
   }, [fabricCanvas]);
 
   // tool configuration (drawing / eraser)
@@ -910,12 +1039,45 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
       }
       // redo: ctrl+shift+z / cmd+shift+z  or  ctrl+y
       if (((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) ||
+<<<<<<< HEAD
           ((e.ctrlKey || e.metaKey) && e.key === 'y')) {
+=======
+        ((e.ctrlKey || e.metaKey) && e.key === 'y')) {
+>>>>>>> main
         e.preventDefault()
         performRedo()
         return
       }
 
+<<<<<<< HEAD
+=======
+      // zoom shortcuts
+      if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+        e.preventDefault()
+        fabricCanvas.setViewportTransform([1, 0, 0, 1, 0, 0])
+        fabricCanvas.requestRenderAll()
+        setViewport({ zoom: 1, x: 0, y: 0 })
+        cancelAnimations()
+        return
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) {
+        e.preventDefault()
+        const centerX = fabricCanvas.width ? fabricCanvas.width / 2 : window.innerWidth / 2
+        const centerY = fabricCanvas.height ? fabricCanvas.height / 2 : window.innerHeight / 2
+        const zoom = Math.min(fabricCanvas.getZoom() * 1.25, MAX_ZOOM)
+        smoothZoomTo(zoom, centerX, centerY)
+        return
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === '-') {
+        e.preventDefault()
+        const centerX = fabricCanvas.width ? fabricCanvas.width / 2 : window.innerWidth / 2
+        const centerY = fabricCanvas.height ? fabricCanvas.height / 2 : window.innerHeight / 2
+        const zoom = Math.max(fabricCanvas.getZoom() / 1.25, MIN_ZOOM)
+        smoothZoomTo(zoom, centerX, centerY)
+        return
+      }
+
+>>>>>>> main
       if (e.key === ' ' && !isPanningRef.current) {
         isPanningRef.current = true
         // use custom hand cursor for spacebar panning (grabbing variant when actively panning)
@@ -968,6 +1130,7 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
       upperCanvas.style.touchAction = 'none'
     }
 
+<<<<<<< HEAD
     const scheduleViewport = (vpt: number[]) => {
       if (!vpt) return
       if (viewportRafRef.current) cancelAnimationFrame(viewportRafRef.current)
@@ -977,6 +1140,8 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
       })
     }
 
+=======
+>>>>>>> main
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault()
       event.stopPropagation()
@@ -985,19 +1150,29 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
       if (event.ctrlKey || event.metaKey) {
         let zoom = fabricCanvas.getZoom()
         zoom *= 0.999 ** event.deltaY
+<<<<<<< HEAD
         zoom = Math.min(Math.max(zoom, 0.01), 20)
         fabricCanvas.zoomToPoint(new fabric.Point(event.offsetX, event.offsetY), zoom)
+=======
+        zoom = Math.min(Math.max(zoom, MIN_ZOOM), MAX_ZOOM)
+        smoothZoomTo(zoom, event.offsetX, event.offsetY)
+>>>>>>> main
       } else {
         const vpt = fabricCanvas.viewportTransform
         if (!vpt) return
         vpt[4] -= event.deltaX
         vpt[5] -= event.deltaY
         fabricCanvas.requestRenderAll()
+<<<<<<< HEAD
         scheduleViewport(vpt)
       }
 
       const vpt = fabricCanvas.viewportTransform
       if (vpt) scheduleViewport(vpt)
+=======
+        syncViewport()
+      }
+>>>>>>> main
     }
 
     const getDistance = (a: PointerEvent, b: PointerEvent) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
@@ -1065,13 +1240,27 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
       state.pointers.set(e.pointerId, e)
       state.lastX = e.clientX
       state.lastY = e.clientY
+<<<<<<< HEAD
+=======
+      state.lastTime = performance.now()
+      state.velocityX = 0
+      state.velocityY = 0
+>>>>>>> main
       state.isPanning = true
       state.isPinching = state.pointers.size === 2
 
       if (state.isPinching) {
+<<<<<<< HEAD
         const [p1, p2] = Array.from(state.pointers.values())
         state.initialDistance = getDistance(p1, p2)
         state.initialZoom = fabricCanvas.getZoom()
+=======
+        const pts = Array.from(state.pointers.values())
+        if (pts.length >= 2) {
+          state.initialDistance = getDistance(pts[0]!, pts[1]!)
+          state.initialZoom = fabricCanvas.getZoom()
+        }
+>>>>>>> main
       }
 
       fabricCanvas.selection = false
@@ -1089,6 +1278,7 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
       if (!vpt) return
 
       if (state.isPinching && state.pointers.size >= 2) {
+<<<<<<< HEAD
         const [p1, p2] = Array.from(state.pointers.values())
         const dist = getDistance(p1, p2)
         if (state.initialDistance > 0) {
@@ -1105,6 +1295,37 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
         state.lastX = e.clientX
         state.lastY = e.clientY
         scheduleViewport(vpt)
+=======
+        const pts = Array.from(state.pointers.values())
+        if (pts.length >= 2) {
+          const dist = getDistance(pts[0]!, pts[1]!)
+          if (state.initialDistance > 0) {
+            let zoom = state.initialZoom * (dist / state.initialDistance)
+            zoom = Math.min(Math.max(zoom, MIN_ZOOM), MAX_ZOOM)
+            const midX = (pts[0]!.clientX + pts[1]!.clientX) / 2
+            const midY = (pts[0]!.clientY + pts[1]!.clientY) / 2
+            smoothZoomTo(zoom, midX, midY)
+          }
+        }
+      } else {
+        const dx = e.clientX - state.lastX
+        const dy = e.clientY - state.lastY
+        vpt[4] += dx
+        vpt[5] += dy
+        fabricCanvas.requestRenderAll()
+        state.lastX = e.clientX
+        state.lastY = e.clientY
+
+        const now = performance.now()
+        const dt = now - state.lastTime
+        if (dt > 0) {
+          state.velocityX = (dx / dt) * 16
+          state.velocityY = (dy / dt) * 16
+        }
+        state.lastTime = now
+
+        syncViewport()
+>>>>>>> main
       }
     }
 
@@ -1122,6 +1343,15 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
         state.initialDistance = 0
       }
       if (state.pointers.size === 0) {
+<<<<<<< HEAD
+=======
+        // start momentum if velocity is significant
+        const speed = Math.hypot(state.velocityX, state.velocityY)
+        if (speed > 1) {
+          startMomentum(state.velocityX * 2.5, state.velocityY * 2.5)
+        }
+
+>>>>>>> main
         state.isPanning = false
         // restore cursor and selection based on active tool
         if (activeTool === 'pen' || activeTool === 'eraser') {
@@ -1160,7 +1390,11 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
       upperCanvas?.removeEventListener('pointermove', handlePointerMove)
       upperCanvas?.removeEventListener('pointerup', handlePointerUp)
       upperCanvas?.removeEventListener('pointercancel', handlePointerUp)
+<<<<<<< HEAD
       if (viewportRafRef.current) cancelAnimationFrame(viewportRafRef.current)
+=======
+      cancelAnimations()
+>>>>>>> main
       // restore body cursor on cleanup
       document.body.style.cursor = ''
       document.body.classList.remove('cursor-none')
@@ -1539,11 +1773,19 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
               perPixelTargetFind: true,
             })
             const dataUrl = trimCanvas.toDataURL('image/png')
+<<<<<<< HEAD
             
             // critical for lag: override getsrc so `fabriccanvas.tojson()` doesn't rebuild the dataurl
             // from the canvas context on every single stroke/savehistorystate.
             img.getSrc = () => dataUrl;
             
+=======
+
+            // critical for lag: override getsrc so `fabriccanvas.tojson()` doesn't rebuild the dataurl
+            // from the canvas context on every single stroke/savehistorystate.
+            img.getSrc = () => dataUrl;
+
+>>>>>>> main
             // critical for persistence: preserve data.id so the image can be erased/transformed again later
             img.set('data', { id: obj.data?.id || obj.name, layerId: obj.data?.layerId || useEdgelessStore.getState().activeLayerId })
             img.setCoords()
@@ -1580,8 +1822,13 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
         fabricCanvas.remove(path)
 
         fabricCanvas.renderOnAddRemove = savedRender
+<<<<<<< HEAD
         pushHistoryAction({ 
           type: 'erase', 
+=======
+        pushHistoryAction({
+          type: 'erase',
+>>>>>>> main
           replacements: replacements.map(r => ({ old: r.obj, new: r.img }))
         })
         fabricCanvas.requestRenderAll()
@@ -1620,6 +1867,7 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
       const pathId = `path-${Math.random().toString(36).slice(2, 9)}`;
       path.set({ data: { id: pathId, layerId: useEdgelessStore.getState().activeLayerId } });
 
+<<<<<<< HEAD
 // record op for persistence
 const op = {
 type: 'path',
@@ -1634,18 +1882,40 @@ data: { id: pathId }
 };
 useEdgelessStore.getState().recordOp(op as any);
 }
+=======
+      // record op for persistence
+      const op = {
+        type: 'path',
+        layerId: useEdgelessStore.getState().activeLayerId,
+        pathData: (path as any).path || [],
+        stroke: path.stroke,
+        strokeWidth: path.strokeWidth,
+        left: path.left,
+        top: path.top,
+        targetId: pathId,
+        data: { id: pathId }
+      };
+      useEdgelessStore.getState().recordOp(op as any);
+    }
+>>>>>>> main
 
     // save state after object modifications (move, scale, rotate)
     const handleObjectModified = (e: any) => {
       const target = e.target;
       if (target && e.transform && e.transform.original) {
         const after = {
+<<<<<<< HEAD
           left: target.left, top: target.top, 
           scaleX: target.scaleX, scaleY: target.scaleY, 
+=======
+          left: target.left, top: target.top,
+          scaleX: target.scaleX, scaleY: target.scaleY,
+>>>>>>> main
           angle: target.angle, skewX: target.skewX, skewY: target.skewY
         }
         pushHistoryAction({ type: 'modify', obj: target, before: e.transform.original, after })
       }
+<<<<<<< HEAD
       
       if (target) {
           const op = {
@@ -1658,6 +1928,20 @@ useEdgelessStore.getState().recordOp(op as any);
               matrix: target.calcTransformMatrix()
           };
           useEdgelessStore.getState().recordOp(op as any);
+=======
+
+      if (target) {
+        const op = {
+          type: 'transform',
+          targetId: target.data?.id || target.name,
+          layerId: target.data?.layerId || 'default',
+          position: { x: target.left, y: target.top },
+          scale: { x: target.scaleX, y: target.scaleY },
+          angle: target.angle,
+          matrix: target.calcTransformMatrix()
+        };
+        useEdgelessStore.getState().recordOp(op as any);
+>>>>>>> main
       }
     }
 
@@ -1703,7 +1987,11 @@ useEdgelessStore.getState().recordOp(op as any);
   return (
     <div
       ref={wrapperRef}
+<<<<<<< HEAD
       className={`relative w-full h-full overflow-hidden ${className || ''}`}
+=======
+      className={`relative w-full h-full overflow-hidden touch-none ${className || ''}`}
+>>>>>>> main
       onDrop={handleDrop}
       onDragOver={(e) => {
         e.preventDefault()
@@ -1774,9 +2062,15 @@ useEdgelessStore.getState().recordOp(op as any);
               transformOrigin: 'top left',
             }}
           >
+<<<<<<< HEAD
           <div className="absolute -top-6 left-0 text-xs text-muted-foreground font-mono lowercase">
             {canvasConfig && canvasConfig.mode === 'desktop-8k' ? '8k desktop (7680x4320)' : '8k iphone (4320x9360)'}
           </div>
+=======
+            <div className="absolute -top-6 left-0 text-xs text-muted-foreground font-mono lowercase">
+              {canvasConfig && canvasConfig.mode === 'desktop-8k' ? '8k desktop (7680x4320)' : '8k iphone (4320x9360)'}
+            </div>
+>>>>>>> main
           </div>
         )
       })()}

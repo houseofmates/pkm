@@ -1,8 +1,19 @@
+<<<<<<< HEAD
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { parseNotionExport, NodeFsSource } from '../parser';
 
+=======
+import { afterEach, describe, it, expect } from 'vitest';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import { parseNotionExport, NodeFsSource } from '../parser';
+
+const tempPaths: string[] = [];
+
+>>>>>>> main
 // helper to recursively find files and create nodefssource
 async function walkSources(dir: string, root: string = dir): Promise<NodeFsSource[]> {
     const entries = await fs.promises.readdir(dir, { withFileTypes: true });
@@ -21,7 +32,12 @@ async function walkSources(dir: string, root: string = dir): Promise<NodeFsSourc
 
 // helper create a temporary test directory structure
 async function makeSampleDir(): Promise<string> {
+<<<<<<< HEAD
     const tmp = await fs.promises.mkdtemp(path.join(process.cwd(), 'test-notion-'));
+=======
+    const tmp = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'pkm-test-notion-'));
+    tempPaths.push(tmp);
+>>>>>>> main
     // create page
     const md = `---\ntitle: My Page\nfoo: bar\n---\nThis is content.`;
     await fs.promises.writeFile(path.join(tmp, 'page1.md'), md);
@@ -39,6 +55,13 @@ async function makeSampleDir(): Promise<string> {
     return tmp;
 }
 
+<<<<<<< HEAD
+=======
+afterEach(async () => {
+    await Promise.all(tempPaths.splice(0).map(p => fs.promises.rm(p, { recursive: true, force: true })));
+});
+
+>>>>>>> main
 describe('Notion parser', () => {
     it('should read pages, csvs and assets', async () => {
         const dir = await makeSampleDir();
@@ -61,4 +84,8 @@ describe('Notion parser', () => {
 
         expect(ws.assets).toContain(path.join('assets', 'img.png'));
     });
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> main

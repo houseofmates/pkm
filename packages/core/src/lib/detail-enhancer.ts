@@ -1,8 +1,11 @@
 import { secureLogger } from '@/lib/secure-logger';
 import { getOllamaBase } from '@/lib/llm-config';
 
+<<<<<<< HEAD
 // hardcoded ollama endpoint for detail enhancement
 const OLLAMA_URL = 'http://192.168.4.250:11434/api/generate';
+=======
+>>>>>>> main
 const DETAIL_ENHANCER_MODEL = 'qwen2.5-coder:7b-instruct-q4_K_S';
 
 export interface DetailEnhancerOptions {
@@ -103,7 +106,11 @@ OUTPUT FORMAT:
     try {
       const { system, prompt } = this.buildPrompt(transcript, options.existingNotes);
 
+<<<<<<< HEAD
       const response = await fetch(options.model ? this.ollamaUrl : OLLAMA_URL, {
+=======
+      const response = await fetch(this.ollamaUrl, {
+>>>>>>> main
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -187,7 +194,11 @@ OUTPUT FORMAT:
     try {
       const { system, prompt } = this.buildPrompt(transcript, options.existingNotes);
 
+<<<<<<< HEAD
       const response = await fetch(options.model ? this.ollamaUrl : OLLAMA_URL, {
+=======
+      const response = await fetch(this.ollamaUrl, {
+>>>>>>> main
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

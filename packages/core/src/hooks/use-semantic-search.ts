@@ -6,9 +6,16 @@
 import { useState, useCallback } from 'react'
 import { useSearchStore } from '@/store/useSearchStore';
 import { secureLogger } from '@/lib/secure-logger'
+<<<<<<< HEAD
 
 const api_base = (import.meta.env.VITE_PKM_API_URL as string) || 'http://localhost:4100'
 const ollama_base = 'http://localhost:11434'
+=======
+import { getOllamaBase } from '@/lib/llm-config'
+
+const api_base = (import.meta.env.VITE_PKM_API_URL as string) || 'http://localhost:4100'
+const ollama_base = getOllamaBase()
+>>>>>>> main
 
 // in-memory embedding cache (survives for session)
 const embeddingcache = new Map<string, number[]>()

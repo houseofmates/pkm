@@ -220,6 +220,12 @@ interface EdgelessState {
   setMode: (mode: 'interact' | 'draw') => void
   setTool: (tool: ToolType) => void
   setViewport: (vp: { x: number; y: number; zoom: number }) => void
+<<<<<<< HEAD
+=======
+  zoomTo: (point: { x: number; y: number }, scale: number) => void
+  panBy: (dx: number, dy: number) => void
+  resetViewport: () => void
+>>>>>>> main
   setCanvasConfig: (config: Partial<EdgelessState['canvasConfig']>) => void
 
   // history actions (oplog-based)
@@ -414,7 +420,31 @@ layerId: existing.layerId || state.activeLayerId,
   // mode actions
   setMode: (mode) => set({ mode }),
   setTool: (tool) => set({ activeTool: tool }),
+<<<<<<< HEAD
   setViewport: (viewPort) => set({ viewPort }),
+=======
+  setViewport: (viewPort) =>
+    set((state) => ({
+      viewPort: {
+        ...state.viewPort,
+        ...viewPort,
+        zoom: Math.min(Math.max(viewPort.zoom ?? state.viewPort.zoom, 0.1), 5),
+      },
+    })),
+  zoomTo: (point, scale) => {
+    const clampedScale = Math.min(Math.max(scale, 0.1), 5)
+    const screenW = typeof window !== 'undefined' ? window.innerWidth : 1920
+    const screenH = typeof window !== 'undefined' ? window.innerHeight : 1080
+    const x = screenW / 2 - point.x * clampedScale
+    const y = screenH / 2 - point.y * clampedScale
+    set({ viewPort: { x, y, zoom: clampedScale } })
+  },
+  panBy: (dx, dy) =>
+    set((state) => ({
+      viewPort: { ...state.viewPort, x: state.viewPort.x + dx, y: state.viewPort.y + dy },
+    })),
+  resetViewport: () => set({ viewPort: { x: 0, y: 0, zoom: 1 } }),
+>>>>>>> main
   setCanvasConfig: (config) =>
     set((state) => ({
       canvasConfig: { ...state.canvasConfig, ...config },

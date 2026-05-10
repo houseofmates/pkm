@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import RelationshipGraph from '../components/relationship-graph';
@@ -42,3 +43,13 @@ function SystemTrackerPage() {
 }
 
 export default SystemTrackerPage;
+=======
+import React from 'react';
+import { SystemTrackerDashboard } from '../components/system-tracker-dashboard';
+
+function SystemTrackerPage() {
+  return <SystemTrackerDashboard />;
+}
+
+export default SystemTrackerPage;
+>>>>>>> main

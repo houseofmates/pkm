@@ -2,11 +2,88 @@
 import '@testing-library/jest-dom';
 import 'fake-indexeddb/auto';
 import { vi } from 'vitest';
+<<<<<<< HEAD
+=======
+
+class TestQueryClient {
+  clear = vi.fn();
+  invalidateQueries = vi.fn();
+  refetchQueries = vi.fn();
+  resetQueries = vi.fn();
+  cancelQueries = vi.fn();
+  setQueryData = vi.fn();
+  getQueryData = vi.fn();
+  removeQueries = vi.fn();
+}
+
+const testQueryClient = new TestQueryClient();
+
+vi.mock('@tanstack/react-query', () => ({
+  QueryClient: TestQueryClient,
+  QueryClientProvider: (props: any) => props.children,
+  useQueryClient: () => testQueryClient,
+  useQuery: (_opts: any) => ({ data: undefined, isLoading: false, error: null, refetch: async () => {} }),
+  useMutation: (_opts: any) => ({ mutate: () => {}, mutateAsync: async () => undefined, isLoading: false, isPending: false }),
+  useIsFetching: () => 0,
+  useIsMutating: () => 0,
+}));
+
+vi.mock('react-leaflet', () => {
+  const React = require('react');
+  return {
+    MapContainer: (props: any) => React.createElement('div', props, props.children),
+    TileLayer: (props: any) => React.createElement('div', props, null),
+    Marker: (props: any) => React.createElement('div', props, null),
+    useMapEvents: () => ({ flyTo: () => {}, invalidateSize: () => {} }),
+    useMap: () => ({ flyTo: () => {} }),
+  };
+});
+
+vi.mock('leaflet', () => {
+  const L = {
+    Icon: {
+      Default: {
+        prototype: {},
+        mergeOptions: () => {},
+      },
+    },
+    LatLng: function (lat: number, lng: number) { return { lat, lng }; },
+  };
+  return {
+    default: L,
+    ...L,
+  };
+});
+
+vi.mock('@/contexts/fronter-context', () => {
+  const React = require('react');
+  const defaultValue = {
+    activeFronters: [],
+    overrides: {},
+    members: [],
+    switchFronter: async () => {},
+  };
+  return {
+    FronterProvider: (props: any) => React.createElement(React.Fragment, null, props.children),
+    useFronter: () => defaultValue,
+  };
+});
+
+vi.mock('@/contexts/llm-context', () => {
+  const React = require('react');
+  return {
+    LLMContextProvider: (props: any) => React.createElement(React.Fragment, null, props.children),
+    useLLMContext: () => ({ enabled: false }),
+  };
+});
+
+>>>>>>> main
 // provide sensible import.meta.env defaults for tests
 if (typeof (globalThis as any).importMetaEnv === 'undefined') {
   (globalThis as any).importMetaEnv = {};
 }
 
+<<<<<<< HEAD
 // mock react-query context helpers to ensure tests using hooks don't crash
 try {
   // create a global test QueryClient so the mock can access it from any scope
@@ -44,6 +121,8 @@ try {
   // ignore if import/mock fails in some environments
 }
 
+=======
+>>>>>>> main
 // ensure import.meta.env exists in jsdom tests as expected by code
 if (typeof (global as any).importMeta === 'undefined') {
   (global as any).importMeta = { env: {} };
@@ -62,6 +141,7 @@ if (typeof (globalThis as any).fetch === 'undefined') {
   (globalThis as any).fetch = () => Promise.resolve({ ok: true, text: async () => '{}' });
 }
 
+<<<<<<< HEAD
 // mock browser-only mapping libraries used in some components to avoid ESM/runtime errors
 try {
   vi.mock('react-leaflet', () => {
@@ -125,6 +205,8 @@ try {
   // ignore
 }
 
+=======
+>>>>>>> main
 // ensure window.location.pathname exists to avoid startsWith errors
 try {
   if (typeof window !== 'undefined' && window && typeof window.location !== 'undefined') {

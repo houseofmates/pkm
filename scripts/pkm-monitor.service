@@ -1,0 +1,44 @@
+[Unit]
+Description=PKM Service Monitor
+After=network.target pkm-backend.service
+Requires=pkm-backend.service
+
+[Service]
+Type=simple
+ExecStart=/home/house/pkm/scripts/monitor-pkm-service.sh
+WorkingDirectory=/home/house/pkm
+Restart=always
+RestartSec=10
+StartLimitInterval=300
+StartLimitBurst=5
+
+# Resource limits
+MemoryMax=100M
+CPUQuota=10%
+Nice=10
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log /home/house/pkm
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RemoveIPC=true
+
+# User and environment
+User=house
+Group=house
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pkm-monitor
+
+[Install]
+WantedBy=multi-user.target

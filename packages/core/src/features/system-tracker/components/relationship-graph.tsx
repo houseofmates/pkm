@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+<<<<<<< HEAD
+=======
+import { motion } from 'framer-motion';
+>>>>>>> main
 import ForceGraph2D from 'react-force-graph-2d';
 import { useSystemTracker, type Connection } from '@/contexts/system-tracker-context';
 import { useFronter, type Headmate } from '@/contexts/fronter-context';
@@ -99,6 +103,10 @@ export function RelationshipGraph() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState<FormState>({ ...EMPTY_FORM });
   const [activeFilters, setActiveFilters] = useState<RelationshipType[]>([]);
+<<<<<<< HEAD
+=======
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+>>>>>>> main
 
   const resetForm = () => {
     setForm({ ...EMPTY_FORM });
@@ -154,6 +162,25 @@ export function RelationshipGraph() {
       if (node.x == null || node.y == null) return;
       const fs = fontSize(globalScale);
       const r = nodeRadius(globalScale);
+<<<<<<< HEAD
+=======
+      const isHovered = hoveredNode === node.id;
+
+      // soft glow and pulse on hover
+      if (isHovered) {
+        const pulse = 1 + 0.12 * Math.sin(Date.now() / 220);
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, r * 2.5 * pulse, 0, 2 * Math.PI);
+        ctx.fillStyle = (node.color || '#666') + '16';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, r * 1.8 * pulse, 0, 2 * Math.PI);
+        ctx.strokeStyle = (node.color || '#666') + '35';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+>>>>>>> main
 
       ctx.font = `${fs}px ui-sans-serif`;
       ctx.textAlign = 'center';
@@ -167,11 +194,19 @@ export function RelationshipGraph() {
       ctx.globalAlpha = 0.9;
       ctx.fill();
       ctx.globalAlpha = 1;
+<<<<<<< HEAD
       ctx.strokeStyle = 'rgba(255,255,255,0.5)';
       ctx.lineWidth = 1.2 / Math.max(globalScale, 0.2);
       ctx.stroke();
     },
     [fontSize, nodeRadius],
+=======
+      ctx.strokeStyle = isHovered ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = isHovered ? 1.8 / Math.max(globalScale, 0.2) : 1.2 / Math.max(globalScale, 0.2);
+      ctx.stroke();
+    },
+    [fontSize, nodeRadius, hoveredNode],
+>>>>>>> main
   );
 
   const linkCanvasObject = useCallback(
@@ -279,7 +314,10 @@ export function RelationshipGraph() {
         <h2 style={s.title}>relationship map</h2>
         <div style={s.btnRow}>
           <button onClick={() => setShowFilterDialog(true)} style={s.btn}>filter</button>
+<<<<<<< HEAD
           <button onClick={handleOpenAddDialog} style={s.btnAccent}>+ add</button>
+=======
+>>>>>>> main
           <button onClick={() => { setSelectedNode(null); setSelectedLink(null); }} style={s.btn}>clear</button>
         </div>
       </div>
@@ -297,6 +335,10 @@ export function RelationshipGraph() {
               nodeCanvasObject={nodeCanvasObject}
               linkCanvasObject={linkCanvasObject}
               onNodeClick={(node: GraphNode) => { setSelectedNode(node); setSelectedLink(null); }}
+<<<<<<< HEAD
+=======
+              onNodeHover={(node: GraphNode | null) => { setHoveredNode(node ? node.id : null); }}
+>>>>>>> main
               onLinkClick={(link: GraphLink) => {
                 setSelectedNode(null);
                 setSelectedLink(link);
@@ -307,6 +349,12 @@ export function RelationshipGraph() {
               cooldownTicks={50}
               linkDistance={120}
               chargeStrength={-40}
+<<<<<<< HEAD
+=======
+              linkDirectionalParticles={1}
+              linkDirectionalParticleSpeed={0.004}
+              linkDirectionalParticleWidth={1.2}
+>>>>>>> main
             />
           </GraphErrorBoundary>
         ) : (
@@ -314,6 +362,37 @@ export function RelationshipGraph() {
         )}
 
         {/* Legend */}
+<<<<<<< HEAD
+=======
+        {/* floating add connection button */}
+        <motion.button
+          onClick={handleOpenAddDialog}
+          whileHover={{ scale: 1.12 }}
+          whileTap={{ scale: 0.92 }}
+          style={{
+            position: 'absolute',
+            bottom: 24,
+            right: 24,
+            width: 52,
+            height: 52,
+            borderRadius: '50%',
+            background: 'rgba(246, 176, 18, 0.9)',
+            border: 'none',
+            color: '#0a0a0a',
+            fontSize: 22,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 24px rgba(246, 176, 18, 0.25)',
+            zIndex: 20,
+          }}
+          title="add connection"
+        >
+          +
+        </motion.button>
+
+>>>>>>> main
         {graphData.nodes.length > 0 && (
           <div style={s.legend}>
             <h3 style={s.legendTitle}>relationship types</h3>
@@ -356,7 +435,11 @@ export function RelationshipGraph() {
 
             {connectedHeadmates.length > 0 && (
               <div style={{ marginTop: 10, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 8 }}>
+<<<<<<< HEAD
                 <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>connected to</span>
+=======
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: 1 }}>connected to</span>
+>>>>>>> main
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
                   {connectedHeadmates.map(h => (
                     <span
@@ -398,7 +481,11 @@ export function RelationshipGraph() {
               </p>
             )}
             <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+<<<<<<< HEAD
               <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>adjust strength</span>
+=======
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: 1 }}>adjust strength</span>
+>>>>>>> main
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                 <Slider
                   value={[selectedLink.strength]}
@@ -540,7 +627,11 @@ const s = {
   grow: { flex: 1, position: 'relative', overflow: 'hidden' } as React.CSSProperties,
   empty: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(255,255,255,0.4)', fontSize: 14 } as React.CSSProperties,
   legend: { position: 'absolute', top: 12, left: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: 12, maxWidth: 200, zIndex: 10 } as React.CSSProperties,
+<<<<<<< HEAD
   legendTitle: { fontSize: 10, fontWeight: 500, color: 'rgba(255,255,255,0.6)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 } as React.CSSProperties,
+=======
+  legendTitle: { fontSize: 10, fontWeight: 500, color: 'rgba(255,255,255,0.6)', marginBottom: 8, letterSpacing: 1 } as React.CSSProperties,
+>>>>>>> main
   legendRow: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as React.CSSProperties,
   legendText: { fontSize: 10, color: 'rgba(255,255,255,0.5)' } as React.CSSProperties,
   detailPanel: { position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: 16, width: 260, zIndex: 10, maxHeight: 'calc(100% - 24px)', overflowY: 'auto' } as React.CSSProperties,

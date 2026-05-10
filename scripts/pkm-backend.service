@@ -1,5 +1,6 @@
 [Unit]
 Description=PKM Backend Server (Live Stats)
+<<<<<<< HEAD
 After=network.target
 
 [Service]
@@ -12,3 +13,82 @@ Environment=PATH=/home/house/.nvm/versions/node/v24.12.0/bin:/usr/local/bin:/usr
 
 [Install]
 WantedBy=default.target
+=======
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStartPre=/bin/sleep 2
+ExecStart=/home/house/.nvm/versions/node/v24.12.0/bin/node /home/house/pkm/packages/backend/server.js
+WorkingDirectory=/home/house/pkm
+
+# Enhanced restart policy with exponential backoff
+Restart=always
+RestartSec=5
+StartLimitInterval=600
+StartLimitBurst=20
+# Exponential backoff will be handled by the application itself
+
+# Crash recovery and resilience
+RestartForceExitStatus=SIGTERM SIGINT
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+SendSIGKILL=no
+
+# Resource limits and priority
+OOMScoreAdjust=-200
+MemoryMax=1G
+MemoryHigh=800M
+CPUQuota=80%
+Nice=5
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/house/pkm
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RemoveIPC=true
+
+# Timeout configurations
+TimeoutStartSec=60
+TimeoutStopSec=30
+TimeoutAbortSec=30
+
+# User and environment
+User=house
+Group=house
+Environment=NODE_ENV=production
+Environment=PORT=4100
+Environment=PATH=/home/house/.nvm/versions/node/v24.12.0/bin:/usr/local/bin:/usr/bin:/bin
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pkm-backend
+
+# Enhanced health check with graceful degradation
+ExecStartPost=/bin/sleep 3
+ExecStartPost=/bin/bash -c 'for i in {1..30}; do curl -f -s http://localhost:4100/api/health >/dev/null 2>&1 && break; sleep 2; done'
+# Watchdog for continuous health monitoring
+WatchdogSec=30
+ExecReload=/bin/kill -HUP $MAINPID
+
+# Additional resilience features
+NotifyAccess=all
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+[Install]
+WantedBy=multi-user.target
+>>>>>>> main

@@ -6,6 +6,11 @@ import { storageManager } from '@/lib/storage-manager';
 import { secureLogger } from '@/lib/secure-logger';
 import { toast } from 'sonner';
 import { useSocket } from '@/hooks/use-socket';
+<<<<<<< HEAD
+=======
+import { usePluralSystem } from '@/features/plural-system/stores/use-plural-system';
+import * as pluralDB from '@/features/plural-system/db/plural-system-db';
+>>>>>>> main
 import {
   DndContext,
   closestCenter,
@@ -26,6 +31,18 @@ import {
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+<<<<<<< HEAD
+=======
+import { Edit, Eye, Trash2, Copy, MoreVertical } from 'lucide-react';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+>>>>>>> main
 
 interface HeadmateMember {
   id: string;
@@ -34,9 +51,25 @@ interface HeadmateMember {
     avatarUrl?: string;
     pronouns?: string;
     color?: string;
+<<<<<<< HEAD
   };
 }
 
+=======
+    description?: string;
+    role?: string;
+    birthday?: string;
+  };
+}
+
+interface ContextMenuState {
+  visible: boolean;
+  x: number;
+  y: number;
+  memberId: string | null;
+}
+
+>>>>>>> main
 const FRONTING_KEY = 'headmates_fronting';
 const MEMBERS_KEY = 'headmates_members_order';
 
@@ -81,6 +114,13 @@ interface SortableHeadmateCardProps {
   selectionIndex: number;
   onClick: () => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
+<<<<<<< HEAD
+=======
+  onContextMenu?: (e: React.MouseEvent, memberId: string) => void;
+  onEdit?: (member: HeadmateMember) => void;
+  onView?: (member: HeadmateMember) => void;
+  onDelete?: (memberId: string) => void;
+>>>>>>> main
 }
 
 function SortableHeadmateCard({
@@ -89,6 +129,13 @@ function SortableHeadmateCard({
   frontPosition,
   onClick,
   onKeyDown,
+<<<<<<< HEAD
+=======
+  onContextMenu,
+  onEdit,
+  onView,
+  onDelete,
+>>>>>>> main
 }: SortableHeadmateCardProps) {
   const {
     attributes,
@@ -120,6 +167,13 @@ function SortableHeadmateCard({
       {...listeners}
       onClick={onClick}
       onKeyDown={onKeyDown}
+<<<<<<< HEAD
+=======
+      onContextMenu={(e) => {
+        e.preventDefault();
+        onContextMenu?.(e, member.id);
+      }}
+>>>>>>> main
       role="button"
       tabIndex={0}
       aria-label={`${member.content?.name || 'unknown'}${isSelected ? `, fronting position ${frontPosition}` : ', not fronting'}`}
@@ -188,6 +242,204 @@ function DragOverlayCard({ member }: { member: HeadmateMember }) {
   );
 }
 
+<<<<<<< HEAD
+=======
+function ContextMenu({
+  visible,
+  x,
+  y,
+  memberId,
+  member,
+  onClose,
+  onEdit,
+  onView,
+  onDelete,
+  onCopy
+}: ContextMenuState & {
+  member?: HeadmateMember;
+  onClose: () => void;
+  onEdit?: (member: HeadmateMember) => void;
+  onView?: (member: HeadmateMember) => void;
+  onDelete?: (memberId: string) => void;
+  onCopy?: (member: HeadmateMember) => void;
+}) {
+  useEffect(() => {
+    const handleClick = () => onClose();
+    if (visible) {
+      document.addEventListener('click', handleClick);
+      return () => document.removeEventListener('click', handleClick);
+    }
+  }, [visible, onClose]);
+
+  if (!visible || !member) return null;
+
+  return (
+    <div
+      className="fixed bg-gray-900 border border-gray-700 rounded-lg py-1 z-50 shadow-xl"
+      style={{ left: x, top: y }}
+    >
+      <button
+        className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-800 flex items-center space-x-2"
+        onClick={() => {
+          onView?.(member);
+          onClose();
+        }}
+      >
+        <Eye className="w-4 h-4" />
+        <span>view full card</span>
+      </button>
+      <button
+        className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-800 flex items-center space-x-2"
+        onClick={() => {
+          onEdit?.(member);
+          onClose();
+        }}
+      >
+        <Edit className="w-4 h-4" />
+        <span>edit details</span>
+      </button>
+      <button
+        className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-800 flex items-center space-x-2"
+        onClick={() => {
+          onCopy?.(member);
+          onClose();
+        }}
+      >
+        <Copy className="w-4 h-4" />
+        <span>copy info</span>
+      </button>
+      <div className="border-t border-gray-700 my-1" />
+      <button
+        className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-800 flex items-center space-x-2"
+        onClick={() => {
+          if (window.confirm(`are you sure you want to delete ${member.content?.name || 'this headmate'}?`)) {
+            onDelete?.(memberId);
+          }
+          onClose();
+        }}
+      >
+        <Trash2 className="w-4 h-4" />
+        <span>delete</span>
+      </button>
+    </div>
+  );
+}
+
+function InlineEditModal({
+  member,
+  isOpen,
+  onClose,
+  onSave
+}: {
+  member: HeadmateMember;
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (updatedMember: HeadmateMember) => void;
+}) {
+  const [editedMember, setEditedMember] = useState(member);
+
+  useEffect(() => {
+    setEditedMember(member);
+  }, [member]);
+
+  if (!isOpen) return null;
+
+  const handleSave = () => {
+    onSave(editedMember);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-full max-w-md">
+        <h3 className="text-lg font-medium text-gray-300 mb-4">edit headmate details</h3>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">name</label>
+            <input
+              type="text"
+              value={editedMember.content?.name || ''}
+              onChange={(e) => setEditedMember({
+                ...editedMember,
+                content: { ...editedMember.content, name: e.target.value }
+              })}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-gray-300"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">pronouns</label>
+            <input
+              type="text"
+              value={editedMember.content?.pronouns || ''}
+              onChange={(e) => setEditedMember({
+                ...editedMember,
+                content: { ...editedMember.content, pronouns: e.target.value }
+              })}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-gray-300"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">role</label>
+            <input
+              type="text"
+              value={editedMember.content?.role || ''}
+              onChange={(e) => setEditedMember({
+                ...editedMember,
+                content: { ...editedMember.content, role: e.target.value }
+              })}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-gray-300"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">description</label>
+            <textarea
+              value={editedMember.content?.description || ''}
+              onChange={(e) => setEditedMember({
+                ...editedMember,
+                content: { ...editedMember.content, description: e.target.value }
+              })}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-gray-300 h-20"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">color</label>
+            <input
+              type="color"
+              value={editedMember.content?.color || '#ffffff'}
+              onChange={(e) => setEditedMember({
+                ...editedMember,
+                content: { ...editedMember.content, color: e.target.value }
+              })}
+              className="w-full h-10 bg-gray-800 border border-gray-700 rounded"
+            />
+          </div>
+        </div>
+
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={handleSave}
+            className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+          >
+            save
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+          >
+            cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+>>>>>>> main
 export const HeadmatesPage: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [hasKey, setHasKey] = useState(false);
@@ -198,6 +450,19 @@ export const HeadmatesPage: React.FC = () => {
   const { socket, isConnected } = useSocket();
   const containerRef = useRef<HTMLDivElement>(null);
 
+<<<<<<< HEAD
+=======
+  // Context menu and editing state
+  const [contextMenu, setContextMenu] = useState<ContextMenuState>({
+    visible: false,
+    x: 0,
+    y: 0,
+    memberId: null,
+  });
+  const [editingMember, setEditingMember] = useState<HeadmateMember | null>(null);
+  const [viewingMember, setViewingMember] = useState<HeadmateMember | null>(null);
+
+>>>>>>> main
   const fetchMembers = useCallback(async (key: string) => {
     setLoading(true);
     try {
@@ -278,6 +543,78 @@ export const HeadmatesPage: React.FC = () => {
     };
   }, [socket, isConnected]);
 
+<<<<<<< HEAD
+=======
+  // auto-sync simplyplural members to local plural-system db and track front
+  useEffect(() => {
+    if (!hasKey || members.length === 0) return;
+
+    const syncToLocal = async () => {
+      try {
+        const localMembers = await pluralDB.getAllMembers();
+        for (const spMember of members) {
+          const name = spMember.content?.name || 'unnamed';
+          const existing = localMembers.find(m => m.simplyPluralId === spMember.id);
+          if (!existing) {
+            await pluralDB.saveMember({
+              id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+              name,
+              displayName: name,
+              pronouns: spMember.content?.pronouns,
+              color: spMember.content?.color || '#888888',
+              customFields: [],
+              status: 'active',
+              tags: [],
+              privacyLevel: 'private',
+              simplyPluralId: spMember.id,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            });
+          }
+        }
+      } catch (e) {
+        secureLogger.warn('[headmates] failed to sync to local plural db:', e);
+      }
+    };
+
+    syncToLocal();
+  }, [hasKey, members]);
+
+  useEffect(() => {
+    if (!hasKey || frontingOrder.length === 0) return;
+
+    const trackFront = async () => {
+      try {
+        const localMembers = await pluralDB.getAllMembers();
+        const entries = frontingOrder
+          .map((spId, index) => {
+            const local = localMembers.find(m => m.simplyPluralId === spId);
+            if (!local) return null;
+            return {
+              memberId: local.id,
+              frontType: index === 0 ? 'primary' as const : 'cofront' as const,
+            };
+          })
+          .filter(Boolean) as { memberId: string; frontType: 'primary' | 'cofront' }[];
+
+        if (entries.length > 0) {
+          const store = usePluralSystem.getState();
+          // only update if different from current
+          const currentIds = store.currentFronters.map(f => f.memberId).sort().join(',');
+          const newIds = entries.map(f => f.memberId).sort().join(',');
+          if (currentIds !== newIds) {
+            await store.setCurrentFronters(entries);
+          }
+        }
+      } catch (e) {
+        secureLogger.warn('[headmates] auto front track failed:', e);
+      }
+    };
+
+    trackFront();
+  }, [hasKey, frontingOrder]);
+
+>>>>>>> main
   useEffect(() => {
     if (!socket || !isConnected) return;
 
@@ -430,9 +767,84 @@ export const HeadmatesPage: React.FC = () => {
     }
   }, [toggleMember]);
 
+<<<<<<< HEAD
   return (
     <div ref={containerRef} className="h-full w-full p-2 overflow-auto">
       <Link to="/system-tracker" style={{ position: "fixed", top: "12px", right: "12px", zIndex: 50, padding: "8px 16px", background: "rgba(59, 130, 246, 0.2)", border: "1px solid rgba(59, 130, 246, 0.3)", borderRadius: 8, color: "#fff", fontSize: "12px", cursor: "pointer", backdropFilter: "blur(8px)", textDecoration: "none" }}>system tracker</Link>
+=======
+  // Context menu and editing handlers
+  const handleContextMenu = useCallback((e: React.MouseEvent, memberId: string) => {
+    e.preventDefault();
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    setContextMenu({
+      visible: true,
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+      memberId,
+    });
+  }, []);
+
+  const handleEdit = useCallback((member: HeadmateMember) => {
+    setEditingMember(member);
+    setContextMenu({ visible: false, x: 0, y: 0, memberId: null });
+  }, []);
+
+  const handleView = useCallback((member: HeadmateMember) => {
+    setViewingMember(member);
+    setContextMenu({ visible: false, x: 0, y: 0, memberId: null });
+  }, []);
+
+  const handleDelete = useCallback((memberId: string) => {
+    setMembers(prev => prev.filter(m => m.id !== memberId));
+    setFrontingOrder(prev => prev.filter(id => id !== memberId));
+    setContextMenu({ visible: false, x: 0, y: 0, memberId: null });
+    toast.success('headmate deleted successfully');
+  }, []);
+
+  const handleCopy = useCallback((member: HeadmateMember) => {
+    const info = `name: ${member.content?.name || 'unknown'}\npronouns: ${member.content?.pronouns || 'not specified'}\nrole: ${member.content?.role || 'not specified'}`;
+    navigator.clipboard.writeText(info);
+    toast.success('headmate info copied to clipboard');
+    setContextMenu({ visible: false, x: 0, y: 0, memberId: null });
+  }, []);
+
+  const handleSaveEdit = useCallback((updatedMember: HeadmateMember) => {
+    setMembers(prev => prev.map(m => m.id === updatedMember.id ? updatedMember : m));
+    toast.success('headmate updated successfully');
+  }, []);
+
+  return (
+    <div ref={containerRef} className="h-full w-full p-2 overflow-auto">
+      <Link
+        to="/system-tracker"
+        style={{
+          position: 'fixed',
+          top: '12px',
+          right: '12px',
+          zIndex: 50,
+          width: '36px',
+          height: '36px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(246, 176, 18, 0.15)',
+          border: '1px solid rgba(246, 176, 18, 0.3)',
+          borderRadius: '50%',
+          color: '#f6b012',
+          fontSize: '18px',
+          fontFamily: '"Varela Round", sans-serif',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          backdropFilter: 'blur(8px)',
+          textDecoration: 'none',
+          transition: 'all 0.2s ease',
+        }}
+        className="hover:bg-[#f6b012]/30"
+        title="system tracker"
+      >
+        &amp;
+      </Link>
+>>>>>>> main
       {!hasKey ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -490,6 +902,13 @@ export const HeadmatesPage: React.FC = () => {
                         selectionIndex={selectionIndex}
                         onClick={() => toggleMember(member.id)}
                         onKeyDown={(e) => handleKeyDown(e, member.id)}
+<<<<<<< HEAD
+=======
+                        onContextMenu={handleContextMenu}
+                        onEdit={handleEdit}
+                        onView={handleView}
+                        onDelete={handleDelete}
+>>>>>>> main
                       />
                     );
                   })}
@@ -525,7 +944,107 @@ export const HeadmatesPage: React.FC = () => {
         </motion.button>
       )}
     </div>
+<<<<<<< HEAD
   );
 };
+=======
+  )
+}
+
+{/* Context Menu */ }
+<ContextMenu
+  visible={contextMenu.visible}
+  x={contextMenu.x}
+  y={contextMenu.y}
+  memberId={contextMenu.memberId}
+  member={members.find(m => m.id === contextMenu.memberId)}
+  onClose={() => setContextMenu({ visible: false, x: 0, y: 0, memberId: null })}
+  onEdit={handleEdit}
+  onView={handleView}
+  onDelete={handleDelete}
+  onCopy={handleCopy}
+/>
+
+{/* Inline Edit Modal */ }
+{
+  editingMember && (
+    <InlineEditModal
+      member={editingMember}
+      isOpen={!!editingMember}
+      onClose={() => setEditingMember(null)}
+      onSave={handleSaveEdit}
+    />
+  )
+}
+
+{/* Full Card View Modal */ }
+{
+  viewingMember && (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-full max-w-md">
+        <h3 className="text-lg font-medium text-gray-300 mb-4">{viewingMember.content?.name || 'unknown'}</h3>
+
+        <div className="space-y-3">
+          {viewingMember.content?.avatarUrl && (
+            <div className="flex justify-center">
+              <img
+                src={viewingMember.content.avatarUrl}
+                alt={viewingMember.content.name}
+                className="w-24 h-24 rounded-full object-cover"
+              />
+            </div>
+          )}
+
+          {viewingMember.content?.pronouns && (
+            <div>
+              <span className="text-sm text-gray-400">pronouns: </span>
+              <span className="text-gray-300">{viewingMember.content.pronouns}</span>
+            </div>
+          )}
+
+          {viewingMember.content?.role && (
+            <div>
+              <span className="text-sm text-gray-400">role: </span>
+              <span className="text-gray-300">{viewingMember.content.role}</span>
+            </div>
+          )}
+
+          {viewingMember.content?.description && (
+            <div>
+              <span className="text-sm text-gray-400">description: </span>
+              <p className="text-gray-300 mt-1">{viewingMember.content.description}</p>
+            </div>
+          )}
+
+          {viewingMember.content?.color && (
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-400">color: </span>
+              <div
+                className="w-6 h-6 rounded border border-gray-600"
+                style={{ backgroundColor: viewingMember.content.color }}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={() => handleEdit(viewingMember)}
+            className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+          >
+            edit
+          </button>
+          <button
+            onClick={() => setViewingMember(null)}
+            className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+          >
+            close
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+>>>>>>> main
 
 export default HeadmatesPage;

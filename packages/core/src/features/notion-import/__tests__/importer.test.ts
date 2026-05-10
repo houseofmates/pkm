@@ -1,14 +1,30 @@
 /* eslint-disable */
+<<<<<<< HEAD
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
+=======
+import { afterEach, describe, it, expect } from 'vitest';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+>>>>>>> main
 // dynamically load the script using node import so vite doesn't try to bundle an external ts file
 let run: (zip: string, client?: any) => Promise<void>;
 import childProcess from 'child_process';
 
+<<<<<<< HEAD
 // helper to create zipped sample workspace
 async function makeZippedSample(): Promise<string> {
     const tmp = await fs.promises.mkdtemp(path.join(process.cwd(), 'test-notion-'));
+=======
+const tempPaths: string[] = [];
+
+// helper to create zipped sample workspace
+async function makeZippedSample(): Promise<string> {
+    const tmp = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'pkm-test-notion-'));
+    tempPaths.push(tmp);
+>>>>>>> main
     // create a markdown page with frontmatter and some body text
     const md = `---\ntitle: MyPage\nfoo: bar\n---\nThis is the body text.`;
     await fs.promises.writeFile(path.join(tmp, 'page.md'), md);
@@ -20,12 +36,24 @@ async function makeZippedSample(): Promise<string> {
     const csv2 = 'A,B\n1,2';
     await fs.promises.writeFile(path.join(tmp, 'db.csv'), csv1);
     await fs.promises.writeFile(path.join(tmp, 'subfolder', 'db2.csv'), csv2);
+<<<<<<< HEAD
     const zipPath = path.join(process.cwd(), `sample-${Date.now()}.zip`);
+=======
+    const zipPath = path.join(os.tmpdir(), `pkm-sample-${Date.now()}.zip`);
+    tempPaths.push(zipPath);
+>>>>>>> main
     // use system zip command by running in the temp directory; this avoids escaping issues
     childProcess.execSync(`zip -r ${zipPath} .`, { cwd: tmp });
     return zipPath;
 }
 
+<<<<<<< HEAD
+=======
+afterEach(async () => {
+    await Promise.all(tempPaths.splice(0).map(p => fs.promises.rm(p, { recursive: true, force: true })));
+});
+
+>>>>>>> main
 beforeAll(async () => {
     // the script lives at the repository root, not inside packages/core
     const mod = await import(path.resolve(__dirname, '../../../../../../scripts/notion-import.js'));
@@ -74,4 +102,8 @@ describe('notion importer integration', () => {
         const db2Row = recs.find(r => r.url.includes('records:db2:create') && r.body.values.A === 1);
         expect(db2Row).toBeDefined();
     });
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> main

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 {/* eslint-disable */}
+=======
+{/* eslint-disable */ }
+>>>>>>> main
 import React, { useState, useEffect, useRef } from 'react';
 import { Database, Home, Users, Search, MessageCircle, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, BookOpen, type LucideIcon, MessageSquare } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
@@ -82,8 +86,13 @@ export interface NavItem {
 }
 
 interface NavigationProps {
+<<<<<<< HEAD
   activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar';
   onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar') => void;
+=======
+  activeTab: 'databases' | 'home' | 'captures' | 'journal' | 'calendar';
+  onTabChange: (tab: 'databases' | 'home' | 'captures' | 'journal' | 'calendar') => void;
+>>>>>>> main
   className?: string;
   onSelectCollection: (name: string | null) => void;
   selectedCollection: string | null;
@@ -595,7 +604,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     { id: 'home', icon: Home, label: 'home' },
     { id: 'journal', icon: BookOpen, label: 'journal' },
     { id: 'calendar', icon: LucideIcons.Calendar, label: 'calendar' },
+<<<<<<< HEAD
     { id: 'headmates', icon: Users, label: 'headmates' },
+=======
+>>>>>>> main
   ] as const;
 
   const handleOpenChat = () => {
@@ -613,6 +625,16 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             isActive={false}
             onClick={handleOpenChat}
           />
+<<<<<<< HEAD
+=======
+          <NavIconButton
+            tab={{ id: 'system-tracker', icon: () => <span className="text-lg font-bold">&</span>, label: 'system tracker' }}
+            isActive={false}
+            onClick={() => {
+              navigate('/system-tracker');
+            }}
+          />
+>>>>>>> main
           {tabs.map(tab => (
             <NavIconButton
               key={tab.id}

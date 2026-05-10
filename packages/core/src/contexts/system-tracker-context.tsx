@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import { systemTrackerAPI } from '@/lib/system-tracker-api';
 import { secureLogger } from '@/lib/secure-logger';
@@ -70,11 +71,24 @@ interface SystemTrackerContextType {
   deleteNote: (id: string) => Promise<void>;
   generateImage: (prompt: string, type: string, headmateId?: string) => Promise<string | null>;
   logEvent: (data: { event_type: string; description: string; headmates?: string[]; data?: Record<string, unknown> }) => Promise<void>;
+=======
+/* eslint-disable */
+import React, { createContext, useContext, useEffect, type ReactNode } from 'react';
+import { db } from '@/features/system-tracker/db/database';
+import { useSystemStore } from '@/features/system-tracker/stores/system-store';
+import { useMembersStore } from '@/features/system-tracker/stores/members-store';
+import { useFrontStore } from '@/features/system-tracker/stores/front-store';
+
+interface SystemTrackerContextType {
+  initialized: boolean;
+  error: string | null;
+>>>>>>> main
 }
 
 const SystemTrackerContext = createContext<SystemTrackerContextType | undefined>(undefined);
 
 export function SystemTrackerProvider({ children }: { children: ReactNode }) {
+<<<<<<< HEAD
   const [connections, setConnections] = useState<Connection[]>([]);
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [events, setEvents] = useState<SystemEvent[]>([]);
@@ -277,6 +291,47 @@ export function SystemTrackerProvider({ children }: { children: ReactNode }) {
         generateImage, logEvent,
       }}
     >
+=======
+  const [initialized, setInitialized] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const { loadSystem } = useSystemStore();
+  const { loadMembers, loadCustomFields } = useMembersStore();
+  const { loadCurrentSession, loadHistory } = useFrontStore();
+
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        // Initialize database
+        await db.initialize();
+
+        // Load all data
+        await Promise.all([
+          loadSystem(),
+          loadMembers(),
+          loadCustomFields(),
+          loadCurrentSession(),
+          loadHistory()
+        ]);
+
+        setInitialized(true);
+      } catch (err) {
+        console.error('Failed to initialize system tracker:', err);
+        setError(err instanceof Error ? err.message : 'failed to initialize');
+      }
+    };
+
+    initialize();
+  }, [loadSystem, loadMembers, loadCustomFields, loadCurrentSession, loadHistory]);
+
+  const value: SystemTrackerContextType = {
+    initialized,
+    error
+  };
+
+  return (
+    <SystemTrackerContext.Provider value={value}>
+>>>>>>> main
       {children}
     </SystemTrackerContext.Provider>
   );
@@ -288,4 +343,8 @@ export function useSystemTracker() {
     throw new Error('useSystemTracker must be used within a SystemTrackerProvider');
   }
   return context;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> main

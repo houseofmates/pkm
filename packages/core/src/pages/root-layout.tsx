@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 {/* eslint-disable */}
+=======
+{/* eslint-disable */ }
+>>>>>>> main
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Navigation, type NavItem } from '@/components/navigation';
@@ -44,8 +48,13 @@ declare global {
 interface MobileSidebarDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+<<<<<<< HEAD
   activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar';
   onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar') => void;
+=======
+  activeTab: 'databases' | 'home' | 'captures' | 'journal' | 'calendar';
+  onTabChange: (tab: 'databases' | 'home' | 'captures' | 'journal' | 'calendar') => void;
+>>>>>>> main
   onSelectCollection: (name: string | null) => void;
   selectedCollection: string | null;
   items: any[];
@@ -74,14 +83,21 @@ export function RootLayout() {
   const getInitialTab = () => {
     const path = (typeof window !== 'undefined' && window.location && typeof window.location.pathname === 'string') ? window.location.pathname : '';
     if (path.startsWith('/databases')) return 'databases';
+<<<<<<< HEAD
     if (path.startsWith('/headmates')) return 'headmates';
+=======
+>>>>>>> main
     if (path.startsWith('/captures')) return 'captures';
     if (path.startsWith('/journal')) return 'journal';
     if (path.startsWith('/calendar')) return 'calendar';
     return 'home';
   };
 
+<<<<<<< HEAD
   const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar'>(getInitialTab());
+=======
+  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'captures' | 'journal' | 'calendar'>(getInitialTab());
+>>>>>>> main
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -238,7 +254,10 @@ export function RootLayout() {
   const handleTabChange = (tab: any) => {
     if (tab === 'home') navigate('/');
     else if (tab === 'captures') navigate('/captures');
+<<<<<<< HEAD
     else if (tab === 'headmates') navigate('/headmates');
+=======
+>>>>>>> main
     else if (tab === 'journal') navigate('/journal');
     else if (tab === 'calendar') navigate('/calendar');
     else if (tab === 'databases') navigate('/databases', { state: { fromSidebar: true } });
@@ -313,9 +332,15 @@ export function RootLayout() {
           <Outlet />
         </main>
 
+<<<<<<< HEAD
 <BottomNav className="lg:hidden" activeTab={activeTab} onTabChange={handleTabChange} />
 <Spotlight />
 <HermesChat />
+=======
+        <BottomNav className="lg:hidden" activeTab={activeTab} onTabChange={handleTabChange} />
+        <Spotlight />
+        <HermesChat />
+>>>>>>> main
         <DragOverlay>
           {activeDragItem ? (
             <div style={{ opacity: 0.5, pointerEvents: 'none', width: '16rem', minWidth: 0 }}>

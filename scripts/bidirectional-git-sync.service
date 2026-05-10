@@ -6,12 +6,27 @@ Wants=network-online.target
 
 [Service]
 Type=simple
+<<<<<<< HEAD
 WorkingDirectory=/home/house/pkm
+=======
+ExecStartPre=/bin/sleep 2
+ExecStart=/home/house/.nvm/versions/node/v24.12.0/bin/node /home/house/pkm/scripts/bidirectional-git-sync.js
+WorkingDirectory=/home/house/pkm
+Restart=always
+RestartSec=5
+StartLimitInterval=60
+StartLimitBurst=5
+OOMScoreAdjust=-100
+MemoryMax=256M
+TimeoutStartSec=30
+TimeoutStopSec=30
+>>>>>>> main
 Environment=NODE_ENV=production
 Environment=HOME=/home/house
 Environment=USER=house
 Environment="PATH=/home/house/.nvm/versions/node/v24.12.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
+<<<<<<< HEAD
 # use node to run the sync script
 ExecStart=/home/house/.nvm/versions/node/v24.12.0/bin/node /home/house/pkm/scripts/bidirectional-git-sync.js
 
@@ -21,6 +36,8 @@ RestartSec=10
 StartLimitInterval=60s
 StartLimitBurst=3
 
+=======
+>>>>>>> main
 # ensure git has proper identity for auto-commits
 ExecStartPre=/bin/bash -c 'git config --global user.email "sync@houseofmates.space" || true'
 ExecStartPre=/bin/bash -c 'git config --global user.name "pkm-sync" || true'
@@ -35,7 +52,10 @@ User=house
 Group=house
 
 # resource limits (lightweight service)
+<<<<<<< HEAD
 MemoryMax=256M
+=======
+>>>>>>> main
 CPUQuota=25%
 
 [Install]

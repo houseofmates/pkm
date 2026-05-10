@@ -20,6 +20,10 @@ dist-ssr
 .pkm-backend.pid
 tmp/
 test-results/
+<<<<<<< HEAD
+=======
+.sync-status.json
+>>>>>>> main
 
 # Editor directories and files
 .vscode/*
@@ -95,3 +99,57 @@ current_workflows.json
 n8n-schema.json
 fixed-*.json
 smoke-template.png
+<<<<<<< HEAD
+=======
+.sync-pause
+.sync-status.json
+tsconfig.tsbuildinfo
+
+# Temporary files and directories
+tmp/
+temp/
+*.tmp
+*.temp
+*.pid
+*.lock
+.DS_Store
+Thumbs.db
+
+# Build and distribution artifacts
+dist/
+build/
+out/
+coverage/
+.nyc_output/
+*.tgz
+*.tar.gz
+
+# Additional build directories
+docs/content/.vitepress/dist/
+apps/*/dist/
+packages/*/dist/
+
+# Android/Capacitor build artifacts
+android/app/build/
+android/.gradle/
+android/local.properties/
+android/capacitor-cordova-android-plugins/build/
+apps/mobile/android/app/build/
+apps/mobile/android/capacitor-cordova-android-plugins/build/
+
+# Tauri build artifacts
+src-tauri/target/
+
+# Runtime and cache
+.cache/
+.parcel-cache/
+.vite/
+.eslintcache
+.stylelintcache
+
+# Test artifacts
+test-results/
+coverage/
+junit.xml
+test-results.xml
+>>>>>>> main
