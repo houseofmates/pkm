@@ -397,7 +397,7 @@ export function GentleOnboarding({ onComplete, onSkip, className }: OnboardingPr
               onClick={handleSkip}
               className="gap-2"
             >
-              <Skip className="w-4 h-4" />
+              <X className="w-4 h-4" />
               skip setup
             </Button>
 
