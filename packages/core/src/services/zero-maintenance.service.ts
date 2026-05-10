@@ -22,7 +22,7 @@ interface ZeroMaintenanceConfig {
   healthCheckInterval: number // minutes
 }
 
-interface MaintenanceStatus {
+export interface MaintenanceStatus {
   autoSave: {
     enabled: boolean
     lastSave: number
