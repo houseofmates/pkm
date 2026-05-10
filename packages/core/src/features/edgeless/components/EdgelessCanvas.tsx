@@ -1,4 +1,4 @@
-{/* eslint-disable */}
+{/* eslint-disable */ }
 import React, { useRef, useEffect, useMemo, useState, useCallback, memo } from 'react'
 import * as fabric from 'fabric'
 import { secureLogger } from '@/lib/secure-logger'
@@ -28,6 +28,7 @@ import { useGestureManager } from '@/hooks/use-gesture-manager'
 import { useCanvasViewport, MIN_ZOOM, MAX_ZOOM } from '../hooks/use-canvas-viewport'
 import { buildOverlaySpatialIndex } from '../spatial/spatial-index'
 import { useDrawingTools } from '../hooks/use-drawing-tools'
+import { useEnhancedCanvasInteractions } from '../hooks/use-enhanced-canvas-interactions'
 import { applyOp, compactOplog, resolveConflicts } from '../storage/oplog'
 import type { OpLogEntry } from '../storage/oplog'
 
@@ -367,7 +368,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     initialZoom: 1,
     pointers: new Map<number, PointerEvent>(),
   })
-  
+
   // ── undo / redo history (o(1) differential actions) ──
   const historyRef = useRef<HistoryAction[]>([])
   const redoRef = useRef<HistoryAction[]>([])
@@ -393,7 +394,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     if (!fc) return
 
     isLoadingStateRef.current = true
-    
+
     switch (action.type) {
       case 'add':
         fc.remove(action.obj)
@@ -412,7 +413,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         })
         break
     }
-    
+
     fc.requestRenderAll()
     isLoadingStateRef.current = false
   }, [])
@@ -426,7 +427,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     if (!fc) return
 
     isLoadingStateRef.current = true
-    
+
     switch (action.type) {
       case 'add':
         fc.add(action.obj)
@@ -445,7 +446,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         })
         break
     }
-    
+
     fc.requestRenderAll()
     isLoadingStateRef.current = false
   }, [])
@@ -472,7 +473,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
   const { handleDrop } = useCanvasEvents()
   useCanvasSafe()
   const { smoothZoomTo, startMomentum, cancelAnimations, syncViewport } = useCanvasViewport(fabricCanvas)
-  
+
   // initialize drawing tools (lasso, transform, custom brush/eraser)
   useDrawingTools(fabricCanvas, pushHistoryAction)
 
@@ -551,13 +552,13 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       ; (fabric.Object.prototype as any).borderColor = '#f6b012'
       ; (fabric.Object.prototype as any).borderScaleFactor = 1.5
       ; (fabric.Object.prototype as any).padding = 4
-      // rotation control: outside dot with connecting line
-      // ensure controls object exists (fabric.js v6+ may not have it initialized yet)
-      if (!(fabric.Object.prototype as any).controls) {
-        (fabric.Object.prototype as any).controls = {}
-      }
-      // also ensure controlsutils is available
-      const controlsUtils = (fabric as any).controlsUtils || {}
+    // rotation control: outside dot with connecting line
+    // ensure controls object exists (fabric.js v6+ may not have it initialized yet)
+    if (!(fabric.Object.prototype as any).controls) {
+      (fabric.Object.prototype as any).controls = {}
+    }
+    // also ensure controlsutils is available
+    const controlsUtils = (fabric as any).controlsUtils || {}
       ; (fabric.Object.prototype as any).controls.mtr = new fabric.Control({
         x: 0,
         y: -0.5,
@@ -589,7 +590,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       setFabricCanvas(null)
     }
   }, [])
-  
+
   // ── global hooks for saving and event listener for loading ──
   useEffect(() => {
     if (!fabricCanvas) return;
@@ -632,7 +633,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
             await applyOp(fabricCanvas, entry.op);
           }
         }
-        
+
         fabricCanvas.requestRenderAll();
         historyRef.current = [];
       } catch (err) {
@@ -643,37 +644,37 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
     };
 
-const handleLoadOplog = async (e: Event) => {
-const detail = (e as CustomEvent).detail as { drawingId: string; checkpoint: unknown; ops: unknown[] };
-const { drawingId: id, checkpoint, ops } = detail;
-if (id !== useEdgelessStore.getState().drawingId) return;
-await loadFromOplogData(id, checkpoint, ops);
-};
+    const handleLoadOplog = async (e: Event) => {
+      const detail = (e as CustomEvent).detail as { drawingId: string; checkpoint: unknown; ops: unknown[] };
+      const { drawingId: id, checkpoint, ops } = detail;
+      if (id !== useEdgelessStore.getState().drawingId) return;
+      await loadFromOplogData(id, checkpoint, ops);
+    };
 
-const handleLoadServerState = async (e: Event) => {
-const detail = (e as CustomEvent).detail as { drawingId: string; state: { canvas: unknown; elements: unknown[] } };
-const { drawingId: id, state } = detail;
-if (id !== useEdgelessStore.getState().drawingId) return;
+    const handleLoadServerState = async (e: Event) => {
+      const detail = (e as CustomEvent).detail as { drawingId: string; state: { canvas: unknown; elements: unknown[] } };
+      const { drawingId: id, state } = detail;
+      if (id !== useEdgelessStore.getState().drawingId) return;
 
-isLoadingStateRef.current = true;
-try {
-if (state.canvas) {
-await fabricCanvas.loadFromJSON(state.canvas);
-useEdgelessStore.getState().setElements(state.elements as any[]);
-fabricCanvas.requestRenderAll();
-historyRef.current = [];
-secureLogger.debug('[canvas] loaded state from server');
-}
-} catch (err) {
-secureLogger.error('[canvas] failed to load server state:', err);
-} finally {
-isLoadingStateRef.current = false;
-}
-};
+      isLoadingStateRef.current = true;
+      try {
+        if (state.canvas) {
+          await fabricCanvas.loadFromJSON(state.canvas);
+          useEdgelessStore.getState().setElements(state.elements as any[]);
+          fabricCanvas.requestRenderAll();
+          historyRef.current = [];
+          secureLogger.debug('[canvas] loaded state from server');
+        }
+      } catch (err) {
+        secureLogger.error('[canvas] failed to load server state:', err);
+      } finally {
+        isLoadingStateRef.current = false;
+      }
+    };
 
-window.addEventListener('pkm:load-oplog', handleLoadOplog);
-window.addEventListener('pkm:load-server-state', handleLoadServerState);
-    
+    window.addEventListener('pkm:load-oplog', handleLoadOplog);
+    window.addEventListener('pkm:load-server-state', handleLoadServerState);
+
     (window as any).__pkmCurrentDrawingId = useEdgelessStore.getState().drawingId;
 
     // check for pending load from store state (handles race condition)
@@ -682,13 +683,13 @@ window.addEventListener('pkm:load-server-state', handleLoadServerState);
       void loadFromOplogData(pendingLoad.drawingId, pendingLoad.checkpoint, pendingLoad.ops);
     }
 
-return () => {
-delete (window as any).pkmGetCanvasJSON;
-delete (window as any).pkmGetCanvasThumbnail;
-window.removeEventListener('pkm:load-oplog', handleLoadOplog);
-window.removeEventListener('pkm:load-server-state', handleLoadServerState);
-(window as any).__pkmCurrentDrawingId = null;
-};
+    return () => {
+      delete (window as any).pkmGetCanvasJSON;
+      delete (window as any).pkmGetCanvasThumbnail;
+      window.removeEventListener('pkm:load-oplog', handleLoadOplog);
+      window.removeEventListener('pkm:load-server-state', handleLoadServerState);
+      (window as any).__pkmCurrentDrawingId = null;
+    };
   }, [fabricCanvas]);
 
   // tool configuration (drawing / eraser)
@@ -922,7 +923,7 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
       }
       // redo: ctrl+shift+z / cmd+shift+z  or  ctrl+y
       if (((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) ||
-          ((e.ctrlKey || e.metaKey) && e.key === 'y')) {
+        ((e.ctrlKey || e.metaKey) && e.key === 'y')) {
         e.preventDefault()
         performRedo()
         return
@@ -1589,11 +1590,11 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
               perPixelTargetFind: true,
             })
             const dataUrl = trimCanvas.toDataURL('image/png')
-            
+
             // critical for lag: override getsrc so `fabriccanvas.tojson()` doesn't rebuild the dataurl
             // from the canvas context on every single stroke/savehistorystate.
             img.getSrc = () => dataUrl;
-            
+
             // critical for persistence: preserve data.id so the image can be erased/transformed again later
             img.set('data', { id: obj.data?.id || obj.name, layerId: obj.data?.layerId || useEdgelessStore.getState().activeLayerId })
             img.setCoords()
@@ -1630,8 +1631,8 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
         fabricCanvas.remove(path)
 
         fabricCanvas.renderOnAddRemove = savedRender
-        pushHistoryAction({ 
-          type: 'erase', 
+        pushHistoryAction({
+          type: 'erase',
           replacements: replacements.map(r => ({ old: r.obj, new: r.img }))
         })
         fabricCanvas.requestRenderAll()
@@ -1670,44 +1671,44 @@ window.removeEventListener('pkm:load-server-state', handleLoadServerState);
       const pathId = `path-${Math.random().toString(36).slice(2, 9)}`;
       path.set({ data: { id: pathId, layerId: useEdgelessStore.getState().activeLayerId } });
 
-// record op for persistence
-const op = {
-type: 'path',
-layerId: useEdgelessStore.getState().activeLayerId,
-pathData: (path as any).path || [],
-stroke: path.stroke,
-strokeWidth: path.strokeWidth,
-left: path.left,
-top: path.top,
-targetId: pathId,
-data: { id: pathId }
-};
-useEdgelessStore.getState().recordOp(op as any);
-}
+      // record op for persistence
+      const op = {
+        type: 'path',
+        layerId: useEdgelessStore.getState().activeLayerId,
+        pathData: (path as any).path || [],
+        stroke: path.stroke,
+        strokeWidth: path.strokeWidth,
+        left: path.left,
+        top: path.top,
+        targetId: pathId,
+        data: { id: pathId }
+      };
+      useEdgelessStore.getState().recordOp(op as any);
+    }
 
     // save state after object modifications (move, scale, rotate)
     const handleObjectModified = (e: any) => {
       const target = e.target;
       if (target && e.transform && e.transform.original) {
         const after = {
-          left: target.left, top: target.top, 
-          scaleX: target.scaleX, scaleY: target.scaleY, 
+          left: target.left, top: target.top,
+          scaleX: target.scaleX, scaleY: target.scaleY,
           angle: target.angle, skewX: target.skewX, skewY: target.skewY
         }
         pushHistoryAction({ type: 'modify', obj: target, before: e.transform.original, after })
       }
-      
+
       if (target) {
-          const op = {
-              type: 'transform',
-              targetId: target.data?.id || target.name,
-              layerId: target.data?.layerId || 'default',
-              position: { x: target.left, y: target.top },
-              scale: { x: target.scaleX, y: target.scaleY },
-              angle: target.angle,
-              matrix: target.calcTransformMatrix()
-          };
-          useEdgelessStore.getState().recordOp(op as any);
+        const op = {
+          type: 'transform',
+          targetId: target.data?.id || target.name,
+          layerId: target.data?.layerId || 'default',
+          position: { x: target.left, y: target.top },
+          scale: { x: target.scaleX, y: target.scaleY },
+          angle: target.angle,
+          matrix: target.calcTransformMatrix()
+        };
+        useEdgelessStore.getState().recordOp(op as any);
       }
     }
 
@@ -1824,9 +1825,9 @@ useEdgelessStore.getState().recordOp(op as any);
               transformOrigin: 'top left',
             }}
           >
-          <div className="absolute -top-6 left-0 text-xs text-muted-foreground font-mono lowercase">
-            {canvasConfig && canvasConfig.mode === 'desktop-8k' ? '8k desktop (7680x4320)' : '8k iphone (4320x9360)'}
-          </div>
+            <div className="absolute -top-6 left-0 text-xs text-muted-foreground font-mono lowercase">
+              {canvasConfig && canvasConfig.mode === 'desktop-8k' ? '8k desktop (7680x4320)' : '8k iphone (4320x9360)'}
+            </div>
           </div>
         )
       })()}
