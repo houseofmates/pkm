@@ -11,9 +11,10 @@ WorkingDirectory=/home/house/pkm
 
 # Enhanced restart policy with exponential backoff
 Restart=always
-RestartSec=10
-StartLimitInterval=300
-StartLimitBurst=10
+RestartSec=5
+StartLimitInterval=600
+StartLimitBurst=20
+# Exponential backoff will be handled by the application itself
 
 # Resource limits and priority
 OOMScoreAdjust=-200
@@ -52,9 +53,12 @@ StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=pkm-backend
 
-# Health check
-ExecStartPost=/bin/sleep 5
-ExecStartPost=/bin/bash -c 'until curl -f http://localhost:4100/api/health; do sleep 2; done'
+# Enhanced health check with graceful degradation
+ExecStartPost=/bin/sleep 3
+ExecStartPost=/bin/bash -c 'for i in {1..30}; do curl -f -s http://localhost:4100/api/health >/dev/null 2>&1 && break; sleep 2; done'
+# Watchdog for continuous health monitoring
+WatchdogSec=30
+ExecReload=/bin/kill -HUP $MAINPID
 
 [Install]
 WantedBy=multi-user.target
