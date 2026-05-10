@@ -398,10 +398,21 @@ class ZeroMaintenanceService {
     }
   }
 
-  private async getAllBackups(): Promise<Array<{ key: string, timestamp: number }>> => Promise.resolve([])
-  private async getBackupCount(): Promise<number> { return 0 }
-  private async getRecoveryPointCount(): Promise<number> { return 0 }
-  private async removeFromIndexedDB(key: string): Promise<void> { }
+  private async getAllBackups(): Promise<Array<{ key: string, timestamp: number }>> {
+    return []
+  }
+
+  private async getBackupCount(): Promise<number> {
+    return 0
+  }
+
+  private async getRecoveryPointCount(): Promise<number> {
+    return 0
+  }
+
+  private async removeFromIndexedDB(key: string): Promise<void> {
+    // Implementation for removing from IndexedDB
+  }
 
   // Public API
   async forceSave(): Promise<void> {
