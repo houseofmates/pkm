@@ -233,6 +233,201 @@ function DragOverlayCard({ member }: { member: HeadmateMember }) {
   );
 }
 
+function ContextMenu({
+  visible,
+  x,
+  y,
+  memberId,
+  member,
+  onClose,
+  onEdit,
+  onView,
+  onDelete,
+  onCopy
+}: ContextMenuState & {
+  member?: HeadmateMember;
+  onClose: () => void;
+  onEdit?: (member: HeadmateMember) => void;
+  onView?: (member: HeadmateMember) => void;
+  onDelete?: (memberId: string) => void;
+  onCopy?: (member: HeadmateMember) => void;
+}) {
+  useEffect(() => {
+    const handleClick = () => onClose();
+    if (visible) {
+      document.addEventListener('click', handleClick);
+      return () => document.removeEventListener('click', handleClick);
+    }
+  }, [visible, onClose]);
+
+  if (!visible || !member) return null;
+
+  return (
+    <div
+      className="fixed bg-gray-900 border border-gray-700 rounded-lg py-1 z-50 shadow-xl"
+      style={{ left: x, top: y }}
+    >
+      <button
+        className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-800 flex items-center space-x-2"
+        onClick={() => {
+          onView?.(member);
+          onClose();
+        }}
+      >
+        <Eye className="w-4 h-4" />
+        <span>view full card</span>
+      </button>
+      <button
+        className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-800 flex items-center space-x-2"
+        onClick={() => {
+          onEdit?.(member);
+          onClose();
+        }}
+      >
+        <Edit className="w-4 h-4" />
+        <span>edit details</span>
+      </button>
+      <button
+        className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-800 flex items-center space-x-2"
+        onClick={() => {
+          onCopy?.(member);
+          onClose();
+        }}
+      >
+        <Copy className="w-4 h-4" />
+        <span>copy info</span>
+      </button>
+      <div className="border-t border-gray-700 my-1" />
+      <button
+        className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-800 flex items-center space-x-2"
+        onClick={() => {
+          if (window.confirm(`are you sure you want to delete ${member.content?.name || 'this headmate'}?`)) {
+            onDelete?.(memberId);
+          }
+          onClose();
+        }}
+      >
+        <Trash2 className="w-4 h-4" />
+        <span>delete</span>
+      </button>
+    </div>
+  );
+}
+
+function InlineEditModal({
+  member,
+  isOpen,
+  onClose,
+  onSave
+}: {
+  member: HeadmateMember;
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (updatedMember: HeadmateMember) => void;
+}) {
+  const [editedMember, setEditedMember] = useState(member);
+
+  useEffect(() => {
+    setEditedMember(member);
+  }, [member]);
+
+  if (!isOpen) return null;
+
+  const handleSave = () => {
+    onSave(editedMember);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-gray-900 border border-gray-700 rounded-lg p-6 w-full max-w-md">
+        <h3 className="text-lg font-medium text-gray-300 mb-4">edit headmate details</h3>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">name</label>
+            <input
+              type="text"
+              value={editedMember.content?.name || ''}
+              onChange={(e) => setEditedMember({
+                ...editedMember,
+                content: { ...editedMember.content, name: e.target.value }
+              })}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-gray-300"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">pronouns</label>
+            <input
+              type="text"
+              value={editedMember.content?.pronouns || ''}
+              onChange={(e) => setEditedMember({
+                ...editedMember,
+                content: { ...editedMember.content, pronouns: e.target.value }
+              })}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-gray-300"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">role</label>
+            <input
+              type="text"
+              value={editedMember.content?.role || ''}
+              onChange={(e) => setEditedMember({
+                ...editedMember,
+                content: { ...editedMember.content, role: e.target.value }
+              })}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-gray-300"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">description</label>
+            <textarea
+              value={editedMember.content?.description || ''}
+              onChange={(e) => setEditedMember({
+                ...editedMember,
+                content: { ...editedMember.content, description: e.target.value }
+              })}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-gray-300 h-20"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-1">color</label>
+            <input
+              type="color"
+              value={editedMember.content?.color || '#ffffff'}
+              onChange={(e) => setEditedMember({
+                ...editedMember,
+                content: { ...editedMember.content, color: e.target.value }
+              })}
+              className="w-full h-10 bg-gray-800 border border-gray-700 rounded"
+            />
+          </div>
+        </div>
+
+        <div className="flex space-x-3 mt-6">
+          <button
+            onClick={handleSave}
+            className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
+          >
+            save
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+          >
+            cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export const HeadmatesPage: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
   const [hasKey, setHasKey] = useState(false);
@@ -242,6 +437,16 @@ export const HeadmatesPage: React.FC = () => {
   const [draggedId, setDraggedId] = useState<UniqueIdentifier | null>(null);
   const { socket, isConnected } = useSocket();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Context menu and editing state
+  const [contextMenu, setContextMenu] = useState<ContextMenuState>({
+    visible: false,
+    x: 0,
+    y: 0,
+    memberId: null,
+  });
+  const [editingMember, setEditingMember] = useState<HeadmateMember | null>(null);
+  const [viewingMember, setViewingMember] = useState<HeadmateMember | null>(null);
 
   const fetchMembers = useCallback(async (key: string) => {
     setLoading(true);
