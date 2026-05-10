@@ -1,4 +1,4 @@
-{/* eslint-disable */}
+{/* eslint-disable */ }
 import { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Navigation, type NavItem } from '@/components/navigation';
@@ -44,8 +44,8 @@ declare global {
 interface MobileSidebarDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar';
-  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar') => void;
+  activeTab: 'databases' | 'home' | 'captures' | 'journal' | 'calendar';
+  onTabChange: (tab: 'databases' | 'home' | 'captures' | 'journal' | 'calendar') => void;
   onSelectCollection: (name: string | null) => void;
   selectedCollection: string | null;
   items: any[];
@@ -313,9 +313,9 @@ export function RootLayout() {
           <Outlet />
         </main>
 
-<BottomNav className="lg:hidden" activeTab={activeTab} onTabChange={handleTabChange} />
-<Spotlight />
-<HermesChat />
+        <BottomNav className="lg:hidden" activeTab={activeTab} onTabChange={handleTabChange} />
+        <Spotlight />
+        <HermesChat />
         <DragOverlay>
           {activeDragItem ? (
             <div style={{ opacity: 0.5, pointerEvents: 'none', width: '16rem', minWidth: 0 }}>
