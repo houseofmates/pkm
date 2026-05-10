@@ -99,10 +99,9 @@ function parseAllowedOrigins(value) {
     });
 }
 
-const allowedOrigins = parseAllowedOrigins(process.env.ALLOWED_ORIGINS || 'http://localhost:3010');
-
 function isAllowedOrigin(origin) {
   if (!origin) return true;
+  const allowedOrigins = parseAllowedOrigins(process.env.ALLOWED_ORIGINS || 'http://localhost:3010');
   for (const a of allowedOrigins) {
     if (a === origin) return true;
     if (a.includes('*')) {
@@ -703,6 +702,7 @@ function handleNotionImport(req, res) {
 
 // primary endpoint for notion import (short name to avoid cloudflare filtering)
 app.post('/api/notion-import', requireAuth, importUpload.single('file'), handleNotionImport);
+app.post('/api/nb-import', requireAuth, importUpload.single('file'), handleNotionImport);
 
 // multi-csv import endpoint for notion databases
 async function handleCsvImport(req, res) {
