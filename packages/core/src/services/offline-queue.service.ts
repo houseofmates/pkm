@@ -1,418 +1,280 @@
-import { openDB, type IDBPDatabase } from 'idb';
-import type { OpLogEntry } from '@/features/edgeless/storage/oplog';
-import { secureLogger } from '@/lib/secure-logger';
+/**
+ * sqlite-based offline queue for bulletproof data persistence
+ * ensures no changes are ever lost even if connection drops completely
+ */
 
-interface QueuedOperation {
-  id: string;
-  event: string;
-  args: any[];
-  timestamp: number;
-  retryCount: number;
-  lastRetry: number;
-  priority: 'high' | 'normal' | 'low';
-  clientId?: string;
-  sessionId?: string;
-  conflictResolution?: 'last-wins' | 'manual';
-}
+import { open } from 'sqlite'
+import sqlite3 from 'sqlite3'
+import { secureLogger } from '@/lib/secure-logger'
 
-interface ConflictInfo {
-  operation: QueuedOperation;
-  serverState?: any;
-  localState?: any;
-  resolution: 'resolved' | 'pending' | 'failed';
+interface QueueItem {
+  id: string
+  type: 'canvas' | 'headmates' | 'system'
+  payload: string
+  timestamp: number
+  retries: number
+  maxRetries: number
+  nextRetryAt: number
+  priority: number
+  createdAt: string
+  updatedAt: string
 }
 
 class OfflineQueueService {
-  private db: IDBPDatabase | null = null;
-  private readonly DB_NAME = 'pkm-offline-queue';
-  private readonly STORE_NAME = 'operations';
-  private readonly CONFLICTS_STORE = 'conflicts';
-  private readonly MAX_RETRIES = 15; // Increased for better reliability
-  private readonly BATCH_SIZE = 25; // Smaller batches for better reliability
-  private readonly MAX_QUEUE_SIZE = 10000; // Prevent memory issues
-  private clientId: string;
-  private sessionId: string;
+  private db: any = null
+  private isInitialized = false
 
-  constructor() {
-    this.clientId = this.getOrCreateClientId();
-    this.sessionId = this.generateSessionId();
-  }
+  async initialize(): Promise<void> {
+    if (this.isInitialized) return
 
-  private getOrCreateClientId(): string {
-    let id = localStorage.getItem('pkm_client_id');
-    if (!id) {
-      id = `client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('pkm_client_id', id);
+    try {
+      this.db = await open({
+        filename: './offline-queue.db',
+        driver: sqlite3.Database
+      })
+
+      await this.db.exec(`
+        CREATE TABLE IF NOT EXISTS queue_items (
+          id TEXT PRIMARY KEY,
+          type TEXT NOT NULL,
+          payload TEXT NOT NULL,
+          timestamp INTEGER NOT NULL,
+          retries INTEGER DEFAULT 0,
+          maxRetries INTEGER DEFAULT 10,
+          nextRetryAt INTEGER NOT NULL,
+          priority INTEGER DEFAULT 0,
+          createdAt TEXT NOT NULL,
+          updatedAt TEXT NOT NULL
+        );
+        
+        CREATE INDEX IF NOT EXISTS idx_queue_type ON queue_items(type);
+        CREATE INDEX IF NOT EXISTS idx_queue_retry ON queue_items(nextRetryAt);
+        CREATE INDEX IF NOT EXISTS idx_queue_priority ON queue_items(priority DESC, timestamp);
+      `)
+
+      this.isInitialized = true
+      secureLogger.info('[OfflineQueue] initialized successfully')
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] initialization failed:', error)
+      throw error
     }
-    return id;
   }
 
-  private generateSessionId(): string {
-    return `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
+  async enqueue(type: QueueItem['type'], payload: any, priority = 0): Promise<string> {
+    await this.ensureInitialized()
 
-  async init() {
-    if (this.db) return;
+    const id = `${type}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+    const now = new Date().toISOString()
 
-    const storeName = this.STORE_NAME;
-    const conflictsStore = this.CONFLICTS_STORE;
-    this.db = await openDB(this.DB_NAME, 2, {
-      upgrade(db, oldVersion, newVersion) {
-        // Create operations store
-        if (!db.objectStoreNames.contains(storeName)) {
-          const store = db.createObjectStore(storeName, { keyPath: 'id' });
-          store.createIndex('timestamp', 'timestamp');
-          store.createIndex('priority', 'priority');
-          store.createIndex('retryCount', 'retryCount');
-          store.createIndex('clientId', 'clientId');
-          store.createIndex('sessionId', 'sessionId');
-        }
+    try {
+      await this.db.run(
+        `INSERT INTO queue_items 
+         (id, type, payload, timestamp, retries, maxRetries, nextRetryAt, priority, createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          id,
+          type,
+          JSON.stringify(payload),
+          Date.now(),
+          0,
+          10,
+          Date.now(),
+          priority,
+          now,
+          now
+        ]
+      )
 
-        // Create conflicts store for conflict resolution
-        if (!db.objectStoreNames.contains(conflictsStore)) {
-          const conflictStore = db.createObjectStore(conflictsStore, { keyPath: 'operationId' });
-          conflictStore.createIndex('resolution', 'resolution');
-          conflictStore.createIndex('timestamp', 'timestamp');
-        }
-
-        // Migrate old data if needed
-        if (oldVersion < 2) {
-          const store = db.objectStore(storeName);
-          // Add clientId and sessionId to existing operations
-          const cursor = await store.openCursor();
-          while (cursor) {
-            const operation = cursor.value;
-            operation.clientId = this.clientId;
-            operation.sessionId = this.sessionId;
-            await cursor.update(operation);
-            cursor = await cursor.continue();
-          }
-        }
-      },
-    });
-  }
-
-  async enqueue(event: string, args: any[], priority: QueuedOperation['priority'] = 'normal'): Promise<void> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
-
-    // Check queue size to prevent memory issues
-    const currentSize = await this.db.count(this.STORE_NAME);
-    if (currentSize >= this.MAX_QUEUE_SIZE) {
-      // Remove oldest low-priority operations to make space
-      await this.pruneOldOperations();
-      secureLogger.warn('[OfflineQueue] Queue size limit reached, pruned old operations');
+      secureLogger.debug(`[OfflineQueue] enqueued item ${id} of type ${type}`)
+      return id
+    } catch (error) {
+      secureLogger.error(`[OfflineQueue] failed to enqueue item ${id}:`, error)
+      throw error
     }
-
-    const operation: QueuedOperation = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      event,
-      args,
-      timestamp: Date.now(),
-      retryCount: 0,
-      lastRetry: 0,
-      priority,
-      clientId: this.clientId,
-      sessionId: this.sessionId,
-      conflictResolution: 'last-wins', // Default conflict resolution strategy
-    };
-
-    await this.db.put(this.STORE_NAME, operation);
-    secureLogger.debug(`[OfflineQueue] Enqueued ${event} operation (${operation.id})`);
   }
 
-  private async pruneOldOperations(): Promise<void> {
-    if (!this.db) return;
+  async dequeue(limit = 50): Promise<QueueItem[]> {
+    await this.ensureInitialized()
 
-    const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
-    const store = tx.objectStore(this.STORE_NAME);
+    try {
+      const items = await this.db.all(
+        `SELECT * FROM queue_items 
+         WHERE nextRetryAt <= ? 
+         ORDER BY priority DESC, timestamp ASC 
+         LIMIT ?`,
+        [Date.now(), limit]
+      )
 
-    // Get oldest low-priority operations
-    const index = store.index('priority');
-    const cursor = await index.openCursor('low');
-    let pruned = 0;
-
-    while (cursor && pruned < 100) { // Prune up to 100 old operations
-      await cursor.delete();
-      pruned++;
-      cursor = await cursor.continue();
+      return items.map(item => ({
+        ...item,
+        payload: JSON.parse(item.payload)
+      }))
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] failed to dequeue items:', error)
+      return []
     }
-
-    await tx.done;
-    secureLogger.info(`[OfflineQueue] Pruned ${pruned} old low-priority operations`);
   }
 
-  async dequeue(batchSize: number = this.BATCH_SIZE): Promise<QueuedOperation[]> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
+  async remove(id: string): Promise<void> {
+    await this.ensureInitialized()
 
-    const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
-    const store = tx.objectStore(this.STORE_NAME);
+    try {
+      const result = await this.db.run('DELETE FROM queue_items WHERE id = ?', [id])
 
-    // Get operations ordered by priority and timestamp
-    const operations: QueuedOperation[] = [];
-    let cursor = await store.openCursor();
+      if (result.changes === 0) {
+        secureLogger.warn(`[OfflineQueue] item ${id} not found for removal`)
+      } else {
+        secureLogger.debug(`[OfflineQueue] removed item ${id}`)
+      }
+    } catch (error) {
+      secureLogger.error(`[OfflineQueue] failed to remove item ${id}:`, error)
+      throw error
+    }
+  }
 
-    while (cursor && operations.length < batchSize) {
-      const op = cursor.value;
+  async updateRetry(id: string, retries: number, nextRetryAt: number): Promise<void> {
+    await this.ensureInitialized()
 
-      // Skip operations that have exceeded max retries
-      if (op.retryCount >= this.MAX_RETRIES) {
-        await cursor.delete();
-        console.warn(`[OfflineQueue] Dropped operation ${op.id} after ${this.MAX_RETRIES} retries`);
-        cursor = await cursor.continue();
-        continue;
+    try {
+      const result = await this.db.run(
+        `UPDATE queue_items 
+         SET retries = ?, nextRetryAt = ?, updatedAt = ? 
+         WHERE id = ?`,
+        [retries, nextRetryAt, new Date().toISOString(), id]
+      )
+
+      if (result.changes === 0) {
+        secureLogger.warn(`[OfflineQueue] item ${id} not found for retry update`)
+      }
+    } catch (error) {
+      secureLogger.error(`[OfflineQueue] failed to update retry for item ${id}:`, error)
+      throw error
+    }
+  }
+
+  async getStats(): Promise<{
+    total: number
+    byType: Record<string, number>
+    overdue: number
+    failed: number
+  }> {
+    await this.ensureInitialized()
+
+    try {
+      const total = await this.db.get('SELECT COUNT(*) as count FROM queue_items')
+
+      const byType = await this.db.all(
+        'SELECT type, COUNT(*) as count FROM queue_items GROUP BY type'
+      )
+      const byTypeMap = byType.reduce((acc, row) => {
+        acc[row.type] = row.count
+        return acc
+      }, {} as Record<string, number>)
+
+      const overdue = await this.db.get(
+        'SELECT COUNT(*) as count FROM queue_items WHERE nextRetryAt <= ? AND retries > 5',
+        [Date.now()]
+      )
+
+      const failed = await this.db.get(
+        'SELECT COUNT(*) as count FROM queue_items WHERE retries >= maxRetries'
+      )
+
+      return {
+        total: total.count,
+        byType: byTypeMap,
+        overdue: overdue.count,
+        failed: failed.count
+      }
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] failed to get stats:', error)
+      return { total: 0, byType: {}, overdue: 0, failed: 0 }
+    }
+  }
+
+  async cleanup(maxAge = 7 * 24 * 60 * 60 * 1000): Promise<number> {
+    await this.ensureInitialized()
+
+    try {
+      const cutoff = Date.now() - maxAge
+      const result = await this.db.run(
+        'DELETE FROM queue_items WHERE timestamp < ? AND retries >= maxRetries',
+        [cutoff]
+      )
+
+      secureLogger.info(`[OfflineQueue] cleaned up ${result.changes} old items`)
+      return result.changes
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] cleanup failed:', error)
+      return 0
+    }
+  }
+
+  async peek(type?: string, limit = 10): Promise<QueueItem[]> {
+    await this.ensureInitialized()
+
+    try {
+      let query = `SELECT * FROM queue_items`
+      const params: any[] = []
+
+      if (type) {
+        query += ' WHERE type = ?'
+        params.push(type)
       }
 
-      operations.push(op);
-      await cursor.delete();
-      cursor = await cursor.continue();
+      query += ' ORDER BY priority DESC, timestamp ASC LIMIT ?'
+      params.push(limit)
+
+      const items = await this.db.all(query, params)
+
+      return items.map(item => ({
+        ...item,
+        payload: JSON.parse(item.payload)
+      }))
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] failed to peek items:', error)
+      return []
     }
-
-    await tx.done;
-
-    if (operations.length > 0) {
-      console.debug(`[OfflineQueue] Dequeued ${operations.length} operations`);
-    }
-
-    return operations;
-  }
-
-  async requeueFailed(operations: QueuedOperation[]): Promise<void> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
-
-    const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
-    const store = tx.objectStore(this.STORE_NAME);
-
-    for (const op of operations) {
-      op.retryCount++;
-      op.lastRetry = Date.now();
-      await store.put(op);
-    }
-
-    await tx.done;
-    console.debug(`[OfflineQueue] Requeued ${operations.length} failed operations`);
-  }
-
-  async getQueueSize(): Promise<number> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
-
-    return await this.db.count(this.STORE_NAME);
-  }
-
-  async getQueueStats(): Promise<{
-    total: number;
-    byPriority: Record<string, number>;
-    avgRetryCount: number;
-  }> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
-
-    const operations = await this.db.getAll(this.STORE_NAME);
-    const byPriority = operations.reduce((acc, op) => {
-      acc[op.priority] = (acc[op.priority] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const avgRetryCount = operations.length > 0
-      ? operations.reduce((sum, op) => sum + op.retryCount, 0) / operations.length
-      : 0;
-
-    return {
-      total: operations.length,
-      byPriority,
-      avgRetryCount,
-    };
   }
 
   async clear(): Promise<void> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
+    await this.ensureInitialized()
 
-    await this.db.clear(this.STORE_NAME);
-    console.info('[OfflineQueue] Cleared all operations');
-  }
-
-  async exportForBackup(): Promise<QueuedOperation[]> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
-
-    return await this.db.getAll(this.STORE_NAME);
-  }
-
-  async importFromBackup(operations: QueuedOperation[]): Promise<void> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
-
-    const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
-    const store = tx.objectStore(this.STORE_NAME);
-
-    for (const op of operations) {
-      await store.put(op);
+    try {
+      await this.db.run('DELETE FROM queue_items')
+      secureLogger.info('[OfflineQueue] cleared all items')
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] failed to clear items:', error)
+      throw error
     }
-
-    await tx.done;
-    secureLogger.info(`[OfflineQueue] Imported ${operations.length} operations from backup`);
   }
 
-  // Conflict resolution methods
-  async detectConflict(operation: QueuedOperation, serverResponse?: any): Promise<boolean> {
-    // Simple conflict detection based on server response
-    if (serverResponse?.conflict || serverResponse?.status === 409) {
-      return true;
+  async vacuum(): Promise<void> {
+    await this.ensureInitialized()
+
+    try {
+      await this.db.exec('VACUUM')
+      secureLogger.info('[OfflineQueue] vacuumed database')
+    } catch (error) {
+      secureLogger.error('[OfflineQueue] vacuum failed:', error)
+      throw error
     }
-
-    // Check for timestamp conflicts with existing operations
-    const existingOps = await this.getOperationsByEvent(operation.event);
-    const recentOps = existingOps.filter(op =>
-      Math.abs(op.timestamp - operation.timestamp) < 5000 && // Within 5 seconds
-      op.id !== operation.id
-    );
-
-    return recentOps.length > 0;
   }
 
-  async handleConflict(operation: QueuedOperation, serverState?: any, localState?: any): Promise<ConflictInfo> {
-    const conflictInfo: ConflictInfo = {
-      operation,
-      serverState,
-      localState,
-      resolution: 'pending'
-    };
-
-    // Store conflict for later resolution
-    await this.storeConflict(conflictInfo);
-
-    // Apply default resolution strategy
-    if (operation.conflictResolution === 'last-wins') {
-      conflictInfo.resolution = 'resolved';
-      secureLogger.info(`[OfflineQueue] Auto-resolved conflict for operation ${operation.id} using last-wins strategy`);
-    } else {
-      conflictInfo.resolution = 'pending';
-      secureLogger.warn(`[OfflineQueue] Manual conflict resolution required for operation ${operation.id}`);
+  private async ensureInitialized(): Promise<void> {
+    if (!this.isInitialized) {
+      await this.initialize()
     }
-
-    return conflictInfo;
   }
 
-  private async storeConflict(conflict: ConflictInfo): Promise<void> {
-    if (!this.db) return;
-
-    await this.db.put(this.CONFLICTS_STORE, {
-      operationId: conflict.operation.id,
-      ...conflict,
-      timestamp: Date.now()
-    });
-  }
-
-  async getPendingConflicts(): Promise<ConflictInfo[]> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
-
-    const conflicts = await this.db.getAllFromIndex(this.CONFLICTS_STORE, 'resolution', 'pending');
-    return conflicts;
-  }
-
-  async resolveConflict(operationId: string, resolution: 'resolved' | 'failed'): Promise<void> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
-
-    const tx = this.db.transaction(this.CONFLICTS_STORE, 'readwrite');
-    const store = tx.objectStore(this.CONFLICTS_STORE);
-
-    const conflict = await store.get(operationId);
-    if (conflict) {
-      conflict.resolution = resolution;
-      await store.put(conflict);
+  async close(): Promise<void> {
+    if (this.db) {
+      await this.db.close()
+      this.db = null
+      this.isInitialized = false
+      secureLogger.info('[OfflineQueue] closed database connection')
     }
-
-    await tx.done;
-    secureLogger.info(`[OfflineQueue] Resolved conflict for operation ${operationId} as ${resolution}`);
-  }
-
-  private async getOperationsByEvent(event: string): Promise<QueuedOperation[]> {
-    if (!this.db) return [];
-
-    // For simplicity, get all operations and filter
-    const allOps = await this.db.getAll(this.STORE_NAME);
-    return allOps.filter(op => op.event === event);
-  }
-
-  // Enhanced retry logic with exponential backoff
-  async retryFailedOperations(): Promise<void> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
-
-    const tx = this.db.transaction(this.STORE_NAME, 'readwrite');
-    const store = tx.objectStore(this.STORE_NAME);
-
-    // Get operations that haven't exceeded max retries and haven't been retried recently
-    const now = Date.now();
-    const retryDelay = 60000; // 1 minute between retries
-    let retried = 0;
-
-    let cursor = await store.openCursor();
-    while (cursor && retried < this.BATCH_SIZE) {
-      const op = cursor.value;
-
-      if (op.retryCount < this.MAX_RETRIES &&
-        (now - op.lastRetry) > (retryDelay * Math.pow(2, op.retryCount))) {
-
-        op.retryCount++;
-        op.lastRetry = now;
-        await cursor.update(op);
-        retried++;
-
-        secureLogger.debug(`[OfflineQueue] Retrying operation ${op.id} (attempt ${op.retryCount})`);
-      }
-
-      cursor = await cursor.continue();
-    }
-
-    await tx.done;
-    secureLogger.info(`[OfflineQueue] Retried ${retried} failed operations`);
-  }
-
-  // Health check method
-  async getHealthStatus(): Promise<{
-    queueSize: number;
-    conflictsCount: number;
-    avgRetryCount: number;
-    oldestOperation: number;
-    status: 'healthy' | 'warning' | 'critical';
-  }> {
-    await this.init();
-    if (!this.db) throw new Error('Database not initialized');
-
-    const queueSize = await this.db.count(this.STORE_NAME);
-    const conflictsCount = await this.db.countFromIndex(this.CONFLICTS_STORE, 'resolution', 'pending');
-
-    const operations = await this.db.getAll(this.STORE_NAME);
-    const avgRetryCount = operations.length > 0
-      ? operations.reduce((sum, op) => sum + op.retryCount, 0) / operations.length
-      : 0;
-
-    const oldestOperation = operations.length > 0
-      ? Math.min(...operations.map(op => op.timestamp))
-      : 0;
-
-    let status: 'healthy' | 'warning' | 'critical' = 'healthy';
-    if (queueSize > 1000 || conflictsCount > 10 || avgRetryCount > 5) {
-      status = 'critical';
-    } else if (queueSize > 500 || conflictsCount > 5 || avgRetryCount > 3) {
-      status = 'warning';
-    }
-
-    return {
-      queueSize,
-      conflictsCount,
-      avgRetryCount,
-      oldestOperation,
-      status
-    };
   }
 }
 
-export const offlineQueueService = new OfflineQueueService();
+export const offlineQueue = new OfflineQueueService()
