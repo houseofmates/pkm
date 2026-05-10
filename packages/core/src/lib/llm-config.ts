@@ -12,7 +12,7 @@ export const NVIDIA_MODEL = "moonshotai/kimi-k2.6";
 
 // ollama defaults (for local inference)
 export const DEFAULT_OLLAMA_MODEL = "gemma4:e4b";
-export const DEFAULT_OLLAMA_URL = import.meta.env.VITE_OLLAMA_URL || "http://192.168.4.250:11434";
+export const DEFAULT_OLLAMA_URL = import.meta.env.VITE_OLLAMA_URL || "http://localhost:11434";
 
 // cached api keys from nocobase
 let cachedApiKeys: ApiKeyEntry[] = [];
@@ -304,7 +304,7 @@ export function getOllamaBase(): string {
     import.meta.env.VITE_OLLAMA_URL || import.meta.env.VITE_GEMINI_URL;
   if (env) return String(env).replace(/\/$/, "");
 
-  // default to local ollama at the user's ip
+  // default to local ollama for desktop development
   return DEFAULT_OLLAMA_URL;
 }
 

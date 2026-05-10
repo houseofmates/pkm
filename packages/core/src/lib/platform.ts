@@ -135,4 +135,4 @@ export function resolveOllamaEndpoint(
  * use https on the public hostname so the bundled apk (capacitor://localhost)
  * avoids mixed-content blocks when calling the backend.
  */
-export const MOBILE_SERVER_ORIGIN = 'https://pkm.houseofmates.space';
+export const MOBILE_SERVER_ORIGIN = import.meta.env.VITE_MOBILE_SERVER_ORIGIN || 'https://pkm.houseofmates.space';

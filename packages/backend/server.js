@@ -46,31 +46,14 @@ import { promisify } from 'util';
 import { exec, execFile } from 'child_process';
 import axios from 'axios';
 import ical from 'node-ical';
+import dotenv from 'dotenv';
 
 // pieces mcp and bot memory integration
 import { getPiecesRecentActivity, getPiecesContextForQuery, isPiecesConnected } from './pieces-mcp.js';
 import { getAllMemoryContext, addMemory, recordInteraction, readMemory, writeMemory, appendMemory, clearMemory } from './bot-memory.js';
 import { securityHeaders, additionalSecurityHeaders } from './security-headers.js';
 
-// load environment variables if .env exists
-if (fs.existsSync('.env')) {
-  // basic dotenv loader since we are in es module and might not have dotenv package installed
-  // do not overwrite existing variables so tests can override values before import
-  const envContent = fs.readFileSync('.env', 'utf-8');
-  envContent.split('\n').forEach(line => {
-    const [key, ...val] = line.split('=');
-    if (key && val) {
-      const name = key.trim();
-      const value = val.join('=').trim();
-      if (name === 'ALLOWED_ORIGINS' && process.env[name]) {
-        // merge entries so multiple lines in .env accumulate
-        process.env[name] = process.env[name] + ',' + value;
-      } else if (!(name in process.env)) {
-        process.env[name] = value;
-      }
-    }
-  });
-}
+dotenv.config({ override: false });
 
 const PORT = process.env.PORT || 4100;
 
@@ -89,10 +72,34 @@ const server = http.createServer(app);
 // serve static assets for mobile and web clients
 app.use('/assets', express.static(path.join(process.cwd(), 'dist/assets')));
 app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
-  .split(',')
-  .map(s => s.trim())
-  .filter(Boolean);
+function parseAllowedOrigins(value) {
+  return (value || '')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean)
+    .filter(origin => {
+      if (origin === 'null') return true;
+      if (origin.startsWith('*.')) return /^[*.][a-z0-9.-]+$/i.test(origin);
+      if (origin.includes('*')) {
+        try {
+          new URL(origin.replace(/\*/g, 'wildcard'));
+          return true;
+        } catch {
+          console.warn('[CORS] ignoring invalid wildcard origin');
+          return false;
+        }
+      }
+      try {
+        const parsed = new URL(origin);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+      } catch {
+        console.warn('[CORS] ignoring invalid origin');
+        return false;
+      }
+    });
+}
+
+const allowedOrigins = parseAllowedOrigins(process.env.ALLOWED_ORIGINS || 'http://localhost:3010');
 
 function isAllowedOrigin(origin) {
   if (!origin) return true;
@@ -123,8 +130,18 @@ const io = new Server(server, {
   pingTimeout: 60000,
   pingInterval: 25000,
   connectTimeout: 45000,
+  maxHttpBufferSize: parseInt(process.env.MAX_WS_HTTP_BUFFER_BYTES || '1048576', 10),
   allowEIO3: true,
   transports: ['websocket', 'polling']
+});
+const MAX_WS_CONNECTIONS = parseInt(process.env.MAX_WS_CONNECTIONS || '1000', 10);
+let activeSocketConnections = 0;
+
+io.use((socket, next) => {
+  if (activeSocketConnections >= MAX_WS_CONNECTIONS) {
+    return next(new Error('server is at websocket capacity'));
+  }
+  next();
 });
 const pendingEmits = {};
 const debounceBroadcast = (event, payload, delay = 500) => {
@@ -224,7 +241,6 @@ app.use('/public', express.static(path.join(process.cwd(), 'public')));
 
 // serve apk files from releases directory (cwd/release)
 const apkDir = path.join(process.cwd(), 'releases');
-console.log('[APK] serving from:', apkDir);
 
 // apk download endpoint - serves latest apk file in releases directory
 app.get('/apk', (req, res) => {
@@ -244,7 +260,6 @@ app.get('/apk', (req, res) => {
     }
 
     const latestApk = path.join(apkDir, latest.file);
-    console.log('[APK] serving latest:', latestApk);
 
     res.setHeader('Content-Type', 'application/vnd.android.package-archive');
     const safeFilename = latest.file.replace(/["\\]/g, '');
@@ -1200,7 +1215,7 @@ const headmatesState = {
 
 // enhanced socket.io with robust sync support
 io.on('connection', (socket) => {
-  console.log('[Socket] Client connected:', socket.id);
+  activeSocketConnections += 1;
 
   // send initial state
   socket.emit('minecraft_update', {
@@ -1315,7 +1330,7 @@ io.on('connection', (socket) => {
 
   // enhanced disconnect handling
   socket.on('disconnect', (reason) => {
-    console.log('[Socket] Client disconnected:', socket.id, reason);
+    activeSocketConnections = Math.max(0, activeSocketConnections - 1);
 
     // notify other clients of disconnection for awareness
     socket.broadcast.emit('client_disconnected', {
