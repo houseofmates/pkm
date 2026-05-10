@@ -273,21 +273,8 @@ export function SystemTrackerDashboard() {
         </TabsContent>
 
         <TabsContent value="fronting" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                front history
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <Clock className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                <p className="text-lg mb-2">front tracking coming soon</p>
-                <p className="mb-4">this will show your front history and analytics</p>
-              </div>
-            </CardContent>
-          </Card>
+          <FrontPanel />
+          <FrontTimeline />
         </TabsContent>
 
         <TabsContent value="journal" className="space-y-6">
