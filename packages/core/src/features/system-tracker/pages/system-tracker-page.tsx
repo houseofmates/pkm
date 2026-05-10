@@ -1,5 +1,5 @@
 import React from 'react';
-import SystemTrackerDashboard from '@/features/plural-system/components/layout/SystemTrackerDashboard';
+import { SystemTrackerDashboard } from '../components/system-tracker-dashboard';
 
 function SystemTrackerPage() {
   return <SystemTrackerDashboard />;

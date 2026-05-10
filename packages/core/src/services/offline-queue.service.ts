@@ -1,5 +1,6 @@
 import { openDB, type IDBPDatabase } from 'idb';
 import type { OpLogEntry } from '@/features/edgeless/storage/oplog';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface QueuedOperation {
   id: string;
@@ -9,26 +10,83 @@ interface QueuedOperation {
   retryCount: number;
   lastRetry: number;
   priority: 'high' | 'normal' | 'low';
+  clientId?: string;
+  sessionId?: string;
+  conflictResolution?: 'last-wins' | 'manual';
+}
+
+interface ConflictInfo {
+  operation: QueuedOperation;
+  serverState?: any;
+  localState?: any;
+  resolution: 'resolved' | 'pending' | 'failed';
 }
 
 class OfflineQueueService {
   private db: IDBPDatabase | null = null;
   private readonly DB_NAME = 'pkm-offline-queue';
   private readonly STORE_NAME = 'operations';
-  private readonly MAX_RETRIES = 10;
-  private readonly BATCH_SIZE = 50;
+  private readonly CONFLICTS_STORE = 'conflicts';
+  private readonly MAX_RETRIES = 15; // Increased for better reliability
+  private readonly BATCH_SIZE = 25; // Smaller batches for better reliability
+  private readonly MAX_QUEUE_SIZE = 10000; // Prevent memory issues
+  private clientId: string;
+  private sessionId: string;
+
+  constructor() {
+    this.clientId = this.getOrCreateClientId();
+    this.sessionId = this.generateSessionId();
+  }
+
+  private getOrCreateClientId(): string {
+    let id = localStorage.getItem('pkm_client_id');
+    if (!id) {
+      id = `client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('pkm_client_id', id);
+    }
+    return id;
+  }
+
+  private generateSessionId(): string {
+    return `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
 
   async init() {
     if (this.db) return;
 
     const storeName = this.STORE_NAME;
-    this.db = await openDB(this.DB_NAME, 1, {
-      upgrade(db) {
+    const conflictsStore = this.CONFLICTS_STORE;
+    this.db = await openDB(this.DB_NAME, 2, {
+      upgrade(db, oldVersion, newVersion) {
+        // Create operations store
         if (!db.objectStoreNames.contains(storeName)) {
           const store = db.createObjectStore(storeName, { keyPath: 'id' });
           store.createIndex('timestamp', 'timestamp');
           store.createIndex('priority', 'priority');
           store.createIndex('retryCount', 'retryCount');
+          store.createIndex('clientId', 'clientId');
+          store.createIndex('sessionId', 'sessionId');
+        }
+
+        // Create conflicts store for conflict resolution
+        if (!db.objectStoreNames.contains(conflictsStore)) {
+          const conflictStore = db.createObjectStore(conflictsStore, { keyPath: 'operationId' });
+          conflictStore.createIndex('resolution', 'resolution');
+          conflictStore.createIndex('timestamp', 'timestamp');
+        }
+
+        // Migrate old data if needed
+        if (oldVersion < 2) {
+          const store = db.objectStore(storeName);
+          // Add clientId and sessionId to existing operations
+          const cursor = await store.openCursor();
+          while (cursor) {
+            const operation = cursor.value;
+            operation.clientId = this.clientId;
+            operation.sessionId = this.sessionId;
+            await cursor.update(operation);
+            cursor = await cursor.continue();
+          }
         }
       },
     });
