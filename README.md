@@ -1,4 +1,4 @@
-<h2 align="center">pkm (personal knowledge manager)</h2>
+<h2 align="center">pkm</h2>
 
 an aesthetically comfortable, self-hosted system for identity tracking, doodling, and knowledge organization
 
