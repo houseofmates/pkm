@@ -11,7 +11,7 @@ import http from 'http';
 // config
 const CONFIG = {
   port: parseInt(process.env.PKM_BRIDGE_PORT || '3101'),
-  hermesHost: process.env.HERMES_HOST || process.env.HERMES_HOST || '192.168.4.250',
+  hermesHost: process.env.HERMES_HOST || process.env.HERMES_HOST || '192.168.4.233',
   hermesUser: process.env.HERMES_USER || process.env.USERNAME || 'house',
   hermesKey: process.env.HERMES_KEY || process.env.USER_SSH_KEY_PATH || '/home/house/.ssh/hermes_key',
   hermesArgs: process.env.HERMES_ARGS || 'chat --yolo',

@@ -79,7 +79,7 @@ export default defineConfig({
         secure: false,
       },
       '/ollama': {
-        target: process.env.VITE_OLLAMA_PROXY_URL || `http://${process.env.VITE_OLLAMA_LOCAL_IP || '192.168.4.250'}:11434`,
+        target: process.env.VITE_OLLAMA_PROXY_URL || `http://${process.env.VITE_OLLAMA_LOCAL_IP || '192.168.4.233'}:11434`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/ollama/, ''),
       },
@@ -148,7 +148,7 @@ export default defineConfig({
       secure: false,
     },
     '/ollama': {
-      target: process.env.VITE_OLLAMA_PROXY_URL || `http://${process.env.VITE_OLLAMA_LOCAL_IP || '192.168.4.250'}:11434`,
+      target: process.env.VITE_OLLAMA_PROXY_URL || `http://${process.env.VITE_OLLAMA_LOCAL_IP || '192.168.4.233'}:11434`,
       changeOrigin: true,
       rewrite: (path) => path.replace(/^\/ollama/, ''),
     },

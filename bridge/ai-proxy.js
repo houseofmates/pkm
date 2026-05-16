@@ -45,9 +45,9 @@ const nvidiaApiProxy = createProxyMiddleware({
   },
 });
 
-// ollama proxy (for local ollama on desktop at 192.168.4.250)
+// ollama proxy (for local ollama on desktop at 192.168.4.233)
 const ollamaProxy = createProxyMiddleware({
-  target: 'http://192.168.4.250:11434',
+  target: 'http://192.168.4.233:11434',
   changeOrigin: true,
   pathRewrite: { '^/ollama': '' },
   onProxyRes: (proxyRes) => {
@@ -71,7 +71,7 @@ app.get('/', (req, res) => {
     service: 'pkm ai proxy',
     endpoints: {
       '/nvidia/*': 'proxies to nvidia api (https://integrate.api.nvidia.com/v1/*)',
-      '/ollama/*': 'proxies to local ollama (http://192.168.4.250:11434/*)',
+      '/ollama/*': 'proxies to local ollama (http://192.168.4.233:11434/*)',
       '/health': 'health check'
     }
   });
@@ -81,5 +81,5 @@ const port = process.env.ai_proxy_port || 3103;
 app.listen(port, () => {
   console.log(`[ai-proxy] running on port ${port}`);
   console.log(`[ai-proxy] nvidia: /nvidia/* -> https://integrate.api.nvidia.com/v1/*`);
-  console.log(`[ai-proxy] ollama: /ollama/* -> http://192.168.4.250:11434/*`);
+  console.log(`[ai-proxy] ollama: /ollama/* -> http://192.168.4.233:11434/*`);
 });

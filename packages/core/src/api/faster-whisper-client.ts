@@ -128,7 +128,7 @@ export class FasterWhisperClient {
 
   /**
    * transcribe audio using faster-whisper server
-   * sends wav/pcm data to 192.168.4.250:5000/transcribe
+   * sends wav/pcm data to 192.168.4.233:5000/transcribe
    */
   async transcribe(
     audioBlob: Blob,
