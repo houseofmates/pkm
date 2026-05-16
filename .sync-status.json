@@ -1,0 +1,10 @@
+{
+  "status": "critical",
+  "lastSyncAt": "2026-05-15T01:59:59.196Z",
+  "lastError": "479 consecutive failures",
+  "pendingChanges": false,
+  "remoteAhead": false,
+  "consecutiveFailures": 479,
+  "lastSuccessfulSync": null,
+  "healthCheck": "ok"
+}

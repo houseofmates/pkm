@@ -27,7 +27,7 @@ export interface UseFasterWhisperState {
 
 /**
  * unified hook for faster-whisper transcription with detail enhancement
- * records audio -> sends to 192.168.4.250:5000/transcribe -> enhances with ollama
+ * records audio -> sends to 192.168.4.233:5000/transcribe -> enhances with ollama
  */
 export function useFasterWhisper(options: UseFasterWhisperOptions = {}) {
   const {
